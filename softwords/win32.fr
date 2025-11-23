@@ -1,0 +1,10 @@
+\ ** 
+\ ** win32.fr
+\ ** submitted by Larry Hastings, larry@hastings.org
+\ **
+
+
+\ ** simple wrappers for callnativeFunction that specify the calling convention
+: callcfunction 1 callnativeFunction ;
+: callpascalfunction 0 callnativeFunction ;
+

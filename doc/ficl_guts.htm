@@ -1,0 +1,69 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="john sadler">
+   <meta name="Description" content="the coolest embedded scripting language ever">
+   <title>Ficl - Internals</title>
+</head>
+<body>
+<link REL="SHORTCUT ICON" href="ficl.ico">
+<h1><b>Ficl Internal Structures</b></h1>
+
+<script language="javascript" src="ficlheader.js"></script>
+
+<h2>Contents</h2>
+
+<h2>Major Data Structures</h2>
+<p>
+A running memory image of Ficl consists of one or more FICL_SYSTEMs, 
+each of which owns exactly one dictionary (FICL_DICT), 
+and one or more virtual machines (FICL_VM). Each VM owns two stacks
+(FICL_STACK) - one for parameters (the parameter stack) 
+and one for return addresses (the return stack). 
+Ficl is a permissive, untyped language by nature, 
+so its fundamental unit of storage is a CELL: a chunk of memory
+large enough to hold an address or a scalar type.
+</p>
+<h3>FICL_SYSTEM</h3>
+The system structure associates one or more virtual machines with a dictionary. All FICL_SYSTEMS
+include a link pointer that is used to keep track of every allocated system so that memory
+can be freed by ficlTermSystem. Each system contains a list of virtual machines associated with
+it. Each system has at least one virtual machine. In a typical implementation, there is one virtual
+machine per native OS thread, and there may be several VMs sharing a single FICL_SYSTEM, or one
+FICL_SYSTEM per VM if the implementation needs to support multiple user sessions in a robust way.
+
+A FICL_SYSTEM also includes a special dictionary for local variable support (if enabled 
+by FICL_WANT_LOCALS) and another for environment variable support. Environment variables 
+describe the configuration of the system in conformance with American National Standard Forth 
+(ANS Forth).
+<h3>FICL_DICT</h3>
+A dictionary manages a fixed-size block of contiguous memory. It serves two roles: to keep track 
+of allocated memory, and to collect symbol tables called wordlists. Each dictionary contains at
+least one wordlist. The dictionary organized memory (perhaps this is too kind) as an array of
+CELLs that grows from low memory to high memory within fixed limits determined by the 
+FICL_DEFAULT_DICT parameter in sysdep.h. 
+
+A wordlist is the controlling structure of a Ficl symbol table. Each wordlist is a hash table 
+containing pointers to FICL_WORDs. Each FICL_WORD associates a pointer to code with one or more
+CELLs of the dictionay. Each word usually has a name as well, but this is not required. It is
+possible to create anonymous words using :NONAME.
+
+Each word's code pointer determines that word's runtime behavior, and by implication the purpose
+of its payload data. Some words interpret their payload as a list of Ficl words, and execute them.
+This is how new behaviors of the language are defined. Other words view their payload field as
+a location in which one or more CELLs can be stored (VARIABLEs, for example). At runtime, such
+words push the address of their payload area onto the parameter stack.
+<h3>FICL_VM</h3>
+The virtual machine collects state related to execution of Ficl words. Each VM includes
+registers used by the inner interpreter, some state variables (AKA user variables) such as
+the current numeric base, and a jmpbuf.
+A VM has a pointer to the FICL_SYSTEM of which it is a part. It also has a pointer to an incoming 
+text string that it is interpreting. There are VM methods that excute a word given its address
+(xt), and ones that interpret a text string. 
+<h3>FICL_STACK</h3>
+Each VM owns a parameter stack, a return stack, and if float support is enabled, a float parameter
+stack. Parameters, return addresses, and floats are all CELL sized, and values may be
+moved back and forth among stacks using various Ficl words for that purpose.
+</BODY>
+</HTML>

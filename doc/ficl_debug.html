@@ -1,0 +1,111 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta name="Author" content="john sadler">
+   <title>Ficl Debugger</title>
+</head>
+<body>
+<link REL="SHORTCUT ICON" href="ficl.ico">
+<h1><b>Ficl Debugger</b></h1>
+
+<script language="javascript" src="ficlheader.js"></script>
+
+<table COLS=1 WIDTH="650" >
+<tr>
+<td>
+<p>Ficl release 2.05 includes a simple step debugger for colon definitions
+and does> words. If you use it and can suggest improvements (or better
+yet if you write some), please let me know.</p>
+<h2>Using the debugger</h2>
+To debug a word, set up the stack with any parameters the word requires,
+then type:
+
+<b><pre>debug &lt;your word here></pre></b>
+
+<p>If the word is unnamed, or all you have is an xt, you can instead use:</p>
+<b><code>debug-xt   ( xt -- )</code></b>
+<p>The debugger invokes <tt>see</tt> on the word, printing a crude source
+listing, then stops at the first instruction of the definition. There are
+four (case insensitive) commands you can use from here onwards:</p>
+
+<dl>
+<dt>I (step in)</dt>
+<dd>If the next instruction is a colon defintion or does> word, steps into
+that word's code. If the word is a primitive, simply executes the word.</dd>
+
+<dt>O (step over)</dt>
+<dd>Executes the next instruction in its entirety</dd>
+
+<dt>G (go)</dt>
+<dd>Run the word to completion and exit the debugger</dd>
+
+<dt>L (list)</dt>
+<dd>Lists the source code of the word presently being stepped</dd>
+
+<dt>Q (quit)</dt>
+<dd>Abort the word and exit the debugger, clearing the stack</dd>
+
+<dt>X (eXecute)</dt>
+<dd>Interpret the remainder of the line as ficl words for their side effects. 
+Any errors will abort the debug session and reset the VM. Usage example:
+<pre>
+x drop 3 \ fix argument on stack
+</pre>
+</dd>
+
+<dt>Anything else</dt>
+<dd>Prints a list of available debugger commands</dd>
+</dl>
+
+<h2>The on-step event</h2>
+<p>If there is a defined word named <code>on-step</code> when the debugger starts, that
+word will be executed before every step. As a guideline, this word should
+have no side effects. Its intended use is to display the stacks and any other
+VM state you're interested in, but you
+may have some better ideas. If so, please let me know. The default on-step is:<p>
+<b><code>: on-step  ." S: " .s cr ;</code></b>
+
+<h3>Other useful words for debugging and on-step</h3>
+<dl>
+<dt><code>r.s  ( -- )</code></dt>
+<dd>Prints a represention of the state of the return stack non-destructively. You have to have 
+a good understanding of the return stack side-effects of control words to make sense of it,
+but it does give an accurate representation of what's there. Example: <code>DO .. LOOP</code>s stack
+three parameters on the return stack: the loop count and limit, and the <code>LEAVE</code> target
+address.</dd>
+<dt><code>.s  ( -- )</code></dt>
+<dd>Prints the parameter stack non-destructively</dd>
+<dt><code>f.s  ( -- )</code></dt>
+<dd>Prints the float stack non-destructively (only available if FICL_WANT_FLOAT is enabled)</dd>
+</dl>
+<h2>Debugger internals</h2>
+<p>
+The debugger words are mostly located in source file <tt>tools.c</tt>. There are
+supporting words (<code>debug</code> and <code>on-step</code>) in softcore.fr as well. 
+There are two main words that make the debugger go: debug-xt and step-break. 
+Debug-xt takes the xt of a word to debug (as returned by <tt>'</tt>, for example) 
+checks to see if it is debuggable (not a primitive), sets a breakpoint at its
+first instruction, and runs <code>see</code> on it. To set a breakpoint, 
+<code>debug-xt</code>
+replaces the instruction at the breakpoint with the xt of <code>step-break</code>, and
+stores the original instruction and its address in a static breakpoint
+record. To clear the breakpoint, <code>step-break</code> simply replaces the original
+instruction and adjusts the target virtual machine's instruction pointer
+to run it.
+</p>
+<p><code>Step-break</code> is responsible for processing debugger commands and setting
+breakpoints at subsequent instructions.</p>
+<h3>To Do</h3>
+<bl>
+<li>The debugger needs to exit automatically when it encounters the end of the word
+it was asked to debug. Perhaps this could be a special kind of breakpoint?
+</li>
+<li>Add user-set breakpoints</li>
+<li>Add "step out" command</li>
+</bl>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

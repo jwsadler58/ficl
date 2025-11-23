@@ -1,0 +1,52 @@
+OBJECTS= dict.o ficl.o fileaccess.o float.o math64.o prefix.o search.o softcore.o stack.o sysdep.o tools.o unity.o unix.o vm.o words.o
+HEADERS= ficl.h math64.h sysdep.h unity.h
+#
+# Flags for shared library
+TARGET= -Dlinux   
+SHFLAGS = -fPIC
+CFLAGS= -O -m32 -c $(SHFLAGS) $(TARGET)
+CC=gcc
+LIB = ar cr
+RANLIB = ranlib
+
+MAJOR = 3
+MINOR = 0.3bis
+
+ficl: testmain.o ficl.h sysdep.h libficl.a
+	$(CC) testmain.o -o ficl -L. -lficl -lm
+
+lib: libficl.so.$(MAJOR).$(MINOR)
+
+# static library build
+libficl.a: $(OBJECTS)
+	$(LIB) libficl.a $(OBJECTS)
+	$(RANLIB) libficl.a
+
+# shared library build
+libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
+	$(CC) -shared -Wl,-soname,libficl.so.$(MAJOR).$(MINOR) \
+	-o libficl.so.$(MAJOR).$(MINOR) $(OBJECTS)
+	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so
+
+testmain: testmain.o ficl.h sysdep.h unity.h libficl.so.$(MAJOR).$(MINOR)
+	$(CC) testmain.o -o testmain -L. -lficl -lm
+	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
+
+#
+#       generic object code
+#
+.SUFFIXES: .cxx .cc .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $*.c
+
+.cxx.o:
+	$(CPP) $(CPFLAGS) -c $*.cxx
+
+.cc.o:
+	$(CPP) $(CPFLAGS) -c $*.cc
+#
+#       generic cleanup code
+#
+clean:
+	rm -f *.o *.a libficl.*

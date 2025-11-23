@@ -1,0 +1,39 @@
+# === Toolchain & flags ===
+CC       = clang
+ARCH     = arm64
+CFLAGS   = -O2 -arch $(ARCH) -c
+LDFLAGS  = -arch $(ARCH)
+
+LIB      = ar cr
+RANLIB   = ranlib
+
+MAJOR = 3
+MINOR = 0.3bis
+
+OBJECTS = dict.o ficl.o fileaccess.o float.o math64.o \
+          prefix.o search.o softcore.o stack.o \
+          sysdep.o tools.o unity.o unix.o vm.o words.o
+
+# === Static library ===
+libficl.a: $(OBJECTS)
+	$(LIB) $@ $(OBJECTS)
+	$(RANLIB) $@
+
+# === Test executable ===
+ficl: testmain.o libficl.a
+	$(CC) $(LDFLAGS) testmain.o -o $@ -L. -lficl -lm
+
+# === Compile rules ===
+.SUFFIXES: .cxx .cc .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+#
+#       generic cleanup code
+#
+clean:
+	rm -f *.o *.a libficl.* tags
+
+tags:
+	ctags -w *

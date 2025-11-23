@@ -1,0 +1,20 @@
+OBJECTS= dict.o ficl.o fileaccess.o float.o math64.o prefix.o search.o softcore.o stack.o sysdep.o tools.o unity.o unix.o vm.o words.o
+HEADERS= ficl.h math64.h sysdep.h unity.h
+#
+# Flags for shared library
+CFLAGS= -O -c -mstubs -D__UNAME
+CC=gcc
+LIB = makealf -qls -o
+
+MAJOR = 3
+MINOR = 0.3bis
+
+lib: o.libficl
+
+ficl: testmain.o ficl.h sysdep.h o.libficl
+	$(CC) testmain.o -o ficl -L. -lficl -lm
+
+# static library build
+o.libficl: $(OBJECTS)
+        $(LIB) o.libficl $(OBJECTS)
+

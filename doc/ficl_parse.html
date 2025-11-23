@@ -1,0 +1,197 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="john sadler">
+   <meta name="Description" content="the coolest embedded scripting language ever">
+   <title>Ficl Parse Steps</title>
+</head>
+<body>
+<link REL="SHORTCUT ICON" href="ficl.ico">
+<table BORDER=0 CELLSPACING=3 COLS=1 WIDTH="675" ><tr><td>
+<h1>Ficl Parse Steps</h1>
+<script language="javascript" src="ficlheader.js"></script>
+
+<h2>Overview</h2>
+<p>
+Ficl 2.05 and later includes an extensible parser chain. Ficl feeds every incoming token
+(chunk of text with no internal whitespace) to each step in the parse chain in turn. The 
+first parse step that successfully matches the token applies semantics to it and returns
+a TRUE flag, ending the sequence. If all parse steps fire without a match, ficl prints
+an error message and resets the virtual machine. Parse steps can be written in precompiled
+code, or in ficl itself, and can be appended to the chain at run-time if you like.
+</p>
+<p>
+More detail:
+</p>
+<ul>
+<li>
+If compiling and local variable support is enabled, attempt to find the token in the local 
+variable dictionary. If found, execute the token's compilation semantics and return
+</li>
+<li>
+Attempt to find the token in the system dictionary. If found, execute the token's semantics
+(may be different when compiling than when interpreting) and return
+</li>
+<li>
+If prefix support is enabled (Compile-time constant FICL_WANT_PREFIX in sysdep.h is non-zero),
+attempt to match the beginning of the token to the list of known prefixes. If there's a match,
+execute the associated prefix method.
+</li>
+<li>
+Attempt to convert the token to a number in the present <code>BASE</code>. If successful, push the 
+value onto the stack if interpreting, compile it if compiling. Return
+</li>
+<li>
+All previous parse steps failed to recognize the token. Print "<token> not found" and abort
+</li>
+</ul>
+You can add steps to the parse chain, and you can add prefixes.
+<h2>Adding Parse Steps</h2>
+You can add a parse step in two ways. The first is to write a ficl word that
+has the correct stack signature for a parse step:
+<pre>
+my-parse-step   ( c-addr u -- ??? flag )
+</pre>
+Where <code>c-addr u</code> are the address and length of the incoming token,
+and <code>flag</code> is <code>true</code> if the parse step recognizes the token
+and <code>false</code> otherwise. 
+<br>
+Install the parse step using <code>add-parse-step</code>.
+A trivial example:
+<pre>
+: ?silly   ( c-addr u -- flag )
+   ." Oh no! Not another  " type cr  true ;
+' ?silly add-parse-step
+parse-order
+</pre>
+<p>
+The other way to add a parse step is by writing it in C, and inserting it into the 
+parse chain with:
+</p>
+<pre>
+void ficlAddPrecompiledParseStep(FICL_SYSTEM *pSys, char *name, FICL_PARSE_STEP pStep);
+</pre>
+Where <code>name</code> is the display name of the parse step in the parse chain (as revealed 
+by <code>parse-order</code>). Parameter pStep is a pointer to the code for the parse step itself,
+and must match the following declaration:
+<pre>
+typedef int (*FICL_PARSE_STEP)(FICL_VM *pVM, STRINGINFO si);
+</pre>
+<p>
+Upon entry to the parse step, <code>si</code> points to the incoming token. The parse step
+must return <code>FICL_TRUE</code> if it succeeds in matching the token, and 
+<code>FICL_TRUE</code> otherwise. If it succeeds in matching a token, the parse step
+applies semantics to it before returning. See <code>ficlParseNumber()</code> in words.c for
+an example.
+</p>
+
+<h2>Adding Prefixes</h2>
+<p>
+What's a prefix, anyway? A prefix (contributed by Larry Hastings) is a token that's
+recognized as the beginning of another token. Its presence modifies the semantics of
+the rest of the token. An example is <code>0x</code>, which causes digits following
+it to be converted to hex regardless of the current value of <code>BASE</code>. 
+</p><p>
+Caveat: Prefixes are matched in sequence, so the more of them there are, 
+the slower the interpreter gets. On the other hand, because the prefix parse step occurs
+immediately after the dictionary lookup step, if you have a prefix for a particular purpose,
+using it may save time since it stops the parse process.
+</p><p>
+Each prefix is a ficl word stored in a special wordlist called <code>&lt;prefixes&gt;</code>. When the
+prefix parse step (<code>?prefix</code> AKA ficlParsePrefix()) fires, it searches each word
+in <code>&lt;prefixes&gt;</code> in turn, comparing it with the initial characters of the incoming
+token. If a prefix matches, the parse step returns the remainder of the token to the input stream 
+and executes the code associated with the prefix. This code can be anything you like, but it would
+typically do something with the remainder of the token. If the prefix code does not consume the
+rest of the token, it will go through the parse process again (which may be what you want).
+</p><p>
+Prefixes are defined in prefix.c and in softwords/prefix.fr. The easiest way to add a new prefix is
+to insert it into prefix.fr and rebuild the system. You can also add prefixes interactively
+by bracketing prefix definitions as follows (see prefix,fr):
+</p>
+<pre>
+start-prefixes  ( defined in prefix.fr )
+\ make dot-paren a prefix (create an alias for it in the prefixes list)
+: .(  .( ;
+: 0b  2 __tempbase ; immediate
+end-prefixes
+</pre>
+<p>
+The precompiled word <code>__tempbase</code> is a helper for prefixes that specify a
+temporary value of <code>BASE</code>.
+</p><p>
+Constant <code>FICL_EXTENDED_PREFIX</code> controls the inclusion of a bunch of additional
+prefix definitions. This is turned off in the default build since several of these prefixes
+alter standard behavior, but you might like them.
+</p>
+
+<h2>Notes</h2>
+<p>
+Prefixes and parser extensions are non-standard, although with the exception of prefix support,
+ficl's default parse order follows the standard. Inserting parse steps in some other order
+will almost certainly break standard behavior.
+</p>
+<p>
+The number of parse steps that can be added to the system is limited by the value of 
+<code>FICL_MAX_PARSE_STEPS</code> (defined in sysdep.h unless you define it first), which defaults
+to 8. More parse steps means slower average interpret and compile performance,
+so be sparing. Same applies to the number of prefixes defined for the system, since each one
+has to be matched in turn before it can be proven that no prefix matches. On the other hand,
+if prefixes are defined, use them when possible: since they are matched early in the parse order, 
+a prefix match short circuits the parse process, saving time relative to 
+(for example) using a number builder parse step at the end of the parse chain.
+</p>
+<p>
+Compile time constant <code>FICL_EXTENDED_PREFIX</code> enables several more prefix 
+definitions in prefix.c and prefix.fr. Please note that this will slow average compile and
+interpret speed in most cases.
+</p>
+<h2>Parser Glossary</h2>
+<dl>
+<dt><b><code>parse-order  ( -- )</code></b></dt>
+<dd>
+Prints the list of parse steps in the order in which they are evaluated. 
+Each step is the name of a ficl word with the following signature:
+<pre>
+parse-step   ( c-addr u -- ??? flag )
+</pre>
+A parse step consumes a counted string (the incoming token) from the stack,
+and exits leaving a flag on top of the stack (it may also leave other parameters as side effects).
+The flag is true if the parse step succeeded at recognizing the token, false otherwise.
+</dd>
+<dt><b><code>add-parse-step  ( xt -- )</code></b></dt>
+<dd>
+Appends a parse step to the parse chain. XT is the adress (execution token) of a ficl
+word to use as the parse step. The word must have the following signature:
+<pre>
+parse-step   ( c-addr u -- ??? flag )
+</pre>
+A parse step consumes a counted string (the incoming token) from the stack,
+and exits leaving a flag on top of the stack (it may also leave other parameters as side effects).
+The flag is true if the parse step succeeded at recognizing the token, false otherwise.
+</dd>
+<dt><b><code>show-prefixes  ( -- )</code></b></dt>
+<dd>
+Defined in <code>softwords/prefix.fr</code>. 
+Prints the list of all prefixes. Each prefix is a ficl word that is executed if its name
+is found at the beginning of a token. See <code>softwords/prefix.fr</code> and <code>prefix.c</code> for examples.
+</dd>
+<dt><b><code>start-prefixes  ( -- )</code></b></dt>
+<dd>
+Defined in <code>softwords/prefix.fr</code>. 
+Declares the beginning of one or more prefix definitions (it just switches the compile wordlist
+to <code>&lt;prefixes&gt;</code>
+</dd>
+<dt><b><code>end-prefixes  ( -- )</code></b></dt>
+<dd>
+Defined in <code>softwords/prefix.fr</code>. 
+Restores the compilation wordlist that was in effect before the last invocation of 
+<code>start-prefixes</code>. Note: the prior wordlist ID is stored in a Ficl variable, so 
+attempts to nest <code>start-prefixes end-prefixes</code> blocks wil result in mildly silly
+side effects.
+</dd>
+</dl>
+</td></tr></table>
+</body>
+</html>
