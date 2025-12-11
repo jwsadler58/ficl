@@ -36,6 +36,7 @@
 *.exe
 *.out
 *.app
+ficl
 
 # debug information files
 *.dwo
