@@ -714,7 +714,7 @@ struct ficl_dict
     FICL_HASH *pSearch[FICL_DEFAULT_VOCS];
     int        nLists;
     unsigned   size;    /* Number of cells in dict (total)*/
-    CELL       dict[1]; /* Base of dictionary memory      */
+    CELL       dict[]; /* Base of dictionary memory      */
 };
 
 void       *alignPtr(void *ptr);

@@ -540,11 +540,12 @@ void dictHashSummary(FICL_VM *pVM)
 **************************************************************************/
 int dictIncludes(FICL_DICT *pDict, void *p)
 {
-    return ((p >= (void *) &pDict->dict)
-        &&  (p <  (void *)(&pDict->dict + pDict->size)) 
-           );
-}
+    CELL *start = pDict->dict;               // decays to CELL *
+    CELL *end   = pDict->dict + pDict->size; // one past last CELL
 
+    return ((p >= (void *)start) &&
+            (p  < (void *)end));
+}
 
 /**************************************************************************
                         d i c t L o o k u p
