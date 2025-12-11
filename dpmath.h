@@ -1,5 +1,5 @@
 /*******************************************************************
-** m a t h 6 4 . h
+** d p m a t h . h
 ** Forth Inspired Command Language - double precision math 
 ** Portable versions of ficlLongMul anb ficlLongDiv
 ** Author: John W Sadler 
@@ -80,5 +80,5 @@ UNS16   dpmUMod(DPUNS *pUD, UNS16 base);
 }
 #endif
 
-#endif /* __MATH64_H__ */
+#endif /* __DPMATH_H__ */
 

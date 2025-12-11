@@ -137,34 +137,6 @@
 ** and here for software and more links
 **   https://www.taygeta.com/forth.html
 **
-** Obvious Performance enhancement opportunities
-** Compile speed
-** - work on interpret speed
-** - turn off locals (FICL_WANT_LOCALS)
-** Interpret speed 
-** - Change inner interpreter (and everything else)
-**   so that a definition is a list of pointers to functions
-**   and inline data rather than pointers to words. This gets
-**   rid of vm->runningWord and a level of indirection in the
-**   inner loop. See ficl 4.0 by Larry Hastings
-** - Make the main hash table a bigger prime (HASHSIZE)
-** - Forget about twiddling the hash function. 
-**   Any hash function that is perfectly random will create collisions.
-**   You can go all Knuth on a known set of 
-**   keys and may come up with a custom has with no collisions for that one 
-**   set of keys, but Ficl is extensible, so that probably won't help.
-** - Eliminate the need to pass the pVM parameter on the stack
-**   by dedicating a register to it. Most words need access to the
-**   vm, but the parameter passing overhead can be reduced. One way
-**   requires that the host OS have a task switch callout. Create
-**   a global variable for the running VM and refer to it in words
-**   that need VM access. Alternative: use thread local storage. 
-**   For single threaded implementations, you can just use a global.
-**   The first two solutions create portability problems, so I
-**   haven't considered doing them. Another possibility is to
-**   declare the pVm parameter to be "register", and hope the compiler
-**   pays attention.
-**
 */
 
 /*

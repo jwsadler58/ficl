@@ -49,7 +49,7 @@
 #include "ficl.h"
 
 #if FICL_UNIT_TEST
-    #include "math64.h"
+    #include "dpmath.h"
     #include "unity.h"
 #endif
 

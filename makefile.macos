@@ -8,9 +8,9 @@ LIB      = ar cr
 RANLIB   = ranlib
 
 MAJOR = 3
-MINOR = 0.3bis
+MINOR = 0.4
 
-OBJECTS = dict.o ficl.o fileaccess.o float.o math64.o \
+OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
           prefix.o search.o softcore.o stack.o \
           sysdep.o tools.o unity.o unix.o vm.o words.o
 

@@ -67,13 +67,13 @@
 ** machine. 3 would be appropriate for a 64 bit machine.
 */
 enum { 
-	CELL_BYTES = sizeof(void *), 
-	CELL_BITS = CELL_BYTES * CHAR_BIT,
-	CELL_ALIGN = (CELL_BYTES == 4) ? 2 :
-				 (CELL_BYTES == 8) ? 3 :
-				 (CELL_BYTES == 16) ? 4 :
-				 -1,  // unsupported values
-	CELL_ALIGN_ADD = CELL_BYTES - 1
+    CELL_BYTES = sizeof(void *), 
+    CELL_BITS = CELL_BYTES * CHAR_BIT,
+    CELL_ALIGN = (CELL_BYTES == 4) ? 2 :
+                 (CELL_BYTES == 8) ? 3 :
+                 (CELL_BYTES == 16) ? 4 :
+                 -1,  // unsupported values
+    CELL_ALIGN_ADD = CELL_BYTES - 1
 };
 
 /*
@@ -93,18 +93,18 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 */
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
-	#if TARGET_OS_OSX
-		#define INT32 int
-		#define UNS32 unsigned int
-		#define FICL_INT long
-		#define FICL_UNS unsigned long
-		#define FICL_HAVE_FTRUNCATE 1
-		#define PORTABLE_LONGMULDIV 0 /* if 0, use native compiler support for 128 bit mul and div */
-		
-		#define MACOS
-	#elif TARGET_OS_IOS
-		/* iOS only */
-	#endif  /* TARGET_OS */
+    #if TARGET_OS_OSX
+        #define INT32 int
+        #define UNS32 unsigned int
+        #define FICL_INT long
+        #define FICL_UNS unsigned long
+        #define FICL_HAVE_FTRUNCATE 1
+        #define PORTABLE_LONGMULDIV 0 /* if 0, use native compiler support for 128 bit mul and div */
+        
+        #define MACOS
+    #elif TARGET_OS_IOS
+        /* iOS only */
+    #endif  /* TARGET_OS */
 #endif  /* __APPLE__ */
 
 /*
@@ -125,9 +125,9 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #define FICL_HAVE_FTRUNCATE 1
     extern int ftruncate(int fileno, size_t size);
 
-	#if !defined (FICL_PLATFORM_EXTEND)
-		#define FICL_PLATFORM_EXTEND 1
-	#endif
+    #if !defined (FICL_PLATFORM_EXTEND)
+        #define FICL_PLATFORM_EXTEND 1
+    #endif
 #endif  /* _WIN32 */
 
 
@@ -142,10 +142,10 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 **         FreeBSD Alpha (64 bit) data types
 */
 #if defined (FREEBSD_ALPHA)
-	#define INT32 int
-	#define UNS32 unsigned int
-	#define FICL_INT long
-	#define FICL_UNS unsigned long
+    #define INT32 int
+    #define UNS32 unsigned int
+    #define FICL_INT long
+    #define FICL_UNS unsigned long
 #endif
 
 /*
@@ -156,7 +156,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 ** IGNORE Macro to silence "unused parameter" warnings
 */
 #if !defined IGNORE
-	#define IGNORE(x) &x
+    #define IGNORE(x) &x
 #endif
 
 /*
@@ -165,10 +165,10 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 ** 
 */
 #if !defined TRUE
-	#define TRUE 1
+    #define TRUE 1
 #endif
 #if !defined FALSE
-	#define FALSE 0
+    #define FALSE 0
 #endif
 
 /*
@@ -176,19 +176,19 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 ** Override as needed for your target system and toolchain
 */
 #if !defined INT32
-	#define INT32 long
+    #define INT32 long
 #endif
 
 #if !defined UNS32
-	#define UNS32 unsigned long
+    #define UNS32 unsigned long
 #endif
 
 #if !defined UNS16
-	#define UNS16 unsigned short
+    #define UNS16 unsigned short
 #endif
 
 #if !defined UNS8
-	#define UNS8 unsigned char
+    #define UNS8 unsigned char
 #endif
 
 #if !defined NULL
@@ -339,15 +339,15 @@ typedef struct
 ** OOP support requires locals and user variables!
 */
 #if !(FICL_WANT_LOCALS) || !(FICL_WANT_USER)
-	#if !defined (FICL_WANT_OOP)
-		#define FICL_WANT_OOP 0
-	#endif
-	#if FICL_WANT_OOP
-		Error! FICL_WANT_OOP needs LOCALS and USER variables
-	#endif
+    #if !defined (FICL_WANT_OOP)
+        #define FICL_WANT_OOP 0
+    #endif
+    #if FICL_WANT_OOP
+        Error! FICL_WANT_OOP needs LOCALS and USER variables
+    #endif
 #endif
 #if !defined (FICL_WANT_OOP)
-	#define FICL_WANT_OOP 1
+    #define FICL_WANT_OOP 1
 #endif
 
 /*

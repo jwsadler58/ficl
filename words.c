@@ -47,7 +47,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "ficl.h"
-#include "math64.h"
+#include "dpmath.h"
 
 static void colonParen(FICL_VM *pVM);
 static void literalIm(FICL_VM *pVM);

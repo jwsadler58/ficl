@@ -1,5 +1,5 @@
 /*******************************************************************
-** m a t h 6 4 . c
+** d p m a t h . c
 ** Forth Inspired Command Language - double precision math 
 ** Portable versions of ficlLongMul anb ficlLongDiv
 ** Author: John W Sadler
@@ -49,7 +49,7 @@
 #include <assert.h>
 #include <limits.h>
 #include "ficl.h"
-#include "math64.h"
+#include "dpmath.h"
 #if FICL_UNIT_TEST
     #include "unity.h"
 #endif

@@ -1,5 +1,12 @@
-FICL 3.04
-August 2025
+Ficl is a lightweight, embeddable scripting language designed to be incorporated into other programs, 
+including memory constrained embedded systems. Ficl conforms to the 1994 ANSI Standard for Forth, 
+and provides several useful extensions including object oriented programming that can wrap compiled code 
+and hardware interfaces.
+
+Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuff to do, it does the stuff, 
+and comes back to you for more. You can export compiled code to Ficl, execute Ficl code from your compiled 
+code, or interact. Your choice. Ficl includes a simple but capable object model that can wrap existing data 
+structures. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
 
 ________
 OVERVIEW
@@ -20,10 +27,8 @@ ____________
 INSTALLATION
 
 Ficl builds out-of-the-box on the following platforms:
-    * MacOS (Apple silicon): use Makefile.macos
+  * MacOS (Apple silicon): use Makefile.macos
 	* Linux: use "Makefile.linux".
-	* RiscOS: use "Makefile.riscos".
-	* Win32: use "ficl.dsw" / "ficl.dsp"
 To port to other platforms, be sure to examine "sysdep.h", and
 we suggest you start with the Linux makefile.  
 (Please submit your updates!)
@@ -55,4 +60,5 @@ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
