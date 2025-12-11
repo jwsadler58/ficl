@@ -101,7 +101,7 @@ void  ficlFree   (void *p)
         /* low half = bottom N bits */
         result.lo = (FICL_UNS)prod;
         /* high half = top N bits */
-        result.hi = (FICL_UNS)(prod >> (sizeof(FICL_UNS) * 8));
+        result.hi = (FICL_UNS)(prod >> (sizeof(FICL_UNS) * CHAR_BIT));
     
         return result;
     }
@@ -109,7 +109,7 @@ void  ficlFree   (void *p)
     UNSQR ficlLongDiv(DPUNS dividend, FICL_UNS y)
     {
         unsigned __int128 numerator = 
-           ((unsigned __int128)dividend.hi << (sizeof(FICL_UNS) * 8))
+           ((unsigned __int128)dividend.hi << (sizeof(FICL_UNS) * CHAR_BIT))
           | (unsigned __int128)dividend.lo;
     
         unsigned __int128 q128 = numerator / y;
