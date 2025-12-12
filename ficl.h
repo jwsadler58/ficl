@@ -213,7 +213,14 @@ typedef struct ficl_system_info FICL_SYSTEM_INFO;
 /* 
 ** the Good Stuff starts here...
 */
-#define FICL_VER    "3.04 preview"
+/* Helper macros for turning a macro value into a string */
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+#define FICL_VER_MAJOR 3
+#define FICL_VER_MINOR 04
+#define FICL_VER STR(FICL_VER_MAJOR) "." STR(FICL_VER_MINOR)
+
 #if !defined (FICL_PROMPT)
     #define FICL_PROMPT "ok> "
 #endif

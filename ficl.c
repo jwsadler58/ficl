@@ -681,10 +681,7 @@ void ficlTermSystem(FICL_SYSTEM *pSys)
 **************************************************************************/
 static void ficlSetVersionEnv(FICL_SYSTEM *pSys)
 {
-    int major = 0;
-    int minor = 0;
-    sscanf(FICL_VER, "%d.%d", &major, &minor);
-    ficlSetEnvD(pSys, "ficl-version", major, minor);
+    ficlSetEnvD(pSys, "ficl-version", FICL_VER_MAJOR, FICL_VER_MINOR);
     ficlSetEnv (pSys, "ficl-robust",  FICL_ROBUST);
     return;
 }
