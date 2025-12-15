@@ -778,8 +778,7 @@ static void listWords(FICL_VM *pVM)
         vmTextOut(pVM, pPad, 1);
     }
 
-    sprintf(pVM->pad, "Dictionary: %d words, %ld cells used of %u total", 
-        nWords, (long) (dp->here - dp->dict), dp->size);
+    sprintf(pVM->pad, "Of %s definitions: %d words", pHash->name, nWords);
     vmTextOut(pVM, pVM->pad, 1);
     dictHashSummary(pVM);
     return;

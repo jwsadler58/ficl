@@ -509,9 +509,6 @@ void dictHashSummary(FICL_VM *pVM)
     /* Average search depth for this hash */
     avg = avg / nWords;
     
-    /* Find collision cost function */
-    
-
     /* Calc best possible performance with this size hash */
     nAvg = nWords / nBuckets;
     nRem = nWords % nBuckets;
@@ -524,6 +521,11 @@ void dictHashSummary(FICL_VM *pVM)
 
     ficlTextOut(pVM, pVM->pad, 1);
 
+    sprintf(pVM->pad, 
+        "Dictionary stats: %ld cells used of %u total", 
+        (long)(dp->here - dp->dict), dp->size);
+
+    ficlTextOut(pVM, pVM->pad, 1);
     return;
 }
 #else
