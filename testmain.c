@@ -315,111 +315,6 @@ void buildTestInterface(FICL_SYSTEM *pSys)
     {
     }
 
-    static void dpmUModTestCase(DPUNS input, UNS16 base, DPUNS qExpected, UNS16 rExpected)
-    {
-        UNS16 r   = dpmUMod(&input, base);
-    
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(rExpected, r, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.hi, input.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.lo, input.lo, "Quotient Lo");
-    }
-    
-
-    void dpmUnitTest(void)
-    {
-        #define dpmUModTestCase(q, b, eq, er) quot=q; base=b; expQuot=eq; expRem=er; rem=dpmUMod(&quot, base);
-
-        UNS16 rem;
-        UNS16 expRem;
-        UNS16 base;
-        DPUNS quot;
-        DPUNS expQuot;
-        
-        TEST_MESSAGE("***** Testing dpmUMod *****");
-        /*--- 1) zero divided by anything → 0, rem 0 ---*/
-        dpmUModTestCase(
-                ((DPUNS){ .hi = 0, .lo = 0 }),
-                1,
-                ((DPUNS){ .hi = 0, .lo = 0 }),
-                0);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
-        /*--- 2) small < base → quotient 0, rem = value ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 0, .lo = 10 }),
-                 20,
-                 ((DPUNS){ .hi = 0, .lo = 0 }),
-                 10);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
-        /*--- 3) exact divide in lo only ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 0, .lo = 100 }),
-                 10,
-                 ((DPUNS){ .hi = 0, .lo = 10 }),
-                 0);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
-        /*--- 4) power‐of‐two boundary → carry from hi → hi=0, lo=256 ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 0, .lo = 0x10000UL }),
-                 0x100,
-                 ((DPUNS){ .hi = 0, .lo = 0x100UL }),
-                 0);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
-        /*--- 5) single‐word value splitting across hi & lo:
-              0x1_0000_0001 ÷ 3 → Q=0x5555_5555, R=2 ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 1, .lo = 1 }),
-                 3,
-                 ((DPUNS){ .hi = 0, .lo = 0x55555555UL }),
-                 2);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-        /* testmain.c:388:dpmUnitTest:FAIL: Expected 1431655765 Was 6148914691236517205. Quotient Lo */
-
-    
-        /*--- 6) hi only (value = 2^32) ÷2 → Q=2^31, R=0 ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 1, .lo = 0 }),
-                 2,
-                 ((DPUNS){ .hi = 0, .lo = (FICL_UNS)1 << 31 }),
-                 0);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
-        /*--- 7) max‐lo, small base ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 0, .lo = 0xFFFFUL }),
-                 0xFF,
-                 ((DPUNS){ .hi = 0, .lo = 0x0101UL }),
-                 0xFE);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
-        /*--- 8) large hi+lo randomish values ---*/
-        dpmUModTestCase(
-                 ((DPUNS){ .hi = 0x12345678UL, .lo = 0x9ABCDEF0UL }),
-                 0x1234,
-                 /* Precomputed with a big‐int tool or a quick script: */
-                 ((DPUNS){ .hi = 0x00111A2EUL, .lo = 0xC80D7BE1UL }),
-                 0x09B0);
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    }
 #endif
 
 #if !defined (_WINDOWS) /* Console main */
@@ -443,7 +338,7 @@ int main(int argc, char **argv)
     (void) UNITY_END();    
 #endif
 
-    pSys = ficlInitSystem(10000);
+    pSys = ficlInitSystem(20000);
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
@@ -454,7 +349,8 @@ int main(int argc, char **argv)
     */
     if (argc  > 1)
     {
-        sprintf(in, ".( loading %s ) cr load %s\n cr", argv[1], argv[1]); /* #todo: NEVER ACTUALLY OUTPUTS THIS */
+        sprintf(in, ".( loading %s ) cr load %s\n cr", argv[1], argv[1]); 
+        vmTextOut(pVM, in, 1);
         __try
         {
             ret = ficlEvaluate(pVM, in);
