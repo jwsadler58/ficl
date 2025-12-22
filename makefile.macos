@@ -1,8 +1,7 @@
 # === Toolchain & flags ===
 CC       = clang
-ARCH     = arm64
-CFLAGS   = -O2 -arch $(ARCH) -c
-LDFLAGS  = -arch $(ARCH)
+CFLAGS   = -O2  -c
+LDFLAGS  = 
 
 LIB      = ar cr
 RANLIB   = ranlib
