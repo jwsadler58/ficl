@@ -57,12 +57,18 @@
 static  void dpmUModTest();
 
 #if PORTABLE_LONGMULDIV   /* see sysdep.h */
+#if !defined(LONGMMULDIV_MAG)   /* Michael Gauland vs the new LLM version */
+#define LONGMMULDIV_MAG 0
+#endif
+#if LONGMULDIV_MAG != 0
+    #include "llm.h"
 static  DPUNS   dpmAdd(DPUNS x, DPUNS y);
 static  DPUNS   dpmASL( DPUNS x );
 static  DPUNS   dpmASR( DPUNS x );
 static  int     dpmCompare(DPUNS x, DPUNS y);
 static  DPUNS   dpmOr( DPUNS x, DPUNS y );
 static  DPUNS   dpmSub(DPUNS x, DPUNS y);
+#endif /* LONGMULDIV_MAG != 0 */    
 #endif
 
 
@@ -320,42 +326,6 @@ INTQR dpmSymmetricDivI(DPINT num, FICL_INT den)
 ** unfortunately), so I've used ficlLongDiv.
 ** #todo: unit test this for correctness ( # and #s)
 **************************************************************************/
-#if 0
-
-UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
-{
-    DPUNS ud;
-    UNSQR qr;
-    DPUNS result;
-    enum { UMOD_SHIFT = CELL_BITS/2};
-    enum { UMOD_MASK = ((FICL_UNS)1 << UMOD_SHIFT) - 1 };
-
-    result.hi = result.lo = 0;
-
-    ud.hi = 0;
-    ud.lo = pUD->hi >> UMOD_SHIFT;
-    qr = ficlLongDiv(ud, (FICL_UNS)base);
-    result.hi = qr.quot << UMOD_SHIFT;
-
-    ud.lo = (qr.rem << UMOD_SHIFT) | (pUD->hi & UMOD_MASK);
-    qr = ficlLongDiv(ud, (FICL_UNS)base);
-    result.hi |= qr.quot & UMOD_MASK;
-
-    ud.lo = (qr.rem << UMOD_SHIFT) | (pUD->lo >> UMOD_SHIFT);
-    qr = ficlLongDiv(ud, (FICL_UNS)base);
-    result.lo = qr.quot << UMOD_SHIFT;
-
-    ud.lo = (qr.rem << UMOD_SHIFT) | (pUD->lo & UMOD_MASK);
-    qr = ficlLongDiv(ud, (FICL_UNS)base);
-    result.lo |= qr.quot & UMOD_MASK;
-
-    *pUD = result;
-
-    return (UNS16)(qr.rem);
-}
-
-#else
-
 UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
 {
     assert(base != 0);
@@ -399,14 +369,15 @@ UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
 
     return rem;
 }
-#endif
 
 
+#if PORTABLE_LONGMULDIV
 /**************************************************************************
 ** Contributed by
 ** Michael A. Gauland   gaulandm@mdhost.cse.tek.com  
 **************************************************************************/
-#if PORTABLE_LONGMULDIV
+
+#if LONGMULDIV_MAG != 0
 /**************************************************************************
                         d p m A d d
 ** Double precision add
@@ -615,9 +586,11 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     return result;
 }
 
-#if 0
+#else
 /*
-** o4-mini-high versions - no helper funcs needed
+** LLM versions - no helper funcs needed
+** FAILS forth tester
+** INCORRECT RESULT: { MAX-UINT MAX-UINT UM* MAX-UINT UM/MOD -> 0 MAX-UINT }
 */
 DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
 {
@@ -667,39 +640,327 @@ DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
 UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
 {
     UNSQR result;
-    size_t bits  = sizeof(FICL_UNS) * CHAR_BIT; /* N = word size in bits */
-    int    total = (int)(bits * 2);             /* total bits in DPUNS */
-    FICL_UNS rem  = 0;
+    const size_t bits  = sizeof(FICL_UNS) * CHAR_BIT; /* word size in bits */
+    const int    total = (int)(bits * 2);             /* total bits in DPUNS */
+
+    DPUNS   rem  = { 0, 0 };  /* needs bits+1, so keep as 2-word */
     FICL_UNS quot = 0;
 
-    /* Long division, one bit at a time from MSB down to LSB */
-    for (int i = total - 1; i >= 0; --i) {
-        /* shift remainder left, bring in next bit of dividend */
-        rem <<= 1;
-        if (i >= (int)bits) {
-            /* bit comes from the high word */
-            rem |= (q.hi >> (i - bits)) & (FICL_UNS)1;
-        }
-        else {
-            /* bit comes from the low word */
-            rem |= (q.lo >> i) & (FICL_UNS)1;
+    /* optional: guard against divide by zero if not handled elsewhere */
+    /* if (y == 0) { result.quot = 0; result.rem = 0; return result; } */
+
+    for (int i = total - 1; i >= 0; --i)
+    {
+        /* next dividend bit */
+        FICL_UNS bit;
+        if (i >= (int)bits)
+            bit = (q.hi >> (i - (int)bits)) & (FICL_UNS)1;
+        else
+            bit = (q.lo >> i) & (FICL_UNS)1;
+
+        /* rem = (rem << 1) | bit  (as 2-word shift) */
+        {
+            FICL_UNS carry = rem.lo >> (bits - 1);
+            rem.lo = (rem.lo << 1) | bit;
+            rem.hi = (rem.hi << 1) | carry;
         }
 
-        /* subtract divisor if we can, and set quotient bit */
-        if (rem >= y) {
-            rem -= y;
-            /* only store quotient bits that fit in one word */
-            if (i < (int)bits) {
-                quot |= ( (FICL_UNS)1 << i );
-            }
+        /* if (rem >= y) { rem -= y; set quotient bit } */
+        if (rem.hi != 0 || rem.lo >= y)
+        {
+            /* rem -= y (y is 1-word) */
+            FICL_UNS oldlo = rem.lo;
+            rem.lo -= y;
+            rem.hi -= (oldlo < y) ? 1u : 0u;
+
+            if (i < (int)bits)
+                quot |= ((FICL_UNS)1 << i);
         }
     }
 
     result.quot = quot;
-    result.rem  = rem;
+    result.rem  = rem.lo; /* remainder fits in one word */
     return result;
 }
-#endif /* o4-mini-high */
+#endif /* LLM version */
 
 #endif /* PORTABLE_LONGMULDIV */
+
+#if FICL_UNIT_TEST
+    static void dpmUModTestCase(DPUNS input, UNS16 base, DPUNS qExpected, UNS16 rExpected)
+    {
+        UNS16 r   = dpmUMod(&input, base);
+    
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(rExpected, r, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.hi, input.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.lo, input.lo, "Quotient Lo");
+    }
+
+    static void ficlLongMulTestCase(FICL_UNS x, FICL_UNS y, DPUNS expected)
+    {
+        DPUNS got = ficlLongMul(x, y);
+
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expected.hi, got.hi, "Mul Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expected.lo, got.lo, "Mul Lo");
+    }
+
+    static void ficlLongDivTestCase(DPUNS dividend, FICL_UNS divisor, UNSQR expected)
+    {
+        UNSQR got = ficlLongDiv(dividend, divisor);
+
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expected.quot, got.quot, "Div Quot");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expected.rem, got.rem, "Div Rem");
+        TEST_ASSERT_TRUE_MESSAGE(got.rem < divisor, "Div Rem < divisor");
+
+        /* Verify dividend == quot * divisor + rem */
+        {
+            DPUNS prod = ficlLongMul(got.quot, divisor);
+            DPUNS sum = prod;
+            sum.lo += got.rem;
+            if (sum.lo < prod.lo)
+                sum.hi += 1;
+
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE(dividend.hi, sum.hi, "Div Recompose Hi");
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE(dividend.lo, sum.lo, "Div Recompose Lo");
+        }
+    }
+    
+
+    void dpmUnitTest(void)
+    {
+        #define dpmUModTestCase(q, b, eq, er) quot=q; base=b; expQuot=eq; expRem=er; rem=dpmUMod(&quot, base);
+
+        UNS16 rem;
+        UNS16 expRem;
+        UNS16 base;
+        DPUNS quot;
+        DPUNS expQuot;
+        
+        TEST_MESSAGE("***** Testing dpmUMod *****");
+        /*--- 1) zero divided by anything → 0, rem 0 ---*/
+        dpmUModTestCase(
+                ((DPUNS){ .hi = 0, .lo = 0 }),
+                1,
+                ((DPUNS){ .hi = 0, .lo = 0 }),
+                0);
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+        /* 
+        ** With native 64‐bit arithmetic
+        ** testmain.c:388:dpmUnitTest:FAIL: 
+        ** Expected 1431655765 Was 6148914691236517205. Quotient Lo
+        ** With PORTABLE_LONGMULDIV LLM
+        ** testmain.c:388:dpmUnitTest:FAIL: 
+        ** Expected 1431655765 Was 6148914691236517205. Quotient Lo
+        */
+    
+        /*--- 2) small < base → quotient 0, rem = value ---*/
+        dpmUModTestCase(
+                 ((DPUNS){ .hi = 0, .lo = 10 }),
+                 20,
+                 ((DPUNS){ .hi = 0, .lo = 0 }),
+                 10);
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+    
+        /*--- 3) exact divide in lo only ---*/
+        dpmUModTestCase(
+                 ((DPUNS){ .hi = 0, .lo = 100 }),
+                 10,
+                 ((DPUNS){ .hi = 0, .lo = 10 }),
+                 0);
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+    
+        /*--- 4) power‐of‐two boundary → carry from hi → hi=0, lo=256 ---*/
+        dpmUModTestCase(
+                 ((DPUNS){ .hi = 0, .lo = 0x10000UL }),
+                 0x100,
+                 ((DPUNS){ .hi = 0, .lo = 0x100UL }),
+                 0);
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+    
+        /*--- 5) single-word value splitting across hi & lo:
+              word-size dependent expected quotient ---*/
+        {
+            DPUNS exp5;
+            if (sizeof(FICL_UNS) == 4)
+                exp5 = (DPUNS){ .hi = 0, .lo = 0x55555555UL };
+            else
+                exp5 = (DPUNS){ .hi = 0, .lo = (FICL_UNS)0x5555555555555555ULL };
+            dpmUModTestCase(
+                     ((DPUNS){ .hi = 1, .lo = 1 }),
+                     3,
+                     exp5,
+                     2);
+        }
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+        /* testmain.c:388:dpmUnitTest:FAIL: Expected 1431655765 Was 6148914691236517205. Quotient Lo */
+
+    
+        /*--- 6) hi only (value = 2^WORD_BITS) ÷2 → Q=2^(WORD_BITS-1), R=0 ---*/
+        {
+            DPUNS exp6;
+            if (sizeof(FICL_UNS) == 4)
+                exp6 = (DPUNS){ .hi = 0, .lo = (FICL_UNS)1 << 31 };
+            else
+                exp6 = (DPUNS){ .hi = 0, .lo = (FICL_UNS)1 << 63 };
+            dpmUModTestCase(
+                     ((DPUNS){ .hi = 1, .lo = 0 }),
+                     2,
+                     exp6,
+                     0);
+        }
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+    
+        /*--- 7) max-lo, small base (exact divide) ---*/
+        dpmUModTestCase(
+                 ((DPUNS){ .hi = 0, .lo = 0xFFFFUL }),
+                 0xFF,
+                 ((DPUNS){ .hi = 0, .lo = 0x0101UL }),
+                 0);
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+    
+        /*--- 8) large hi+lo randomish values ---*/
+        {
+            DPUNS exp8;
+            UNS16 exp8Rem;
+            if (sizeof(FICL_UNS) == 4)
+            {
+                /* Precomputed with a big-int tool or a quick script. */
+                exp8 = (DPUNS){ .hi = 0x00111A2EUL, .lo = 0xC80D7BE1UL };
+                exp8Rem = 0x09B0;
+            }
+            else
+            {
+                exp8 = (DPUNS){
+                    .hi = (FICL_UNS)0x0000000000010004ULL,
+                    .lo = (FICL_UNS)0xC00E1042CD45CF0BULL
+                };
+                exp8Rem = 0x0AB4;
+            }
+            dpmUModTestCase(
+                     ((DPUNS){ .hi = 0x12345678UL, .lo = 0x9ABCDEF0UL }),
+                     0x1234,
+                     exp8,
+                     exp8Rem);
+        }
+        TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
+        TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
+
+        TEST_MESSAGE("***** Testing ficlLongMul *****");
+        {
+            const FICL_UNS max = (FICL_UNS)~(FICL_UNS)0;
+            const int wordBits = (int)(sizeof(FICL_UNS) * CHAR_BIT);
+            const FICL_UNS halfBit = (FICL_UNS)1 << (wordBits / 2);
+            const FICL_UNS hiBit = (FICL_UNS)1 << (wordBits - 1);
+
+            ficlLongMulTestCase(0, 0, (DPUNS){ .hi = 0, .lo = 0 });
+            ficlLongMulTestCase(0, (FICL_UNS)0x12345678UL, (DPUNS){ .hi = 0, .lo = 0 });
+            ficlLongMulTestCase(1, (FICL_UNS)0x12345678UL, (DPUNS){ .hi = 0, .lo = (FICL_UNS)0x12345678UL });
+            ficlLongMulTestCase(max, 1, (DPUNS){ .hi = 0, .lo = max });
+
+            ficlLongMulTestCase(hiBit, 2, (DPUNS){ .hi = 1, .lo = 0 });
+            ficlLongMulTestCase(max, 2, (DPUNS){ .hi = 1, .lo = max - 1 });
+            ficlLongMulTestCase(halfBit, halfBit, (DPUNS){ .hi = 1, .lo = 0 });
+            ficlLongMulTestCase(max, max, (DPUNS){ .hi = max - 1, .lo = 1 });
+            ficlLongMulTestCase(max - 1, max - 1, (DPUNS){ .hi = max - 3, .lo = 4 });
+
+            if (sizeof(FICL_UNS) == 4)
+            {
+                ficlLongMulTestCase(
+                    (FICL_UNS)0x12345678UL,
+                    (FICL_UNS)0x9ABCDEF0UL,
+                    (DPUNS){ .hi = 0x0B00EA4EUL, .lo = 0x242D2080UL });
+                ficlLongMulTestCase(
+                    (FICL_UNS)0x00FF00FFUL,
+                    (FICL_UNS)0x0F0F0F0FUL,
+                    (DPUNS){ .hi = 0x000F000EUL, .lo = 0xFFF0FFF1UL });
+            }
+            else
+            {
+                ficlLongMulTestCase(
+                    (FICL_UNS)0x12345678UL,
+                    (FICL_UNS)0x9ABCDEF0UL,
+                    (DPUNS){ .hi = 0, .lo = (FICL_UNS)0x0B00EA4E242D2080ULL });
+                ficlLongMulTestCase(
+                    (FICL_UNS)0x00FF00FFUL,
+                    (FICL_UNS)0x0F0F0F0FUL,
+                    (DPUNS){ .hi = 0, .lo = (FICL_UNS)0x000F000EFFF0FFF1ULL });
+            }
+
+            {
+                const FICL_UNS a = (FICL_UNS)0x1ABCDEUL;
+                const FICL_UNS b = (FICL_UNS)0x0FEDCBA9UL;
+                DPUNS ab = ficlLongMul(a, b);
+                DPUNS ba = ficlLongMul(b, a);
+                TEST_ASSERT_EQUAL_UINT64_MESSAGE(ab.hi, ba.hi, "Mul commutative hi");
+                TEST_ASSERT_EQUAL_UINT64_MESSAGE(ab.lo, ba.lo, "Mul commutative lo");
+            }
+        }
+
+        TEST_MESSAGE("***** Testing ficlLongDiv *****");
+        {
+            const FICL_UNS max = (FICL_UNS)~(FICL_UNS)0;
+            const int wordBits = (int)(sizeof(FICL_UNS) * CHAR_BIT);
+            const FICL_UNS hiBit = (FICL_UNS)1 << (wordBits - 1);
+
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0 }, 1, (UNSQR){ .quot = 0, .rem = 0 });
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0 }, (FICL_UNS)0x1234UL, (UNSQR){ .quot = 0, .rem = 0 });
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0x12345678UL }, 1, (UNSQR){ .quot = (FICL_UNS)0x12345678UL, .rem = 0 });
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0x12345678UL }, (FICL_UNS)0x12345678UL, (UNSQR){ .quot = 1, .rem = 0 });
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0x12345678UL }, (FICL_UNS)0x12345679UL, (UNSQR){ .quot = 0, .rem = (FICL_UNS)0x12345678UL });
+
+            ficlLongDivTestCase((DPUNS){ .hi = 1, .lo = 0 }, 2, (UNSQR){ .quot = hiBit, .rem = 0 });
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = max }, 2, (UNSQR){ .quot = max / 2, .rem = 1 });
+            ficlLongDivTestCase((DPUNS){ .hi = 1, .lo = 0 }, max, (UNSQR){ .quot = 1, .rem = 1 });
+
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0xFFFFUL }, (FICL_UNS)0xFFUL, (UNSQR){ .quot = 0x0101UL, .rem = 0 });
+            ficlLongDivTestCase((DPUNS){ .hi = 0, .lo = 0xFFFFUL }, (FICL_UNS)0x100UL, (UNSQR){ .quot = 0x00FFUL, .rem = 0xFFUL });
+
+            if (sizeof(FICL_UNS) == 4)
+            {
+                ficlLongDivTestCase(
+                    (DPUNS){ .hi = 0x12345678UL, .lo = 0x9ABCDEF0UL },
+                    (FICL_UNS)0xFFFFFFFFUL,
+                    (UNSQR){ .quot = 0x12345678UL, .rem = 0xACF13568UL });
+                ficlLongDivTestCase(
+                    (DPUNS){ .hi = 0xCAFEBABEUL, .lo = 0xDEADBEEFUL },
+                    (FICL_UNS)0xFFFF0001UL,
+                    (UNSQR){ .quot = 0xCAFF85BDUL, .rem = 0x996B3932UL });
+                ficlLongDivTestCase(
+                    (DPUNS){ .hi = 1, .lo = 1 },
+                    3,
+                    (UNSQR){ .quot = 0x55555555UL, .rem = 2 });
+            }
+            else
+            {
+                ficlLongDivTestCase(
+                    (DPUNS){ .hi = 0x12345678UL, .lo = 0x9ABCDEF0UL },
+                    (FICL_UNS)0xFFFFFFFFUL,
+                    (UNSQR){ .quot = (FICL_UNS)0x1234567812345678ULL, .rem = 0xACF13568UL });
+                ficlLongDivTestCase(
+                    (DPUNS){ .hi = 0xCAFEBABEUL, .lo = 0xDEADBEEFUL },
+                    (FICL_UNS)0xFFFF0001UL,
+                    (UNSQR){ .quot = (FICL_UNS)0xCAFF85BCBABD3501ULL, .rem = 0x58F189EEUL });
+                ficlLongDivTestCase(
+                    (DPUNS){ .hi = 1, .lo = 1 },
+                    3,
+                    (UNSQR){ .quot = (FICL_UNS)0x5555555555555555ULL, .rem = 2 });
+            }
+        }
+    }
+#endif /* FICL_UNIT_TEST */
 
