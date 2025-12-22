@@ -376,7 +376,7 @@ typedef struct
 /*
 ** PORTABLE_LONGMULDIV causes ficlLongMul and ficlLongDiv to be
 ** defined in C in sysdep.c. Use this if you cannot easily 
-** generate an inline asm definition
+** generate an inline definition
 */ 
 #if !defined (PORTABLE_LONGMULDIV)
 #define PORTABLE_LONGMULDIV 1
