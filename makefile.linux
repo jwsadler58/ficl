@@ -1,5 +1,4 @@
 OBJECTS= dict.o ficl.o fileaccess.o float.o dpmath.o prefix.o search.o softcore.o stack.o sysdep.o tools.o unity.o unix.o vm.o words.o
-HEADERS= ficl.h dpmath.h sysdep.h unity.h
 #
 # Flags for shared library
 TARGET= -Dlinux   
