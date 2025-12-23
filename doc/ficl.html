@@ -22,9 +22,6 @@
         <nav class="site-nav">
           <a href="ficl.html">Docs</a>
           <a href="ficl_rel.html">Release Notes</a>
-          <a href="ficl_loc.html">Locals</a>
-          <a href="ficl_oop.html">OOP</a>
-          <a href="ficl_debug.html">Debugger</a>
           <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
         </nav>
       </div>
@@ -49,27 +46,27 @@
       Ficl: 
       <UL>
         <LI>
-          typically takes under 2 hours to port to a new system -- much less if the target operating system is one of several already supported (Win32, Linux, FreeBSD, RiscOS, and more)
+          Typically takes under 2 hours to port to a new system -- much less if the target operating system is one of several already supported (MacOS, Linux, FreeBSD, RiscOS, and more)
         </LI>
         <LI>
-          has a small memory footprint: a fully featured Win32 console version takes less than 100K of memory, and a minimal version is less than half that
+          Has a small memory footprint: a fully featured console version takes less than 100K of memory, and a minimal version is less than half that
         </LI>
         <LI>
-          is relatively quick thanks to its threaded code virtual machine design and just in time compiling
+          Is relatively quick thanks to its threaded code virtual machine design and just in time compiling
         </LI>
         <LI>
-          is a complete and powerful programming language
+          Is a complete, powerful, and standard programming language
         </LI>
         <LI>
-          is interactive
+          Is interactive
         </LI>
         <LI>
-          has object oriented programming features that can be used to wrap data structures or classes of the host system without altering them - even if the host is mainly written in a non-OO
+          Has object oriented programming features that can be used to wrap data structures or classes of the host system without altering them - even if the host is mainly written in a non-OO
           language
         </LI>
       </UL>
       <P>
-        Ficl syntax is based on ANS Forth and the code is Standard C. See below for examples of <A href="#includesficl">software and products that include ficl</A>. Ficl stands for "Forth inspired
+        Ficl syntax is based on ANS Forth and the code is Standard C (11 or later). Ficl stands for "Forth inspired
         command language".&nbsp;
       </P>
       <H3>
@@ -78,22 +75,22 @@
       Where Forths usually view themselves as the center of the system and expect the rest of the system to be coded in Forth, Ficl acts as a component of the system. It is easy to export code
       written in C or ASM to Ficl in the style of TCL, or to invoke Ficl code from a compiled module. This allows you to do incremental development in a way that combines the best features of
       threaded languages (rapid development, quick code/test/debug cycle, reasonably fast) with the best features of C (everyone knows it, easier to support large blocks of code, efficient, type
-      checking). In addition, Ficl provides a simple and powerful object model that can act as an object oriented <I>adapter</I> for code written in C (or asm, Forth, C++...).&nbsp; 
+      checking). In addition, Ficl provides a simple and powerful object model that can act as an object oriented <I>adapter</I> for code written in C/C++.&nbsp; 
       <H3>
         Ficl Design goals
       </H3>
       <UL>
         <LI>
-          Target 32 bit processors (<I>version 2.03 targets 64 bit processors too</I>)
+          Target 32 & 64 bit processors 
         </LI>
         <LI>
-          Scripting, prototyping, and extension language for systems written also in C
+          Scripting, prototyping, and extension language for systems written also in C/C++
         </LI>
         <LI>
-          Supportable - code is as transparent as I can make it
+          Supportable code
         </LI>
         <LI>
-          Interface to functions written in C
+          Interface to functions and data structures written in C
         </LI>
         <LI>
           Conform to the Forth DPANS 94
@@ -102,7 +99,7 @@
           Minimize porting effort - require an ANSI C runtime environment and minimal glue code
         </LI>
         <LI>
-          Provide object oriented extensions
+          Provide Object Oriented extensions that can wrap system functions and structures
         </LI>
       </UL>
       <HR>
@@ -115,14 +112,29 @@
         </LI>
       </UL>
       <H2>
-        <A name="links"></A>More information on Ficl and Forth
+        <A name="links"></A>More information on Ficl
       </H2>
       <UL>
         <LI>
           <A href="http://ficl.sourceforge.net">Web home of Ficl</A>
         </LI>
         <LI>
-          <A href="http://ficl.sourceforge.net/pdf/Forth_Primer.pdf">An excellent Forth Primer by Hans Bezemer</A>
+          <A href="ficl_parse.html">Prefix parser</A>
+        </LI>
+        <LI>
+          <A href="ficl_loc.html">Locals</A>
+        </LI>
+        <LI>
+          <A href="ficl_debug.html">Debugger</A>
+        </LI>
+        <LI>
+          <A href="ficl_guts.html">Internals</A>
+        </LI>
+        <LI>
+          <A href="ficl_oop.html">Object oriented programming in Ficl</A>
+        </LI>
+        <LI>
+          <A href="oo_in_c.html">OO in C background notes</A>
         </LI>
         <LI>
           <A href="ficlddj.pdf">Manuscript of Ficl article for January 1999 Dr. Dobb's Journal</A>
@@ -130,11 +142,19 @@
         <LI>
           <A href="jwsforml.pdf">1998 FORML Conference paper - OO Programming in Ficl</A>
         </LI>
+      </UL>
+      <H2>
+        More information on Forth
+      </H2>
+      <UL>
         <LI>
           <A href="http://www.taygeta.com/forth_intro/stackflo.html">An Introduction to Forth using Stack Flow</A> (start here if you're new to Forth)
         </LI>
         <LI>
           <A href="http://www.softsynth.com/pforth/pf_tut.htm">Phil Burk's Forth Tutorial</A>
+        </LI>
+        <LI>
+          <A href="http://ficl.sourceforge.net/pdf/Forth_Primer.pdf">An excellent Forth Primer by Hans Bezemer</A>
         </LI>
         <LI>
           <A href="http://www.complang.tuwien.ac.at/forth/threaded-code.html">Anton Ertl's description of Threaded Code</A>
@@ -186,11 +206,11 @@
         <A name="lawyerbait"></A>LICENSE and DISCLAIMER
       </H2>
       <P>
-        Copyright (c) 1997-2001 John Sadler (john_sadler@alum.mit.edu) All rights reserved.
+        Copyright (c) 1997-2025 John Sadler, All rights reserved.
       </P>
       <P>
-        I am interested in hearing from anyone who uses ficl. If you have a problem, a success story, a defect, an enhancement request, or if you would like to contribute to the ficl release, please
-        <A href="mailto:john_sadler@alum.mit.edu">send me email</A>.&nbsp;
+        I am interested in hearing from anyone who uses ficl. If you have a problem, a success story, a defect, an enhancement request, or if you would like to contribute to a ficl release, please
+        contact me on Sourceforge.&nbsp;
       </P>
 <PRE>
 Redistribution and use in source and binary forms, with or without
@@ -201,11 +221,14 @@ are met:
 2. Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software 
+   without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
 OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -237,7 +260,7 @@ SUCH DAMAGE.
           Ficl and C/C++ can interact in two ways: Ficl can wrap C code, and C functions can invoke ficl code.
         </LI>
         <LI>
-          Ficl code is thread safe and re-entrant:&nbsp; All Ficl Virtual Machines share one system dictionary (version 3.0 will permit multiple dictionaries); each Ficl Virtual Machine has an
+          Ficl code is thread safe and re-entrant:&nbsp; All Ficl Virtual Machines share one system dictionary (version 3.0 and on permit multiple dictionaries). Each Ficl Virtual Machine has an
           otherwise complete state, and each can be bound to a separate I/O channel (or none at all). An optional function called ficlLockDictionary() can control exclusive dictionary access. This
           function is stubbed out by default (See FICL_MULTITHREAD in sysdep.h). As long as there is only one "session" that can compile words into the dictionary, you do not need exclusive
           dictionary access for multithreading. <B>Note</B>: while the code is re-entrant, there are still restrictions on how you can use it safely in a multithreaded system. Specifically, the VM
@@ -280,25 +303,12 @@ SUCH DAMAGE.
       take the defaults on everything below the "build controls" section until you're confident of your port. Beware of declaring too small a dictionary, for example. You need about 3200 cells for a
       full system, about 2000 if you strip out most of the "soft" words.&nbsp; 
       <H3>
-        Soft Words
+        Softwords
       </H3>
       Many words from all the supported wordsets are written in Forth, and stored as a big string that Ficl compiles when it starts. The sources for all of these words are in directory
-      ficl/softwords. There is a .bat file (softcore.bat) and a PERL 5 script (softcore.pl) that convert Forth files into the file softcore.c, so softcore.c is really dependent on the Forth sources.
-      This is not reflected in the Visual C++ project database. For the time being, it's a manual step. You can edit softcore.bat to change the list of files that contribute to softcore.c.&nbsp; 
-      <H3>
-        To-Do List (target system dependent words)
-      </H3>
-      <UL>
-        <LI>
-          Unimplemented system dependent <TT>CORE</TT> word: <TT>KEY</TT> (implement this yourself if you need it)
-        </LI>
-        <LI>
-          Kludged <TT>CORE</TT> word: <TT>ACCEPT</TT> (implement this better if you need to)
-        </LI>
-      </UL>
-      <BR>
-       &nbsp;<BR>
-       &nbsp; 
+      ficl/softwords. There is a Python 3 script (softcore.py) that converts the .fr files into softcore.c.
+      See the makefile in ficl/softwords.&nbsp; 
+      <HR>
       <H2>
         <A name="api"></A>Application Programming Interface
       </H2>
@@ -407,8 +417,8 @@ SUCH DAMAGE.
           <B>void ficlCompileSoftCore(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Defined in softcore.c, this function builds ANS required words and ficl extras by evaluating a text string (think of it as a memory mapped file ;-) ). The string itself is built from files
-          in the softwords directory by PERL script softcore.pl.&nbsp;
+          Defined in softcore.c, this function builds ANS required words and ficl extras by evaluating a text string. Python3 script softcore.py 
+          generates the string in softcore.c from .fr files in ficl/softcore. &nbsp;
         </DD>
       </DL>
       <HR>
@@ -438,10 +448,11 @@ SUCH DAMAGE.
         </TR>
         <TR>
           <TD>
-            <B>math.h</B>
+            <B>dpmath.h</B>
           </TD>
           <TD>
-            Declares functions for 64 bit math
+            Declares functions for double precision integer math. 
+            This sizes automatically to 128 bits on a 64 bit machine or 64 bits on a 32 bit machine
           </TD>
         </TR>
         <TR>
@@ -531,8 +542,8 @@ SUCH DAMAGE.
             <B>testmain.c</B>
           </TD>
           <TD>
-            The main() function for unix/linux/win32 console applications - use this as an example to integrate ficl into your system. Also contains some definitions for testing - also useful in
-            unix/linux/win32 land.
+            The main() function for unix/linux/win32 console applications - use this as an example to integrate ficl into your system. 
+            Also runs unit tests and adds a few handy OS interface words.
           </TD>
         </TR>
         <TR>
@@ -553,7 +564,7 @@ SUCH DAMAGE.
         </TR>
         <TR>
           <TD>
-            <B>win32.c &amp; unix.c</B>
+            <B>unix.c</B>
           </TD>
           <TD>
             Platform extensions words loaded in ficl.c by ficlCompilePlatform() - conditioned on FICL_WANT_PLATFORM
@@ -1545,4 +1556,3 @@ FORTH-WORDLIST 1 SET-ORDER
     </footer>
   </body>
 </html>
-
