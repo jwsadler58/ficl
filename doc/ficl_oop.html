@@ -1,19 +1,45 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="john sadler">
-   <meta name="Description" content="object oriented programming in the coolest embedded scripting language ever">
-   <meta name="GENERATOR" content="Mozilla/4.73 [en] (Win98; U) [Netscape]">
-   <title>Ficl Object Oriented Programming</title>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="john sadler">
+    <meta name="description" content="Object oriented programming in Ficl">
+    <link rel="icon" href="ficl-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>Ficl Object Oriented Programming</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="ficl-icon.svg" alt="Ficl logo">
+          <div>
+            <span class="brand-name">Ficl</span>
+            <span class="brand-tag">Forth Inspired Command Language</span>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="ficl.html">Docs</a>
+          <a href="ficl_rel.html">Release Notes</a>
+          <a href="ficl_loc.html">Locals</a>
+          <a href="ficl_oop.html">OOP</a>
+          <a href="ficl_debug.html">Debugger</a>
+          <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
+        </nav>
+      </div>
+    </header>
 
-<h1>
-<b>Object Oriented Programming in ficl</b></h1>
+    <main>
+      <section class="page-hero">
+        <div class="wrap">
+          <p class="eyebrow">OO Extensions</p>
+          <h1>Object Oriented Programming in Ficl</h1>
+          <p>OO model, methods, and class patterns for embedded systems.</p>
+        </div>
+      </section>
 
-
-<script language="javascript" src="ficlheader.js"></script>
+      <div class="wrap content">
 
 
 <h2>
@@ -43,7 +69,7 @@ Contents</h2>
 
 <li>
 <a href="#stockclasses">Supplied Classes</a></li>
-</ul>
+      </ul>
 
 <table BORDER=0 CELLSPACING=3 COLS=1 WIDTH="675" >
 <tr>
@@ -145,7 +171,7 @@ as an instance of itself.&nbsp;
 </tr>
 </table>
 
-<p><a NAME="figure1"></a><img SRC="ficl_oop.jpg" VSPACE=10 height=442 width=652>
+<p><a NAME="figure1"></a><img src="ficl_oop.svg" alt="The Ficl Object Model diagram" style="max-width: 100%; height: auto;" vspace="10" width="652" height="442">
 <br>&nbsp;
 <table BORDER=0 CELLSPACING=3 COLS=1 WIDTH="675" >
 <tr>
@@ -1383,5 +1409,14 @@ Derived from c-string. This class adds a hashcode member variable.</dd>
 </tr>
 </table>
 
-</body>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>OO features are designed to wrap existing C structures with minimal changes.</div>
+        <div><a href="index.html">Back to the index</a></div>
+      </div>
+    </footer>
+  </body>
 </html>

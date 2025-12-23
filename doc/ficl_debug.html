@@ -1,16 +1,46 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   <meta name="Author" content="john sadler">
-   <title>Ficl Debugger</title>
-</head>
-<body>
-<link REL="SHORTCUT ICON" href="ficl.ico">
-<h1><b>Ficl Debugger</b></h1>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="john sadler">
+    <meta name="description" content="Ficl debugger guide and usage notes">
+    <link rel="icon" href="ficl-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>Ficl Debugger</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="ficl-icon.svg" alt="Ficl logo">
+          <div>
+            <span class="brand-name">Ficl</span>
+            <span class="brand-tag">Forth Inspired Command Language</span>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="ficl.html">Docs</a>
+          <a href="ficl_rel.html">Release Notes</a>
+          <a href="ficl_loc.html">Locals</a>
+          <a href="ficl_oop.html">OOP</a>
+          <a href="ficl_debug.html">Debugger</a>
+          <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
+        </nav>
+      </div>
+    </header>
 
-<script language="javascript" src="ficlheader.js"></script>
+    <main>
+      <section class="page-hero">
+        <div class="wrap">
+          <p class="eyebrow">Tools</p>
+          <h1>Ficl Debugger</h1>
+          <p>Step debugging for colon definitions and does&gt; words.</p>
+        </div>
+      </section>
 
-<table COLS=1 WIDTH="650" >
+      <div class="wrap content">
+        <table cols="1" width="650">
 <tr>
 <td>
 <p>Ficl release 2.05 includes a simple step debugger for colon definitions
@@ -105,7 +135,15 @@ it was asked to debug. Perhaps this could be a special kind of breakpoint?
 </bl>
 </td>
 </tr>
-</table>
+        </table>
+      </div>
+    </main>
 
-</body>
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>Debugger words are mostly located in tools.c and softcore.fr.</div>
+        <div><a href="index.html">Back to the index</a></div>
+      </div>
+    </footer>
+  </body>
 </html>

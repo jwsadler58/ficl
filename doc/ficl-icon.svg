@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Ficl icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#115e59"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <rect x="62" y="54" width="42" height="148" rx="14" fill="#f7fbf8"/>
+  <rect x="104" y="54" width="96" height="26" rx="10" fill="#f7fbf8"/>
+  <rect x="112" y="96" width="78" height="24" rx="10" fill="#ccfbf1"/>
+  <rect x="120" y="136" width="62" height="22" rx="10" fill="#99f6e4"/>
+</svg>

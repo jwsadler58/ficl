@@ -1,13 +1,45 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Object Oriented Idioms in C</title>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="john sadler">
+    <meta name="description" content="Object oriented idioms in C">
+    <link rel="icon" href="ficl-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>Object Oriented Idioms in C</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="ficl-icon.svg" alt="Ficl logo">
+          <div>
+            <span class="brand-name">Ficl</span>
+            <span class="brand-tag">Forth Inspired Command Language</span>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="ficl.html">Docs</a>
+          <a href="ficl_rel.html">Release Notes</a>
+          <a href="ficl_loc.html">Locals</a>
+          <a href="ficl_oop.html">OOP</a>
+          <a href="ficl_debug.html">Debugger</a>
+          <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
+        </nav>
+      </div>
+    </header>
 
-<h1>
-<b><font face="Arial"><font size=+1>Object Oriented Idioms in C</font></font></b></h1>
+    <main>
+      <section class="page-hero">
+        <div class="wrap">
+          <p class="eyebrow">Background</p>
+          <h1>Object Oriented Idioms in C</h1>
+          <p>Notes on OO structure and messaging for C codebases.</p>
+        </div>
+      </section>
+
+      <div class="wrap content">
 <font face="Arial"><font size=-1>John Sadler</font></font>
 <br><font face="Arial"><font size=-1>10 Aug 98</font></font>
 <br>&nbsp;
@@ -31,7 +63,7 @@ that can be performed on an <b>object</b>. The code that describes how
 to perform an operation on a specific object type is called a <b>method</b>.
 From the outside, objects receive messages. On the inside, these messages
 are mapped to methods that perform appropriate actions for the specific
-kind of object. An object’s <b>interface</b> is the set of messages to
+kind of object. An objectâ€™s <b>interface</b> is the set of messages to
 which it can respond. For example, several object types may have a "dump"
 method to cause the object to display its state. Each kind of object will
 need a unique method to accomplish this. So the message-method idea separates
@@ -42,13 +74,13 @@ the type of the object receiving the message is known (called <b>early
 binding</b>), or this mapping can wait until run-time (<b>late binding</b>).</font>
 <p><font face="Times New Roman,Times">Some languages (notably C++) make
 a syntactic distinction between early and late binding of methods to messages
-(virtual functions are bound late, while all others are bound early – at
+(virtual functions are bound late, while all others are bound early â€“ at
 link time). Smalltalk makes no such distinction. The C++ approach has potentially
 dangerous consequences when you manipulate an object through a pointer
 to its parent class. If a method of the superclass is virtual, you get
-late binding to the appropriate function for the object’s class. On the
+late binding to the appropriate function for the objectâ€™s class. On the
 other hand, if that method is not virtual, you get early binding to the
-parent class’s definition even if the child class has overridden it. Smalltalk
+parent classâ€™s definition even if the child class has overridden it. Smalltalk
 adheres rigorously to the idea that the object itself has sole ownership
 of the mapping from methods to messages.</font>
 <br>&nbsp;</td>
@@ -81,7 +113,7 @@ class variables. (In C++, these would be static members.)
 class using an existing one as a starting place and defining only what
 changes. C++ only supports class-based inheritance, but some systems also
 allow objects to inherit directly from other objects. At minimum, inheritance
-requires that the child class override its parent’s name. In addition,
+requires that the child class override its parentâ€™s name. In addition,
 a child class can:</font>
 <ul>
 <li>
@@ -103,11 +135,11 @@ messages already handled by the parent class</font></li>
 <tr>
 <td>
 <h3>
-<b><font face="Arial"><font size=+1>What C++ Does for you…</font></font></b></h3>
-<b><i><font face="Arial">Name mangling – separation of name spaces</font></i></b>
-<p><font face="Times New Roman,Times">This mechanism – decorating symbol
+<b><font face="Arial"><font size=+1>What C++ Does for youâ€¦</font></font></b></h3>
+<b><i><font face="Arial">Name mangling â€“ separation of name spaces</font></i></b>
+<p><font face="Times New Roman,Times">This mechanism â€“ decorating symbol
 names with extra characters that uniquely identify their class and prototype
-– is the traditional C++ method for operator overloading, method overloading,
+â€“ is the traditional C++ method for operator overloading, method overloading,
 and namespace separation. C provides a much smaller set of namespaces than
 C++ requires, so this strategy allowed C++ to be implemented as a preprocessor
 for C compilers originally.</font>
@@ -122,19 +154,19 @@ compiler can provide strict type checking for method invocations.
 <p><b><i><font face="Arial">Default constructor, destructor, copy constructor,
 and assignment operator</font></i></b>
 <p><b><i><font face="Arial">Explicit early and late binding support</font></i></b>
-<p><b><i><font face="Arial">And more…</font></i></b>
+<p><b><i><font face="Arial">And moreâ€¦</font></i></b>
 <br>&nbsp;</td>
 </tr>
 
 <tr>
 <td>
 <h3>
-<b><font face="Arial"><font size=+1>What other OO languages do (or don’t
+<b><font face="Arial"><font size=+1>What other OO languages do (or donâ€™t
 do)</font></font></b></h3>
-Just to make sure we don’t get caught in a C++ centered view of the world,
+Just to make sure we donâ€™t get caught in a C++ centered view of the world,
 here are some ways other OO systems differ.
 <p><b><i><font face="Arial">Run-time type identification</font></i></b>
-<p>This is a Big Deal in C++, but it’s relatively trivial in an interpreted
+<p>This is a Big Deal in C++, but itâ€™s relatively trivial in an interpreted
 language to know the type of a reference at run-time.
 <p><b><i><font face="Arial">Metaclasses</font></i></b>
 <p>Classes are objects, too (Smalltalk, Java?)
@@ -181,7 +213,7 @@ and destructor, and are invoked manually at beginning and end of lifetime.</font
 <p><font face="Times New Roman,Times">Messages and methods: mapping table
 (first cut: use macros like MFC to create a mapping between messages and
 methods). Alternative: message map can be built at run-time (hash, tree,
-linked list) – method resolution may be slower.</font>
+linked list) â€“ method resolution may be slower.</font>
 <p><font face="Times New Roman,Times">Inheritance: aggregate the parent
 struct (recursively) at the beginning of the derived one, link the child
 method table to the parent and search recursively to resolve messages to
@@ -189,7 +221,7 @@ methods</font>
 <p><font face="Times New Roman,Times">Pros and cons:</font>
 <blockquote><font face="Times New Roman,Times">+ flexible and minimal manual
 steps required</font>
-<br><font face="Times New Roman,Times">+ relatively simple – no need to
+<br><font face="Times New Roman,Times">+ relatively simple â€“ no need to
 write a preprocessor!</font>
 <br><font face="Times New Roman,Times">- all methods are late bound, run-time
 penalty</font>
@@ -218,6 +250,14 @@ Polymorphism in C</i>. Embedded Systems Programming, December 1997</font></li>
 </td>
 </tr>
 </table>
+      </div>
+    </main>
 
-</body>
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>Additional OO details are in the Ficl OOP documentation.</div>
+        <div><a href="index.html">Back to the index</a></div>
+      </div>
+    </footer>
+  </body>
 </html>

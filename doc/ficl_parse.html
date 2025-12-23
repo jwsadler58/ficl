@@ -1,16 +1,46 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="john sadler">
-   <meta name="Description" content="the coolest embedded scripting language ever">
-   <title>Ficl Parse Steps</title>
-</head>
-<body>
-<link REL="SHORTCUT ICON" href="ficl.ico">
-<table BORDER=0 CELLSPACING=3 COLS=1 WIDTH="675" ><tr><td>
-<h1>Ficl Parse Steps</h1>
-<script language="javascript" src="ficlheader.js"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="john sadler">
+    <meta name="description" content="Ficl parser chain and prefix extensions">
+    <link rel="icon" href="ficl-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>Ficl Parse Steps</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="ficl-icon.svg" alt="Ficl logo">
+          <div>
+            <span class="brand-name">Ficl</span>
+            <span class="brand-tag">Forth Inspired Command Language</span>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="ficl.html">Docs</a>
+          <a href="ficl_rel.html">Release Notes</a>
+          <a href="ficl_loc.html">Locals</a>
+          <a href="ficl_oop.html">OOP</a>
+          <a href="ficl_debug.html">Debugger</a>
+          <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <div class="wrap">
+          <p class="eyebrow">Parser</p>
+          <h1>Ficl Parse Steps</h1>
+          <p>Extensible parser chain, prefixes, and number syntax.</p>
+        </div>
+      </section>
+
+      <div class="wrap content">
+        <table border="0" cellspacing="3" cols="1" width="675"><tr><td>
 
 <h2>Overview</h2>
 <p>
@@ -193,5 +223,14 @@ side effects.
 </dd>
 </dl>
 </td></tr></table>
-</body>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>Parser steps can be extended in both C and Ficl.</div>
+        <div><a href="index.html">Back to the index</a></div>
+      </div>
+    </footer>
+  </body>
 </html>

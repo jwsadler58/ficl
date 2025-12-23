@@ -1,116 +1,176 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-  <HEAD>
-    <META name="Author" content="john sadler">
-    <META name="Description" content="Ficl - embedded scripting with object oriented programming">
-    <META name="Keywords" content="scripting prototyping tcl OOP Forth interpreter C">
-<STYLE>
-	H1 {font: Arial; color: navy}       
-	H2 {font: Arial; color: navy}
-	LI {font: Arial}       
-</STYLE>
-    <LINK rel="SHORTCUT ICON" href="ficl.ico">
-    <TITLE>
-      Ficl - Embedded Scripting - Index
-    </TITLE>
-  </HEAD>
-  <BODY>
-    <H1>
-      <B>Ficl Documentation</B>
-    </H1>
-<SCRIPT language="javascript" src="ficlheader.js" type="text/javascript">
-</SCRIPT>
-    <TABLE summary="table of contents" border="0" cellspacing="3" cols="2" width="675">
-      <TR>
-        <TD width="500">
-          <H2>
-            Contents
-          </H2>
-          <UL>
-            <LI>
-              <A href="ficl_rel.html">Release notes</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#whatis">What is ficl?</A>
-            </LI>
-            <LI>
-              <A href="http://sourceforge.net/projects/ficl">Ficl project page on Sourceforge</A>
-            </LI>
-            <LI>
-              <A href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#links">Tutorials and References</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#includesficl">Ficl Inside!</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#lawyerbait">Disclaimer &mp; License</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#features">Ficl features</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#porting">Porting</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#api">Application Programming Interface</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#manifest">Distribution source files</A>
-            </LI>
-            <LI>
-              <A href="ficl_loc.html">Local variables</A>
-            </LI>
-            <LI>
-              <A href="ficl_oop.html">Object Oriented Programming in ficl</A>
-            </LI>
-            <LI>
-              <A href="ficl_debug.html">Ficl Debugger</A>
-            </LI>
-            <LI>
-              <A href="ficl.html#extras">Ficl extras</A> 
-              <UL>
-                <LI>
-                  <A href="ficl.html#exnumber">Number syntax</A>
-                </LI>
-                <LI>
-                  <A href="ficl_parse.html">Parser extensions and prefix support</A>
-                </LI>
-                <LI>
-                  <A href="ficl.html#exsearch">Search order words</A>
-                </LI>
-                <LI>
-                  <A href="ficl.html#exuser">User variables</A>
-                </LI>
-                <LI>
-                  <A href="ficl.html#exmisc">Miscellaneous useful words</A>
-                </LI>
-                <LI>
-                  <A href="ficl.html#exficlwin">FiclWin words</A>
-                </LI>
-              </UL>
-            </LI>
-            <LI>
-              <A href="ficl.html#ansinfo">ANS required information</A>
-            </LI>
-          </UL>
-        </TD>
-        <TD width="175">
-          <A href="http://nav.webring.yahoo.com/hub?ring=forth&mp;list"><IMG src="http://www.iidbs.com/images/4ring.gif" width="155" height="140" border="0" alt="Forth Webring Logo"></A> 
-          <CENTER>
-            <FONT size="3"><BR>
-             <A href="http://www.webring.org/cgi-bin/webring?ring=forth;id=47;prev5">Previous 5 Sites</A><BR>
-             <A href="http://www.webring.org/cgi-bin/webring?ring=forth;id=47;prev">Previous</A><BR>
-             <A href="http://www.webring.org/cgi-bin/webring?ring=forth;id=47;next">Next</A><BR>
-             <A href="http://www.webring.org/cgi-bin/webring?ring=forth;id=47;next5">Next 5 Sites</A><BR>
-             <A href="http://www.webring.org/cgi-bin/webring?ring=forth;random">Random Site</A><BR>
-             <A href="http://www.webring.org/cgi-bin/webring?ring=forth;list">List Sites</A></FONT>
-          </CENTER>
-        </TD>
-      </TR>
-    </TABLE>
-  </BODY>
-</HTML>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="john sadler">
+    <meta name="description" content="Ficl - embedded scripting with object oriented programming">
+    <link rel="icon" href="ficl-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>Ficl - Embedded Scripting</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="ficl-icon.svg" alt="Ficl logo">
+          <div>
+            <span class="brand-name">Ficl</span>
+            <span class="brand-tag">Forth Inspired Command Language</span>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="ficl.html">Docs</a>
+          <a href="ficl_rel.html">Release Notes</a>
+          <a href="ficl_oop.html">OOP</a>
+          <a href="ficl_debug.html">Debugger</a>
+          <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
+        </nav>
+      </div>
+    </header>
 
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <p class="eyebrow">Embedded scripting for real systems</p>
+            <h1>Small, fast, and practical Forth for C and firmware.</h1>
+            <p>
+              Ficl is a compact, embeddable interpreter built for integration in C systems. It is
+              designed to port quickly, stay small, and expose host APIs without the baggage of a
+              heavyweight runtime.
+            </p>
+            <div class="actions">
+              <a class="button" href="ficl.html#whatis">Read the docs</a>
+              <a class="button secondary" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download release</a>
+            </div>
+            <p class="stat-label">Standard C, ANS Forth based, and battle tested in embedded and OS tooling.</p>
+          </div>
+          <div class="hero-card">
+            <ul class="stat-grid">
+              <li>
+                <span class="stat">Under 100K</span>
+                <span class="stat-label">Full console build footprint</span>
+              </li>
+              <li>
+                <span class="stat">Fast porting</span>
+                <span class="stat-label">Typically under two hours for new targets</span>
+              </li>
+              <li>
+                <span class="stat">Interactive</span>
+                <span class="stat-label">Rapid test and debug loops</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2 class="section-title">Why Ficl</h2>
+          <div class="card-grid">
+            <div class="card">
+              <h3>Minimal footprint</h3>
+              <p>Keep your embedded images lean while still shipping a full scripting language.</p>
+            </div>
+            <div class="card">
+              <h3>Host friendly</h3>
+              <p>Expose C functions to Ficl and call back into C with simple interfaces.</p>
+            </div>
+            <div class="card">
+              <h3>Threaded VM</h3>
+              <p>Fast enough to stay interactive, with JIT compilation for key paths.</p>
+            </div>
+            <div class="card">
+              <h3>OO extensions</h3>
+              <p>Wrap host data structures with a clean method and message system.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="quickstart">
+        <div class="wrap">
+          <h2 class="section-title">Quick start</h2>
+          <div class="card">
+            <p><strong>1.</strong> Download the latest release and build with your preferred makefile.</p>
+            <p><strong>2.</strong> Link libficl into your host program and initialize a system.</p>
+            <p><strong>3.</strong> Add your own C words and start scripting interactively.</p>
+            <p><a class="button secondary" href="ficl.html#api">Jump to the API docs</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="docs">
+        <div class="wrap">
+          <h2 class="section-title">Documentation</h2>
+          <div class="card-grid">
+            <a class="card" href="ficl.html">
+              <h3>Core documentation</h3>
+              <p>Overview, features, and API reference.</p>
+            </a>
+            <a class="card" href="ficl_rel.html">
+              <h3>Release notes</h3>
+              <p>Version history and change details.</p>
+            </a>
+            <a class="card" href="ficl_parse.html">
+              <h3>Parser extensions</h3>
+              <p>Number syntax, prefixes, and parsing.</p>
+            </a>
+            <a class="card" href="ficl_debug.html">
+              <h3>Debugger</h3>
+              <p>Step debugging for colon definitions.</p>
+            </a>
+            <a class="card" href="ficl_loc.html">
+              <h3>Local variables</h3>
+              <p>Syntax and examples for locals.</p>
+            </a>
+            <a class="card" href="ficl_oop.html">
+              <h3>Object oriented Ficl</h3>
+              <p>OO model, methods, and message passing.</p>
+            </a>
+            <a class="card" href="ficl_guts.htm">
+              <h3>Ficl internals</h3>
+              <p>VM structures and dictionary layout.</p>
+            </a>
+            <a class="card" href="oo_in_c.html">
+              <h3>OO idioms in C</h3>
+              <p>Design patterns for C interfaces.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="resources">
+        <div class="wrap">
+          <h2 class="section-title">Resources</h2>
+          <div class="card-grid">
+            <a class="card" href="ficlddj.PDF">
+              <h3>Dr. Dobb's Journal article</h3>
+              <p>Ficl in January 1999.</p>
+            </a>
+            <a class="card" href="jwsforml.PDF">
+              <h3>FORML 1998 paper</h3>
+              <p>OO programming in Ficl.</p>
+            </a>
+            <a class="card" href="http://ficl.sourceforge.net">
+              <h3>Project home</h3>
+              <p>Legacy site and downloads.</p>
+            </a>
+            <a class="card" href="http://sourceforge.net/projects/ficl">
+              <h3>SourceForge project</h3>
+              <p>Issue tracking and files.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>Ficl is a Forth inspired command language designed by John Sadler.</div>
+        <div>Questions or contributions: <a href="mailto:john_sadler@alum.mit.edu">john_sadler@alum.mit.edu</a></div>
+      </div>
+    </footer>
+  </body>
+</html>

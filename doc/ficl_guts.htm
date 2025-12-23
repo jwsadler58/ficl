@@ -1,16 +1,45 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="john sadler">
-   <meta name="Description" content="the coolest embedded scripting language ever">
-   <title>Ficl - Internals</title>
-</head>
-<body>
-<link REL="SHORTCUT ICON" href="ficl.ico">
-<h1><b>Ficl Internal Structures</b></h1>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="john sadler">
+    <meta name="description" content="Ficl internals and VM data structures">
+    <link rel="icon" href="ficl-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>Ficl Internals</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="ficl-icon.svg" alt="Ficl logo">
+          <div>
+            <span class="brand-name">Ficl</span>
+            <span class="brand-tag">Forth Inspired Command Language</span>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="ficl.html">Docs</a>
+          <a href="ficl_rel.html">Release Notes</a>
+          <a href="ficl_loc.html">Locals</a>
+          <a href="ficl_oop.html">OOP</a>
+          <a href="ficl_debug.html">Debugger</a>
+          <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
+        </nav>
+      </div>
+    </header>
 
-<script language="javascript" src="ficlheader.js"></script>
+    <main>
+      <section class="page-hero">
+        <div class="wrap">
+          <p class="eyebrow">Internals</p>
+          <h1>Ficl Internal Structures</h1>
+          <p>How the VM, dictionary, and stacks are organized.</p>
+        </div>
+      </section>
+
+      <div class="wrap content">
 
 <h2>Contents</h2>
 
@@ -65,5 +94,14 @@ text string that it is interpreting. There are VM methods that excute a word giv
 Each VM owns a parameter stack, a return stack, and if float support is enabled, a float parameter
 stack. Parameters, return addresses, and floats are all CELL sized, and values may be
 moved back and forth among stacks using various Ficl words for that purpose.
-</BODY>
-</HTML>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>Want more details? See the source in sysdep.h and the VM code.</div>
+        <div><a href="index.html">Back to the index</a></div>
+      </div>
+    </footer>
+  </body>
+</html>
