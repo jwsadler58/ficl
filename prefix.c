@@ -151,6 +151,8 @@ static void prefixTen(FICL_VM *pVM)
 ** Note: since prefixes always execute, they are effectively IMMEDIATE.
 ** If they need to generate code in compile state you must add
 ** this code explicitly.
+** Note the modern Forth standard uses #, $, and % as prefixes for decimal, hex, and binary
+** numbers. We use 0x and 0d because we like it that way.
 **************************************************************************/
 void ficlCompilePrefix(FICL_SYSTEM *pSys)
 {
