@@ -32,7 +32,7 @@ ficl: testmain.o libficl.a
 #       generic cleanup code
 #
 clean:
-	rm -f *.o *.a libficl.* tags
+	rm -f *.o libficl.* tags
 
 tags:
 	ctags -w *
