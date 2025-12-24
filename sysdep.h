@@ -99,7 +99,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
         #define FICL_INT long
         #define FICL_UNS unsigned long
         #define FICL_HAVE_FTRUNCATE 1
-        #define PORTABLE_LONGMULDIV 0 /* if 0, use native compiler support for 128 bit mul and div */
+        #define PORTABLE_LONGMULDIV 1 /* if 0, use native compiler support for 128 bit mul and div */
         
         #define MACOS
     #elif TARGET_OS_IOS
