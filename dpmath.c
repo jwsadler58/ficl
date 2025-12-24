@@ -372,12 +372,12 @@ UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
 
 
 #if PORTABLE_LONGMULDIV
+#if LONGMULDIV_MAG != 0
 /**************************************************************************
 ** Contributed by
 ** Michael A. Gauland   gaulandm@mdhost.cse.tek.com  
 **************************************************************************/
 
-#if LONGMULDIV_MAG != 0
 /**************************************************************************
                         d p m A d d
 ** Double precision add
@@ -589,8 +589,6 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
 #else
 /*
 ** LLM versions - no helper funcs needed
-** FAILS forth tester
-** INCORRECT RESULT: { MAX-UINT MAX-UINT UM* MAX-UINT UM/MOD -> 0 MAX-UINT }
 */
 DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
 {
@@ -746,14 +744,6 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-        /* 
-        ** With native 64‐bit arithmetic
-        ** testmain.c:388:dpmUnitTest:FAIL: 
-        ** Expected 1431655765 Was 6148914691236517205. Quotient Lo
-        ** With PORTABLE_LONGMULDIV LLM
-        ** testmain.c:388:dpmUnitTest:FAIL: 
-        ** Expected 1431655765 Was 6148914691236517205. Quotient Lo
-        */
     
         /*--- 2) small < base → quotient 0, rem = value ---*/
         dpmUModTestCase(
