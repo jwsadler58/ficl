@@ -169,38 +169,6 @@
           <A href="http://www.forth.org">Forth Interest Group</A>
         </LI>
       </UL>
-      <H2>
-        <A name="includesficl"></A>Some software that uses ficl
-      </H2>
-      <UL>
-        <LI>
-          <A href="http://www.freebsd.org/">FreeBSD</A> boot loader (Daniel Sobral, Jordan Hubbard)
-        </LI>
-        <LI>
-          <A href="http://www.chipcenter.com/networking/images/prod/prod158a.pdf">SwitchCore</A> Gigabit Ethernet switches (&Ouml;rjan Gustavsson )
-        </LI>
-        <LI>
-          <A href="http://debuffer.sourceforge.net/">Palm Pilot Debuffer</A> (Eric Sessoms) Also see ficlx, a C++ interface to ficl, on the same site
-        </LI>
-        <LI>
-          <A href="http://www.swcp.com/~jchavez/osmond.html">Osmond PC Board Layout tool</A>
-        </LI>
-        <LI>
-          <A href="http://www.netcomsystems.com">NetCom Systems</A> ML7710
-        </LI>
-        <LI>
-          <A href="http://www.parview.com/ds/homepage.html">ParView</A> GPS system
-        </LI>
-        <LI>
-          <A href="http://www.thekompany.com/products/powerplant/software/Languages/Embedded.php3">PowerPlant Software</A> Development Environment for Linux
-        </LI>
-        <LI>
-          <A href="http://www.vyyo.com/products/architecture_v3000.html">Vyyo V3000 Broadband Wireless Hub</A>
-        </LI>
-        <LI>
-          <A href="mailto:john_sadler@alum.mit.edu"><I>Your Product Name Here!!!</I></A>
-        </LI>
-      </UL>
       <HR>
       <H2>
         <A name="lawyerbait"></A>LICENSE and DISCLAIMER
@@ -841,7 +809,7 @@ FORTH-WORDLIST 1 SET-ORDER
         </DD>
       </DL>
       <H3>
-        <A name="exficlwin"></A>Extra words defined in testmain.c (Win32 and POSIX versions)
+        <A name="exficlwin"></A>Extra words defined in testmain.c
       </H3>
       <DL>
         <DT>
@@ -892,47 +860,6 @@ FORTH-WORDLIST 1 SET-ORDER
         <DD>
           Dumps all threads of the current compilation wordlist to the specified text file. This was useful when I thought there might be some point in attempting to optimize the hash function. I no
           longer harbor those illusions.
-        </DD>
-      </DL>
-      <H3>
-        Words defined in FiclWin only
-      </H3>
-      <DL>
-        <DT>
-          <TT>!oreg&nbsp;&nbsp; ( c -- )</TT>
-        </DT>
-        <DD>
-          Set the value of the simulated LED register as specified (0..255)
-        </DD>
-        <DT>
-          <TT>@ireg&nbsp;&nbsp; ( -- c )</TT>
-        </DT>
-        <DD>
-          Gets the value of the simulated switch block (0..255)
-        </DD>
-        <DT>
-          <TT>!dac&nbsp;&nbsp;&nbsp; ( c -- )</TT>
-        </DT>
-        <DD>
-          Sets the value of the bargraph control as specified. Valid values range from 0..255
-        </DD>
-        <DT>
-          <TT>@adc&nbsp;&nbsp;&nbsp; ( -- c )</TT>
-        </DT>
-        <DD>
-          Fetches the current position of the slider control. Range is 0..255
-        </DD>
-        <DT>
-          <TT>status"&nbsp;&nbsp; ( "ccc&lt;quote&gt;" -- )</TT>
-        </DT>
-        <DD>
-          Set the mainframe window's status line to the text specified, up to the first trailing quote character.
-        </DD>
-        <DT>
-          <A name="ficlms"></A><TT><A href="http://www.taygeta.com/forth/dpans10.htm#10.6.2.1905">ms</A>&nbsp;&nbsp; ( u -- )</TT>
-        </DT>
-        <DD>
-          Causes the running virtual machine to sleep() for the number of milliseconds specified by the top-of-stack value.
         </DD>
       </DL>
       <HR>
