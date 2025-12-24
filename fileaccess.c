@@ -221,43 +221,6 @@ static void ficlIncludeFile(FICL_VM *pVM) /* ( i*x fileid -- j*x ) */
             result = ficlExecC(pVM, buffer, size);
         }
 
-#if 0
-    ficlFILE *ff = (ficlFILE *)stackPopPtr(pVM->pStack);
-    CELL id = pVM->sourceID;
-    char    cp[nLINEBUF];
-    int     nLine = 0;
-    int     keepGoing;
-    int     result;
-    pVM->sourceID.p = (void *)ff;
-
-    /* feed each line to ficlExec */
-    keepGoing = TRUE;
-    while (keepGoing && fgets(cp, nLINEBUF, ff->f))
-    {
-        int len = strlen(cp) - 1;
-
-        nLine++;
-        if (len <= 0)
-            continue;
-
-        if (cp[len] == '\n')
-            cp[len] = '\0';
-
-        result = ficlExec(pVM, cp);
-
-        switch (result)
-        {
-            case VM_OUTOFTEXT:
-            case VM_USEREXIT:
-                break;
-
-            default:
-                pVM->sourceID = id;
-                keepGoing = FALSE;
-                break; 
-        }
-    }
-#endif /* 0 */
     /*
     ** Pass an empty line with SOURCE-ID == -1 to flush
     ** any pending REFILLs (as required by FILE wordset)
