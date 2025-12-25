@@ -126,8 +126,8 @@ static void ficlSystem(FICL_VM *pVM)
 }
 
 /*
-** Ficl add-in to load a text file and execute it...
-** Cheesy, but illustrative.
+** Load a text file and execute it
+** TODO: add correct behavior for nested loads
 ** Line oriented... filename is newline (or NULL) delimited.
 ** Example:
 **    load test.ficl
@@ -149,8 +149,8 @@ static void ficlLoad(FICL_VM *pVM)
 
     if (pFilename->count <= 0)
     {
-        vmTextOut(pVM, "Warning (load): nothing happened", 1);
-        return;
+        vmTextOut(pVM, "Warning (load): empty filename", 1);
+         return;
     }
 
     /*
@@ -173,6 +173,10 @@ static void ficlLoad(FICL_VM *pVM)
         vmThrow(pVM, VM_QUIT);
     }
 
+    vmTextOut(pVM, "Loading: ", 0); 
+    vmTextOut(pVM, pFilename->text, 1);
+
+    /* save any prior file in process*/
     id = pVM->sourceID;
     pVM->sourceID.p = (void *)fp;
 
@@ -209,6 +213,9 @@ static void ficlLoad(FICL_VM *pVM)
     */
     pVM->sourceID.i = -1;
     ficlExec(pVM, "");
+
+    vmTextOut(pVM, "Done: ", 0);
+    vmTextOut(pVM, pFilename->text, 1);
 
     pVM->sourceID = id;
     fclose(fp);
