@@ -1,27 +1,19 @@
 Ficl is a lightweight, embeddable scripting language designed to be incorporated into other programs, 
 including memory constrained embedded systems. Ficl conforms to the 1994 ANSI Standard for Forth, 
 and provides several useful extensions including object oriented programming that can wrap compiled code 
-and hardware interfaces.
+and hardware interfaces. Ficl stands for "Forth Inspired Command Language".
 
 Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuff to do, it does the stuff, 
 and comes back to you for more. You can export compiled code to Ficl, execute Ficl code from your compiled 
 code, or interact. Your choice. Ficl includes a simple but capable object model that can wrap existing data 
 structures. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
 
-________
-OVERVIEW
-
-Ficl is a complete programming language interpreter designed to be embedded
-into other systems (including firmware based ones) as a command, macro,
-and development prototype language.  Ficl stands for "Forth Inspired
-Command Language".
-
 For more information please see:
   * The official Ficl website: https://ficl.sourceforge.net/ 
   * The "doc" directory 
   * Release notes in "doc/ficl_rel.html" 
 
-# Latest release: Ficl304, December 2025
+## Latest release: Ficl304, December 2025
 
 Get the latest Ficl release at https://sourceforge.net/projects/ficl/
 
