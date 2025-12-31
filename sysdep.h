@@ -382,17 +382,6 @@ typedef struct
 #define PORTABLE_LONGMULDIV 1
 #endif
 
-/*
-** INLINE_INNER_LOOP causes the inner interpreter to be inline code (faster)
-** instead of a function call (easier to debug)
-*/
-#if !defined INLINE_INNER_LOOP
-#if defined _DEBUG
-#define INLINE_INNER_LOOP 0
-#else
-#define INLINE_INNER_LOOP 1
-#endif
-#endif
 
 /*
 ** FICL_ROBUST enables bounds checking of stacks and the dictionary.
