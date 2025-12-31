@@ -141,24 +141,6 @@ void vmExecute(FICL_VM *pVM, FICL_WORD *pWord)
 }
 
 
-/**************************************************************************
-                        v m I n n e r L o o p
-** the mysterious inner interpreter...
-** This loop is the address interpreter that makes colon definitions
-** work. Upon entry, it assumes that the IP points to an entry in 
-** a definition (the body of a colon word). It runs one word at a time
-** until something does vmThrow. The catcher for this is expected to exist
-** in the calling code.
-** vmThrow gets you out of this loop with a longjmp()
-** Visual C++ 5 chokes on this loop in Release mode. Aargh.
-**************************************************************************/
-#if INLINE_INNER_LOOP == 0
-void vmInnerLoop(FICL_VM *pVM)
-{
-    M_INNER_LOOP(pVM);
-}
-#endif
-
 
 /**************************************************************************
                         v m G e t D i c t
