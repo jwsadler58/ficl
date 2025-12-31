@@ -8,7 +8,6 @@ and comes back to you for more. You can export compiled code to Ficl, execute Fi
 code, or interact. Your choice. Ficl includes a simple but capable object model that can wrap existing data 
 structures. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
 
-#Latest release: Ficl304, December 2025
 ________
 OVERVIEW
 
@@ -18,17 +17,21 @@ and development prototype language.  Ficl stands for "Forth Inspired
 Command Language".
 
 For more information please see:
-* The official Ficl website: https://ficl.sourceforge.net/
-* The "doc" directory
-* Release notes in "doc/ficl_rel.html".
 
+  * The official Ficl website: https://ficl.sourceforge.net/ 
+  * The "doc" directory 
+  * Release notes in "doc/ficl_rel.html" 
+
+**Latest release: Ficl304, December 2025**
 Get the latest Ficl release at https://sourceforge.net/projects/ficl/
 
 ____________
 INSTALLATION
 
 Ficl builds out-of-the-box on the following platforms:
+
 * MacOS (Apple silicon): use Makefile.macos
+
 * Linux: use "Makefile.linux".
 
 To port to other platforms, be sure to examine "sysdep.h". We suggest you start with the Linux makefile.  

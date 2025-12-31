@@ -42,7 +42,7 @@
       <H1>
         <A name="whatis"></A>What is ficl?
       </H1>
-      Ficl is a complete programming language interpreter designed to be embedded into other systems (including firmware based ones) as a command, macro, and development prototype language. Unlike other scripting interpreters,
+      Ficl is a complete programming language interpreter designed to be embedded into other systems (including firmware based ones) as a command, macro, and development language. Unlike other scripting interpreters,
       Ficl: 
       <UL>
         <LI>
@@ -72,7 +72,7 @@
       <H3>
         Ficl vs. other Forth interpreters
       </H3>
-      Where Forths usually view themselves as the center of the system and expect the rest of the system to be coded in Forth, Ficl acts as a component of the system. It is easy to export code
+      Where language interpreters usually view themselves as the center of the system and expect the rest of the system to be coded in Forth, Ficl acts as a component of the system. It is easy to export code
       written in C or ASM to Ficl in the style of TCL, or to invoke Ficl code from a compiled module. This allows you to do incremental development in a way that combines the best features of
       threaded languages (rapid development, quick code/test/debug cycle, reasonably fast) with the best features of C (everyone knows it, easier to support large blocks of code, efficient, type
       checking). In addition, Ficl provides a simple and powerful object model that can act as an object oriented <I>adapter</I> for code written in C/C++.&nbsp; 
@@ -119,19 +119,19 @@
           <A href="http://ficl.sourceforge.net">Web home of Ficl</A>
         </LI>
         <LI>
-          <A href="ficl_parse.html">Prefix parser</A>
+          <A href="ficl_guts.html">Ficl Internals</A>
         </LI>
         <LI>
-          <A href="ficl_loc.html">Locals</A>
+          <A href="ficl_oop.html">Ficl OOP extension</A>
+        </LI>
+        <LI>
+          <A href="ficl_parse.html">Prefix parser extension</A>
+        </LI>
+        <LI>
+          <A href="ficl_loc.html">Local variable extension</A>
         </LI>
         <LI>
           <A href="ficl_debug.html">Debugger</A>
-        </LI>
-        <LI>
-          <A href="ficl_guts.html">Internals</A>
-        </LI>
-        <LI>
-          <A href="ficl_oop.html">Object oriented programming in Ficl</A>
         </LI>
         <LI>
           <A href="oo_in_c.html">OO in C background notes</A>
@@ -144,7 +144,7 @@
         </LI>
       </UL>
       <H2>
-        More information on Forth
+        More information on Forth and Threaded Interpretive Languages
       </H2>
       <UL>
         <LI>
@@ -160,7 +160,7 @@
           <A href="http://www.complang.tuwien.ac.at/forth/threaded-code.html">Anton Ertl's description of Threaded Code</A>
         </LI>
         <LI>
-          <A href="http://ficl.sourceforge.net/dpans/dpans.htm">Draft Proposed American National Standard for Forth</A> (quite readable, actually)
+          <A href="http://ficl.sourceforge.net/dpans/dpans.htm">Draft Proposed American National Standard for Forth</A> surprisingly readable
         </LI>
         <LI>
           <A href="http://www.taygeta.com/forthlit.html">Forth literature index on Taygeta</A>
@@ -240,29 +240,31 @@ SUCH DAMAGE.
           dictionary in RAM at startup time.
         </LI>
         <LI>
-          Written in ANSI C to be as simple as I can make it to understand, support, debug, and port. Compiles without complaint at /Az /W4 (require ANSI C, max. warnings) under Microsoft VC++. Ports
-          to several other toolchains and operating systems (notably FreeBSD and Linux flavors) exist.
+          Written in Standard C11. 
         </LI>
         <LI>
-          Does full 32 bit math (but you need to implement two mixed precision math primitives (see sysdep.c))
+          Double precision math supported portably on 32 and 64 bit machines.
         </LI>
       </UL>
       <HR>
       <H2>
-        <A name="porting"></A>Porting ficl
+        <A name="porting"></A>Getting Started: Porting Ficl to your system
       </H2>
-      To install ficl on your target system, you need an ANSI C compiler and its runtime library. Inspect the system dependent macros and functions in <TT>sysdep.h</TT> and <TT>sysdep.c</TT> and edit
-      them to suit your system. For example, <TT>INT16</TT> is a <TT>short</TT> on some compilers and an <TT>int</TT> on others. Check the default <TT>CELL</TT> alignment controlled by <TT>
-      FICL_ALIGN</TT>. If necessary, add new definitions of <TT>ficlMalloc, ficlFree, ficlRealloc</TT>, and <TT>ficlTextOut</TT> to work with your operating system. Finally, use <TT>testmain.c</TT>
-      as a guide to installing the ficl system and one or more virtual machines into your code. You do not need to include <TT>testmain.c</TT> in your build.&nbsp; 
+      To install ficl on your target system, you need an ANSI C compiler (C11 or newer) and its runtime library. 
+      Inspect the system dependent macros and functions in <TT>sysdep.h</TT> and <TT>sysdep.c</TT> and edit
+      them to suit your system. 
+      For example, <TT>INT16</TT> is a <TT>short</TT> on some compilers and an <TT>int</TT> on others. 
       <P>
-        Note: ficlLockDictionary can be left unimplemented in most multithreaded implementations - it's only necessary if you expect to have more than one thread modifying the dictionary at the same
-        time. If you do decide to implement it, make sure calls to ficlLockDictionary can nest properly (see the comments in sysdep.h). You need to keep count of nested locks and unlocks and do the
-        right thing.
-      </P>
+      Check the default <TT>CELL</TT> alignment controlled by <TT>FICL_ALIGN</TT>. 
+      Review and if necessary replace the definitions of <TT>ficlMalloc, ficlFree, ficlRealloc</TT>, and <TT>ficlTextOut</TT> to work with your operating system. 
+      Finally, use <TT>testmain.c</TT> as a guide to installing the ficl system and one or more virtual machines into your code. 
+      You do not need to include <TT>testmain.c</TT> in your build.&nbsp;
+      </P> 
       <P>
-        Feel free to stub out the double precision math functions (which are presently implemented as inline assembly because it's so easy on many 32 bit processors) with kludge code that only goes
-        to 32 bit precision. In most applications, you won't notice the difference. If you're doing a lot of number crunching, consider implementing them correctly.&nbsp;
+        Ficl includes portable double precision math routines that work for 32 and 64 bit machines. 
+        You may replace them with machine-dependent versions by #defining PORTABLE_LONGMULDIV to 0 in sysdep.h and 
+        implementing your versions of ficlLongMul and ficlLongDiv in sysdep.c.
+        &nbsp;
       </P>
       <H3>
         Build controls
@@ -273,7 +275,7 @@ SUCH DAMAGE.
       <H3>
         Softwords
       </H3>
-      Many words from all the supported wordsets are written in Forth, and stored as a big string that Ficl compiles when it starts. The sources for all of these words are in directory
+      Many words from the supported wordsets are written in Forth and stored as a big string that Ficl compiles when it starts. The sources for all of these words are in directory
       ficl/softwords. There is a Python 3 script (softcore.py) that converts the .fr files into softcore.c.
       See the makefile in ficl/softwords.&nbsp; 
       <HR>
