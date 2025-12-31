@@ -383,10 +383,8 @@ typedef struct
 #endif
 
 /*
-** INLINE_INNER_LOOP causes the inner interpreter to be inline code
-** instead of a function call. This is mainly because MS VC++ 5
-** chokes with an internal compiler error on the function version.
-** in release mode. Sheesh.
+** INLINE_INNER_LOOP causes the inner interpreter to be inline code (faster)
+** instead of a function call (easier to debug)
 */
 #if !defined INLINE_INNER_LOOP
 #if defined _DEBUG

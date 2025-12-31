@@ -460,7 +460,7 @@ struct vm
     jmp_buf        *pState;     /* crude exception mechanism...     */
     OUTFUNC         textOut;    /* Output callback - see sysdep.c   */
     void *          pExtend;    /* vm extension pointer for app use - initialized from FICL_SYSTEM */
-    short           fRestart;   /* Set TRUE to restart runningWord  */
+    short           fRestart;   /* Set TRUE to restart runningWord - debugger support */
     IPTYPE          ip;         /* instruction pointer              */
     FICL_WORD      *runningWord;/* address of currently running word (often just *(ip-1) ) */
     FICL_UNS        state;      /* compiling or interpreting        */
@@ -577,8 +577,7 @@ void        vmThrowErr     (FICL_VM *pVM, char *fmt, ...);
 
 
 /*
-** The inner interpreter - coded as a macro (see note for 
-** INLINE_INNER_LOOP in sysdep.h for complaints about VC++ 5)
+** The inner interpreter coded as a macro 
 */
 #define M_VM_STEP(pVM) \
         FICL_WORD *tempFW = *(pVM)->ip++; \
@@ -589,11 +588,7 @@ void        vmThrowErr     (FICL_VM *pVM, char *fmt, ...);
     for (;;)  { M_VM_STEP(pVM) }
 
 
-#if INLINE_INNER_LOOP != 0
 #define     vmInnerLoop(pVM) M_INNER_LOOP(pVM)
-#else
-void        vmInnerLoop(FICL_VM *pVM);
-#endif
 
 /*
 ** vmCheckStack needs a vm pointer because it might have to say
