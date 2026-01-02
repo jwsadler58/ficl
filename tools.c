@@ -157,7 +157,7 @@ static FICL_WORD *findEnclosingWord(FICL_VM *pVM, CELL *cp)
 
     for (i = nSEARCH_CELLS; i > 0; --i, --cp)
     {
-        pFW = (FICL_WORD *)(cp + 1 - (sizeof (FICL_WORD) / sizeof (CELL)));
+        pFW = (FICL_WORD *)(cp + 1 - FICL_WORD_BASE_CELLS);
         if (isAFiclWord(pd, pFW))
             return pFW;
     }

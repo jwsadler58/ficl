@@ -409,12 +409,12 @@ void *ficlRealloc(void *p, size_t size)
 ** Returns zero if successful, nonzero if unable to acquire lock
 ** before timeout (optional - could also block forever)
 */
-#if FICL_MULTITHREAD
+#if FICL_MULTISESSION
 int ficlLockDictionary(short fLock)
 {
     IGNORE(fLock);
     return 0;
 }
-#endif /* FICL_MULTITHREAD */
+#endif /* FICL_MULTISESSION */
 
 

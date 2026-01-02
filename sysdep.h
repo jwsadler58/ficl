@@ -54,6 +54,7 @@
 #include <setjmp.h>
 #include <assert.h>
 #include <limits.h> /* CHAR_BIT, UCHAR_MAX */
+#include <stdint.h> /* int32_t, uint32_t, uint16_t, uint8_t */
 
 /*
 ** A Ficl CELL must be wide enough to contain a (void *) pointer, an unsigned, or an int.
@@ -94,12 +95,9 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
     #if TARGET_OS_OSX
-        #define INT32 int
-        #define UNS32 unsigned int
         #define FICL_INT long
         #define FICL_UNS unsigned long
         #define FICL_HAVE_FTRUNCATE 1
-        #define PORTABLE_LONGMULDIV 1 /* if 0, use native compiler support for 128 bit mul and div */
         
         #define MACOS
     #elif TARGET_OS_IOS
@@ -148,9 +146,9 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #define FICL_UNS unsigned long
 #endif
 
-/*
+/************************************************************************************
 **         E N D  P L A T F O R M - S P E C I F I C   D E F I N I T I O N S
-*/ 
+*************************************************************************************/ 
 
 /*
 ** IGNORE Macro to silence "unused parameter" warnings
@@ -171,77 +169,9 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #define FALSE 0
 #endif
 
-/*
-**  Default data type declarations
-** Override as needed for your target system and toolchain
-*/
-#if !defined INT32
-    #define INT32 long
-#endif
-
-#if !defined UNS32
-    #define UNS32 unsigned long
-#endif
-
-#if !defined UNS16
-    #define UNS16 unsigned short
-#endif
-
-#if !defined UNS8
-    #define UNS8 unsigned char
-#endif
-
-#if !defined NULL
-#define NULL ((void *)0)
-#endif
-
-/*
-** FICL_UNS and FICL_INT must have the same size as a void* on
-** the target system. A CELL is a union of void*, FICL_UNS, and
-** FICL_INT. 
-** (11/2000: same for FICL_FLOAT)
-*/
-#if !defined FICL_INT
-#define FICL_INT INT32
-#endif
-
-#if !defined FICL_UNS
-#define FICL_UNS UNS32
-#endif
-
-#if !defined FICL_FLOAT
-#define FICL_FLOAT float
-#endif
-
-
-typedef struct
-{
-    FICL_UNS hi;
-    FICL_UNS lo;
-} DPUNS;
-
-typedef struct
-{
-    FICL_UNS quot;
-    FICL_UNS rem;
-} UNSQR;
-
-typedef struct
-{
-    FICL_INT hi;
-    FICL_INT lo;
-} DPINT;
-
-typedef struct
-{
-    FICL_INT quot;
-    FICL_INT rem;
-} INTQR;
-
-
-/*
-** B U I L D   C O N T R O L S
-*/
+/************************************************************************************
+**         B U I L D   C O N T R O L S
+*************************************************************************************/ 
 
 #if !defined (FICL_MINIMAL)
 #define FICL_MINIMAL 0
@@ -255,7 +185,7 @@ typedef struct
 #define FICL_WANT_DEBUGGER   0
 #define FICL_WANT_OOP        0
 #define FICL_PLATFORM_EXTEND 0
-#define FICL_MULTITHREAD     0
+#define FICL_MULTISESSION     0
 #define FICL_ROBUST          0
 #define FICL_EXTENDED_PREFIX 0
 #define FICL_UNIT_TEST       0
@@ -328,7 +258,7 @@ typedef struct
 #define FICL_WANT_LOCALS 1
 #endif
 
-/* Max number of local variables per definition */
+/* Max number of local variables per definition - standard requires 16 min */
 #if !defined FICL_MAX_LOCALS
 #define FICL_MAX_LOCALS 16
 #endif
@@ -343,7 +273,7 @@ typedef struct
         #define FICL_WANT_OOP 0
     #endif
     #if FICL_WANT_OOP
-        Error! FICL_WANT_OOP needs LOCALS and USER variables
+        #error FICL_WANT_OOP needs LOCALS and USER variables
     #endif
 #endif
 #if !defined (FICL_WANT_OOP)
@@ -359,24 +289,20 @@ typedef struct
 #endif
 
 /*
-** Deprecated. THis has never been implemented to my knowledge,
-** and is misnamed to boot. Should be FICL_MULTISESSION.
-** FICL_MULTITHREAD enables dictionary mutual exclusion
+** DEPRECATED: FICL_MULTISESSION 
+** This has never been implemented to my knowledge.
+** FICL_MULTISESSION enables dictionary mutual exclusion
 ** wia the ficlLockDictionary system dependent function.
-** Note: this implementation is experimental and poorly
-** tested. Further, it's unnecessary unless you really
-** intend to have multiple SESSIONS (poor choice of name
-** on my part) - that is, threads that modify the dictionary
-** at the same time.
+** Note: experimental. Necessary only if you intend to support 
+** multiple threads that modify the dictionaryat the same time.
 */
-#if !defined FICL_MULTITHREAD
-#define FICL_MULTITHREAD 0
+#if !defined FICL_MULTISESSION
+#define FICL_MULTISESSION 0
 #endif
 
 /*
-** PORTABLE_LONGMULDIV causes ficlLongMul and ficlLongDiv to be
-** defined in C in sysdep.c. Use this if you cannot easily 
-** generate an inline definition
+** PORTABLE_LONGMULDIV causes ficlLongMul and ficlLongDiv to be defined in C in sysdep.c.
+** If set to 0, you will need to implement them.
 */ 
 #if !defined (PORTABLE_LONGMULDIV)
 #define PORTABLE_LONGMULDIV 1
@@ -440,9 +366,87 @@ typedef struct
 #endif
 
 /*
+** Known-width data type declarations - now using stdint.h (C11)
+*/
+#if !defined INT32
+    typedef int32_t INT32;
+#endif
+
+#if !defined UNS32
+    typedef uint32_t UNS32;
+#endif
+
+#if !defined UNS16
+    typedef uint16_t UNS16;
+#endif
+
+#if !defined UNS8
+    typedef uint8_t UNS8;
+#endif
+
+static_assert(sizeof(INT32) * CHAR_BIT == 32, "INT32 must be 32 bits");
+static_assert(sizeof(UNS32) * CHAR_BIT == 32, "UNS32 must be 32 bits");
+
+/*
+** FICL_UNS, FICL_INT, and FICL_FLOAT must be the same size as a void* on
+** the target system. Static asserts below enforce this.
+** A CELL is a union of void*, FICL_UNS, and FICL_INT. 
+*/
+#if !defined FICL_INT
+    typedef intptr_t FICL_INT;
+#endif
+
+#if !defined FICL_UNS
+    typedef uintptr_t FICL_UNS;
+#endif
+
+static_assert(sizeof(FICL_INT) == sizeof(void *), "FICL_INT must match pointer size");
+static_assert(sizeof(FICL_UNS) == sizeof(void *), "FICL_UNS must match pointer size");
+
+#if FICL_WANT_FLOAT
+    #if !defined FICL_FLOAT
+        #if INTPTR_MAX == INT64_MAX
+            #define FICL_FLOAT double
+        #elif INTPTR_MAX == INT32_MAX
+            #define FICL_FLOAT float
+        #else
+            #error Unsupported pointer size for FICL_FLOAT
+        #endif
+    #endif
+
+    static_assert(sizeof(FICL_FLOAT) == sizeof(void *), "FICL_FLOAT must match pointer size");
+#endif
+
+
+typedef struct
+{
+    FICL_UNS hi;
+    FICL_UNS lo;
+} DPUNS;
+
+typedef struct
+{
+    FICL_UNS quot;
+    FICL_UNS rem;
+} UNSQR;
+
+typedef struct
+{
+    FICL_INT hi;
+    FICL_INT lo;
+} DPINT;
+
+typedef struct
+{
+    FICL_INT quot;
+    FICL_INT rem;
+} INTQR;
+
+
+/*
 ** System dependent routines --
-** edit the implementations in sysdep.c to be compatible
-** with your runtime environment...
+** Edit the implementations in sysdep.c to fit your runtime environment.
+**
 ** ficlTextOut sends a NULL terminated string to the 
 **   default output device - used for system error messages
 ** ficlMalloc and ficlFree have the same semantics as malloc and free
@@ -457,11 +461,12 @@ void  ficlTextOut(struct vm *pVM, char *msg, int fNewline);
 void *ficlMalloc (size_t size);
 void  ficlFree   (void *p);
 void *ficlRealloc(void *p, size_t size);
+
 /*
-** Stub function for dictionary access control - does nothing
-** by default, user can redefine to guarantee exclusive dict
-** access to a single thread for updates. All dict update code
-** must be bracketed as follows:
+** DEPRECATED Stub function for dictionary access control
+** Does nothing by default. 
+** Redefine to guarantee exclusive dict access to a single thread for updates.
+** All dict update code must be bracketed as follows:
 ** ficlLockDictionary(TRUE);
 ** <code that updates dictionary>
 ** ficlLockDictionary(FALSE);
@@ -470,20 +475,18 @@ void *ficlRealloc(void *p, size_t size);
 ** before timeout (optional - could also block forever)
 **
 ** NOTE: this function must be implemented with lock counting
-** semantics: nested calls must behave properly.
+** semantics so that nested calls behave properly.
 */
-#if FICL_MULTITHREAD
+#if FICL_MULTISESSION
 int ficlLockDictionary(short fLock);
 #else
 #define ficlLockDictionary(x) 0 /* ignore */
 #endif
 
 /*
-** 64 bit integer math support routines: multiply two UNS32s
-** to get a 64 bit product, & divide the product by an UNS32
-** to get an UNS32 quotient and remainder. Much easier in asm
-** on a 32 bit CPU than in C, which usually doesn't support 
-** the double length result (but it should).
+** Double precision integer math support routines: multiply two FICL_UNS
+** to get a double width product, & divide the product by a FICL_UNS
+** to get an FICL_UNS quotient and remainder.
 */
 DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y);
 UNSQR ficlLongDiv(DPUNS    q, FICL_UNS y);
@@ -495,7 +498,7 @@ UNSQR ficlLongDiv(DPUNS    q, FICL_UNS y);
 ** function is necessary to provide the complete File-Access wordset.
 */
 #if !defined (FICL_HAVE_FTRUNCATE)
-#define FICL_HAVE_FTRUNCATE 0
+#define FICL_HAVE_FTRUNCATE 1
 #endif
 
 /*

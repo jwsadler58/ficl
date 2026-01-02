@@ -379,8 +379,8 @@ FICL_DICT  *dictCreateHashed(unsigned nCells, unsigned nHash)
     FICL_DICT *pDict;
     size_t nAlloc;
 
-    nAlloc =  sizeof (FICL_DICT) + nCells      * sizeof (CELL)
-            + sizeof (FICL_HASH) + (nHash - 1) * sizeof (FICL_WORD *);
+    nAlloc = sizeof (FICL_DICT) + nCells * sizeof (CELL)
+           + FICL_HASH_BYTES(nHash);
 
     pDict = ficlMalloc(nAlloc);
     assert(pDict);
@@ -401,8 +401,7 @@ FICL_HASH *dictCreateWordlist(FICL_DICT *dp, int nBuckets)
     
     dictAlign(dp);
     pHash    = (FICL_HASH *)dp->here;
-    dictAllot(dp, sizeof (FICL_HASH) 
-        + (nBuckets-1) * sizeof (FICL_WORD *));
+    dictAllot(dp, FICL_HASH_BYTES(nBuckets));
 
     pHash->size = nBuckets;
     hashReset(pHash);
@@ -435,8 +434,7 @@ void dictEmpty(FICL_DICT *pDict, unsigned nHash)
 
     dictAlign(pDict);
     pHash = (FICL_HASH *)pDict->here;
-    dictAllot(pDict, 
-              sizeof (FICL_HASH) + (nHash - 1) * sizeof (FICL_WORD *));
+    dictAllot(pDict, FICL_HASH_BYTES(nHash));
 
     pHash->size = nHash;
     hashReset(pHash);

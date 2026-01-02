@@ -322,6 +322,65 @@ void buildTestInterface(FICL_SYSTEM *pSys)
     {
     }
 
+    static void dummyCode(FICL_VM *pVM)
+    {
+        (void)pVM;
+    }
+
+    static void wordLayoutTest(void)
+    {
+        TEST_ASSERT_TRUE((FICL_WORD_HEADER_BYTES % sizeof(CELL)) == 0);
+        TEST_ASSERT_TRUE(FICL_WORD_BASE_BYTES == FICL_WORD_HEADER_BYTES + sizeof(CELL));
+        TEST_ASSERT_TRUE(FICL_WORD_BASE_CELLS == (FICL_WORD_BASE_BYTES / sizeof(CELL)));
+    }
+
+    static void wordAppendBodyTest(void)
+    {
+        FICL_DICT *dp = dictCreate(256);
+        STRINGINFO si;
+        FICL_WORD *pFW;
+        const char *name = "testword";
+
+        SI_SETLEN(si, strlen(name));
+        SI_SETPTR(si, (char *)name);
+        pFW = dictAppendWord2(dp, si, dummyCode, FW_DEFAULT);
+
+        TEST_ASSERT_TRUE(pFW != NULL);
+        TEST_ASSERT_TRUE(pFW->param == dp->here);
+        TEST_ASSERT_TRUE(pFW->nName == (FICL_COUNT)strlen(name));
+        {
+            CELL *body = pFW->param + 1;
+            FICL_WORD *from = (FICL_WORD *)((char *)body - FICL_WORD_BASE_BYTES);
+            TEST_ASSERT_TRUE(from == pFW);
+        }
+
+        dictDelete(dp);
+    }
+
+    static void hashLayoutTest(void)
+    {
+        size_t base = offsetof(FICL_HASH, table);
+        TEST_ASSERT_TRUE((base % sizeof(void *)) == 0);
+        TEST_ASSERT_TRUE(FICL_HASH_BYTES(1) == base + sizeof(FICL_WORD *));
+        TEST_ASSERT_TRUE(FICL_HASH_BYTES(4) == base + 4 * sizeof(FICL_WORD *));
+    }
+
+    static void hashCreateTest(void)
+    {
+        FICL_DICT *dp = dictCreateHashed(256, 7);
+        FICL_HASH *pHash = dp->pForthWords;
+        unsigned i;
+
+        TEST_ASSERT_TRUE(pHash != NULL);
+        TEST_ASSERT_TRUE(pHash->size == 7);
+        for (i = 0; i < pHash->size; ++i)
+        {
+            TEST_ASSERT_TRUE(pHash->table[i] == NULL);
+        }
+
+        dictDelete(dp);
+    }
+
 #endif
 
 #if !defined (_WINDOWS) /* Console main */
@@ -342,6 +401,10 @@ int main(int argc, char **argv)
 #if FICL_UNIT_TEST
     UNITY_BEGIN();
     RUN_TEST(dpmUnitTest);
+    RUN_TEST(wordLayoutTest);
+    RUN_TEST(wordAppendBodyTest);
+    RUN_TEST(hashLayoutTest);
+    RUN_TEST(hashCreateTest);
     (void) UNITY_END();    
 #endif
 

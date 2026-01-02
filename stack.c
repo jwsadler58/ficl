@@ -108,7 +108,7 @@ void vmCheckFStack(FICL_VM *pVM, int popCells, int pushCells)
 
 FICL_STACK *stackCreate(unsigned nCells)
 {
-    size_t size = sizeof (FICL_STACK) + nCells * sizeof (CELL);
+    size_t size = FICL_STACK_BYTES(nCells);
     FICL_STACK *pStack = ficlMalloc(size);
 
 #if FICL_ROBUST

@@ -2835,7 +2835,7 @@ static void fromBody(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    ptr = (char *)POPPTR() - sizeof (FICL_WORD);
+    ptr = (char *)POPPTR() - FICL_WORD_BASE_BYTES;
     PUSHPTR(ptr);
     return;
 }

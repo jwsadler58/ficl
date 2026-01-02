@@ -68,7 +68,7 @@
 ** at a time. The system imports a locking function that
 ** you can override in order to control update access to
 ** the dictionary. The function is stubbed out by default,
-** but you can insert one: #define FICL_MULTITHREAD 1
+** but you can insert one: #define FICL_MULTISESSION 1
 ** and supply your own version of ficlLockDictionary.
 */
 static int defaultStack = FICL_DEFAULT_STACK;
@@ -308,12 +308,12 @@ void ficlFreeVM(FICL_VM *pVM)
 **************************************************************************/
 int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)
 {
-#if FICL_MULTITHREAD
+#if FICL_MULTISESSION
     int err = ficlLockDictionary(TRUE);
     if (err) return err;
-#endif /* FICL_MULTITHREAD */
+#endif /* FICL_MULTISESSION */
 
-    assert(dictCellsAvail(pSys->dp) > sizeof (FICL_WORD) / sizeof (CELL));
+    assert(dictCellsAvail(pSys->dp) > FICL_WORD_BASE_CELLS);
     dictAppendWord(pSys->dp, name, code, flags);
 
     ficlLockDictionary(FALSE);

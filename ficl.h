@@ -282,8 +282,9 @@ typedef unsigned char FICL_COUNT;
 typedef struct _ficl_string
 {
     FICL_COUNT count;
-    char text[1];
+    char text[];
 } FICL_STRING;
+#define FICL_STRING_BYTES(len) (offsetof(FICL_STRING, text) + (len) + 1)
 
 typedef struct 
 {
@@ -342,8 +343,9 @@ typedef struct _ficlStack
     FICL_UNS nCells;    /* size of the stack */
     CELL *pFrame;       /* link reg for stack frame */
     CELL *sp;           /* stack pointer */
-    CELL base[1];       /* Top of stack */
+    CELL base[];        /* Top of stack */
 } FICL_STACK;
+#define FICL_STACK_BYTES(nCells) (offsetof(FICL_STACK, base) + (nCells) * sizeof(CELL))
 
 /*
 ** Stack methods... many map closely to required Forth words.
@@ -513,14 +515,19 @@ struct ficl_word
     FICL_COUNT nName;           /* Number of chars in word name         */
     char *name;                 /* First nFICLNAME chars of word name   */
     FICL_CODE code;             /* Native code to execute the word      */
-    CELL param[1];              /* First data cell of the word          */
+    CELL param[];               /* First data cell of the word          */
 };
+
+#define FICL_WORD_HEADER_BYTES (offsetof(FICL_WORD, param))
+#define FICL_WORD_BASE_BYTES (FICL_WORD_HEADER_BYTES + sizeof(CELL))
+#define FICL_WORD_HEADER_CELLS (FICL_WORD_HEADER_BYTES / sizeof(CELL))
+#define FICL_WORD_BASE_CELLS (FICL_WORD_BASE_BYTES / sizeof(CELL))
 
 /*
 ** Worst-case size of a word header: nFICLNAME chars in name
 */
 #define CELLS_PER_WORD  \
-    ( (sizeof (FICL_WORD) + nFICLNAME + sizeof (CELL)) \
+    ( (FICL_WORD_BASE_BYTES + nFICLNAME + sizeof (CELL)) \
                           / (sizeof (CELL)) )
 
 int wordIsImmediate(FICL_WORD *pFW);
@@ -667,8 +674,9 @@ typedef struct ficl_hash
     struct ficl_hash *link;  /* link to parent class wordlist for OO */
     char      *name;         /* optional pointer to \0 terminated wordlist name */
     unsigned   size;         /* number of buckets in the hash */
-    FICL_WORD *table[1];
+    FICL_WORD *table[];
 } FICL_HASH;
+#define FICL_HASH_BYTES(nBuckets) (offsetof(FICL_HASH, table) + (nBuckets) * sizeof(FICL_WORD *))
 
 void        hashForget    (FICL_HASH *pHash, void *where);
 UNS16       hashHashCode  (STRINGINFO si);
