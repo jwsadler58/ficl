@@ -44,3 +44,7 @@ ficl_wasm.wasm
 # debug information files
 *.dwo
 .DS_Store
+
+# generated sources
+softcore.c
+

@@ -15,7 +15,7 @@
 **
 ** L I C E N S E  and  D I S C L A I M E R
 ** 
-** Copyright (c) 1997-2025 John W Sadler 
+** Copyright (c) 1997-2026 John W Sadler 
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -752,6 +752,7 @@ FICL_HASH  *dictCreateWordlist(FICL_DICT *dp, int nBuckets);
 void        dictDelete     (FICL_DICT *pDict);
 void        dictEmpty      (FICL_DICT *pDict, unsigned nHash);
 void        dictHashSummary(FICL_VM *pVM);
+void        dictSummary    (FICL_VM *pVM);
 int         dictIncludes   (FICL_DICT *pDict, void *p);
 FICL_WORD  *dictLookup     (FICL_DICT *pDict, STRINGINFO si);
 #if FICL_WANT_LOCALS
@@ -839,7 +840,11 @@ struct ficl_system
     FICL_WORD *parseList[FICL_MAX_PARSE_STEPS];
 	OUTFUNC    textOut;
 
-    /* Cached addresses of IMMEDIATE compilation factors - initialized in ficlCompileCore */
+    /*
+    ** Cached addresses of IMMEDIATE compilation factors
+    ** Initialized in ficlCompileCore 
+    ** Could be found with ficlLookup instead
+    */
 	FICL_WORD *pBranchParen;
 	FICL_WORD *pDoParen;
 	FICL_WORD *pDoesParen;

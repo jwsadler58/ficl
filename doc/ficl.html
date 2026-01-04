@@ -38,42 +38,38 @@
 
       <div class="wrap content">
       <BR>
+      <H2>Contents</H2>
+      <UL>
+        <LI><A href="#whatis">What is ficl?</A></LI>
+        <LI><A href="#links">References</A></LI>
+        <LI><A href="#lawyerbait">LICENSE and DISCLAIMER</A></LI>
+        <LI><A href="#porting">Getting Started: Porting Ficl to your system</A></LI>
+        <LI><A href="#api">Application Programming Interface</A></LI>
+        <LI><A href="#manifest">Ficl Source Files</A></LI>
+        <LI><A href="#extras">Ficl extras</A></LI>
+        <LI><A href="#ansinfo">ANS Required Information</A></LI>
+      </UL>
        
       <H1>
         <A name="whatis"></A>What is ficl?
       </H1>
-      Ficl is a complete programming language interpreter designed to be embedded into other systems (including firmware based ones) as a command, macro, and development language. Unlike other scripting interpreters,
-      Ficl: 
-      <UL>
-        <LI>
-          Typically takes under 2 hours to port to a new system -- much less if the target operating system is one of several already supported (MacOS, Linux, FreeBSD, RiscOS, and more)
-        </LI>
-        <LI>
-          Has a small memory footprint: a fully featured console version takes less than 100K of memory, and a minimal version is less than half that
-        </LI>
-        <LI>
-          Is relatively quick thanks to its threaded code virtual machine design and just in time compiling
-        </LI>
-        <LI>
-          Is a complete, powerful, and standard programming language
-        </LI>
-        <LI>
-          Is interactive
-        </LI>
-        <LI>
-          Has object oriented programming features that can be used to wrap data structures or classes of the host system without altering them - even if the host is mainly written in a non-OO
-          language
-        </LI>
-      </UL>
       <P>
-        Ficl syntax is based on ANS Forth and the code is Standard C (11 or later). Ficl stands for "Forth inspired
-        command language".&nbsp;
+        Ficl is a lightweight, embeddable scripting language designed to be incorporated 
+        into other programs, including memory constrained embedded systems. 
+        Ficl conforms to the 1994 ANSI Standard for Forth, and provides several useful 
+        extensions including OOP that can wrap compiled code and hardware interfaces.&nbsp;
+      </P>
+      <P>
+        Unlike Lua or Python, Ficl acts as a <I>component</I> of your system: you feed it stuff to do, it does the stuff, and comes back to you for more. 
+        You can export compiled code to Ficl, execute Ficl code from your compiled code, or interact with a read-execute-print loop. 
+        Your choice. 
+        Ficl includes a simple but capable object model that can wrap existing data structures.&nbsp;
       </P>
       <H3>
-        Ficl vs. other Forth interpreters
+        Ficl vs. other Interpreters
       </H3>
-      Where language interpreters usually view themselves as the center of the system and expect the rest of the system to be coded in Forth, Ficl acts as a component of the system. It is easy to export code
-      written in C or ASM to Ficl in the style of TCL, or to invoke Ficl code from a compiled module. This allows you to do incremental development in a way that combines the best features of
+      Where language interpreters usually view themselves as the center of the system, Ficl acts as a component of the system. It is easy to export compiled code
+      to Ficl in the style of TCL, or to invoke Ficl code from a compiled module. This allows you to do incremental development in a way that combines the best features of
       threaded languages (rapid development, quick code/test/debug cycle, reasonably fast) with the best features of C (everyone knows it, easier to support large blocks of code, efficient, type
       checking). In addition, Ficl provides a simple and powerful object model that can act as an object oriented <I>adapter</I> for code written in C/C++.&nbsp; 
       <H3>
@@ -81,16 +77,13 @@
       </H3>
       <UL>
         <LI>
-          Target 32 & 64 bit processors 
-        </LI>
-        <LI>
           Scripting, prototyping, and extension language for systems written also in C/C++
         </LI>
         <LI>
-          Supportable code
+          Target 32 & 64 bit processors, including embedded systems with limited memory
         </LI>
         <LI>
-          Interface to functions and data structures written in C
+          Wrap functions and data structures written in C/C++
         </LI>
         <LI>
           Conform to the Forth DPANS 94
@@ -104,15 +97,7 @@
       </UL>
       <HR>
       <H2>
-        <A name="download"></A>Download
-      </H2>
-      <UL>
-        <LI>
-          <B><A href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download ficl (latest release)</A></B>
-        </LI>
-      </UL>
-      <H2>
-        <A name="links"></A>More information on Ficl
+        <A name="links"></A>References: More information on Ficl
       </H2>
       <UL>
         <LI>
@@ -144,7 +129,7 @@
         </LI>
       </UL>
       <H2>
-        More information on Forth and Threaded Interpretive Languages
+        Forth and Threaded Interpretive Languages
       </H2>
       <UL>
         <LI>
@@ -174,7 +159,7 @@
         <A name="lawyerbait"></A>LICENSE and DISCLAIMER
       </H2>
       <P>
-        Copyright (c) 1997-2025 John Sadler, All rights reserved.
+        Copyright (c) 1997-2026 John Sadler, All rights reserved.
       </P>
       <P>
         I am interested in hearing from anyone who uses ficl. If you have a problem, a success story, a defect, an enhancement request, or if you would like to contribute to a ficl release, please
@@ -206,59 +191,15 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 </PRE>
       &nbsp; 
-      <H2>
-        <A name="features"></A>Ficl features
-      </H2>
-      <UL>
-        <LI>
-          Simple to integrate into existing systems: the sample implementation requires three Ficl function calls (see the example program in testmain.c).
-        </LI>
-        <LI>
-          Written in ANSI C for portability.&nbsp;
-        </LI>
-        <LI>
-          Standard: Implements the ANS Forth CORE word set, part of the CORE EXT word set, SEARCH and SEARCH EXT, TOOLS and part of TOOLS EXT, LOCAL and LOCAL EXT, EXCEPTION, MEMORY,&nbsp; and
-          various extras.
-        </LI>
-        <LI>
-          Extensible: you can export code written in Forth, C, or asm in a straightforward way. Ficl provides open facilities for extending the language in an application specific way. You can even
-          add new control structures (not surprising if you're familiar with Forth)
-        </LI>
-        <LI>
-          Ficl and C/C++ can interact in two ways: Ficl can wrap C code, and C functions can invoke ficl code.
-        </LI>
-        <LI>
-          Ficl code is thread safe and re-entrant:&nbsp; All Ficl Virtual Machines share one system dictionary (version 3.0 and on permit multiple dictionaries). Each Ficl Virtual Machine has an
-          otherwise complete state, and each can be bound to a separate I/O channel (or none at all). An optional function called ficlLockDictionary() can control exclusive dictionary access. This
-          function is stubbed out by default (See FICL_MULTISESSION in sysdep.h). As long as there is only one "session" that can compile words into the dictionary, you do not need exclusive
-          dictionary access for multithreading. <B>Note</B>: while the code is re-entrant, there are still restrictions on how you can use it safely in a multithreaded system. Specifically, the VM
-          itself maintains state, so you generally need a VM per thread in a multithreaded system. If interrupt service routines make calls into Ficl code that alters VM state, then these generally
-          need their own VM as well. Alternatively, you could provide a mutual exclusion mechanism to serialize access to a VM from multiple threads.
-        </LI>
-        <LI>
-          ROMable: Ficl is designed to work in RAM based and ROM code / RAM data environments. It does require somewhat more memory than a pure ROM implementation because it builds its system
-          dictionary in RAM at startup time.
-        </LI>
-        <LI>
-          Written in Standard C11. 
-        </LI>
-        <LI>
-          Double precision math supported portably on 32 and 64 bit machines.
-        </LI>
-      </UL>
       <HR>
       <H2>
         <A name="porting"></A>Getting Started: Porting Ficl to your system
       </H2>
       To install ficl on your target system, you need an ANSI C compiler (C11 or newer) and its runtime library. 
-      Inspect the system dependent macros and functions in <TT>sysdep.h</TT> and <TT>sysdep.c</TT> and edit
-      them to suit your system. 
-      For example, <TT>INT16</TT> is a <TT>short</TT> on some compilers and an <TT>int</TT> on others. 
+      System dependent code is isolated to a few functions that you need to implement for your system. See sysdep.h for build controls.&nbsp;
       <P>
-      Check the default <TT>CELL</TT> alignment controlled by <TT>FICL_ALIGN</TT>. 
-      Review and if necessary replace the definitions of <TT>ficlMalloc, ficlFree, ficlRealloc</TT>, and <TT>ficlTextOut</TT> to work with your operating system. 
-      Finally, use <TT>testmain.c</TT> as a guide to installing the ficl system and one or more virtual machines into your code. 
-      You do not need to include <TT>testmain.c</TT> in your build.&nbsp;
+        Edit the definitions (in sysdep.c) of <TT>ficlMalloc, ficlFree, ficlRealloc</TT>, and <TT>ficlTextOut</TT> for your application and target. 
+        Use <TT>testmain.c</TT> as a guide to installing the ficl system and one or more virtual machines into your code.&nbsp;
       </P> 
       <P>
         Ficl includes portable double precision math routines that work for 32 and 64 bit machines. 
@@ -271,7 +212,7 @@ SUCH DAMAGE.
       </H3>
       The file sysdep.h contains default values for build controls. Most of these are written such that if you define them on the compiler command line, the defaults are overridden. I suggest you
       take the defaults on everything below the "build controls" section until you're confident of your port. Beware of declaring too small a dictionary, for example. You need about 3200 cells for a
-      full system, about 2000 if you strip out most of the "soft" words.&nbsp; 
+      full system, about 2000 if you strip out the softwords.&nbsp; 
       <H3>
         Softwords
       </H3>
@@ -413,7 +354,7 @@ SUCH DAMAGE.
             <B>sysdep.h</B>
           </TD>
           <TD>
-            Declares system dependent functions and contains build control macros. Edit this file to port to another system.
+            Declares system dependent functions and contains build control macros. Edit this file to suit your target.
           </TD>
         </TR>
         <TR>
@@ -422,7 +363,7 @@ SUCH DAMAGE.
           </TD>
           <TD>
             Declares functions for double precision integer math. 
-            This sizes automatically to 128 bits on a 64 bit machine or 64 bits on a 32 bit machine
+            Sizes automatically to 128 bits on a 64 bit machine or 64 bits on a 32 bit machine
           </TD>
         </TR>
         <TR>
@@ -454,7 +395,7 @@ SUCH DAMAGE.
             <B>dpmath.c</B>
           </TD>
           <TD>
-            Implementation of 64 bit math words (except the two unsigned primitives declared in sysdep.h and implemented in sysdep.c)
+            Double precision integer math support, including portable versions of ficlLongMul and ficlLongDiv
           </TD>
         </TR>
         <TR>
@@ -504,7 +445,7 @@ SUCH DAMAGE.
             <B>sysdep.c</B>
           </TD>
           <TD>
-            Implementation of system dependent functions declared in sysdep.h
+            Target dependent functions declared in sysdep.h. Edit this file to suit your target system.
           </TD>
         </TR>
         <TR>
@@ -1479,8 +1420,8 @@ FORTH-WORDLIST 1 SET-ORDER
 
     <footer class="site-footer">
       <div class="wrap footer-grid">
-        <div>Ficl is a Forth inspired command language designed by John Sadler.</div>
-        <div><a href="index.html">Back to the index</a></div>
+        <div>Ficl - Forth Inspired Command Language</div>
+        <div>Questions or contributions: <a href="https://sourceforge.net/u/jsadler/profile/">John Sadler</a></div>
       </div>
     </footer>
   </body>

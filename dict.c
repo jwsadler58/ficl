@@ -26,7 +26,7 @@
 **
 ** L I C E N S E  and  D I S C L A I M E R
 ** 
-** Copyright (c) 1997-2025 John W Sadler 
+** Copyright (c) 1997-2026 John W Sadler 
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -445,6 +445,21 @@ void dictEmpty(FICL_DICT *pDict, unsigned nHash)
     return;
 }
 
+/**************************************************************************
+                        d i c t S u m m a r y  
+** Print a summary of the dictionary usage to the VM's text output
+**************************************************************************/
+void dictSummary(FICL_VM *pVM)
+{
+    FICL_DICT *dp = vmGetDict(pVM);
+    FICL_HASH *pHash = dp->pSearch[dp->nLists - 1];
+
+    sprintf(pVM->pad, 
+        "Dictionary: %ld cells used of %u total", 
+        (long)(dp->here - dp->dict), dp->size); 
+    vmTextOut(pVM, pVM->pad, 1);
+    return;
+}
 
 /**************************************************************************
                         d i c t H a s h S u m m a r y
@@ -520,7 +535,7 @@ void dictHashSummary(FICL_VM *pVM)
     ficlTextOut(pVM, pVM->pad, 1);
 
     sprintf(pVM->pad, 
-        "Dictionary stats: %ld cells used of %u total", 
+        "Dictionary: %ld cells used of %u total", 
         (long)(dp->here - dp->dict), dp->size);
 
     ficlTextOut(pVM, pVM->pad, 1);

@@ -15,7 +15,7 @@
 **
 ** L I C E N S E  and  D I S C L A I M E R
 ** 
-** Copyright (c) 1997-2025 John W Sadler 
+** Copyright (c) 1997-2026 John W Sadler 
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -5113,6 +5113,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
 #if FICL_WANT_FLOAT
     dictAppendWord(dp, ".hash",     dictHashSummary,FW_DEFAULT);
 #endif
+    dictAppendWord(dp, ".dict",     dictSummary,    FW_DEFAULT);
     dictAppendWord(dp, ".ver",      ficlVersion,    FW_DEFAULT);
     dictAppendWord(dp, "-roll",     minusRoll,      FW_DEFAULT);
     dictAppendWord(dp, ">name",     toName,         FW_DEFAULT);

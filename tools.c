@@ -14,7 +14,7 @@
 **
 ** L I C E N S E  and  D I S C L A I M E R
 ** 
-** Copyright (c) 1997-2025 John W Sadler 
+** Copyright (c) 1997-2026 John W Sadler 
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -778,9 +778,8 @@ static void listWords(FICL_VM *pVM)
         vmTextOut(pVM, pPad, 1);
     }
 
-    sprintf(pVM->pad, "Of %s definitions: %d words", pHash->name, nWords);
+    sprintf(pVM->pad, "%s definitions: %d words", pHash->name, nWords);
     vmTextOut(pVM, pVM->pad, 1);
-    dictHashSummary(pVM);
     return;
 }
 

@@ -1,6 +1,6 @@
 \ ** ficl/softwords/softcore.fr
 \ ** FICL soft extensions
-\ ** John Sadler (john_sadler@alum.mit.edu)
+\ ** John Sadler (https://sourceforge.net/u/jsadler/profile/)
 \ ** September, 1998
 
 \ ** Ficl USER variables
