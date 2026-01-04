@@ -1,0 +1,216 @@
+:root {
+  --bg: #f6f2e9;
+  --bg-accent: #f0e6d6;
+  --ink: #241f1a;
+  --muted: #6a5f52;
+  --term-bg: #11110f;
+  --term-ink: #e8e3d7;
+  --accent: #d2722c;
+  --accent-2: #2e6f6e;
+  --border: #d8cbb8;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino", "Times New Roman", serif;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(900px 400px at 10% 10%, rgba(210, 114, 44, 0.18), transparent 60%),
+    radial-gradient(700px 320px at 90% 10%, rgba(46, 111, 110, 0.18), transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-accent));
+  z-index: -1;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+}
+
+.brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--ink);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  padding: 0 28px 32px;
+}
+
+.terminal {
+  background: var(--term-bg);
+  color: var(--term-ink);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.output {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 12px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+}
+
+.prompt {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  color: var(--accent);
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--term-ink);
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.95rem;
+}
+
+.status {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.8rem;
+  color: rgba(232, 227, 215, 0.7);
+  margin-top: 6px;
+}
+
+.stack {
+  background: white;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 60vh;
+}
+
+.stack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stack h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.chip {
+  background: var(--accent-2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+}
+
+.stack-body {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  background: var(--bg-accent);
+  padding: 12px;
+  border-radius: 12px;
+  min-height: 120px;
+  white-space: pre-wrap;
+}
+
+.stack-body.flash {
+  animation: flash 300ms ease;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@keyframes flash {
+  0% { box-shadow: 0 0 0 rgba(210, 114, 44, 0.0); }
+  50% { box-shadow: 0 0 20px rgba(210, 114, 44, 0.35); }
+  100% { box-shadow: 0 0 0 rgba(210, 114, 44, 0.0); }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

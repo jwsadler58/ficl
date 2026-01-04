@@ -1,0 +1,109 @@
+import createModule from "./ficl_wasm.js";
+
+const outputEl = document.getElementById("output");
+const inputEl = document.getElementById("input");
+const stackEl = document.getElementById("stack");
+const statusEl = document.getElementById("status");
+const clearBtn = document.getElementById("clear-btn");
+const resetBtn = document.getElementById("reset-btn");
+
+let Module = null;
+let history = [];
+let historyIndex = -1;
+
+function appendOutput(text) {
+  if (!text) return;
+  outputEl.textContent += text;
+  outputEl.scrollTop = outputEl.scrollHeight;
+}
+
+function setStatus(text) {
+  statusEl.textContent = text;
+}
+
+function updateStack() {
+  if (!Module) return;
+  const bufSize = 256;
+  const base = Module.stackSave();
+  const ptr = Module.stackAlloc(bufSize);
+  Module._ficl_wasm_stack_hex(ptr, bufSize, 8);
+  const stackText = Module.UTF8ToString(ptr);
+  Module.stackRestore(base);
+  stackEl.textContent = stackText || "S:";
+  stackEl.classList.remove("flash");
+  void stackEl.offsetWidth;
+  stackEl.classList.add("flash");
+}
+
+function runLine(line) {
+  if (!Module) return;
+  if (!line.trim()) return;
+
+  appendOutput(`ok> ${line}\n`);
+
+  const len = Module.lengthBytesUTF8(line) + 1;
+  const base = Module.stackSave();
+  const ptr = Module.stackAlloc(len);
+  Module.stringToUTF8(line, ptr, len);
+  const rc = Module._ficl_wasm_eval(ptr);
+  Module.stackRestore(base);
+
+  const outPtr = Module._ficl_wasm_get_output();
+  const outLen = Module._ficl_wasm_get_output_len();
+  const output = outLen ? Module.UTF8ToString(outPtr, outLen) : "";
+  if (output) appendOutput(output);
+  Module._ficl_wasm_clear_output();
+
+  updateStack();
+  setStatus(`Result: ${rc}`);
+}
+
+function handleKeydown(event) {
+  if (event.key === "Enter") {
+    const line = inputEl.value;
+    inputEl.value = "";
+    if (line.trim()) {
+      history.push(line);
+      historyIndex = history.length;
+    }
+    runLine(line);
+  } else if (event.key === "ArrowUp") {
+    if (history.length === 0) return;
+    historyIndex = Math.max(0, historyIndex - 1);
+    inputEl.value = history[historyIndex] || "";
+    setTimeout(() => inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length), 0);
+  } else if (event.key === "ArrowDown") {
+    if (history.length === 0) return;
+    historyIndex = Math.min(history.length, historyIndex + 1);
+    inputEl.value = history[historyIndex] || "";
+  }
+}
+
+clearBtn.addEventListener("click", () => {
+  outputEl.textContent = "";
+});
+
+resetBtn.addEventListener("click", () => {
+  if (!Module) return;
+  Module._ficl_wasm_reset();
+  Module._ficl_wasm_clear_output();
+  updateStack();
+  setStatus("VM reset");
+});
+
+inputEl.addEventListener("keydown", handleKeydown);
+
+async function init() {
+  try {
+    Module = await createModule();
+    Module._ficl_wasm_init(20000, 256);
+    updateStack();
+    setStatus("Ready");
+    inputEl.focus();
+  } catch (err) {
+    setStatus("Failed to load WASM");
+    appendOutput(String(err) + "\n");
+  }
+}
+
+init();

@@ -4,6 +4,16 @@ CC       = clang
 CFLAGS   = -O2  -c -std=c11
 LDFLAGS  = 
 
+EMCC     = emcc
+# Note: Emscripten writes to its cache under EMSDK (outside this repo).
+# If sandboxed, run with escalated permissions or set EM_CACHE to a writable path.
+EM_CACHE ?= /tmp/emscripten_cache
+WASM_CFLAGS  = -O2 -std=c11 -DFICL_WANT_FILE=0 -DFICL_UNIT_TEST=0 -DFICL_PLATFORM_EXTEND=0
+WASM_LDFLAGS = -s WASM=1 -s NO_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 \
+               -s MODULARIZE=1 -s EXPORT_ES6=1 \
+               -s EXPORTED_RUNTIME_METHODS="['UTF8ToString','stringToUTF8','lengthBytesUTF8','stackSave','stackAlloc','stackRestore']" \
+               -s EXPORTED_FUNCTIONS="['_ficl_wasm_init','_ficl_wasm_eval','_ficl_wasm_stack_hex','_ficl_wasm_reset','_ficl_wasm_get_output','_ficl_wasm_clear_output','_ficl_wasm_get_output_len']"
+
 LIB      = ar cr
 RANLIB   = ranlib
 
@@ -14,6 +24,9 @@ OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
           prefix.o search.o softcore.o stack.o \
           sysdep.o tools.o unity.o unix.o vm.o words.o
 
+WASM_SOURCES = dict.c ficl.c float.c dpmath.c prefix.c search.c softcore.c \
+               stack.c sysdep.c tools.c vm.c words.c wasm_main.c
+
 # === Static library ===
 libficl.a: $(OBJECTS)
 	$(LIB) $@ $(OBJECTS)
@@ -22,6 +35,12 @@ libficl.a: $(OBJECTS)
 # === Test executable ===
 ficl: testmain.o libficl.a
 	$(CC) $(LDFLAGS) testmain.o -o $@ -L. -lficl -lm
+
+# === WASM build ===
+wasm: ficl_wasm.js
+
+ficl_wasm.js: $(WASM_SOURCES)
+	EM_CACHE=$(EM_CACHE) $(EMCC) $(WASM_CFLAGS) $(WASM_SOURCES) -o $@ $(WASM_LDFLAGS)
 
 # === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o
@@ -33,7 +52,7 @@ ficl: testmain.o libficl.a
 #       generic cleanup code
 #
 clean:
-	rm -f *.o libficl.* tags
+	rm -f *.o libficl.* tags ficl_wasm.js ficl_wasm.wasm
 
 tags:
 	ctags -w *

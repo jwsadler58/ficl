@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.obj
+*.wasm
 
 # Precompiled Headers
 *.gch
@@ -37,6 +38,8 @@
 *.out
 *.app
 ficl
+ficl_wasm.js
+ficl_wasm.wasm
 
 # debug information files
 *.dwo

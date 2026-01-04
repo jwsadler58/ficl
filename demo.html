@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ficl WASM REPL</title>
+    <link rel="stylesheet" href="./demostyles.css" />
+  </head>
+  <body>
+    <div class="bg"></div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">F</div>
+        <div>
+          <div class="title">Ficl WASM REPL</div>
+          <div class="subtitle">Minimal browser terminal</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="clear-btn" class="btn">Clear Output</button>
+        <button id="reset-btn" class="btn ghost">Reset VM</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="terminal">
+        <div id="output" class="output" aria-live="polite"></div>
+        <div class="input-row">
+          <span class="prompt">ok&gt;</span>
+          <input id="input" class="input" autocomplete="off" spellcheck="false" />
+        </div>
+        <div id="status" class="status">Loading WASM...</div>
+      </section>
+      <aside class="stack">
+        <div class="stack-header">
+          <h2>Stack</h2>
+          <span class="chip">hex</span>
+        </div>
+        <pre id="stack" class="stack-body">S:</pre>
+        <div class="hint">Top of stack at left.</div>
+      </aside>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
