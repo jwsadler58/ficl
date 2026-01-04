@@ -1,6 +1,6 @@
 /*
 ** wasm_main.c
-** Minimal Ficl entry points for a browser-based REPL (single VM).
+** Minimal Ficl entry points for a browser-based REPL (single VM)
 */
 /*
 ** Usage:
@@ -9,16 +9,16 @@
 ** Minimal JS glue (ES module):
 **   import createModule from "./ficl_wasm.js";
 **   const Module = await createModule();
-**   Module._ficl_wasm_init(20000, 256);
+**   Module._ficlWasmInit(20000, 256);
 **   const linePtr = Module.allocateUTF8("1 2 + .");
-**   Module._ficl_wasm_eval(linePtr);
+**   Module._ficlWasmEval(linePtr);
 **   Module._free(linePtr);
-**   const outPtr = Module._ficl_wasm_get_output();
-**   const outLen = Module._ficl_wasm_get_output_len();
+**   const outPtr = Module._ficlWasmGetOutput();
+**   const outLen = Module._ficlWasmGetOutputLen();
 **   const output = Module.UTF8ToString(outPtr, outLen);
-**   Module._ficl_wasm_clear_output();
+**   Module._ficlWasmClearOutput();
 **   const stackBuf = Module._malloc(256);
-**   Module._ficl_wasm_stack_hex(stackBuf, 256, 8);
+**   Module._ficlWasmStackHex(stackBuf, 256, 8);
 **   const stack = Module.UTF8ToString(stackBuf);
 **   Module._free(stackBuf);
 **   console.log(output, stack);
@@ -31,38 +31,32 @@
 
 #define WASM_OUTBUF_SIZE 8192
 
-static FICL_SYSTEM *g_sys = NULL;
-static FICL_VM *g_vm = NULL;
-static char g_output[WASM_OUTBUF_SIZE];
-static size_t g_output_len = 0;
+/* 
+** Static pointers to the system and vm
+*/
+static FICL_SYSTEM *pSys = NULL;
+static FICL_VM *pVm = NULL;
+static char outbuf[WASM_OUTBUF_SIZE];
+static size_t nOutbuf = 0;
+
 
 void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
 {
-    size_t len;
-    size_t remaining;
-
-    (void)pVM;
+    IGNORE(pVM);
 
     if (!msg)
         return;
 
-    len = strlen(msg);
-    remaining = (g_output_len < WASM_OUTBUF_SIZE) ? (WASM_OUTBUF_SIZE - g_output_len - 1) : 0;
-    if (remaining == 0)
-        return;
-
-    if (len > remaining)
-        len = remaining;
-
-    memcpy(&g_output[g_output_len], msg, len);
-    g_output_len += len;
-    g_output[g_output_len] = '\0';
-
-    if (fNewline && g_output_len + 1 < WASM_OUTBUF_SIZE)
+    while (nOutbuf < WASM_OUTBUF_SIZE - 1 && *msg)
     {
-        g_output[g_output_len++] = '\n';
-        g_output[g_output_len] = '\0';
+        outbuf[nOutbuf++] = *msg++;
     }
+    if (fNewline && nOutbuf + 1 < WASM_OUTBUF_SIZE)
+    {
+        outbuf[nOutbuf++] = '\n';
+    }
+    outbuf[nOutbuf] = '\0';
+    return;
 }
 
 void *ficlMalloc(size_t size)
@@ -80,67 +74,67 @@ void ficlFree(void *p)
     free(p);
 }
 
-void ficl_wasm_clear_output(void)
+void ficlWasmClearOutput(void)
 {
-    g_output_len = 0;
-    g_output[0] = '\0';
+    nOutbuf = 0;
+    outbuf[0] = '\0';
 }
 
-const char *ficl_wasm_get_output(void)
+const char *ficlWasmGetOutput(void)
 {
-    g_output[g_output_len] = '\0';
-    return g_output;
+    outbuf[nOutbuf] = '\0';
+    return outbuf;
 }
 
-int ficl_wasm_get_output_len(void)
+int ficlWasmGetOutputLen(void)
 {
-    return (int)g_output_len;
+    return (int)nOutbuf;
 }
 
-int ficl_wasm_init(int dict_cells, int stack_cells)
+int ficlWasmInit(int dict_cells, int stack_cells)
 {
-    if (g_sys || g_vm)
+    if (pSys || pVm)
         return 0;
 
-    g_sys = ficlInitSystem(dict_cells);
-    if (!g_sys)
+    pSys = ficlInitSystem(dict_cells);
+    if (!pSys)
         return -1;
 
     if (stack_cells > 0)
         ficlSetStackSize(stack_cells);
 
-    g_vm = ficlNewVM(g_sys);
-    if (!g_vm)
+    pVm = ficlNewVM(pSys);
+    if (!pVm)
         return -2;
 
-    vmSetTextOut(g_vm, ficlTextOut);
-    ficl_wasm_clear_output();
+    ficlWasmClearOutput();
+    (void)ficlEvaluate(pVm, ".ver .( " __DATE__ " ) cr quit");
     return 0;
 }
 
-int ficl_wasm_eval(const char *line)
+int ficlWasmEval(const char *line)
 {
     int ret;
 
-    if (!g_vm || !line)
+    if (!pVm || !line)
         return VM_ERREXIT;
 
-    ret = ficlExec(g_vm, (char *)line);
+    ret = ficlExec(pVm, (char *)line);
     if (ret == VM_USEREXIT)
         ret = VM_OUTOFTEXT;
 
     return ret;
 }
 
-void ficl_wasm_reset(void)
+void ficlWasmReset(void)
 {
-    if (!g_vm)
+    if (!pVm)
         return;
 
-    vmReset(g_vm);
+    vmReset(pVm);
 }
 
-int ficl_wasm_stack_hex(char *out, int out_len, int max_cells)
+int ficlWasmStackHex(char *out, int out_len, int max_cells)
 {
     int depth;
     int count;
@@ -155,10 +149,10 @@ int ficl_wasm_stack_hex(char *out, int out_len, int max_cells)
 
     out[0] = '\0';
 
-    if (!g_vm)
+    if (!pVm)
         return 0;
 
-    depth = stackDepth(g_vm->pStack);
+    depth = stackDepth(pVm->pStack);
     count = (max_cells > 0 && max_cells < depth) ? max_cells : depth;
 
     cursor = out;
@@ -173,7 +167,7 @@ int ficl_wasm_stack_hex(char *out, int out_len, int max_cells)
 
     for (i = 0; i < count; ++i)
     {
-        CELL cell = stackFetch(g_vm->pStack, i);
+        CELL cell = stackFetch(pVm->pStack, i);
         FICL_UNS value = cell.u;
         ultoa(value, hexbuf, 16);
         written = snprintf(cursor, (size_t)remaining, " 0x%s", hexbuf);

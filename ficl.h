@@ -820,10 +820,10 @@ typedef struct FICL_BREAKPOINT
 ** virtual machines with their corresponding dictionaries. Ficl 3.0 will
 ** support multiple Ficl systems, allowing multiple concurrent sessions 
 ** to separate dictionaries with some constraints. 
-** The present model allows multiple sessions to one dictionary provided
-** you implement ficlLockDictionary() as specified in sysdep.h
-** Note: the pExtend pointer is there to provide context for applications. It is copied
+** Notes: 
+** 1. pExtend - user defined to provide context for applications. It is copied
 ** to each VM's pExtend field as that VM is created.
+** 2. textOut - default text output function for VMs created in this system (ficlTextOut)
 */
 struct ficl_system 
 {
@@ -835,10 +835,11 @@ struct ficl_system
 #ifdef FICL_WANT_LOCALS
     FICL_DICT *localp;
 #endif
-    FICL_WORD *pInterp[3];
+    FICL_WORD *pInterp[3]; /* outer interpreter - see ficlCompileCore*/
     FICL_WORD *parseList[FICL_MAX_PARSE_STEPS];
 	OUTFUNC    textOut;
 
+    /* Cached addresses of IMMEDIATE compilation factors - initialized in ficlCompileCore */
 	FICL_WORD *pBranchParen;
 	FICL_WORD *pDoParen;
 	FICL_WORD *pDoesParen;
@@ -857,7 +858,6 @@ struct ficl_system
 	FICL_WORD *pDrop;
 	FICL_WORD *pCStringLit;
 	FICL_WORD *pStringLit;
-
 #if FICL_WANT_LOCALS
 	FICL_WORD *pGetLocalParen;
 	FICL_WORD *pGet2LocalParen;
@@ -873,7 +873,7 @@ struct ficl_system
 	CELL *pMarkLocals;
 #endif
 
-	FICL_BREAKPOINT bpStep;
+	FICL_BREAKPOINT bpStep; /* debugger support - see tools.c */
 };
 
 struct ficl_system_info
@@ -884,10 +884,6 @@ struct ficl_system_info
 	void *pExtend;      /* Initializes VM's pExtend pointer - for application use */
     int nEnvCells;      /* Size of Environment dictionary */
 };
-
-
-#define ficlInitInfo(x) { memset((x), 0, sizeof(FICL_SYSTEM_INFO)); \
-         (x)->size = sizeof(FICL_SYSTEM_INFO); }
 
 /*
 ** External interface to FICL...

@@ -230,7 +230,7 @@ SUCH DAMAGE.
         <LI>
           Ficl code is thread safe and re-entrant:&nbsp; All Ficl Virtual Machines share one system dictionary (version 3.0 and on permit multiple dictionaries). Each Ficl Virtual Machine has an
           otherwise complete state, and each can be bound to a separate I/O channel (or none at all). An optional function called ficlLockDictionary() can control exclusive dictionary access. This
-          function is stubbed out by default (See FICL_MULTITHREAD in sysdep.h). As long as there is only one "session" that can compile words into the dictionary, you do not need exclusive
+          function is stubbed out by default (See FICL_MULTISESSION in sysdep.h). As long as there is only one "session" that can compile words into the dictionary, you do not need exclusive
           dictionary access for multithreading. <B>Note</B>: while the code is re-entrant, there are still restrictions on how you can use it safely in a multithreaded system. Specifically, the VM
           itself maintains state, so you generally need a VM per thread in a multithreaded system. If interrupt service routines make calls into Ficl code that alters VM state, then these generally
           need their own VM as well. Alternatively, you could provide a mutual exclusion mechanism to serialize access to a VM from multiple threads.

@@ -26,7 +26,7 @@ function updateStack() {
   const bufSize = 256;
   const base = Module.stackSave();
   const ptr = Module.stackAlloc(bufSize);
-  Module._ficl_wasm_stack_hex(ptr, bufSize, 8);
+  Module._ficlWasmStackHex(ptr, bufSize, 8);
   const stackText = Module.UTF8ToString(ptr);
   Module.stackRestore(base);
   stackEl.textContent = stackText || "S:";
@@ -39,20 +39,20 @@ function runLine(line) {
   if (!Module) return;
   if (!line.trim()) return;
 
-  appendOutput(`ok> ${line}\n`);
+  appendOutput(`${line}\n`);
 
   const len = Module.lengthBytesUTF8(line) + 1;
   const base = Module.stackSave();
   const ptr = Module.stackAlloc(len);
   Module.stringToUTF8(line, ptr, len);
-  const rc = Module._ficl_wasm_eval(ptr);
+  const rc = Module._ficlWasmEval(ptr);
   Module.stackRestore(base);
 
-  const outPtr = Module._ficl_wasm_get_output();
-  const outLen = Module._ficl_wasm_get_output_len();
+  const outPtr = Module._ficlWasmGetOutput();
+  const outLen = Module._ficlWasmGetOutputLen();
   const output = outLen ? Module.UTF8ToString(outPtr, outLen) : "";
   if (output) appendOutput(output);
-  Module._ficl_wasm_clear_output();
+  Module._ficlWasmClearOutput();
 
   updateStack();
   setStatus(`Result: ${rc}`);
@@ -85,8 +85,8 @@ clearBtn.addEventListener("click", () => {
 
 resetBtn.addEventListener("click", () => {
   if (!Module) return;
-  Module._ficl_wasm_reset();
-  Module._ficl_wasm_clear_output();
+  Module._ficlWasmReset();
+  Module._ficlWasmClearOutput();
   updateStack();
   setStatus("VM reset");
 });
@@ -96,7 +96,7 @@ inputEl.addEventListener("keydown", handleKeydown);
 async function init() {
   try {
     Module = await createModule();
-    Module._ficl_wasm_init(20000, 256);
+    Module._ficlWasmInit(20000, 256);
     updateStack();
     setStatus("Ready");
     inputEl.focus();

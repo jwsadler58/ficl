@@ -394,7 +394,7 @@ void *ficlRealloc(void *p, size_t size)
 
 
 /*
-** D E P R E C A T E D   F I C L _ M U L T I T H R E A D
+** D E P R E C A T E D   F I C L _ M U L T I S E S S I O N
 ** Never implemented to my knowledge, and should refer to multi-session 
 ** rather than multithread.
 **

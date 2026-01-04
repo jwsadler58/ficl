@@ -194,7 +194,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 
 /*
 ** FICL_PLATFORM_EXTEND
-** Includes words defined in ficlCompilePlatform (see win32.c and unix.c for example)
+** Includes words defined in ficlCompilePlatform (see unix.c for example)
 */
 #if !defined (FICL_PLATFORM_EXTEND)
 #define FICL_PLATFORM_EXTEND 0

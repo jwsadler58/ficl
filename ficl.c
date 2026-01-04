@@ -105,7 +105,7 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
 
     nEnvCells = fsi->nEnvCells;
     if (nEnvCells <= 0)
-        nEnvCells = FICL_DEFAULT_DICT;
+        nEnvCells = FICL_DEFAULT_ENV;
 
     pSys->dp = dictCreateHashed((unsigned)nDictCells, HASHSIZE);
     pSys->dp->pForthWords->name = "forth-wordlist";
@@ -117,22 +117,14 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     pSys->pExtend = fsi->pExtend;
 
 #if FICL_WANT_LOCALS
-    /*
-    ** The locals dictionary is only searched while compiling,
-    ** but this is where speed is most important. On the other
-    ** hand, the dictionary gets emptied after each use of locals
-    ** The need to balance search speed with the cost of the 'empty'
-    ** operation led me to select a single-threaded list...
-    */
+    /* Create a reuseable locals dictionary -- only searched while compiling */
     pSys->localp = dictCreate((unsigned)FICL_MAX_LOCALS * CELLS_PER_WORD);
 #endif
 
     /*
-    ** Build the precompiled dictionary and load softwords. We need a temporary
-    ** VM to do this - ficlNewVM links one to the head of the system VM list.
-    ** ficlCompilePlatform (defined in win32.c, for example) adds platform specific words.
+    ** Build the precompiled dictionary and load softwords. 
     */
-    ficlCompileCore(pSys);
+    ficlCompileCore(pSys); 
     ficlCompilePrefix(pSys);
 #if FICL_WANT_FLOAT
     ficlCompileFloat(pSys);
@@ -143,9 +135,9 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     ficlSetVersionEnv(pSys);
 
     /*
-    ** Establish the parse order. Note that prefixes precede numbers -
-    ** this allows constructs like "0b101010" which might parse as a
-    ** hex value otherwise.
+    ** Establish the parse order. Prefixes precede numbers - literally and in the parse order.
+    ** This allows constructs like "0b101010" to parse as binary numbers. 
+    ** Newer Forth Standards use single character prefixes for this purpose.
     */
     ficlAddPrecompiledParseStep(pSys, "?prefix", ficlParsePrefix);
     ficlAddPrecompiledParseStep(pSys, "?number", ficlParseNumber);
@@ -157,9 +149,6 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     ** Now create a temporary VM to compile the softwords. Since all VMs are
     ** linked into the vmList of FICL_SYSTEM, we don't have to pass the VM
     ** to ficlCompileSoftCore -- it just hijacks whatever it finds in the VM list.
-    ** ficl 2.05: vmCreate no longer depends on the presence of INTERPRET in the
-    ** dictionary, so a VM can be created before the dictionary is built. It just
-    ** can't do much...
     */
     ficlNewVM(pSys);
     ficlCompileSoftCore(pSys);
@@ -169,12 +158,14 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     return pSys;
 }
 
-
 FICL_SYSTEM *ficlInitSystem(int nDictCells)
 {
     FICL_SYSTEM_INFO fsi;
-    ficlInitInfo(&fsi);
-    fsi.nDictCells = nDictCells;
+    memset(&fsi, 0, sizeof(FICL_SYSTEM_INFO));
+    fsi.size = sizeof(FICL_SYSTEM_INFO);
+    fsi.textOut = ficlTextOut;
+    fsi.nDictCells = nDictCells <= 0 ? FICL_DEFAULT_DICT : nDictCells;
+    fsi.nEnvCells = FICL_DEFAULT_ENV;
     return ficlInitSystemEx(&fsi);
 }
 

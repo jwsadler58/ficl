@@ -12,7 +12,7 @@ WASM_CFLAGS  = -O2 -std=c11 -DFICL_WANT_FILE=0 -DFICL_UNIT_TEST=0 -DFICL_PLATFOR
 WASM_LDFLAGS = -s WASM=1 -s NO_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 \
                -s MODULARIZE=1 -s EXPORT_ES6=1 \
                -s EXPORTED_RUNTIME_METHODS="['UTF8ToString','stringToUTF8','lengthBytesUTF8','stackSave','stackAlloc','stackRestore']" \
-               -s EXPORTED_FUNCTIONS="['_ficl_wasm_init','_ficl_wasm_eval','_ficl_wasm_stack_hex','_ficl_wasm_reset','_ficl_wasm_get_output','_ficl_wasm_clear_output','_ficl_wasm_get_output_len']"
+               -s EXPORTED_FUNCTIONS="['_ficlWasmInit','_ficlWasmEval','_ficlWasmStackHex','_ficlWasmReset','_ficlWasmGetOutput','_ficlWasmClearOutput','_ficlWasmGetOutputLen']"
 
 LIB      = ar cr
 RANLIB   = ranlib
