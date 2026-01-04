@@ -55,7 +55,7 @@ function runLine(line) {
   Module._ficlWasmClearOutput();
 
   updateStack();
-  setStatus(`Result: ${rc}`);
+  setStatus(' ');
 }
 
 function handleKeydown(event) {

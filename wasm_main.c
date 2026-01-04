@@ -10,17 +10,23 @@
 **   import createModule from "./ficl_wasm.js";
 **   const Module = await createModule();
 **   Module._ficlWasmInit(20000, 256);
-**   const linePtr = Module.allocateUTF8("1 2 + .");
+**   const line = "1 2 + .";
+**   const len = Module.lengthBytesUTF8(line) + 1;
+**   const base = Module.stackSave();
+**   const linePtr = Module.stackAlloc(len);
+**   Module.stringToUTF8(line, linePtr, len);
 **   Module._ficlWasmEval(linePtr);
-**   Module._free(linePtr);
+**   Module.stackRestore(base);
 **   const outPtr = Module._ficlWasmGetOutput();
 **   const outLen = Module._ficlWasmGetOutputLen();
-**   const output = Module.UTF8ToString(outPtr, outLen);
+**   const output = outLen ? Module.UTF8ToString(outPtr, outLen) : "";
 **   Module._ficlWasmClearOutput();
-**   const stackBuf = Module._malloc(256);
-**   Module._ficlWasmStackHex(stackBuf, 256, 8);
+**   const stackBufSize = 256;
+**   const stackBase = Module.stackSave();
+**   const stackBuf = Module.stackAlloc(stackBufSize);
+**   Module._ficlWasmStackHex(stackBuf, stackBufSize, 8);
 **   const stack = Module.UTF8ToString(stackBuf);
-**   Module._free(stackBuf);
+**   Module.stackRestore(stackBase);
 **   console.log(output, stack);
 */
 #include <stdio.h>
