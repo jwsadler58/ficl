@@ -158,7 +158,7 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
     cursor = out;
     remaining = out_len;
 
-    written = snprintf(cursor, (size_t)remaining, "S:");
+    written = snprintf(cursor, (size_t)remaining, "n = %d", depth);
     if (written < 0 || written >= remaining)
         return count;
 
@@ -170,7 +170,7 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
         CELL cell = stackFetch(pVm->pStack, i);
         FICL_UNS value = cell.u;
         ultoa(value, hexbuf, 16);
-        written = snprintf(cursor, (size_t)remaining, " 0x%s", hexbuf);
+        written = snprintf(cursor, (size_t)remaining, "\n0x%s", hexbuf);
         if (written < 0 || written >= remaining)
             break;
         cursor += written;

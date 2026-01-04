@@ -10,6 +10,8 @@
   --border: #d8cbb8;
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   --radius: 16px;
+  --terminal-height: clamp(360px, 65vh, 640px);
+  --terminal-width: clamp(320px, 46vw, 520px);
 }
 
 * {
@@ -97,9 +99,8 @@ body {
 }
 
 .layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  max-width: var(--terminal-width);
+  margin: 0 auto;
   padding: 0 28px 32px;
 }
 
@@ -109,9 +110,10 @@ body {
   border-radius: var(--radius);
   padding: 18px;
   box-shadow: var(--shadow);
-  min-height: 60vh;
+  height: var(--terminal-height);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .output {
@@ -122,6 +124,22 @@ body {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 12px;
+}
+
+.stack-overlay {
+  position: absolute;
+  top: 10px;
+  right: 0px;
+  background: rgba(17, 17, 17, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 6px 12px 10px;
+  width: 20%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow);
 }
 
 .input-row {
@@ -154,26 +172,16 @@ body {
   margin-top: 6px;
 }
 
-.stack {
-  background: white;
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 60vh;
-}
-
 .stack-header {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 
 .stack h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .chip {
@@ -187,15 +195,23 @@ body {
 
 .stack-body {
   font-family: "SF Mono", "Menlo", "Consolas", monospace;
-  background: var(--bg-accent);
-  padding: 12px;
-  border-radius: 12px;
-  min-height: 120px;
-  white-space: pre-wrap;
+  background: transparent;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: pre;
+  overflow-y: auto;
 }
 
 .stack-body.flash {
   animation: flash 300ms ease;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
 }
 
 .hint {

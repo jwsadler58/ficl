@@ -16,29 +16,27 @@
           <div class="subtitle">Minimal browser terminal</div>
         </div>
       </div>
-      <div class="actions">
-        <button id="clear-btn" class="btn">Clear Output</button>
-        <button id="reset-btn" class="btn ghost">Reset VM</button>
-      </div>
     </header>
 
     <main class="layout">
       <section class="terminal">
+        <div class="stack-overlay">
+          <div class="stack-header">
+          Stack
+          </div>
+          <pre id="stack" class="stack-body"></pre>
+        </div>
         <div id="output" class="output" aria-live="polite"></div>
         <div class="input-row">
           <span class="prompt">ok&gt;</span>
           <input id="input" class="input" autocomplete="off" spellcheck="false" />
         </div>
         <div id="status" class="status">Loading WASM...</div>
-      </section>
-      <aside class="stack">
-        <div class="stack-header">
-          <h2>Stack</h2>
-          <span class="chip">hex</span>
+        <div class="terminal-actions">
+          <button id="clear-btn" class="btn">Clear Output</button>
+          <button id="reset-btn" class="btn">Reset VM</button>
         </div>
-        <pre id="stack" class="stack-body">S:</pre>
-        <div class="hint">Top of stack at left.</div>
-      </aside>
+      </section>
     </main>
 
     <script type="module" src="./demo.js"></script>

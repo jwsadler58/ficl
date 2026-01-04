@@ -29,7 +29,7 @@ function updateStack() {
   Module._ficlWasmStackHex(ptr, bufSize, 8);
   const stackText = Module.UTF8ToString(ptr);
   Module.stackRestore(base);
-  stackEl.textContent = stackText || "S:";
+  stackEl.textContent = (stackText || "").trim();
   stackEl.classList.remove("flash");
   void stackEl.offsetWidth;
   stackEl.classList.add("flash");
@@ -97,6 +97,11 @@ async function init() {
   try {
     Module = await createModule();
     Module._ficlWasmInit(20000, 256);
+    const outPtr = Module._ficlWasmGetOutput();
+    const outLen = Module._ficlWasmGetOutputLen();
+    const output = outLen ? Module.UTF8ToString(outPtr, outLen) : "";
+    if (output) appendOutput(output);
+    Module._ficlWasmClearOutput();
     updateStack();
     setStatus("Ready");
     inputEl.focus();
