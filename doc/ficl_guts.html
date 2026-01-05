@@ -38,8 +38,6 @@
 
       <div class="wrap content">
 
-<h2>Contents</h2>
-
 <h2>Major Data Structures</h2>
 <p>
 A running memory image of Ficl consists of one or more FICL_SYSTEMs, 
@@ -51,7 +49,7 @@ Ficl is a permissive, untyped language by nature,
 so its fundamental unit of storage is a CELL: a chunk of memory
 large enough to hold an address or a scalar type.
 </p>
-<svg viewBox="0 0 900 520" width="100%" height="auto" role="img" aria-labelledby="ficl-structures-title ficl-structures-desc" style="font-family: inherit; font-size: 14px;">
+<svg viewBox="0 0 900 400" width="100%" height="auto" role="img" aria-labelledby="ficl-structures-title ficl-structures-desc" style="font-family: inherit; font-size: 14px;">
   <title id="ficl-structures-title">Ficl major data structures</title>
   <desc id="ficl-structures-desc">Diagram showing FICL_SYSTEM owning a dictionary and multiple virtual machines. Each VM owns parameter, return, and optional float stacks. The dictionary contains wordlists, FICL_WORD entries, and cell payloads.</desc>
   <defs>
@@ -101,6 +99,7 @@ large enough to hold an address or a scalar type.
   <line x1="650" y1="270" x2="650" y2="290" stroke="#333" marker-end="url(#arrow)"></line>
   <text x="690" y="210" text-anchor="start" fill="#444">contains</text>
 </svg>
+
 <h3>FICL_SYSTEM</h3>
 The system structure associates one or more virtual machines with a dictionary. All FICL_SYSTEMS
 include a link pointer that is used to keep track of every allocated system so that memory
@@ -140,9 +139,64 @@ text string that it is interpreting. There are VM methods that excute a word giv
 <h3>FICL_STACK</h3>
 Each VM owns a parameter stack, a return stack, and if float support is enabled, a float parameter
 stack. Parameters, return addresses, and floats are all CELL sized, and values may be
-moved back and forth among stacks using various Ficl words for that purpose.
-      </div>
-    </main>
+moved back and forth among stacks using various Ficl words for that purpose.&nbsp;
+<h2>Inner Interpreter: Example Execution</h2>
+<p>
+This example shows how the inner interpreter executes a simple colon definition with control flow.
+The word below computes a factorial using a counted loop and a running accumulator.
+</p>
+<pre>
+: fact ( n -- n! )
+  1 swap 1+ 1 ?DO
+    I *
+  LOOP
+;
+</pre>
+<p>
+Ficl stores colon definitions as a payload of execution tokens (XTs). In simplified form, the
+payload for <TT>fact</TT> looks like this:
+</p>
+<pre>
+XT (literal) 1
+XT swap
+XT (literal) 1
+XT +
+XT (?do) [exit address]
+XT I
+XT *
+XT (loop) [branch address]
+XT (;)
+</pre>
+<p>
+When C code calls <TT>ficlExecXT</TT> with the <TT>fact</TT> word, it sets up a nested exception
+frame, pushes the <TT>exit-inner</TT> sentinel on the IP stack, and then enters the inner loop.
+The inner loop walks the XT list until <TT>(;)</TT> triggers <TT>VM_INNEREXIT</TT>.
+</p>
+<p>
+If an XT in the payload refers to a colon definition, the inner loop executes
+its code like any other word. The callee pushes the current instruction pointer, switches to its
+own payload, and returns to the caller when <TT>(;)</TT> pops the saved IP.
+</p>
+<ul>
+  <li>
+    <B>Setup</B> Save the current <TT>pState</TT> and <TT>runningWord</TT>, install a new
+    <TT>jmp_buf</TT>, and push <TT>pExitInner</TT> onto the IP stack.
+  </li>
+  <li>
+    <B>Execute</B> <TT>vmExecute</TT> positions the IP at the word's payload, then
+    <TT>vmInnerLoop</TT> executes XTs in order.
+  </li>
+  <li>
+    <B>Looping</B> <TT>(?do)</TT> initializes the loop parameters, <TT>I</TT> fetches the loop
+    index, and <TT>(loop)</TT> advances or exits the loop.
+  </li>
+  <li>
+    <B>Exit</B> <TT>(;)</TT> throws <TT>VM_INNEREXIT</TT>, the inner loop unwinds, and
+    <TT>ficlExecXT</TT> restores the previous <TT>pState</TT>.
+  </li>
+</ul>
+  </div>
+  </main>
 
     <footer class="site-footer">
       <div class="wrap footer-grid">
