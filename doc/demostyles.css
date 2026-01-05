@@ -28,7 +28,7 @@
   padding: 22px;
   box-shadow: var(--term-shadow);
   border: 1px solid rgba(15, 118, 110, 0.18);
-  min-height: clamp(420px, 70vh, 720px);
+  height: clamp(420px, 70vh, 720px);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -42,18 +42,19 @@
   line-height: 1.6;
   white-space: pre-wrap;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 10px;
 }
 
 .stack-overlay {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  background: rgba(20, 18, 15, 0.92);
+  top: 2px;
+  right: 2px;
+  background: rgba(20, 18, 15, 0.796);
   border: 1px solid var(--term-border);
   border-radius: 14px;
-  padding: 8px 12px 10px;
+  padding: 2px 2px 2px;
   width: clamp(140px, 20%, 200px);
   max-height: 80%;
   display: flex;

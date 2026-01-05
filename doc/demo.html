@@ -30,13 +30,11 @@
     <main>
       <section class="page-hero">
         <div class="wrap">
-          <p class="eyebrow">Demo</p>
-          <p>Run the interpreter in your browser.</p>
+          <p class="eyebrow">Ficl Web Demo</p>
         </div>
       </section>
 
       <div class="wrap content">
-        <p class="demo-lead">Type commands in the prompt to evaluate Ficl words. The stack view updates as you go.</p>
         <section class="demo-shell">
           <div class="stack-overlay">
             <pre id="stack" class="stack-body"></pre>
@@ -55,9 +53,12 @@
         <div class="demo-notes">
           <h3>Try these</h3>
           <ul>
-            <li><code>1 2 + .</code></li>
-            <li><code>: square dup * ; 5 square .</code></li>
-            <li><code>see square</code></li>
+            <li><code>decimal 10000 355 113 */ . cr</code></li>
+            <li><code>.( Hello ficl! ) cr</code></li>
+            <li><code>: aloha  depth 0= if -1 endif  invert dup 0= if ." Hello" else ." Goodbye " endif cr ; </code></li>
+            <li><code>: fact ( n -- n! ) 1 swap 1+ 1 ?DO I * LOOP ;</code></li>
+            <li><code>10 fact . cr</code></li>
+            <li><code>see fact</code></li>
           </ul>
         </div>
       </div>
