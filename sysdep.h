@@ -105,29 +105,6 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #endif  /* TARGET_OS */
 #endif  /* __APPLE__ */
 
-/*
-**         Ancient Win32 version
-*/
-#if defined(_WIN32)
-    #include <stdio.h>
-    #ifndef alloca
-        #define alloca(x)   _alloca(x)
-    #endif /* alloca */
-    #define fstat       _fstat
-    #define stat        _stat
-    #define getcwd      _getcwd
-    #define chdir       _chdir
-    #define unlink      _unlink
-    #define fileno      _fileno
-
-    #define FICL_HAVE_FTRUNCATE 1
-    extern int ftruncate(int fileno, size_t size);
-
-    #if !defined (FICL_PLATFORM_EXTEND)
-        #define FICL_PLATFORM_EXTEND 1
-    #endif
-#endif  /* _WIN32 */
-
 
 /*
 **         Linux  (Skip Carter)

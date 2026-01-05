@@ -383,7 +383,6 @@ void buildTestInterface(FICL_SYSTEM *pSys)
 
 #endif
 
-#if !defined (_WINDOWS) /* Console main */
 #define nINBUF 256
 
 #if !defined (_WIN32)
@@ -421,34 +420,17 @@ int main(int argc, char **argv)
     {
         sprintf(in, ".( loading %s ) cr load %s\n cr", argv[1], argv[1]); 
         vmTextOut(pVM, in, 1);
-        __try
-        {
-            ret = ficlEvaluate(pVM, in);
-        }
-        __except(1)
-        {
-            vmTextOut(pVM, "exception -- cleaning up", 1);
-            vmReset(pVM);
-        }
+        ret = ficlEvaluate(pVM, in);
     }
 
     while (ret != VM_USEREXIT)
     {
         fgets(in, nINBUF, stdin);
-        __try
-        {
-            ret = ficlExec(pVM, in);
-        }
-        __except(1)
-        {
-            vmTextOut(pVM, "exception -- cleaning up", 1);
-            vmReset(pVM);
-        }
+        ret = ficlExec(pVM, in);
     }
 
     ficlTermSystem(pSys);
     return 0;
 }
 
-#endif
 

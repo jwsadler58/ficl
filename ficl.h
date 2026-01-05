@@ -631,14 +631,6 @@ void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 ** Generally useful string manipulators omitted by ANSI C...
 ** ltoa complements strtol
 */
-#if defined(_WIN32) && !FICL_MAIN
-/* #SHEESH
-** Why do Microsoft Meatballs insist on contaminating
-** my namespace with their string functions???
-*/
-#pragma warning(disable: 4273)
-#endif
-
 int        isPowerOfTwo(FICL_UNS u);
 
 char       *ltoa( FICL_INT value, char *string, int radix );
@@ -649,9 +641,6 @@ char       *skipSpace(char *cp, char *end);
 char       *caseFold(char *cp);
 int         strincmp(char *cp1, char *cp2, FICL_UNS count);
 
-#if defined(_WIN32) && !FICL_MAIN
-#pragma warning(default: 4273)
-#endif
 
 /*
 ** Ficl hash table - size defined by HASHSIZE. 
