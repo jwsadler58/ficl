@@ -132,6 +132,13 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
 #if FICL_PLATFORM_EXTEND
     ficlCompilePlatform(pSys);
 #endif
+    /*
+    ** Set up system's outer interpreter loop - must come after ficlCompileCore
+    */
+	pSys->pInterp[0] = pSys->pInterpret;
+	pSys->pInterp[1] = pSys->pBranchParen;
+	pSys->pInterp[2] = (FICL_WORD *)(void *)(-2);
+
     ficlSetVersionEnv(pSys);
 
     /*
