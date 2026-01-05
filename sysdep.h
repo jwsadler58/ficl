@@ -214,6 +214,30 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
+** FICL_WANT_OOP
+** Inludes object oriented programming support (in softwords)
+** OOP support requires locals and user variables!
+*/
+#if !defined (FICL_WANT_OOP)
+    #define FICL_WANT_OOP 1
+#endif
+
+#if (FICL_WANT_OOP)
+    #if !defined (FICL_WANT_LOCALS)
+        #define FICL_WANT_LOCALS 1
+    #else
+        #undef FICL_WANT_LOCALS
+        #define FICL_WANT_LOCALS 1  
+    #endif
+    #if !defined (FICL_WANT_USER)
+        #define FICL_WANT_USER 1
+    #else
+        #undef FICL_WANT_USER
+        #define FICL_WANT_USER 1  
+    #endif
+#endif
+
+/*
 ** User variables: per-instance variables bound to the VM.
 ** Kinda like thread-local storage. Could be implemented in a 
 ** VM private dictionary, but I've chosen the lower overhead
@@ -238,23 +262,6 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 /* Max number of local variables per definition - standard requires 16 min */
 #if !defined FICL_MAX_LOCALS
 #define FICL_MAX_LOCALS 16
-#endif
-
-/*
-** FICL_WANT_OOP
-** Inludes object oriented programming support (in softwords)
-** OOP support requires locals and user variables!
-*/
-#if !(FICL_WANT_LOCALS) || !(FICL_WANT_USER)
-    #if !defined (FICL_WANT_OOP)
-        #define FICL_WANT_OOP 0
-    #endif
-    #if FICL_WANT_OOP
-        #error FICL_WANT_OOP needs LOCALS and USER variables
-    #endif
-#endif
-#if !defined (FICL_WANT_OOP)
-    #define FICL_WANT_OOP 1
 #endif
 
 /*
