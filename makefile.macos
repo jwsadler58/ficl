@@ -46,6 +46,7 @@ ficl_wasm.js: $(WASM_SOURCES)
 
 softcore.c:
 	make -C softwords softcore.c
+	cp softwords/softcore.c .
 
 # === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o
