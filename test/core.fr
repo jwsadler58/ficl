@@ -985,7 +985,11 @@ CREATE ABUF 80 CHARS ALLOT
    ABUF SWAP TYPE [CHAR] " EMIT CR
 ;
 
-{ ACCEPT-TEST -> }
+SOURCE-ID 0= [IF] 
+   { ACCEPT-TEST -> }
+[ELSE]
+   .( Skipping ACCEPT test: non-interactive SOURCE-ID ) CR CR
+[THEN]
 
 \ ------------------------------------------------------------------------
 TESTING DICTIONARY SEARCH RULES

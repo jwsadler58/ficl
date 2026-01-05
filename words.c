@@ -1693,7 +1693,9 @@ static int ficlParseWord(FICL_VM *pVM, STRINGINFO si)
         {
             if (wordIsCompileOnly(tempFW))
             {
-                vmThrowErr(pVM, "Error: Compile only!");
+                vmTextOut(pVM, "Error: >> ", 0);
+                vmTextOut(pVM, tempFW->name, 0);
+                vmThrowErr(pVM, " << is compile-only", tempFW->name);
             }
 
             vmExecute(pVM, tempFW);
