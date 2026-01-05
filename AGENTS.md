@@ -14,4 +14,5 @@
 ## planning and doing
 - Always begin an assignment with a proposal including at least two options
 - Once I have selected an option, develop it into a detailed design
+- Review affected code for cruft, inconsistencies, and opportunities to improve readability
 
