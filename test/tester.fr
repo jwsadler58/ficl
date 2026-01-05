@@ -18,10 +18,22 @@ VARIABLE VERBOSE
 : EMPTY-STACK	\ ( ... -- ) EMPTY STACK: HANDLES UNDERFLOWED STACK TOO.
    DEPTH ?DUP IF DUP 0< IF NEGATE 0 DO 0 LOOP ELSE 0 DO DROP LOOP THEN THEN ;
 
+variable errors 0 errors !
+: .errors ( -- )
+   ." ==== TEST RESULTS === " cr   
+   errors @ 0= if
+      ." No errors" cr
+   else
+      ." Errors found: " errors @ .  
+   endif 
+   cr 
+; 
+
 : ERROR		\ ( C-ADDR U -- ) DISPLAY AN ERROR MESSAGE FOLLOWED BY
-		\ THE LINE THAT HAD THE ERROR.
-   TYPE SOURCE TYPE CR			\ DISPLAY LINE CORRESPONDING TO ERROR
-   EMPTY-STACK				\ THROW AWAY EVERY THING ELSE
+	                           \ THE LINE THAT HAD THE ERROR.
+   TYPE SOURCE TYPE CR		   \ DISPLAY LINE CORRESPONDING TO ERROR
+   EMPTY-STACK				      \ THROW AWAY EVERYTHING ELSE
+   1 errors +!
    break	\ jws
 ;
 

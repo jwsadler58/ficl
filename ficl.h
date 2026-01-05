@@ -218,7 +218,7 @@ typedef struct ficl_system_info FICL_SYSTEM_INFO;
 #define STR(x) STR_HELPER(x)
 
 #define FICL_VER_MAJOR 3
-#define FICL_VER_MINOR 04
+#define FICL_VER_MINOR 041
 #define FICL_VER STR(FICL_VER_MAJOR) "." STR(FICL_VER_MINOR)
 
 #if !defined (FICL_PROMPT)

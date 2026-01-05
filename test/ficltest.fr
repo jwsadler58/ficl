@@ -1,5 +1,6 @@
-\ test file for ficl
+\ test file for ficl - requires MARKER from softwords
 \ test ANSI CORE stuff first...
+marker ficltest-marker 
 -1 set-order
 
 \ set up local variable regressions before { gets redefined!
@@ -98,10 +99,5 @@ testing number builder
 { -1 -> -1 }
 
 
-s" ficlwin" environment?
-[if]
-drop
-testing OOP support
-load ooptest.fr
-[endif]
-
+.errors
+ficltest-marker

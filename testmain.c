@@ -411,6 +411,10 @@ int main(int argc, char **argv)
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
+    int nBits = sizeof(CELL) * CHAR_BIT;
+    sprintf(pVM->pad, "%d bit CELL size", nBits);
+    vmTextOut(pVM, pVM->pad, 1);   
+
     ret = ficlEvaluate(pVM, ".ver .( " __DATE__ " ) cr quit");
 
     /*

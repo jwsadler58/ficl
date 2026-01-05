@@ -244,7 +244,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
                 else if (c.i == 1)
                     sprintf(cp, "else (branch %d)",       (int)(pc+c.i-param0));
 				else
-                    sprintf(cp, "endof (branch %d)",      (int)(pc+c.i-param0));
+                    sprintf(cp, "endif (branch %d)",      (int)(pc+c.i-param0));
                 break;
 
             case OF:
