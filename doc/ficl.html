@@ -809,17 +809,41 @@ FORTH-WORDLIST 1 SET-ORDER
       <H2>
         <A name="ansinfo"></A>ANS Required Information
       </H2>
-      <B>ANS Forth System</B><BR>
-       <B>Providing names from the Core Extensions word set&nbsp;</B><BR>
-       <B>Providing the Exception word set</B><BR>
-       <B>Providing names from the Exception Extensions word set</B><BR>
-       <B>Providing the Locals word set&nbsp;</B><BR>
-       <B>Providing the Locals Extensions word set&nbsp;</B><BR>
-       <B>Providing the Memory Allocation word set</B><BR>
-       <B>Providing the Programming-Tools word set</B><BR>
-       <B>Providing names from the Programming-Tools Extensions word set</B><BR>
-       <B>Providing the Search-Order word set</B><BR>
-       <B>Providing the Search-Order Extensions word set</B> 
+      <UL>
+        <LI>
+          <B>ANS Forth System</B>
+        </LI>
+        <LI>
+          <B>Providing names from the Core Extensions word set&nbsp;</B>
+        </LI>
+        <LI>
+          <B>Providing the Exception word set</B>
+        </LI>
+        <LI>
+          <B>Providing names from the Exception Extensions word set</B>
+        </LI>
+        <LI>
+          <B>Providing the Locals word set&nbsp;</B>
+        </LI>
+        <LI>
+          <B>Providing the Locals Extensions word set&nbsp;</B>
+        </LI>
+        <LI>
+          <B>Providing the Memory Allocation word set</B>
+        </LI>
+        <LI>
+          <B>Providing the Programming-Tools word set</B>
+        </LI>
+        <LI>
+          <B>Providing names from the Programming-Tools Extensions word set</B>
+        </LI>
+        <LI>
+          <B>Providing the Search-Order word set</B>
+        </LI>
+        <LI>
+          <B>Providing the Search-Order Extensions word set</B>
+        </LI>
+      </UL>
       <H3>
         Implementation-defined Options
       </H3>
@@ -828,131 +852,95 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>aligned address requirements (3.1.3.3 Addresses);</B>&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">System dependent. You can change the default address alignment by defining FICL_ALIGN on your compiler's command line. The default value is set to 2 in sysdep.h. This
-          causes dictionary entries and <TT>ALIGN</TT> and <TT>ALIGNED</TT> to align on 4 byte boundaries. To align on <B>2<SUP>n</SUP></B> byte boundaries, set FICL_ALIGN to <B>n</B>.&nbsp;</FONT>
+          System dependent. You can change the default address alignment by defining FICL_ALIGN on your compiler's command line. The default value is set to 2 in sysdep.h. This
+          causes dictionary entries and <TT>ALIGN</TT> and <TT>ALIGNED</TT> to align on 4 byte boundaries. To align on <B>2<SUP>n</SUP></B> byte boundaries, set FICL_ALIGN to <B>n</B>.&nbsp;
         </LI>
         <LI>
           <B>behavior of 6.1.1320 EMIT for non-graphic characters</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Depends on target system, C runtime library, and your implementation of ficlTextOut().</FONT>
+          Depends on target system, C runtime library, and your implementation of ficlTextOut().&nbsp;
         </LI>
         <LI>
           <B>character editing of 6.1.0695 ACCEPT and 6.2.1390 EXPECT</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">None implemented in the versions supplied in words.c. Because ficlExec() is supplied a text buffer externally, it's up to your system to define how that buffer will
-          be obtained.</FONT>
+          None implemented in the versions supplied in words.c. Because ficlExec() is supplied a text buffer externally, it's up to your system to define how that buffer will
+          be obtained.
         </LI>
         <LI>
           <B>character set (3.1.2 Character types, 6.1.1320 EMIT, 6.1.1750 KEY)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Depends on target system and implementation of ficlTextOut()</FONT>
+          Depends on target system and implementation of ficlTextOut(). 
         </LI>
         <LI>
           <B>character-aligned address requirements (3.1.3.3 Addresses)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Ficl characters are one byte each. There are no alignment requirements.</FONT>
+          Ficl characters are one byte each. There are no alignment requirements.
         </LI>
         <LI>
-          <B>character-set-extensions matching characteristics (3.4.2 Finding definition n<FONT color="#000000">ames)</FONT></B><FONT color="#000000">;&nbsp;</FONT>
-        </LI>
-        <LI>
+          <B>character-set-extensions matching characteristics (3.4.2 Finding definition names)</B>;&nbsp;
           <BR>
-           <FONT color="#000000">No special processing is performed on characters beyond case-folding. Therefore, extended characters will not match their unaccented counterparts.</FONT>
+          No special processing is performed on characters beyond case-folding. Therefore, extended characters will not match their unaccented counterparts.
         </LI>
         <LI>
-          <B>conditions under which control characters match a space delimiter (3.4.1.1 Delimiters)</B>;<FONT color="#FF6666">&nbsp;</FONT>
-        </LI>
-        <LI>
+          <B>conditions under which control characters match a space delimiter (3.4.1.1 Delimiters)</B>;&nbsp;
           <BR>
-           <FONT color="#000000">Ficl uses the Standard C function isspace() to distinguish space characters. The rest is up to your library vendor.</FONT>
+          Ficl uses the Standard C function isspace() to distinguish space characters. The rest is up to your library vendor.&nbsp;
         </LI>
         <LI>
           <B>format of the control-flow stack (3.2.3.2 Control-flow stack)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Uses the data stack</FONT>
+          Uses the data stack
         </LI>
         <LI>
           <B>conversion of digits larger than thirty-five (3.2.1.2 Digit conversion)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">The maximum supported value of <TT>BASE</TT> is 36. Ficl will assertion fail in function ltoa of vm.c if the base is found to be larger than 36 or smaller than 2.
-          There will be no effect if NDEBUG is defined</FONT>, however, other than possibly unexpected behavior.&nbsp;
+          The maximum supported value of <TT>BASE</TT> is 36. Ficl will assertion fail in function ltoa of vm.c if the base is found to be larger than 36 or smaller than 2.
+          There will be no effect if NDEBUG is defined, however, other than possibly unexpected behavior.&nbsp;
         </LI>
         <LI>
           <B>display after input terminates in 6.1.0695 ACCEPT and 6.2.1390 EXPECT</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Target system dependent</FONT>
+          Target system dependent
         </LI>
         <LI>
           <B>exception abort sequence (as in 6.1.0680 ABORT")</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Does <TT>ABORT</TT></FONT>
+          Does <TT>ABORT</TT>&nbsp;
         </LI>
         <LI>
           <B>input line terminator (3.2.4.1 User input device)</B>;<FONT color="#FF0000">&nbsp;</FONT>
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Target system dependent (implementation of outer loop that calls ficlExec)</FONT>
+           <BR>
+           Target system dependent (implementation of outer loop that calls ficlExec)&nbsp;
         </LI>
         <LI>
           <B>maximum size of a counted string, in characters (3.1.3.4 Counted strings, 6.1.2450 WORD)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">255</FONT>
+           <BR>
+           255&nbsp;
         </LI>
         <LI>
           <B>maximum size of a parsed string (3.4.1 Parsing)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Limited by available memory and the maximum unsigned value that can fit in a CELL (2<SUP>32</SUP>-1).&nbsp;
         </LI>
         <LI>
           <B>maximum size of a definition name, in characters (3.3.1.2 Definition names)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Ficl stores the first 31 characters of a definition name.</FONT>
+           <BR>
+           Ficl stores the first 31 characters of a definition name.
         </LI>
         <LI>
           <B>maximum string length for 6.1.1345 ENVIRONMENT?, in characters</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Same as maximum definition name length</FONT>
+           <BR>
+           Same as maximum definition name length&nbsp;
         </LI>
         <LI>
           <B>method of selecting 3.2.4.1 User input device</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            None supported. This is up to the target system&nbsp;
         </LI>
         <LI>
           <B>method of selecting 3.2.4.2 User output device</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            None supported. This is up to the target system&nbsp;
         </LI>
         <LI>
@@ -960,117 +948,85 @@ FORTH-WORDLIST 1 SET-ORDER
         </LI>
         <LI>
           <B>number of bits in one address unit (3.1.3.3 Addresses)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Target system dependent. Ficl generally supports processors that can address 8 bit quantities, but there is no dependency that I'm aware of.</FONT>
+           <BR>
+           Target system dependent. Ficl generally supports processors that can address 8 bit quantities, but there is no dependency that I'm aware of.&nbsp;
         </LI>
         <LI>
           <B>number representation and arithmetic (3.2.1.1 Internal number representation)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           System dependent. Ficl represents a CELL internally as a union that can hold INT32 (a signed 32 bit scalar value), UNS32 (32 bits unsigned), and an untyped pointer. No specific byte
+          System dependent. Ficl represents a CELL internally as a union that can hold INT32 (a signed 32 bit scalar value), UNS32 (32 bits unsigned), and an untyped pointer. No specific byte
           ordering is assumed.&nbsp;
         </LI>
         <LI>
           <B>ranges for n, +n, u, d, +d, and ud (3.1.3 Single-cell types, 3.1.4 Cell-pair types)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           Assuming a 32 bit implementation, range for signed single-cell values is -2<SUP>31</SUP>..2<SUP>31</SUP>-1. Range for unsigned single cell values is 0..2<SUP>32</SUP>-1. Range for signed
+          Assuming a 32 bit implementation, range for signed single-cell values is -2<SUP>31</SUP>..2<SUP>31</SUP>-1. Range for unsigned single cell values is 0..2<SUP>32</SUP>-1. Range for signed
           double-cell values is -2<SUP>63</SUP>..2<SUP>63</SUP>-1. Range for unsigned single cell values is 0..2<SUP>64</SUP>-1.&nbsp;
         </LI>
         <LI>
           <B>read-only data-space regions (3.3.3 Data space)</B>;
-        </LI>
-        <LI>
           <BR>
-           None&nbsp;
+          None&nbsp;
         </LI>
         <LI>
           <B>size of buffer at 6.1.2450 WORD (3.3.3.6 Other transient regions)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           Default is 255. Depends on the setting of nPAD in ficl.h.&nbsp;
+          Default is 255. Depends on the setting of nPAD in ficl.h.&nbsp;
         </LI>
         <LI>
           <B>size of one cell in address units (3.1.3 Single-cell types)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">System dependent, generally four.</FONT>
+          System dependent, generally four.
         </LI>
         <LI>
           <B>size of one character in address units (3.1.2 Character types)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">System dependent, generally one.</FONT>
+           <BR>
+           System dependent, generally one.
         </LI>
         <LI>
           <B>size of the keyboard terminal input buffer (3.3.3.5 Input buffers)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">This buffer is supplied by the host program. Ficl imposes no practical limit.</FONT>
+           <BR>
+           This buffer is supplied by the host program. Ficl imposes no practical limit.&nbsp;
         </LI>
         <LI>
           <B>size of the pictured numeric output string buffer (3.3.3.6 Other transient regions)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Default is 255 characters. Depends on the setting of nPAD in ficl.h.&nbsp;
         </LI>
         <LI>
           <B>size of the scratch area whose address is returned by 6.2.2000 PAD (3.3.3.6 Other transient regions)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Not presently supported&nbsp;
         </LI>
         <LI>
           <B>system case-sensitivity characteristics (3.4.2 Finding definition names)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Ficl is not case sensitive</FONT>
-        </LI>
+          Ficl is not case sensitive&nbsp;
+        </LI> 
         <LI>
           <B>system prompt (3.4 The Forth text interpreter, 6.1.2050 QUIT)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">"ok&gt;"</FONT>
+          "ok&gt;"&nbsp;
         </LI>
         <LI>
           <B>type of division rounding (3.2.2.1 Integer division, 6.1.0100 */, 6.1.0110 */MOD, 6.1.0230 /, 6.1.0240 /MOD, 6.1.1890 MOD)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Symmetric</FONT>
+           <BR>
+           Symmetric rounding (toward zero)&nbsp;
         </LI>
         <LI>
           <B>values of 6.1.2250 STATE when true</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">One (no others)</FONT>
+          One (no others)&nbsp;
         </LI>
         <LI>
           <B>values returned after arithmetic overflow (3.2.2.2 Other integer operations)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            System dependent. Ficl makes no special checks for overflow.&nbsp;
         </LI>
         <LI>
           <B>whether the current definition can be found after 6.1.1250 DOES&gt; (6.1.0450 :)</B>.&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">No. Definitions are unsmudged after ; only, and only then if no control structure matching problems have been detected.</FONT>
+           <BR>
+           No. Definitions are unsmudged after ; only, and only then if no control structure matching problems have been detected.&nbsp;
         </LI>
       </UL>
       <H3>
@@ -1084,231 +1040,169 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>a name is neither a valid definition name nor a valid number during text interpretation (3.4 The Forth text interpreter)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Ficl does <TT>ABORT</TT> and prints the name followed by " not found".</FONT>
+           <BR>
+           Ficl does <TT>ABORT</TT> and prints the name followed by " not found".&nbsp;
         </LI>
         <LI>
           <B>a definition name exceeded the maximum length allowed (3.3.1.2 Definition names)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Ficl stores the first 31 characters of the definition name, and uses all characters of the name in computing its hash code. The actual length of the name, up to 255
-          characters, is stored in the definition's length field.</FONT>
+          Ficl stores the first 31 characters of the definition name, and uses all characters of the name in computing its hash code. The actual length of the name, up to 255
+          characters, is stored in the definition's length field.&nbsp;
         </LI>
         <LI>
           <B>addressing a region not listed in 3.3.3 Data Space</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">No problem: all addresses in ficl are absolute. You can reach any 32 bit address in Ficl's address space.</FONT>
+           <BR>
+           No problem: all addresses in ficl are absolute. You can reach any address in Ficl's address space.
         </LI>
         <LI>
           <B>argument type incompatible with specified input parameter, e.g., passing a flag to a word expecting an n (3.1 Data types)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Ficl makes no check for argument type compatibility. Effects of a mismatch vary widely depending on the specific problem and operands.</FONT>
+           <BR>
+           Ficl makes no check for argument type compatibility. Effects of a mismatch vary widely depending on the specific problem and operands.&nbsp;
         </LI>
         <LI>
           <B>attempting to obtain the execution token, (e.g., with 6.1.0070 ', 6.1.1550 FIND, etc.) of a definition with undefined interpretation semantics</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Ficl returns a valid token, but the result of executing that token while interpreting may be undesirable.</FONT>
+          Ficl returns a valid token, but the result of executing that token while interpreting may be undesirable.
         </LI>
         <LI>
           <B>dividing by zero (6.1.0100 */, 6.1.0110 */MOD, 6.1.0230 /, 6.1.0240 /MOD, 6.1.1561 FM/MOD, 6.1.1890 MOD, 6.1.2214 SM/REM, 6.1.2370 UM/MOD, 8.6.1.1820 M*/)</B>;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Results are target procesor dependent. Generally, Ficl makes no check for divide-by-zero. The target processor will probably throw an exception.</FONT>
+           <BR>
+           Results are target procesor dependent. Generally, Ficl makes no check for divide-by-zero. The target processor will probably throw an exception.&nbsp;
         </LI>
         <LI>
           <B>insufficient data-stack space or return-stack space (stack overflow)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">With FICL_ROBUST (sysdep.h) set &gt;= 2, most parameter stack operations are checked for underflow and overflow. Ficl does not check the return stack.</FONT>
+           <BR>
+           With FICL_ROBUST (sysdep.h) set &gt;= 2, most parameter stack operations are checked for underflow and overflow. Ficl does not check the return stack.&nbsp;
         </LI>
         <LI>
           <B>insufficient space for loop-control parameters</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">No check - Evil results.</FONT>
+          No check - Evil results.&nbsp;
         </LI>
         <LI>
           <B>insufficient space in the dictionary</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Ficl generates an error message if the dictionary is too full to create a definition header. It checks <TT>ALLOT</TT> as well, but it is possible to make an unchecked
-          allocation request that overflows the dictionary.</FONT>
+          Ficl generates an error message if the dictionary is too full to create a definition header. It checks <TT>ALLOT</TT> as well, but it is possible to make an unchecked
+          allocation request that overflows the dictionary.&nbsp;
         </LI>
         <LI>
           <B>interpreting a word with undefined interpretation semantics</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Ficl protects all ANS Forth words with undefined interpretation semantics from being executed while in interpret state. It is possible to defeat this protection using
-          ' (tick) and <TT>EXECUTE</TT>, though.</FONT>
+          Ficl protects all ANS Forth words with undefined interpretation semantics from being executed while in interpret state. It is possible to defeat this protection using
+          ' (tick) and <TT>EXECUTE</TT>, though.&nbsp;
         </LI>
         <LI>
           <B>modifying the contents of the input buffer or a string literal (3.3.3.4 Text-literal regions, 3.3.3.5 Input buffers)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Varies depending on the nature of the buffer. The input buffer is supplied by ficl's host function, and may reside in read-only memory. If so, writing the input
-          buffer can ganerate an exception. String literals are stored in the dictionary, and are writable.</FONT>
+          Varies depending on the nature of the buffer. The input buffer is supplied by ficl's host function, and may reside in read-only memory. If so, writing the input
+          buffer can ganerate an exception. String literals are stored in the dictionary, and are writable.&nbsp;
         </LI>
         <LI>
           <B>overflow of a pictured numeric output string</B>;
-        </LI>
-        <LI>
           <BR>
-           In the unlikely event you are able to construct a pictured numeric string of more than 255 characters, the system will be corrupted unpredictably. The buffer area that holds pictured
+          In the unlikely event you are able to construct a pictured numeric string of more than 255 characters, the system will be corrupted unpredictably. The buffer area that holds pictured
           numeric output is at the end of the virtual machine. Whatever is mapped after the offending VM in memory will be trashed, along with the heap structures that contain it.&nbsp;
         </LI>
         <LI>
           <B>parsed string overflow</B>;
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Ficl does not copy parsed strings unless asked to. Ordinarily, a string parsed from the input buffer during normal interpretation is left in-place, so there is no possibility of overflow.
           If you ask to parse a string into the dictionary, as in <TT>SLITERAL</TT>, you need to have enough room for the string, otherwise bad things may happen. This is not usually a problem.&nbsp;
         </LI>
         <LI>
           <B>producing a result out of range, e.g., multiplication (using *) results in a value too big to be represented by a single-cell integer (6.1.0090 *, 6.1.0100 */, 6.1.0110 */MOD, 6.1.0570
           &gt;NUMBER, 6.1.1561 FM/MOD, 6.1.2214 SM/REM, 6.1.2370 UM/MOD, 6.2.0970 CONVERT, 8.6.1.1820 M*/)</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Value will be truncated</FONT>
+           <BR>
+           Value will be truncated to fit in a single cell.&nbsp;
         </LI>
         <LI>
           <B>reading from an empty data stack or return stack (stack underflow)</B>;&nbsp;
-        </LI>
-        <LI>
           <BR>
-           <FONT color="#000000">Most stack underflows are detected and prevented if FICL_ROBUST (sysdep.h) is set to 2 or greater. Otherwise, the stack pointer and size are likely to be
-          trashed.</FONT>
+          Most stack underflows are detected and prevented if FICL_ROBUST (sysdep.h) is set to 2 or greater. Otherwise, the stack pointer and size are likely to be
+          trashed.&nbsp;
         </LI>
         <LI>
           <B>unexpected end of input buffer, resulting in an attempt to use a zero-length string as a name</B>;&nbsp;
-        </LI>
-        <LI>
-          <BR>
-           <FONT color="#000000">Ficl returns for a new input buffer until a non-empty one is supplied.</FONT>
+           <BR>
+           Ficl returns for a new input buffer until a non-empty one is supplied.&nbsp;
         </LI>
       </UL>
       The following specific ambiguous conditions are noted in the glossary entries of the relevant words:&nbsp; 
       <UL>
         <LI>
           <B>&gt;IN greater than size of input buffer (3.4.1 Parsing)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Bad Things occur - unpredictable bacause the input buffer is supplied by the host program's outer loop.&nbsp;
         </LI>
         <LI>
           <B>6.1.2120 RECURSE appears after 6.1.1250 DOES&gt;</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            It finds the address of the definition before <TT>DOES&gt;</TT>
         </LI>
         <LI>
           <B>argument input source different than current input source for 6.2.2148 RESTORE-INPUT</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Not implemented&nbsp;
         </LI>
         <LI>
           <B>data space containing definitions is de-allocated (3.3.3.2 Contiguous regions)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            This is OK until the cells are overwritten with something else. The dictionary maintains a hash table, and the table must be updated in order to de-allocate words without corruption.&nbsp;
         </LI>
         <LI>
           <B>data space read/write with incorrect alignment (3.3.3.1 Address alignment)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Target processor dependent. Consequences include: none (Intel), address error exception (68K).&nbsp;
         </LI>
         <LI>
           <B>data-space pointer not properly aligned (6.1.0150 ,, 6.1.0860 C,)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            See above on data space read/write alignment&nbsp;
         </LI>
         <LI>
           <B>less than u+2 stack items (6.2.2030 PICK, 6.2.2150 ROLL)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Ficl detects a stack underflow and reports it, executing <TT>ABORT,</TT> as long as FICL_ROBUST is two or larger.&nbsp;
         </LI>
         <LI>
           <B>loop-control parameters not available ( 6.1.0140 +LOOP, 6.1.1680 I, 6.1.1730 J, 6.1.1760 LEAVE, 6.1.1800 LOOP, 6.1.2380 UNLOOP)</B>
-        </LI>
-        <LI>
           <BR>
-           Loop initiation words are responsible for checking the stack and guaranteeing that the control parameters are pushed. Any underflows will be detected early if FICL_ROBUST is set to two or
+          Loop initiation words are responsible for checking the stack and guaranteeing that the control parameters are pushed. Any underflows will be detected early if FICL_ROBUST is set to two or
           greater. Note however that Ficl only checks for return stack underflows at the end of each line of text.&nbsp;
         </LI>
         <LI>
           <B>most recent definition does not have a name (6.1.1710 IMMEDIATE)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            No problem.&nbsp;
         </LI>
         <LI>
           <B>name not defined by 6.2.2405 VALUE used by 6.2.2295 TO</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Ficl's version of <TT>TO</TT> works correctly with <TT>VALUE</TT>s, <TT>CONSTANT</TT>s and <TT>VARIABLE</TT>s.&nbsp;
         </LI>
         <LI>
           <B>name not found (6.1.0070 ', 6.1.2033 POSTPONE, 6.1.2510 ['], 6.2.2530 [COMPILE])</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Ficl prints an error message and does <TT>ABORT</TT>
         </LI>
         <LI>
           <B>parameters are not of the same type (6.1.1240 DO, 6.2.0620 ?DO, 6.2.2440 WITHIN)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            No check. Results vary depending on the specific problem.&nbsp;
         </LI>
         <LI>
           <B>6.1.2033 POSTPONE or 6.2.2530 [COMPILE] applied to 6.2.2295 TO</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            The word is postponed correctly.&nbsp;
         </LI>
         <LI>
           <B>string longer than a counted string returned by 6.1.2450 WORD</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Ficl stores the first FICL_STRING_MAX-1 chars in the destination buffer. (The extra character is the trailing space required by the standard. Yuck.)&nbsp;
         </LI>
         <LI>
           <B>u greater than or equal to the number of bits in a cell (6.1.1805 LSHIFT, 6.1.2162 RSHIFT)</B>
-        </LI>
-        <LI>
-          <BR>
+           <BR>
            Depends on target process or and C runtime library implementations of the &lt;&lt; and &gt;&gt; operators on unsigned values. For I386, the processor appears to shift modulo the number of
           bits in a cell.&nbsp;
         </LI>
@@ -1316,8 +1210,8 @@ FORTH-WORDLIST 1 SET-ORDER
           <B>word not defined via 6.1.1000 CREATE (6.1.0550 &gt;BODY, 6.1.1250 DOES&gt;)</B>
         </LI>
         <LI>
-          <BR>
-           <B>words improperly used outside 6.1.0490 &lt;# and 6.1.0040 #&gt; (6.1.0030 #, 6.1.0050 #S, 6.1.1670 HOLD, 6.1.2210 SIGN)</B><BR>
+           <B>words improperly used outside 6.1.0490 &lt;# and 6.1.0040 #&gt; (6.1.0030 #, 6.1.0050 #S, 6.1.1670 HOLD, 6.1.2210 SIGN)</B>
+           <BR>
            Don't. <TT>CREATE</TT> reserves a field in words it builds for <TT>DOES&gt;</TT>to fill in. If you use <TT>DOES&gt;</TT> on a word not made by <TT>CREATE</TT>, it will overwrite the first
           cell of its parameter area. That's probably not what you want. Likewise, pictured numeric words assume that there is a string under construction in the VM's scratch buffer. If that's not
           the case, results may be unpleasant.
@@ -1329,8 +1223,6 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>maximum number of locals in a definition (13.3.3 Processing locals, 13.6.2.1795 LOCALS|)</B>
-        </LI>
-        <LI>
           <BR>
            Default is 16. Change by redefining FICL_MAX_LOCALS, defined in sysdep.h
         </LI>
@@ -1341,16 +1233,12 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>executing a named local while in interpretation state (13.6.1.0086 (LOCAL))</B>
-        </LI>
-        <LI>
           <BR>
            Locals can be found in interpretation state while in the context of a definition under construction. Under these circumstances, locals behave correctly. Locals are not visible at all
           outside the scope of a definition.&nbsp;
         </LI>
         <LI>
           <B>name not defined by VALUE or LOCAL (13.6.1.2295 TO)</B>
-        </LI>
-        <LI>
           <BR>
            See the CORE ambiguous conditions, above (no change)
         </LI>
@@ -1361,8 +1249,6 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>source and format of display by 15.6.1.2194 SEE</B>
-        </LI>
-        <LI>
           <BR>
            SEE de-compiles definitions from the dictionary. Because Ficl words are threaded by their header addresses, it is very straightforward to print the name and other characteristics of words
           in a definition. Primitives are so noted. Colon definitions are decompiled, but branch target labels are not reconstructed. Literals and string literals are so noted, and their contents
@@ -1375,15 +1261,11 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>maximum number of word lists in the search order (16.3.3 Finding definition names, 16.6.1.2197 SET-ORDER)</B>&nbsp;
-        </LI>
-        <LI>
           <BR>
            Defaults to 16. Can be changed by redefining FICL_DEFAULT_VOCS, declared in sysdep.h&nbsp;
         </LI>
         <LI>
           <B>minimum search order (16.6.1.2197 SET-ORDER, 16.6.2.1965 ONLY)</B>&nbsp;
-        </LI>
-        <LI>
           <BR>
            Equivalent to <TT>FORTH-WORDLIST 1 SET-ORDER</TT>
         </LI>
@@ -1394,23 +1276,17 @@ FORTH-WORDLIST 1 SET-ORDER
       <UL>
         <LI>
           <B>changing the compilation word list (16.3.3 Finding definition names)</B>
-        </LI>
-        <LI>
           <BR>
            Ficl stores a link to the current definition independently of the compile wordlist while it is being defined, and links it into the compile wordlist only after the definition completes
           successfully. Changing the compile wordlist mid-definition will cause the definition to link into the <I>new</I> compile wordlist.&nbsp;
         </LI>
         <LI>
           <B>search order empty (16.6.2.2037 PREVIOUS)</B>
-        </LI>
-        <LI>
           <BR>
            Ficl prints an error message if the search order underflows, and resets the order to its default state.&nbsp;
         </LI>
         <LI>
           <B>too many word lists in search order (16.6.2.0715 ALSO)</B>
-        </LI>
-        <LI>
           <BR>
            Ficl prints an error message if the search order overflows, and resets the order to its default state.
         </LI>
