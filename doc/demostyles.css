@@ -1,0 +1,179 @@
+:root {
+  --term-bg: #14110d;
+  --term-surface: #1d1914;
+  --term-ink: #f5f0e6;
+  --term-muted: rgba(245, 240, 230, 0.68);
+  --term-border: rgba(255, 255, 255, 0.08);
+  --term-accent: var(--accent-2);
+  --term-shadow: 0 24px 60px rgba(10, 10, 10, 0.28);
+}
+
+.demo-lead {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.page-hero {
+  padding: 28px 0 12px;
+}
+
+.content {
+  margin-bottom: 40px;
+}
+
+.demo-shell {
+  background: var(--term-bg);
+  color: var(--term-ink);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--term-shadow);
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  min-height: clamp(420px, 70vh, 720px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  animation: rise 420ms ease;
+}
+
+.output {
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.stack-overlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(20, 18, 15, 0.92);
+  border: 1px solid var(--term-border);
+  border-radius: 14px;
+  padding: 8px 12px 10px;
+  width: clamp(140px, 20%, 200px);
+  max-height: 80%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--term-shadow);
+  backdrop-filter: blur(6px);
+}
+
+.stack-body {
+  font-family: "Courier New", monospace;
+  background: transparent;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-y: auto;
+}
+
+.stack-body.flash {
+  animation: flash 300ms ease;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--term-border);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+
+.prompt {
+  font-family: "Courier New", monospace;
+  color: var(--term-accent);
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--term-ink);
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+}
+
+.status {
+  font-family: "Courier New", monospace;
+  font-size: 0.82rem;
+  color: var(--term-muted);
+  margin-top: 6px;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: "Work Sans", "Helvetica Neue", sans-serif;
+  border: 1px solid var(--term-border);
+  background: var(--term-surface);
+  color: var(--term-ink);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  background: #26211b;
+  box-shadow: var(--term-shadow);
+}
+
+.demo-notes {
+  margin-top: 22px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  animation: rise 520ms ease 80ms both;
+}
+
+.demo-notes h3 {
+  margin-top: 0;
+}
+
+.demo-notes ul {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.demo-notes li {
+  margin: 6px 0;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flash {
+  0% { box-shadow: 0 0 0 rgba(226, 138, 52, 0.0); }
+  50% { box-shadow: 0 0 20px rgba(226, 138, 52, 0.35); }
+  100% { box-shadow: 0 0 0 rgba(226, 138, 52, 0.0); }
+}
+
+@media (max-width: 720px) {
+  .stack-overlay {
+    position: static;
+    width: 100%;
+    margin-bottom: 14px;
+  }
+}

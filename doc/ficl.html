@@ -21,6 +21,7 @@
         </a>
         <nav class="site-nav">
           <a href="ficl.html">Docs</a>
+          <a href="demo.html">Demo</a>
           <a href="ficl_rel.html">Release Notes</a>
           <a class="nav-cta" href="http://sourceforge.net/project/showfiles.php?group_id=24441">Download</a>
         </nav>
@@ -46,6 +47,7 @@
         <LI><A href="#porting">Getting Started: Porting Ficl to your system</A></LI>
         <LI><A href="#api">Application Programming Interface</A></LI>
         <LI><A href="#manifest">Ficl Source Files</A></LI>
+        <LI><A href="#internals">Ficl Internals</A></LI>
         <LI><A href="#extras">Ficl extras</A></LI>
         <LI><A href="#ansinfo">ANS Required Information</A></LI>
       </UL>
@@ -104,7 +106,7 @@
           <A href="http://ficl.sourceforge.net">Web home of Ficl</A>
         </LI>
         <LI>
-          <A href="ficl_guts.html">Ficl Internals</A>
+          <A href="ficl.html#internals">Ficl Internals</A>
         </LI>
         <LI>
           <A href="ficl_oop.html">Ficl OOP extension</A>
@@ -490,6 +492,169 @@ SUCH DAMAGE.
           </TD>
         </TR>
       </TABLE>
+      <HR>
+      <H2>
+        <A name="internals"></A>Ficl Internals
+      </H2>
+      <!-- BEGIN FICL_GUTS -->
+<h2>Major Data Structures</h2>
+<p>
+A running memory image of Ficl consists of one or more FICL_SYSTEMs, 
+each of which owns exactly one dictionary (FICL_DICT), 
+and one or more virtual machines (FICL_VM). Each VM owns two stacks
+(FICL_STACK) - one for parameters (the parameter stack) 
+and one for return addresses (the return stack). 
+Ficl is a permissive, untyped language by nature, 
+so its fundamental unit of storage is a CELL: a chunk of memory
+large enough to hold an address or a scalar type.
+</p>
+<svg viewBox="0 0 900 400" width="100%" height="auto" role="img" aria-labelledby="ficl-structures-title ficl-structures-desc" style="font-family: inherit; font-size: 14px;">
+  <title id="ficl-structures-title">Ficl major data structures</title>
+  <desc id="ficl-structures-desc">Diagram showing FICL_SYSTEM owning a dictionary and multiple virtual machines. Each VM owns parameter, return, and optional float stacks. The dictionary contains wordlists, FICL_WORD entries, and cell payloads.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"></path>
+    </marker>
+  </defs>
+  <rect x="360" y="20" width="180" height="60" rx="10" fill="#f7f7f7" stroke="#333"></rect>
+  <text x="450" y="55" text-anchor="middle" fill="#111">FICL_SYSTEM</text>
+
+  <rect x="172" y="132" width="200" height="60" rx="10" fill="#f1f1f1" stroke="#333"></rect>
+  <rect x="166" y="126" width="200" height="60" rx="10" fill="#f4f4f4" stroke="#333"></rect>
+  <rect x="160" y="120" width="200" height="60" rx="10" fill="#f7f7f7" stroke="#333"></rect>
+  <text x="260" y="155" text-anchor="middle" fill="#111">FICL_VM</text>
+
+  <rect x="60" y="300" width="120" height="50" rx="8" fill="#ffffff" stroke="#333"></rect>
+  <text x="120" y="330" text-anchor="middle" fill="#111">param stack</text>
+  <rect x="200" y="300" width="120" height="50" rx="8" fill="#ffffff" stroke="#333"></rect>
+  <text x="260" y="330" text-anchor="middle" fill="#111">return stack</text>
+  <rect x="340" y="300" width="120" height="50" rx="8" fill="#ffffff" stroke="#333" stroke-dasharray="4 3"></rect>
+  <text x="400" y="325" text-anchor="middle" fill="#111">float stack</text>
+  <text x="400" y="345" text-anchor="middle" fill="#666">(optional)</text>
+
+  <rect x="550" y="120" width="200" height="60" rx="10" fill="#f7f7f7" stroke="#333"></rect>
+  <text x="650" y="155" text-anchor="middle" fill="#111">FICL_DICT</text>
+
+  <rect x="562" y="232" width="200" height="50" rx="8" fill="#f1f1f1" stroke="#333"></rect>
+  <rect x="556" y="226" width="200" height="50" rx="8" fill="#f4f4f4" stroke="#333"></rect>
+  <rect x="550" y="220" width="200" height="50" rx="8" fill="#ffffff" stroke="#333"></rect>
+  <text x="650" y="250" text-anchor="middle" fill="#111">FICL_WORDLIST</text>
+  <rect x="562" y="302" width="200" height="50" rx="8" fill="#f1f1f1" stroke="#333"></rect>
+  <rect x="556" y="296" width="200" height="50" rx="8" fill="#f4f4f4" stroke="#333"></rect>
+  <rect x="550" y="290" width="200" height="50" rx="8" fill="#ffffff" stroke="#333"></rect>
+  <text x="650" y="320" text-anchor="middle" fill="#111">FICL_WORD</text>
+
+  <line x1="450" y1="80" x2="260" y2="120" stroke="#333" marker-end="url(#arrow)"></line>
+  <line x1="450" y1="80" x2="650" y2="120" stroke="#333" marker-end="url(#arrow)"></line>
+  <text x="280" y="110" text-anchor="middle" fill="#444">owns</text>
+  <text x="570" y="110" text-anchor="middle" fill="#444">owns</text>
+
+  <line x1="260" y1="180" x2="120" y2="300" stroke="#333" marker-end="url(#arrow)"></line>
+  <line x1="260" y1="180" x2="260" y2="300" stroke="#333" marker-end="url(#arrow)"></line>
+  <line x1="260" y1="180" x2="400" y2="300" stroke="#333" marker-end="url(#arrow)"></line>
+  <text x="220" y="255" text-anchor="middle" fill="#444">owns</text>
+
+  <line x1="650" y1="180" x2="650" y2="220" stroke="#333" marker-end="url(#arrow)"></line>
+  <line x1="650" y1="270" x2="650" y2="290" stroke="#333" marker-end="url(#arrow)"></line>
+  <text x="690" y="210" text-anchor="start" fill="#444">contains</text>
+</svg>
+
+<h3>FICL_SYSTEM</h3>
+The system structure associates one or more virtual machines with a dictionary. All FICL_SYSTEMS
+include a link pointer that is used to keep track of every allocated system so that memory
+can be freed by ficlTermSystem. Each system contains a list of virtual machines associated with
+it. Each system has at least one virtual machine. In a typical implementation, there is one virtual
+machine per native OS thread, and there may be several VMs sharing a single FICL_SYSTEM, or one
+FICL_SYSTEM per VM if the implementation needs to support multiple user sessions in a robust way.
+
+A FICL_SYSTEM also includes a special dictionary for local variable support (if enabled 
+by FICL_WANT_LOCALS) and another for environment variable support. Environment variables 
+describe the configuration of the system in conformance with American National Standard Forth 
+(ANS Forth).
+<h3>FICL_DICT</h3>
+A dictionary manages a fixed-size block of contiguous memory. It serves two roles: to keep track 
+of allocated memory, and to collect symbol tables called wordlists. Each dictionary contains at
+least one wordlist. The dictionary organized memory (perhaps this is too kind) as an array of
+CELLs that grows from low memory to high memory within fixed limits determined by the 
+FICL_DEFAULT_DICT parameter in sysdep.h. 
+
+A wordlist is the controlling structure of a Ficl symbol table. Each wordlist is a hash table 
+containing pointers to FICL_WORDs. Each FICL_WORD associates a pointer to code with one or more
+CELLs of the dictionay. Each word usually has a name as well, but this is not required. It is
+possible to create anonymous words using :NONAME.
+
+Each word's code pointer determines that word's runtime behavior, and by implication the purpose
+of its payload data. Some words interpret their payload as a list of Ficl words, and execute them.
+This is how new behaviors of the language are defined. Other words view their payload field as
+a location in which one or more CELLs can be stored (VARIABLEs, for example). At runtime, such
+words push the address of their payload area onto the parameter stack.
+<h3>FICL_VM</h3>
+The virtual machine collects state related to execution of Ficl words. Each VM includes
+registers used by the inner interpreter, some state variables (AKA user variables) such as
+the current numeric base, and a jmpbuf.
+A VM has a pointer to the FICL_SYSTEM of which it is a part. It also has a pointer to an incoming 
+text string that it is interpreting. There are VM methods that excute a word given its address
+(xt), and ones that interpret a text string. 
+<h3>FICL_STACK</h3>
+Each VM owns a parameter stack, a return stack, and if float support is enabled, a float parameter
+stack. Parameters, return addresses, and floats are all CELL sized, and values may be
+moved back and forth among stacks using various Ficl words for that purpose.&nbsp;
+<h2>Inner Interpreter: Example Execution</h2>
+<p>
+This example shows how the inner interpreter executes a simple colon definition with control flow.
+The word below computes a factorial using a counted loop and a running accumulator.
+</p>
+<pre>
+: fact ( n -- n! )
+  1 swap 1+ 1 ?DO
+    I *
+  LOOP
+;
+</pre>
+<p>
+Ficl stores colon definitions as a payload of execution tokens (XTs). In simplified form, the
+payload for <TT>fact</TT> looks like this:
+</p>
+<pre>
+XT (literal) 1
+XT swap
+XT (literal) 1
+XT +
+XT (?do) [exit address]
+XT I
+XT *
+XT (loop) [branch address]
+XT (;)
+</pre>
+<p>
+When C code calls <TT>ficlExecXT</TT> with the <TT>fact</TT> word, it sets up a nested exception
+frame, pushes the <TT>exit-inner</TT> sentinel on the IP stack, and then enters the inner loop.
+The inner loop walks the XT list until <TT>(;)</TT> triggers <TT>VM_INNEREXIT</TT>.
+</p>
+<p>
+If an XT in the payload refers to a colon definition, the inner loop executes
+its code like any other word. The callee pushes the current instruction pointer, switches to its
+own payload, and returns to the caller when <TT>(;)</TT> pops the saved IP.
+</p>
+<ul>
+  <li>
+    <B>Setup</B> Save the current <TT>pState</TT> and <TT>runningWord</TT>, install a new
+    <TT>jmp_buf</TT>, and push <TT>pExitInner</TT> onto the IP stack.
+  </li>
+  <li>
+    <B>Execute</B> <TT>vmExecute</TT> positions the IP at the word's payload, then
+    <TT>vmInnerLoop</TT> executes XTs in order.
+  </li>
+  <li>
+    <B>Looping</B> <TT>(?do)</TT> initializes the loop parameters, <TT>I</TT> fetches the loop
+    index, and <TT>(loop)</TT> advances or exits the loop.
+  </li>
+  <li>
+    <B>Exit</B> <TT>(;)</TT> throws <TT>VM_INNEREXIT</TT>, the inner loop unwinds, and
+    <TT>ficlExecXT</TT> restores the previous <TT>pState</TT>.
+  </li>
+</ul>
+      <!-- END FICL_GUTS -->
       <HR>
       <H2>
         <A name="extras"></A>Ficl extras

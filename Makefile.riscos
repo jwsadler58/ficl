@@ -6,8 +6,8 @@ CFLAGS= -O -c -mstubs -D__UNAME
 CC=gcc
 LIB = makealf -qls -o
 
-MAJOR = 3
-MINOR = 0.4
+# MAJOR = 3
+# MINOR = 0.4
 
 lib: o.libficl
 

@@ -17,8 +17,8 @@ WASM_LDFLAGS = -s WASM=1 -s NO_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 \
 LIB      = ar cr
 RANLIB   = ranlib
 
-MAJOR = 3
-MINOR = 0.4
+# MAJOR = 3
+# MINOR = 0.4
 
 OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
           prefix.o search.o softcore.o stack.o \
@@ -38,9 +38,14 @@ ficl: testmain.o libficl.a
 
 # === WASM build ===
 wasm: ficl_wasm.js
+	@mkdir -p doc
+	cp ficl_wasm.js ficl_wasm.wasm doc/
 
 ficl_wasm.js: $(WASM_SOURCES)
 	EM_CACHE=$(EM_CACHE) $(EMCC) $(WASM_CFLAGS) $(WASM_SOURCES) -o $@ $(WASM_LDFLAGS)
+
+softcore.c:
+	make -C softwords softcore.c
 
 # === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o

@@ -8,8 +8,8 @@ CC=gcc
 LIB = ar cr
 RANLIB = ranlib
 
-MAJOR = 3
-MINOR = 0.4
+# MAJOR = 3
+# MINOR = 0.4
 
 ficl: testmain.o ficl.h sysdep.h libficl.a
 	$(CC) testmain.o -o ficl -L. -lficl -lm
@@ -20,6 +20,9 @@ lib: libficl.so.$(MAJOR).$(MINOR)
 libficl.a: $(OBJECTS)
 	$(LIB) libficl.a $(OBJECTS)
 	$(RANLIB) libficl.a
+
+softcore.c:
+	make -C softwords softcore.c
 
 # shared library build
 libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
