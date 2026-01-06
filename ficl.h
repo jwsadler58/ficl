@@ -76,37 +76,6 @@
 **
 ** Code is written in ANSI C for portability. 
 **
-** Summary of Ficl features and constraints:
-** - Standard: Implements the ANSI Forth CORE word set and part 
-**   of the CORE EXT word-set, SEARCH and SEARCH EXT, TOOLS and
-**   TOOLS EXT, LOCAL and LOCAL ext and various extras.
-** - Extensible: you can export code written in Forth, C, 
-**   or asm in a straightforward way. Ficl provides open
-**   facilities for extending the language in an application
-**   specific way. You can even add new control structures!
-** - Ficl and C can interact in two ways: Ficl can encapsulate
-**   C code, or C code can invoke Ficl code.
-** - Thread-safe, re-entrant: The shared system dictionary 
-**   uses a locking mechanism that you can either supply
-**   or stub out to provide exclusive access. Each Ficl
-**   virtual machine has an otherwise complete state, and
-**   each can be bound to a separate I/O channel (or none at all).
-** - Simple encapsulation into existing systems: a basic implementation
-**   requires three function calls (see the example program in testmain.c).
-** - ROMable: Ficl is designed to work in RAM-based and ROM code / RAM data
-**   environments. It does require somewhat more memory than a pure
-**   ROM implementation because it builds its system dictionary in 
-**   RAM at startup time.
-** - Written an ANSI C to be as simple as I can make it to understand,
-**   support, debug, and port. Compiles without complaint at /Az /W4 
-**   (require ANSI C, max warnings) under Microsoft VC++ 5.
-** - Does full 32 bit math (but you need to implement
-**   two mixed precision math primitives (see sysdep.c))
-** - Indirect threaded interpreter is not the fastest kind of
-**   Forth there is (see pForth 68K for a really fast subroutine
-**   threaded interpreter), but it's the cleanest match to a
-**   pure C implementation.
-**
 ** P O R T I N G   F i c l
 **
 ** To install Ficl on your target system, you need an ANSI C compiler
@@ -131,62 +100,8 @@
 ** F o r   M o r e   I n f o r m a t i o n
 **
 ** Web home of ficl
-**   https://sourceforge.net/projects/ficl/
-** Check this website for Forth literature (including the ANSI standard)
-**   https://www.taygeta.com/forthlit.html
-** and here for software and more links
-**   https://www.taygeta.com/forth.html
+**   https://ficl.sourceforge.net
 **
-*/
-
-/*
-** Revision History:
-** 
-** 10 July 2025 (sadler) included limits.h in sysdep.h instead of here
-** 15 Apr 1999 (sadler) Merged FreeBSD changes for exception wordset and
-** counted strings in ficlExec. 
-** 12 Jan 1999 (sobral) Corrected EVALUATE behavior. Now TIB has an
-** "end" field, and all words respect this. ficlExec is passed a "size"
-** of TIB, as well as vmPushTib. This size is used to calculate the "end"
-** of the string, ie, base+size. If the size is not known, pass -1.
-**
-** 10 Jan 1999 (sobral) EXCEPTION word set has been added, and existing
-** words has been modified to conform to EXCEPTION EXT word set. 
-**
-** 27 Aug 1998 (sadler) testing and corrections for LOCALS, LOCALS EXT,
-**  SEARCH / SEARCH EXT, TOOLS / TOOLS EXT. 
-**  Added .X to display in hex, PARSE and PARSE-WORD to supplement WORD,
-**  EMPTY to clear stack.
-**
-** 29 jun 1998 (sadler) added variable sized hash table support
-**  and ANS Forth optional SEARCH & SEARCH EXT word set.
-** 26 May 1998 (sadler) 
-**  FICL_PROMPT macro
-** 14 April 1998 (sadler) V1.04
-**  Ficlwin: Windows version, Skip Carter's Linux port
-** 5 March 1998 (sadler) V1.03
-**  Bug fixes -- passes John Ryan's ANS test suite "core.fr"
-**
-** 24 February 1998 (sadler) V1.02
-** -Fixed bugs in <# # #>
-** -Changed FICL_WORD so that storage for the name characters
-**  can be allocated from the dictionary as needed rather than 
-**  reserving 32 bytes in each word whether needed or not - 
-**  this saved 50% of the dictionary storage requirement.
-** -Added words in testmain for Posix system,chdir,cwd,
-**  also added a word that loads and evaluates a file.
-**
-** December 1997 (sadler)
-** -Added VM_RESTART exception handling in ficlExec -- this lets words
-**  that require additional text to succeed (like :, create, variable...)
-**  recover gracefully from an empty input buffer rather than emitting
-**  an error message. Definitions can span multiple input blocks with
-**  no restrictions.
-** -Changed #include order so that <assert.h> is included in sysdep.h,
-**  and sysdep is included in all other files. This lets you define
-**  NDEBUG in sysdep.h to disable assertions if you want to.
-** -Make PC specific system dependent code conditional on _M_IX86
-**  defined so that ports can coexist in sysdep.h/sysdep.c
 */
 
 #ifdef __cplusplus
