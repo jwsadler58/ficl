@@ -1,0 +1,45 @@
+name: Ficl CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          if [ -f Makefile.linux ]; then
+            make -f Makefile.linux clean all
+          else
+            make -f makefile.linux clean all
+          fi
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          if [ -f Makefile.macos ]; then
+            make -f Makefile.macos clean all
+          else
+            make -f makefile.macos clean all
+          fi
+
+      # Uncomment and adjust once you have an automated test harness
+      # - name: Run tests
+      #   run: |
+      #     make test
