@@ -429,7 +429,7 @@ int main(int argc, char **argv)
 
     while (ret != VM_USEREXIT)
     {
-        fgets(in, nINBUF, stdin);
+        (void) fgets(in, nINBUF, stdin);
         ret = ficlExec(pVM, in);
     }
 

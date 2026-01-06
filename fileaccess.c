@@ -308,17 +308,16 @@ static void ficlReadLine(FICL_VM *pVM) /* ( c-addr u1 fileid -- u2 flag ior ) */
     int error;
     int flag;
 
-    if (feof(ff->f))
-        {
-        stackPushINT(pVM->pStack, -1);
-        stackPushINT(pVM->pStack, 0);
-        stackPushINT(pVM->pStack, 0);
-        return;
-        }
-
     clearerr(ff->f);
     *address = 0;
-    fgets(address, length, ff->f);
+    if (fgets(address, length, ff->f) == NULL)
+        {
+        error = ferror(ff->f);
+        stackPushINT(pVM->pStack, -1);
+        stackPushINT(pVM->pStack, 0);
+        stackPushINT(pVM->pStack, error);
+        return;
+        }
 
     error = ferror(ff->f);
     if (error != 0)

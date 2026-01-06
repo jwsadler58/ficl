@@ -1,7 +1,7 @@
 # === Toolchain & flags ===
 # C11 required for static_assert, stdint.h, and dynamic arrays in data structures
 CC       = gcc
-CFLAGS   = -O2 -std=c11 -Dlinux
+CFLAGS   = -O2 -std=c11 -Dlinux -D_POSIX_C_SOURCE=200809L
 DEPFLAGS = -MMD -MP
 
 LIB 	 = ar cr
