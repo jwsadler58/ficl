@@ -36,7 +36,14 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
     char mode[4];
     FILE *f;
 
-    char *filename = (char *)alloca(length + 1);
+    char *filename = (char *)ficlMalloc(length + 1);
+    if (filename == NULL)
+        {
+        stackPushPtr(pVM->pStack, NULL);
+        errno = ENOMEM;
+        pushIor(pVM, 0);
+        return;
+        }
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -67,13 +74,23 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
         stackPushPtr(pVM->pStack, NULL);
     else
         {
-        ficlFILE *ff = (ficlFILE *)malloc(sizeof(ficlFILE));
+        ficlFILE *ff = (ficlFILE *)ficlMalloc(sizeof(ficlFILE));
+        if (ff == NULL)
+            {
+            fclose(f);
+            stackPushPtr(pVM->pStack, NULL);
+            errno = ENOMEM;
+            pushIor(pVM, 0);
+            ficlFree(filename);
+            return;
+            }
         strcpy(ff->filename, filename);
         ff->f = f;
         stackPushPtr(pVM->pStack, ff);
 
         fseek(f, 0, SEEK_SET);
         }
+    ficlFree(filename);
     pushIor(pVM, f != NULL);
 }
 
@@ -94,7 +111,7 @@ static void ficlCreateFile(FICL_VM *pVM) /* ( c-addr u fam -- fileid ior ) */
 static int closeFiclFILE(ficlFILE *ff) /* ( fileid -- ior ) */
 {
     FILE *f = ff->f;
-    free(ff);
+    ficlFree(ff);
     return !fclose(f);
 }
 
@@ -109,11 +126,18 @@ static void ficlDeleteFile(FICL_VM *pVM) /* ( c-addr u -- ior ) */
     int length = stackPopINT(pVM->pStack);
     void *address = (void *)stackPopPtr(pVM->pStack);
 
-    char *filename = (char *)alloca(length + 1);
+    char *filename = (char *)ficlMalloc(length + 1);
+    if (filename == NULL)
+        {
+        errno = ENOMEM;
+        pushIor(pVM, 0);
+        return;
+        }
     memcpy(filename, address, length);
     filename[length] = 0;
 
     pushIor(pVM, !unlink(filename));
+    ficlFree(filename);
 }
 
 static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
@@ -125,18 +149,33 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
 
     length = stackPopINT(pVM->pStack);
     address = (void *)stackPopPtr(pVM->pStack);
-    to = (char *)alloca(length + 1);
+    to = (char *)ficlMalloc(length + 1);
+    if (to == NULL)
+        {
+        errno = ENOMEM;
+        pushIor(pVM, 0);
+        return;
+        }
     memcpy(to, address, length);
     to[length] = 0;
 
     length = stackPopINT(pVM->pStack);
     address = (void *)stackPopPtr(pVM->pStack);
 
-    from = (char *)alloca(length + 1);
+    from = (char *)ficlMalloc(length + 1);
+    if (from == NULL)
+        {
+        ficlFree(to);
+        errno = ENOMEM;
+        pushIor(pVM, 0);
+        return;
+        }
     memcpy(from, address, length);
     from[length] = 0;
 
     pushIor(pVM, !rename(from, to));
+    ficlFree(from);
+    ficlFree(to);
 }
 
 static void ficlFileStatus(FICL_VM *pVM) /* ( c-addr u -- x ior ) */
@@ -146,7 +185,13 @@ static void ficlFileStatus(FICL_VM *pVM) /* ( c-addr u -- x ior ) */
     int length = stackPopINT(pVM->pStack);
     void *address = (void *)stackPopPtr(pVM->pStack);
 
-    char *filename = (char *)alloca(length + 1);
+    char *filename = (char *)ficlMalloc(length + 1);
+    if (filename == NULL)
+        {
+        stackPushINT(pVM->pStack, -1);
+        stackPushINT(pVM->pStack, ENOMEM);
+        return;
+        }
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -165,6 +210,7 @@ static void ficlFileStatus(FICL_VM *pVM) /* ( c-addr u -- x ior ) */
         stackPushINT(pVM->pStack, -1);
         stackPushINT(pVM->pStack, ENOENT);
     }
+    ficlFree(filename);
 }
 
 
@@ -215,10 +261,14 @@ static void ficlIncludeFile(FICL_VM *pVM) /* ( i*x fileid -- j*x ) */
 
     if ((totalSize != -1) && (currentPosition != -1) && (size > 0))
         {
-        char *buffer = (char *)malloc(size);
-        long got = fread(buffer, 1, size, ff->f);
-        if (got == size)
-            result = ficlExecC(pVM, buffer, size);
+        char *buffer = (char *)ficlMalloc(size);
+        if (buffer != NULL)
+            {
+            long got = fread(buffer, 1, size, ff->f);
+            if (got == size)
+                result = ficlExecC(pVM, buffer, size);
+            ficlFree(buffer);
+            }
         }
 
     /*
