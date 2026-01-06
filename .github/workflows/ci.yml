@@ -25,18 +25,18 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           if [ -f Makefile.linux ]; then
-            make -f Makefile.linux clean all
+            make -f Makefile.linux clean ficl
           else
-            make -f makefile.linux clean all
+            make -f makefile.linux clean ficl
           fi
 
       - name: Build (macOS)
         if: runner.os == 'macOS'
         run: |
           if [ -f Makefile.macos ]; then
-            make -f Makefile.macos clean all
+            make -f Makefile.macos clean ficl
           else
-            make -f makefile.macos clean all
+            make -f makefile.macos clean ficl
           fi
 
       # Uncomment and adjust once you have an automated test harness
