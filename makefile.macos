@@ -1,8 +1,55 @@
 # === Toolchain & flags ===
 # C11 required for static_assert, stdint.h, and dynamic arrays in data structures
 CC       = clang
-CFLAGS   = -O2  -c -std=c11
-LDFLAGS  = 
+CFLAGS   = -O2 -std=c11
+DEPFLAGS = -MMD -MP
+
+LIB      = ar cr
+RANLIB   = ranlib
+
+
+OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
+          prefix.o search.o softcore.o stack.o \
+          sysdep.o tools.o unity.o unix.o vm.o words.o
+DEPS    = $(OBJECTS:.o=.d) testmain.d
+
+# === Softcore.c is generated from softwords folder ===
+softcore.c:
+	make -C softwords softcore.c
+	cp softwords/softcore.c .
+
+# === Static library ===
+libficl.a: $(OBJECTS)
+	$(LIB) $@ $(OBJECTS)
+	$(RANLIB) $@
+
+# === Console Test executable ===
+ficl: testmain.o ficl.h sysdep.h libficl.a
+	$(CC) testmain.o -o $@ -L. -lficl -lm
+
+# === Compile rules ===
+.SUFFIXES: .cxx .cc .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
+
+-include $(DEPS)
+
+#
+#  === utility targets ===
+#
+clean:
+	rm -f *.o *.a *.d tags ficl_wasm.js ficl_wasm.wasm
+
+tags:
+	ctags -w *
+
+
+# === WASM build ===
+# macos only - used to build the web demo
+#
+WASM_SOURCES = dict.c ficl.c float.c dpmath.c prefix.c search.c softcore.c \
+               stack.c sysdep.c tools.c vm.c words.c wasm_main.c
 
 EMCC     = emcc
 # Note: Emscripten writes to its cache under EMSDK (outside this repo).
@@ -14,51 +61,9 @@ WASM_LDFLAGS = -s WASM=1 -s NO_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 \
                -s EXPORTED_RUNTIME_METHODS="['UTF8ToString','stringToUTF8','lengthBytesUTF8','stackSave','stackAlloc','stackRestore']" \
                -s EXPORTED_FUNCTIONS="['_ficlWasmInit','_ficlWasmEval','_ficlWasmStackHex','_ficlWasmReset','_ficlWasmGetOutput','_ficlWasmClearOutput','_ficlWasmGetOutputLen']"
 
-LIB      = ar cr
-RANLIB   = ranlib
-
-# MAJOR = 3
-# MINOR = 0.4
-
-OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
-          prefix.o search.o softcore.o stack.o \
-          sysdep.o tools.o unity.o unix.o vm.o words.o
-
-WASM_SOURCES = dict.c ficl.c float.c dpmath.c prefix.c search.c softcore.c \
-               stack.c sysdep.c tools.c vm.c words.c wasm_main.c
-
-# === Static library ===
-libficl.a: $(OBJECTS)
-	$(LIB) $@ $(OBJECTS)
-	$(RANLIB) $@
-
-# === Test executable ===
-ficl: testmain.o libficl.a
-	$(CC) $(LDFLAGS) testmain.o -o $@ -L. -lficl -lm
-
-# === WASM build ===
 wasm: ficl_wasm.js
 	@mkdir -p doc
 	cp ficl_wasm.js ficl_wasm.wasm doc/
 
 ficl_wasm.js: $(WASM_SOURCES)
 	EM_CACHE=$(EM_CACHE) $(EMCC) $(WASM_CFLAGS) $(WASM_SOURCES) -o $@ $(WASM_LDFLAGS)
-
-softcore.c:
-	make -C softwords softcore.c
-	cp softwords/softcore.c .
-
-# === Compile rules ===
-.SUFFIXES: .cxx .cc .c .o
-
-.c.o:
-	$(CC) $(CFLAGS) $< -o $@
-
-#
-#       generic cleanup code
-#
-clean:
-	rm -f *.o libficl.* tags ficl_wasm.js ficl_wasm.wasm
-
-tags:
-	ctags -w *

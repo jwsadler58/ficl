@@ -1,54 +1,48 @@
-OBJECTS= dict.o ficl.o fileaccess.o float.o dpmath.o prefix.o search.o softcore.o stack.o sysdep.o tools.o unity.o unix.o vm.o words.o
-#
-# Flags for shared library
-TARGET= -Dlinux   
-SHFLAGS = -fPIC
-CFLAGS= -O -m32 -c $(SHFLAGS) $(TARGET)
-CC=gcc
-LIB = ar cr
-RANLIB = ranlib
+# === Toolchain & flags ===
+# C11 required for static_assert, stdint.h, and dynamic arrays in data structures
+CC       = gcc
+CFLAGS   = -O2 -std=c11 -Dlinux
+DEPFLAGS = -MMD -MP
 
-# MAJOR = 3
-# MINOR = 0.4
+LIB 	 = ar cr
+RANLIB   = ranlib
 
+
+OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
+		  prefix.o search.o softcore.o stack.o \
+		  sysdep.o tools.o unity.o unix.o vm.o words.o
+DEPS    = $(OBJECTS:.o=.d) testmain.d
+
+# === Softcore.c is generated from softwords folder ===
+softcore.c:
+	make -C softwords softcore.c
+	cp softwords/softcore.c .
+
+# === Static library ===
+libficl.a: $(OBJECTS)
+	$(LIB) $@ $(OBJECTS)
+	$(RANLIB) $@
+
+# === Console Test executable ===
 ficl: testmain.o ficl.h sysdep.h libficl.a
 	$(CC) testmain.o -o ficl -L. -lficl -lm
 
-lib: libficl.so.$(MAJOR).$(MINOR)
-
-# static library build
-libficl.a: $(OBJECTS)
-	$(LIB) libficl.a $(OBJECTS)
-	$(RANLIB) libficl.a
-
-softcore.c:
-	make -C softwords softcore.c
-
-# shared library build
-libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
-	$(CC) -shared -Wl,-soname,libficl.so.$(MAJOR).$(MINOR) \
-	-o libficl.so.$(MAJOR).$(MINOR) $(OBJECTS)
-	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so
-
-testmain: testmain.o ficl.h sysdep.h unity.h libficl.so.$(MAJOR).$(MINOR)
-	$(CC) testmain.o -o testmain -L. -lficl -lm
-	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
-
-#
-#       generic object code
-#
+# === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o
 
 .c.o:
-	$(CC) $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 .cxx.o:
-	$(CPP) $(CPFLAGS) -c $*.cxx
+	$(CPP) $(CPFLAGS) $(DEPFLAGS) -c $*.cxx
 
 .cc.o:
-	$(CPP) $(CPFLAGS) -c $*.cc
+	$(CPP) $(CPFLAGS) $(DEPFLAGS) -c $*.cc
+
+-include $(DEPS)
+
 #
-#       generic cleanup code
+#  === utility targets ===
 #
 clean:
-	rm -f *.o *.a libficl.*
+	rm -f *.o *.a *.d 
