@@ -437,7 +437,7 @@ int main(int argc, char **argv)
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
-    ret = ficlEvaluate(pVM, ".ver .( " __DATE__ " ) cr quit");
+    ret = ficlEvaluate(pVM, ".ver 2 spaces .( " __DATE__ " ) cr quit");
     if (fUnit)
     {
         ret = ficlEvaluate(pVM, "cd test\n load ficltest.fr");
