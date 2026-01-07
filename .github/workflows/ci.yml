@@ -40,6 +40,6 @@ jobs:
           fi
 
       # Uncomment and adjust once you have an automated test harness
-      # - name: Run tests
-      #   run: |
-      #     make test
+      - name: Run tests
+        run: |
+          ./ficl --test
