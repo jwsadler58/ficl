@@ -313,7 +313,7 @@ default <tt>init</tt> method supplied by <tt>object</tt> clears the instance,
 so we didn't really need to override it in this case (see the source code
 in ficl/softwords/oo.fr).&nbsp;
 <br>The <tt>ON</tt> and <tt>OFF</tt> methods defined above hide the details
-of turning LEDs on and off. The interface to FiclWin's simulated hardware
+of turning LEDs on and off. The interface to the demo's simulated hardware
 is handled by <tt>!OREG</tt>. The class keeps the LED state in a shadow
 variable (<tt>.STATE</tt>) so that <tt>ON</tt> and <tt>OFF</tt> can work
 in terms of LED number rather than a bitmask.
@@ -402,7 +402,7 @@ method at compile time. In many cases, such as the <code>init</code> method,
 you can be reasonably certain of the class of thing you're working on.
 This is also true when invoking class methods, since all classes are instances
 of <code>metaclass</code>. Here's an example from the definition of <code>metaclass</code>
-in oo.fr (don't paste this into ficlWin - it's already there):
+in oo.fr:
 <pre>
 : new   \ ( class metaclass "name" -- )
     metaclass => instance --> init ;

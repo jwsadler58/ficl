@@ -39,7 +39,6 @@ jobs:
             make -f makefile.macos clean ficl
           fi
 
-      # Uncomment and adjust once you have an automated test harness
       - name: Run tests
         run: |
           ./ficl --test
