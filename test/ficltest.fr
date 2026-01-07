@@ -98,6 +98,5 @@ testing number builder
 { 3. -> 0 3 }
 { -1 -> -1 }
 
-
-.errors
-ficltest-marker
+.errors                \ print error count
+ficltest-marker        \ dictionary cleanup

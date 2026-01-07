@@ -4011,8 +4011,11 @@ static void source(FICL_VM *pVM)
 **************************************************************************/
 static void ficlVersion(FICL_VM *pVM)
 {
-    vmTextOut(pVM, "ficl Version " FICL_VER, 1);
-    return;
+    int nBits = sizeof(CELL) * CHAR_BIT;
+    vmTextOut(pVM, "ficl Version " FICL_VER, 0);
+    sprintf(pVM->pad, " (%d bits)", nBits);
+    vmTextOut(pVM, pVM->pad, 1);   
+return;
 }
 
 

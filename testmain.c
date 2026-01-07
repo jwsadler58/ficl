@@ -84,7 +84,8 @@ static void ficlChDir(FICL_VM *pVM)
        int err = chdir(pFS->text);
        if (err)
         {
-            vmTextOut(pVM, "Error: path not found", 1);
+            vmTextOut(pVM, "Error: path not found", 0);
+            vmTextOut(pVM, pFS->text, 1);
             vmThrow(pVM, VM_QUIT);
         }
     }
@@ -143,7 +144,6 @@ static void ficlLoad(FICL_VM *pVM)
     int     result;
     CELL    id;
     struct stat buf;
-
 
     vmGetString(pVM, pFilename, '\n');
 
@@ -213,9 +213,6 @@ static void ficlLoad(FICL_VM *pVM)
     */
     pVM->sourceID.i = -1;
     ficlExec(pVM, "");
-
-    vmTextOut(pVM, "Done: ", 0);
-    vmTextOut(pVM, pFilename->text, 1);
 
     pVM->sourceID = id;
     fclose(fp);
@@ -297,6 +294,17 @@ static void clocksPerSec(FICL_VM *pVM)
     return;
 }
 
+/* 
+** t e s t - e r r o r
+** Test error reporting for scripted tests 
+*/
+static int nTestFails = 0;
+static void testError(FICL_VM *pVM)
+{
+    nTestFails = stackPopINT(pVM->pStack); 
+    return;
+}
+
 
 void buildTestInterface(FICL_SYSTEM *pSys)
 {
@@ -307,6 +315,7 @@ void buildTestInterface(FICL_SYSTEM *pSys)
     ficlBuild(pSys, "pwd",      ficlGetCWD,   FW_DEFAULT);
     ficlBuild(pSys, "system",   ficlSystem,   FW_DEFAULT);
     ficlBuild(pSys, "spewhash", spewHash,     FW_DEFAULT);
+    ficlBuild(pSys, "test-error", testError,  FW_DEFAULT); /* signaling from ficltest.fr */
     ficlBuild(pSys, "clocks/sec", 
                                 clocksPerSec, FW_DEFAULT);
 
@@ -385,17 +394,29 @@ void buildTestInterface(FICL_SYSTEM *pSys)
 
 #define nINBUF 256
 
-#if !defined (_WIN32)
-    #define __try
-    #define __except(i) if (0)
-#endif
-
 int main(int argc, char **argv)
 {
     int ret = 0;
     char in[nINBUF];
     FICL_VM *pVM;
     FICL_SYSTEM *pSys;
+    int i;
+    int fUnit = 0;
+
+    /* Find '--test' anywhere on the command line */
+    for (i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--test") == 0) 
+        {
+#if FICL_UNIT_TEST
+            fUnit = 1;
+            break;
+#else
+            printf("Error: Unit tests not enabled in this build.\n");
+            exit(1); 
+#endif
+        }
+    }
 
 #if FICL_UNIT_TEST
     UNITY_BEGIN();
@@ -404,27 +425,24 @@ int main(int argc, char **argv)
     RUN_TEST(wordAppendBodyTest);
     RUN_TEST(hashLayoutTest);
     RUN_TEST(hashCreateTest);
-    (void) UNITY_END();    
+    nTestFails = UNITY_END(); 
+    if (fUnit && (nTestFails > 0))
+    {
+        printf("Unit tests failed: %d\n", nTestFails);
+        return nTestFails;
+    }
 #endif
 
     pSys = ficlInitSystem(20000);
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
-    int nBits = sizeof(CELL) * CHAR_BIT;
-    sprintf(pVM->pad, "%d bit CELL size", nBits);
-    vmTextOut(pVM, pVM->pad, 1);   
-
     ret = ficlEvaluate(pVM, ".ver .( " __DATE__ " ) cr quit");
-
-    /*
-    ** optionally load file from cmd line...
-    */
-    if (argc  > 1)
+    if (fUnit)
     {
-        sprintf(in, ".( loading %s ) cr load %s\n cr", argv[1], argv[1]); 
-        vmTextOut(pVM, in, 1);
-        ret = ficlEvaluate(pVM, in);
+        ret = ficlEvaluate(pVM, "cd test\n load ficltest.fr");
+        ficlTermSystem(pSys);
+        return nTestFails;
     }
 
     while (ret != VM_USEREXIT)
