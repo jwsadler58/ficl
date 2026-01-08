@@ -76,11 +76,11 @@ part of the declaration.
 They behave the same as single cell locals in all
 other respects. I use 2locals quite a bit in Ficl's OO classes, because
 objects in Ficl require two cells on the stack. You can modify the
-value of a double cell local with <tt><a href="http://www.taygeta.com/forth/dpans13.htm#13.6.1.2295">TO</a></tt>
+value of a double cell local with <code><a href="http://www.taygeta.com/forth/dpans13.htm#13.6.1.2295">TO</a></code>
 the same as you would a single cell local.
 <br>Following are some examples to illustrate usage (they are not intended
 to be good code otherwise). Try these out in the <A href="demo.html">demo</A> to get a feeling for
-how they work. Also see <tt>softwords/string.fr</tt> for an example of use of locals
+how they work. Also see <code>softwords/string.fr</code> for an example of use of locals
 in OO code.
 <pre>
 : local-demo  { a b | c -- }
@@ -103,20 +103,20 @@ in OO code.
    temp to x
    x y ;
 </pre>
-The last definition introduces the use of <tt>TO</tt> applied to local
-variables. <tt>TO</tt> knows whether it's operating on a <tt>LOCAL</tt>,
-a <tt>2LOCAL</tt>, or a <tt>VALUE</tt>, and does the right thing accordingly.&nbsp;
+The last definition introduces the use of <code>TO</code> applied to local
+variables. <code>TO</code> knows whether it's operating on a <code>LOCAL</code>,
+a <code>2LOCAL</code>, or a <code>VALUE</code>, and does the right thing accordingly.&nbsp;
 <br>&nbsp;
 <h2>Other local variable syntaxes (deprecated)</h2>
 There are other syntaxes in use for local variables. You get the same compiled
 code regardless of which style of local declaration you choose, but the
-Johns-Hopkins syntax is more readable, more flexible, and supports <tt>2LOCAL</tt>s
+Johns-Hopkins syntax is more readable, more flexible, and supports <code>2LOCAL</code>s
 - if you agree, then skip this section.&nbsp;
-<p>Ficl includes support for <tt>LOCALS</tt> and <tt>LOCALS EXT</tt> words
+<p>Ficl includes support for <code>LOCALS</code> and <code>LOCALS EXT</code> words
 (all three of them!). I've implemented both of the local variable syntaxes
 suggested in DPANS Appendix A.13. Examples: (By the way, Ficl implements
-<tt>-ROT</tt>
-as <tt>: -rot  2 -roll ;</tt> )
+<code>-ROT</code>
+as <code>: -rot  2 -roll ;</code> )
 <pre>
 \ Using LOCALS| from LOCALS EXT
 : -rot  ( a b c -- c a b )

@@ -123,7 +123,7 @@ FICL_DEFAULT_DICT parameter in sysdep.h.
 A wordlist is the controlling structure of a Ficl symbol table. Each wordlist is a hash table 
 containing pointers to FICL_WORDs. Each FICL_WORD associates a pointer to code with one or more
 CELLs of the dictionay. Each word usually has a name as well, but this is not required. It is
-possible to create anonymous words using :NONAME.
+possible to create anonymous words using <code>:NONAME</code>.
 
 Each word's code pointer determines that word's runtime behavior, and by implication the purpose
 of its payload data. Some words interpret their payload as a list of Ficl words, and execute them.
@@ -155,7 +155,7 @@ The word below computes a factorial using a counted loop and a running accumulat
 </pre>
 <p>
 Ficl stores colon definitions as a payload of execution tokens (XTs). In simplified form, the
-payload for <tt>fact</tt> looks like this:
+payload for <code>fact</code> looks like this:
 </p>
 <pre>
 XT (literal) 1
@@ -169,31 +169,31 @@ XT (loop) [branch address]
 XT (;)
 </pre>
 <p>
-When C code calls <tt>ficlExecXT</tt> with the <tt>fact</tt> word, it sets up a nested exception
-frame, pushes the <tt>exit-inner</tt> sentinel on the IP stack, and then enters the inner loop.
-The inner loop walks the XT list until <tt>(;)</tt> triggers <tt>VM_INNEREXIT</tt>.
+When C code calls <code>ficlExecXT</code> with the <code>fact</code> word, it sets up a nested exception
+frame, pushes the <code>exit-inner</code> sentinel on the IP stack, and then enters the inner loop.
+The inner loop walks the XT list until <code>(;)</code> triggers <code>VM_INNEREXIT</code>.
 </p>
 <p>
 If an XT in the payload refers to a colon definition, the inner loop executes
 its code like any other word. The callee pushes the current instruction pointer, switches to its
-own payload, and returns to the caller when <tt>(;)</tt> pops the saved IP.
+own payload, and returns to the caller when <code>(;)</code> pops the saved IP.
 </p>
 <ul>
   <li>
-    <B>Setup</B> Save the current <tt>pState</tt> and <tt>runningWord</tt>, install a new
-    <tt>jmp_buf</tt>, and push <tt>pExitInner</tt> onto the IP stack.
+    <B>Setup</B> Save the current <code>pState</code> and <code>runningWord</code>, install a new
+    <code>jmp_buf</code>, and push <code>pExitInner</code> onto the IP stack.
   </li>
   <li>
-    <B>Execute</B> <tt>vmExecute</tt> positions the IP at the word's payload, then
-    <tt>vmInnerLoop</tt> executes XTs in order.
+    <B>Execute</B> <code>vmExecute</code> positions the IP at the word's payload, then
+    <code>vmInnerLoop</code> executes XTs in order.
   </li>
   <li>
-    <B>Looping</B> <tt>(?do)</tt> initializes the loop parameters, <tt>I</tt> fetches the loop
-    index, and <tt>(loop)</tt> advances or exits the loop.
+    <B>Looping</B> <code>(?do)</code> initializes the loop parameters, <code>I</code> fetches the loop
+    index, and <code>(loop)</code> advances or exits the loop.
   </li>
   <li>
-    <B>Exit</B> <tt>(;)</tt> throws <tt>VM_INNEREXIT</tt>, the inner loop unwinds, and
-    <tt>ficlExecXT</tt> restores the previous <tt>pState</tt>.
+    <B>Exit</B> <code>(;)</code> throws <code>VM_INNEREXIT</code>, the inner loop unwinds, and
+    <code>ficlExecXT</code> restores the previous <code>pState</code>.
   </li>
 </ul>
   </div>

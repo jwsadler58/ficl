@@ -42,7 +42,7 @@
 <tr>
 <td>
 <p>Ficl includes a simple step debugger for colon definitions
-and <tt>does&gt;</tt> words. If you use it and can suggest improvements (or better
+and <code>does&gt;</code> words. If you use it and can suggest improvements (or better
 yet if you write some), please let me know.</p>
 <h2>Using the debugger</h2>
 To debug a word, set up the stack with any parameters the word requires,
@@ -51,8 +51,8 @@ then type:
 <pre>debug &lt;your word here></pre>
 
 <p>If the word is unnamed, or all you have is an xt, you can instead use:</p>
-<tt>debug-xt   ( xt -- )</tt>
-<p>The debugger invokes <tt>see</tt> on the word, printing a crude source
+<code>debug-xt   ( xt -- )</code>
+<p>The debugger invokes <code>see</code> on the word, printing a crude source
 listing, then stops at the first instruction of the definition. There are
 four (case insensitive) commands you can use from here onwards:</p>
 
@@ -86,42 +86,42 @@ x drop 3 \ fix argument on stack
 </dl>
 
 <h2>The on-step event</h2>
-<p>If there is a defined word named <tt>on-step</tt> when the debugger starts, that
+<p>If there is a defined word named <code>on-step</code> when the debugger starts, that
 word will be executed before every step. As a guideline, this word should
 have no side effects. Its intended use is to display the stacks and any other
 VM state you're interested in, but you
 may have some better ideas. If so, please let me know. The default on-step is:<p>
-<tt>: on-step  ." S: " .s cr ;</tt>
+<code>: on-step  ." S: " .s cr ;</code>
 
 <h3>Other useful words for debugging and on-step</h3>
 <dl>
-<dt><tt>r.s  ( -- )</tt></dt>
+<dt><code>r.s  ( -- )</code></dt>
 <dd>Prints a represention of the state of the return stack non-destructively. You have to have 
 a good understanding of the return stack side-effects of control words to make sense of it,
-but it does give an accurate representation of what's there. Example: <tt>DO .. LOOP</tt>s stack
-three parameters on the return stack: the loop count and limit, and the <tt>LEAVE</tt> target
+but it does give an accurate representation of what's there. Example: <code>DO .. LOOP</code>s stack
+three parameters on the return stack: the loop count and limit, and the <code>LEAVE</code> target
 address.</dd>
-<dt><tt>.s  ( -- )</tt></dt>
+<dt><code>.s  ( -- )</code></dt>
 <dd>Prints the parameter stack non-destructively</dd>
-<dt><tt>f.s  ( -- )</tt></dt>
+<dt><code>f.s  ( -- )</code></dt>
 <dd>Prints the float stack non-destructively (only available if FICL_WANT_FLOAT is enabled)</dd>
 </dl>
 <h2>Debugger internals</h2>
 <p>
-The debugger words are mostly located in source file <tt>tools.c</tt>. There are
-supporting words (<tt>debug</tt> and <tt>on-step</tt>) in softcore.fr as well. 
-There are two main words that make the debugger go: <tt>debug-xt</tt> and <tt>step-break</tt>. 
-<tt>Debug-xt</tt> takes the xt of a word to debug (as returned by <tt>'</tt>, for example) 
+The debugger words are mostly located in source file <code>tools.c</code>. There are
+supporting words (<code>debug</code> and <code>on-step</code>) in softcore.fr as well. 
+There are two main words that make the debugger go: <code>debug-xt</code> and <code>step-break</code>. 
+<code>Debug-xt</code> takes the xt of a word to debug (as returned by <code>'</code>, for example) 
 checks to see if it is debuggable (not a primitive), sets a breakpoint at its
-first instruction, and runs <tt>see</tt> on it. To set a breakpoint, 
-<tt>debug-xt</tt>
-replaces the instruction at the breakpoint with the xt of <tt>step-break</tt>, and
+first instruction, and runs <code>see</code> on it. To set a breakpoint, 
+<code>debug-xt</code>
+replaces the instruction at the breakpoint with the xt of <code>step-break</code>, and
 stores the original instruction and its address in a static breakpoint
-record. To clear the breakpoint, <tt>step-break</tt> simply replaces the original
+record. To clear the breakpoint, <code>step-break</code> simply replaces the original
 instruction and adjusts the target virtual machine's instruction pointer
 to run it.
 </p>
-<p><tt>Step-break</tt> is responsible for processing debugger commands and setting
+<p><code>Step-break</code> is responsible for processing debugger commands and setting
 breakpoints at subsequent instructions.</p>
 <h3>To Do</h3>
 <ul>

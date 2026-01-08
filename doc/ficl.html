@@ -200,8 +200,8 @@ SUCH DAMAGE.
       To install ficl on your target system, you need an ANSI C compiler (C11 or newer) and its runtime library. 
       System dependent code is isolated to a few functions that you need to implement for your system. See sysdep.h for build controls.&nbsp;
       <P>
-        Edit the definitions (in sysdep.c) of <TT>ficlMalloc, ficlFree, ficlRealloc</TT>, and <TT>ficlTextOut</TT> for your application and target. 
-        Use <TT>testmain.c</TT> as a guide to installing the ficl system and one or more virtual machines into your code.&nbsp;
+        Edit the definitions (in sysdep.c) of <code>ficlMalloc, ficlFree, ficlRealloc</code>, and <code>ficlTextOut</code> for your application and target. 
+        Use <code>testmain.c</code> as a guide to installing the ficl system and one or more virtual machines into your code.&nbsp;
       </P> 
       <P>
         Ficl includes portable double precision math routines that work for 32 and 64 bit machines. 
@@ -613,7 +613,7 @@ The word below computes a factorial using a counted loop and a running accumulat
 </pre>
 <p>
 Ficl stores colon definitions as a payload of execution tokens (XTs). In simplified form, the
-payload for <TT>fact</TT> looks like this:
+payload for <code>fact</code> looks like this:
 </p>
 <pre>
 XT (literal) 1
@@ -627,31 +627,31 @@ XT (loop) [branch address]
 XT (;)
 </pre>
 <p>
-When C code calls <TT>ficlExecXT</TT> with the <TT>fact</TT> word, it sets up a nested exception
-frame, pushes the <TT>exit-inner</TT> sentinel on the IP stack, and then enters the inner loop.
-The inner loop walks the XT list until <TT>(;)</TT> triggers <TT>VM_INNEREXIT</TT>.
+When C code calls <code>ficlExecXT</code> with the <code>fact</code> word, it sets up a nested exception
+frame, pushes the <code>exit-inner</code> sentinel on the IP stack, and then enters the inner loop.
+The inner loop walks the XT list until <code>(;)</code> triggers <code>VM_INNEREXIT</code>.
 </p>
 <p>
 If an XT in the payload refers to a colon definition, the inner loop executes
 its code like any other word. The callee pushes the current instruction pointer, switches to its
-own payload, and returns to the caller when <TT>(;)</TT> pops the saved IP.
+own payload, and returns to the caller when <code>(;)</code> pops the saved IP.
 </p>
 <ul>
   <li>
-    <B>Setup</B> Save the current <TT>pState</TT> and <TT>runningWord</TT>, install a new
-    <TT>jmp_buf</TT>, and push <TT>pExitInner</TT> onto the IP stack.
+    <B>Setup</B> Save the current <code>pState</code> and <code>runningWord</code>, install a new
+    <code>jmp_buf</code>, and push <code>pExitInner</code> onto the IP stack.
   </li>
   <li>
-    <B>Execute</B> <TT>vmExecute</TT> positions the IP at the word's payload, then
-    <TT>vmInnerLoop</TT> executes XTs in order.
+    <B>Execute</B> <code>vmExecute</code> positions the IP at the word's payload, then
+    <code>vmInnerLoop</code> executes XTs in order.
   </li>
   <li>
-    <B>Looping</B> <TT>(?do)</TT> initializes the loop parameters, <TT>I</TT> fetches the loop
-    index, and <TT>(loop)</TT> advances or exits the loop.
+    <B>Looping</B> <code>(?do)</code> initializes the loop parameters, <code>I</code> fetches the loop
+    index, and <code>(loop)</code> advances or exits the loop.
   </li>
   <li>
-    <B>Exit</B> <TT>(;)</TT> throws <TT>VM_INNEREXIT</TT>, the inner loop unwinds, and
-    <TT>ficlExecXT</TT> restores the previous <TT>pState</TT>.
+    <B>Exit</B> <code>(;)</code> throws <code>VM_INNEREXIT</code>, the inner loop unwinds, and
+    <code>ficlExecXT</code> restores the previous <code>pState</code>.
   </li>
 </ul>
       <!-- END FICL_GUTS -->
@@ -682,8 +682,8 @@ ok&gt; 0x123 x. cr
         their names suggest (assuming you're familiar with Forth), they push and pop the search order stack.
       </P>
       <P>
-        The standard does not appear to specify any conditions under which the search order is reset to a sane state. Ficl resets the search order to its default state whenever <TT>ABORT</TT>
-        happens. This includes stack underflows and overflows. <TT>QUIT</TT> does not affect the search order. The minimum search order (set by <TT>ONLY</TT>) is equivalent to
+        The standard does not appear to specify any conditions under which the search order is reset to a sane state. Ficl resets the search order to its default state whenever <code>ABORT</code>
+        happens. This includes stack underflows and overflows. <code>QUIT</code> does not affect the search order. The minimum search order (set by <code>ONLY</code>) is equivalent to
       </P>
 <PRE>
 FORTH-WORDLIST 1 SET-ORDER
@@ -692,86 +692,86 @@ FORTH-WORDLIST 1 SET-ORDER
         There is a default maximum of 16 wordlists in the search order. This can be changed by redefining FICL_DEFAULT_VOCS (declared in sysdep.h).
       </P>
       <P>
-        <B>Note</B>: Ficl resets the search order whenever it does <TT>ABORT</TT>. If you don't like this behavior, just comment out the dictResetSearchOrder() lines in ficlExec().
+        <B>Note</B>: Ficl resets the search order whenever it does <code>ABORT</code>. If you don't like this behavior, just comment out the dictResetSearchOrder() lines in ficlExec().
       </P>
       <DL>
         <DT>
           <A name="tosearch"></A><CODE>&gt;search ( wid -- )</CODE>
         </DT>
         <DD>
-          Push <TT>wid</TT> onto the search order. Many of the other search order words are written in terms of the <TT>SEARCH&gt;</TT> and <TT>&gt;SEARCH</TT> primitives. This word can be defined in
+          Push <code>wid</code> onto the search order. Many of the other search order words are written in terms of the <code>SEARCH&gt;</code> and <code>&gt;SEARCH</code> primitives. This word can be defined in
           ANS Forth as follows
         </DD>
         <DD>
-          <TT>: &gt;search&nbsp;&nbsp; &gt;r get-order 1+ r&gt; swap set-order ;</TT>
+          <code>: &gt;search&nbsp;&nbsp; &gt;r get-order 1+ r&gt; swap set-order ;</code>
         </DD>
         <DT>
-          <A name="searchfrom"></A><TT>search&gt;&nbsp;&nbsp; ( -- wid )</TT>
+          <A name="searchfrom"></A><code>search&gt;&nbsp;&nbsp; ( -- wid )</code>
         </DT>
         <DD>
-          Pop <TT>wid</TT> off the search order (can be coded in ANS Forth as&nbsp;<TT>: search&gt;&nbsp; get-order nip 1- set-order ;</TT> )
+          Pop <code>wid</code> off the search order (can be coded in ANS Forth as&nbsp;<code>: search&gt;&nbsp; get-order nip 1- set-order ;</code> )
         </DD>
         <DT>
-          <A name="ficlsetcurrent"></A><TT>ficl-set-current&nbsp;&nbsp; ( wid -- old-wid )</TT>
+          <A name="ficlsetcurrent"></A><code>ficl-set-current&nbsp;&nbsp; ( wid -- old-wid )</code>
         </DT>
         <DD>
           Set wid as compile wordlist, leaving the previous compile wordlist on the stack
         </DD>
         <DT>
-          <A name="ficlvocabulary"></A><TT>ficl-vocabulary&nbsp;&nbsp; ( nBins "name" -- )</TT>
+          <A name="ficlvocabulary"></A><code>ficl-vocabulary&nbsp;&nbsp; ( nBins "name" -- )</code>
         </DT>
         <DD>
-          Creates a <TT>ficl-wordlist</TT> with the specified number of hash table bins, binds it to the name, and associates the semantics of <TT>vocabulary</TT> with it (replaces the top wid in the
+          Creates a <code>ficl-wordlist</code> with the specified number of hash table bins, binds it to the name, and associates the semantics of <code>vocabulary</code> with it (replaces the top wid in the
           search order list with its own wid when executed)
         </DD>
         <DT>
-          <A name="ficlwordlist"></A><TT>ficl-wordlist&nbsp;&nbsp; ( nBins -- wid )</TT>
+          <A name="ficlwordlist"></A><code>ficl-wordlist&nbsp;&nbsp; ( nBins -- wid )</code>
         </DT>
         <DD>
-          Creates a wordlist with the specified number of hash table bins, and leaves the address of the wordlist on the stack. A <TT>ficl-wordlist</TT> behaves exactly as a regular wordlist, but it
-          may search faster depending on the number of bins chosen and the number of words it contains at search time. As implemented in ficl, a wordlist is single threaded by default. <TT>
-          ficl-named-wordlist</TT> takes a name for the wordlist and creates a word that pushes the <TT>wid</TT>. This is by contrast to <TT>VOCABULARY</TT>, which also has a name, but replaces the
-          top of the search order with its <TT>wid</TT>.
+          Creates a wordlist with the specified number of hash table bins, and leaves the address of the wordlist on the stack. A <code>ficl-wordlist</code> behaves exactly as a regular wordlist, but it
+          may search faster depending on the number of bins chosen and the number of words it contains at search time. As implemented in ficl, a wordlist is single threaded by default. <code>
+          ficl-named-wordlist</code> takes a name for the wordlist and creates a word that pushes the <code>wid</code>. This is by contrast to <code>VOCABULARY</code>, which also has a name, but replaces the
+          top of the search order with its <code>wid</code>.
         </DD>
         <DT>
-          <A name="ficlforgetwid"></A><TT>forget-wid&nbsp;&nbsp; ( wid -- )</TT>
+          <A name="ficlforgetwid"></A><code>forget-wid&nbsp;&nbsp; ( wid -- )</code>
         </DT>
         <DD>
-          Iterates through the specified wordlist and unlinks all definitions whose xt addresses are greater than or equal to the value of <TT>HERE</TT>, the dictionary fill pointer.&nbsp;
+          Iterates through the specified wordlist and unlinks all definitions whose xt addresses are greater than or equal to the value of <code>HERE</code>, the dictionary fill pointer.&nbsp;
         </DD>
         <DT>
-          <A name="ficlhide"></A><TT>hide&nbsp;&nbsp; ( -- current-wid-was )</TT>
+          <A name="ficlhide"></A><code>hide&nbsp;&nbsp; ( -- current-wid-was )</code>
         </DT>
         <DD>
-          Push the <TT>hidden</TT> wordlist onto the search order, and set it as the current compile wordlist (unsing <TT>ficl-set-current</TT>). Leaves the previous compile wordlist ID. I use this
-          word to hide implementation factor words that have low reuse potential so that they don't clutter the default wordlist. To undo the effect of hide, execute&nbsp; <B><TT>previous
-          set-current</TT></B>
+          Push the <code>hidden</code> wordlist onto the search order, and set it as the current compile wordlist (unsing <code>ficl-set-current</code>). Leaves the previous compile wordlist ID. I use this
+          word to hide implementation factor words that have low reuse potential so that they don't clutter the default wordlist. To undo the effect of hide, execute&nbsp; <B><code>previous
+          set-current</code></B>
         </DD>
         <DT>
-          <A name="ficlhidden"></A><TT>hidden&nbsp;&nbsp; ( -- wid )</TT>
+          <A name="ficlhidden"></A><code>hidden&nbsp;&nbsp; ( -- wid )</code>
         </DT>
         <DD>
-          Wordlist for storing implementation factors of ficl provided words. To see what's in there, try:&nbsp; <B><TT>hide words previous set-current</TT></B>
+          Wordlist for storing implementation factors of ficl provided words. To see what's in there, try:&nbsp; <B><code>hide words previous set-current</code></B>
         </DD>
         <DT>
-          <A name="wid-get-name"></A><TT>wid-get-name&nbsp;&nbsp; ( wid -- c-addr u )</TT>
+          <A name="wid-get-name"></A><code>wid-get-name&nbsp;&nbsp; ( wid -- c-addr u )</code>
         </DT>
         <DD>
-          Ficl wordlists (2.05 and later) have a name property that can be assigned. This is used by <TT>ORDER</TT> to list the names of wordlists in the search order.&nbsp;
+          Ficl wordlists (2.05 and later) have a name property that can be assigned. This is used by <code>ORDER</code> to list the names of wordlists in the search order.&nbsp;
         </DD>
         <DT>
-          <A name="wid-set-name"></A><TT>wid-set-name&nbsp;&nbsp; ( c-addr wid -- )</TT>
+          <A name="wid-set-name"></A><code>wid-set-name&nbsp;&nbsp; ( c-addr wid -- )</code>
         </DT>
         <DD>
-          Ficl wordlists (2.05 and later) have a name property that can be assigned. This is used by <TT>ORDER</TT> to list the names of wordlists in the search order. The name is assumed to be a \0
-          terminated string (C style), which conveniently is how Ficl stores word names.&nbsp; See softwords/softcore.fr definition of <TT>brand-wordlist</TT>&nbsp;
+          Ficl wordlists (2.05 and later) have a name property that can be assigned. This is used by <code>ORDER</code> to list the names of wordlists in the search order. The name is assumed to be a \0
+          terminated string (C style), which conveniently is how Ficl stores word names.&nbsp; See softwords/softcore.fr definition of <code>brand-wordlist</code>&nbsp;
         </DD>
         <DT>
-          <A name="wid-set-super"></A><TT>wid-set-super&nbsp;&nbsp; ( wid -- )</TT>
+          <A name="wid-set-super"></A><code>wid-set-super&nbsp;&nbsp; ( wid -- )</code>
         </DT>
         <DD>
           Ficl wordlists have a parent wordlist pointer that is not specified in standard Forth. Ficl initializes this pointer to NULL whenever it creates a wordlist, so it ordinarily has no effect.
-          This word sets the parent pointer to the wordlist specified on the top of the stack. Ficl's implementation of <TT>SEARCH-WORDLIST</TT> will chain backward through the parent link of the
+          This word sets the parent pointer to the wordlist specified on the top of the stack. Ficl's implementation of <code>SEARCH-WORDLIST</code> will chain backward through the parent link of the
           wordlist when searching. This simplifies Ficl's object model in that the search order does not need to reflect an object's class hierarchy when searching for a method. It is possible to
           implement Ficl object syntax in strict ANS Forth, but method finders need to manipulate the search order explicitly.
         </DD>
@@ -781,20 +781,20 @@ FORTH-WORDLIST 1 SET-ORDER
       </H3>
       <DL>
         <DT>
-          <TT>user&nbsp;&nbsp; ( -- ) name</TT>
+          <code>user&nbsp;&nbsp; ( -- ) name</code>
         </DT>
         <DD>
           Create a user variable with the given name. User variables are virtual machine local. Each VM allocates a fixed amount of storage for them. You can change the maximum number of user
-          variables allowed by defining FICL_USER_CELLS on your compiiler's command line. Default is 16 user cells. User variables behave like <TT>VARIABLE</TT>s in all other respects (you use @ and
+          variables allowed by defining FICL_USER_CELLS on your compiiler's command line. Default is 16 user cells. User variables behave like <code>VARIABLE</code>s in all other respects (you use @ and
           ! on them, for example). Example:
         </DD>
         <DD>
           <DL>
             <DD>
-              <TT>user current-class</TT>
+              <code>user current-class</code>
             </DD>
             <DD>
-              <TT>0 current-class !</TT>
+              <code>0 current-class !</code>
             </DD>
           </DL>
         </DD>
@@ -804,122 +804,122 @@ FORTH-WORDLIST 1 SET-ORDER
       </H3>
       <DL>
         <DT>
-          <TT>-roll&nbsp;&nbsp; ( xu xu-1 ... x0 u -- x0 xu-1 ... x1 )&nbsp;</TT>
+          <code>-roll&nbsp;&nbsp; ( xu xu-1 ... x0 u -- x0 xu-1 ... x1 )&nbsp;</code>
         </DT>
         <DD>
-          Rotate u+1 items on top of the stack after removing u. Rotation is in the opposite sense to <TT>ROLL</TT>
+          Rotate u+1 items on top of the stack after removing u. Rotation is in the opposite sense to <code>ROLL</code>
         </DD>
       </DL>
       <DL>
         <DT>
-          <A name="minusrot"></A><TT>-rot&nbsp;&nbsp; ( a b c -- c a b )</TT>
+          <A name="minusrot"></A><code>-rot&nbsp;&nbsp; ( a b c -- c a b )</code>
         </DT>
         <DD>
-          Rotate the top three stack entries, moving the top of stack to third place. I like to think of this as <TT>1<SUP>1</SUP>/<SUB>2</SUB>swap</TT> because it's good for tucking a single cell
+          Rotate the top three stack entries, moving the top of stack to third place. I like to think of this as <code>1<SUP>1</SUP>/<SUB>2</SUB>swap</code> because it's good for tucking a single cell
           value behind a cell-pair (like an object).&nbsp;
         </DD>
       </DL>
       <DL>
         <DT>
-          <TT>.dict&nbsp;&nbsp; ( -- )</TT>
+          <code>.dict&nbsp;&nbsp; ( -- )</code>
         </DT>
         <DD>
           Print dictionary usage statistics
         </DD>
         <DT>
-          <TT>.env&nbsp;&nbsp; ( -- )</TT>
+          <code>.env&nbsp;&nbsp; ( -- )</code>
         </DT>
         <DD>
           List all environment variables provided by the system
         </DD>
         <DT>
-          <TT>.hash&nbsp;&nbsp; ( -- )</TT>
+          <code>.hash&nbsp;&nbsp; ( -- )</code>
         </DT>
         <DD>
           List hash table performance statistics of the wordlist that's first in the search order
         </DD>
         <DT>
-          <TT>.ver&nbsp;&nbsp; ( -- )</TT>
+          <code>.ver&nbsp;&nbsp; ( -- )</code>
         </DT>
         <DD>
           Display ficl version ID
         </DD>
         <DT>
-          <TT>&gt;name&nbsp;&nbsp; ( xt -- c-addr u )</TT>
+          <code>&gt;name&nbsp;&nbsp; ( xt -- c-addr u )</code>
         </DT>
         <DD>
           Convert a word's execution token into the address and length of its name
         </DD>
         <DT>
-          <TT>body&gt;&nbsp;&nbsp; ( a-addr -- xt )</TT>
+          <code>body&gt;&nbsp;&nbsp; ( a-addr -- xt )</code>
         </DT>
         <DD>
-          Reverses the effect of <TT>CORE</TT> word <TT>&gt;body</TT> (converts a parameter field address to an execution token)
+          Reverses the effect of <code>CORE</code> word <code>&gt;body</code> (converts a parameter field address to an execution token)
         </DD>
         <DT>
-          <TT>compile-only</TT>
+          <code>compile-only</code>
         </DT>
         <DD>
-          Mark the most recently defined word as being executable only while in compile state. Many <TT>immediate</TT> words have this property.
+          Mark the most recently defined word as being executable only while in compile state. Many <code>immediate</code> words have this property.
         </DD>
         <DT>
-          <TT>empty&nbsp;&nbsp; ( -- )</TT>&nbsp;
+          <code>empty&nbsp;&nbsp; ( -- )</code>&nbsp;
         </DT>
         <DD>
           Empty the parameter stack
         </DD>
         <DT>
-          <TT>endif</TT>
+          <code>endif</code>
         </DT>
         <DD>
-          Synonym for <TT>THEN</TT>
+          Synonym for <code>THEN</code>
         </DD>
         <DT>
-          <A name="last-word"></A><TT>last-word&nbsp;&nbsp; ( -- xt )</TT>
+          <A name="last-word"></A><code>last-word&nbsp;&nbsp; ( -- xt )</code>
         </DT>
         <DD>
-          Pushes the xt address of the most recently defined word. This applies to colon definitions, constants, variables, and words that use <TT>create</TT>. You can print the name of the most
+          Pushes the xt address of the most recently defined word. This applies to colon definitions, constants, variables, and words that use <code>create</code>. You can print the name of the most
           recently defined word with&nbsp;
         </DD>
         <DD>
-          <B><TT>last-word &gt;name type</TT>&nbsp;</B>
+          <B><code>last-word &gt;name type</code>&nbsp;</B>
         </DD>
         <DT>
-          <TT>parse-word&nbsp;&nbsp; ( &lt;spaces&gt;name -- c-addr u )</TT>
+          <code>parse-word&nbsp;&nbsp; ( &lt;spaces&gt;name -- c-addr u )</code>
         </DT>
         <DD>
           Skip leading spaces and parse name delimited by a space. c-addr is the address within the input buffer and u is the length of the selected string. If the parse area is empty, the resulting
           string has a zero length. (From the Standard)
         </DD>
         <DT>
-          <A name="qfetch"></A><TT>q@&nbsp;&nbsp; ( addr -- x )</TT>
+          <A name="qfetch"></A><code>q@&nbsp;&nbsp; ( addr -- x )</code>
         </DT>
         <DD>
           Fetch a 32 bit quantity from the specified address
         </DD>
         <DT>
-          <A name="qbang"></A><TT>q!&nbsp;&nbsp; ( x addr -- )</TT>
+          <A name="qbang"></A><code>q!&nbsp;&nbsp; ( x addr -- )</code>
         </DT>
         <DD>
           Store a 32 bit quantity to the specified address&nbsp;
         </DD>
         <DT>
-          <TT>w@&nbsp;&nbsp; ( addr -- x )</TT>
+          <code>w@&nbsp;&nbsp; ( addr -- x )</code>
         </DT>
         <DD>
           Fetch a 16 bit quantity from the specified address
         </DD>
         <DT>
-          <TT>w!&nbsp;&nbsp; ( x addr -- )</TT>
+          <code>w!&nbsp;&nbsp; ( x addr -- )</code>
         </DT>
         <DD>
           Store a 16 bit quantity to the specified address (the low 16 bits of the given value)
         </DD>
         <DT>
-          <A name="xdot"></A><TT>x.&nbsp;&nbsp; ( x -- )</TT>
+          <A name="xdot"></A><code>x.&nbsp;&nbsp; ( x -- )</code>
         </DT>
         <DD>
-          Pop and display the value in hex format, regardless of the current value of <TT>BASE</TT>
+          Pop and display the value in hex format, regardless of the current value of <code>BASE</code>
         </DD>
       </DL>
       <H3>
@@ -927,49 +927,49 @@ FORTH-WORDLIST 1 SET-ORDER
       </H3>
       <DL>
         <DT>
-          <TT>break&nbsp;&nbsp; ( -- )</TT>
+          <code>break&nbsp;&nbsp; ( -- )</code>
         </DT>
         <DD>
           Does nothing - just a handy place to set a debugger breakpoint
         </DD>
         <DT>
-          <TT>cd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( "directory-name&lt;newline&gt;" -- )</TT>
+          <code>cd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( "directory-name&lt;newline&gt;" -- )</code>
         </DT>
         <DD>
           Executes the Win32 chdir() function, changing the program's logged directory.
         </DD>
         <DT>
-          <A name="clock"></A><TT>clock&nbsp;&nbsp; ( -- now )</TT>
+          <A name="clock"></A><code>clock&nbsp;&nbsp; ( -- now )</code>
         </DT>
         <DD>
           Wrapper for the ANSI C clock() function. Returns the number of clock ticks elapsed since process start.
         </DD>
         <DT>
-          <A name="clockspersec"></A><TT>clocks/sec&nbsp;&nbsp; ( -- clocks_per_sec )</TT>
+          <A name="clockspersec"></A><code>clocks/sec&nbsp;&nbsp; ( -- clocks_per_sec )</code>
         </DT>
         <DD>
-          Pushes the number of ticks in a second as returned by <TT>clock</TT>
+          Pushes the number of ticks in a second as returned by <code>clock</code>
         </DD>
         <DT>
-          <A name="ficlload"></A><TT>load&nbsp;&nbsp;&nbsp; ( "filename&lt;newline&gt;" -- )</TT>
+          <A name="ficlload"></A><code>load&nbsp;&nbsp;&nbsp; ( "filename&lt;newline&gt;" -- )</code>
         </DT>
         <DD>
-          Opens the Forth source file specified and loads it one line at a time, like <TT>INCLUDED (FILE)</TT>
+          Opens the Forth source file specified and loads it one line at a time, like <code>INCLUDED (FILE)</code>
         </DD>
         <DT>
-          <TT>pwd&nbsp;&nbsp;&nbsp;&nbsp; ( -- )</TT>
+          <code>pwd&nbsp;&nbsp;&nbsp;&nbsp; ( -- )</code>
         </DT>
         <DD>
-          Prints the current working directory as set by <TT>cd</TT>
+          Prints the current working directory as set by <code>cd</code>
         </DD>
         <DT>
-          <TT>system&nbsp; ( "command&lt;newline&gt;" -- )</TT>
+          <code>system&nbsp; ( "command&lt;newline&gt;" -- )</code>
         </DT>
         <DD>
           Issues a command to a shell; implemented with the Win32 system() call.
         </DD>
         <DT>
-          <TT>spewhash&nbsp;&nbsp; ( "filename&lt;newline&gt;" -- )</TT>
+          <code>spewhash&nbsp;&nbsp; ( "filename&lt;newline&gt;" -- )</code>
         </DT>
         <DD>
           Dumps all threads of the current compilation wordlist to the specified text file. This was useful when I thought there might be some point in attempting to optimize the hash function. I no
@@ -1025,7 +1025,7 @@ FORTH-WORDLIST 1 SET-ORDER
           <B>aligned address requirements (3.1.3.3 Addresses);</B>&nbsp;
           <BR>
           System dependent. You can change the default address alignment by defining FICL_ALIGN on your compiler's command line. The default value is set to 2 in sysdep.h. This
-          causes dictionary entries and <TT>ALIGN</TT> and <TT>ALIGNED</TT> to align on 4 byte boundaries. To align on <B>2<SUP>n</SUP></B> byte boundaries, set FICL_ALIGN to <B>n</B>.&nbsp;
+          causes dictionary entries and <code>ALIGN</code> and <code>ALIGNED</code> to align on 4 byte boundaries. To align on <B>2<SUP>n</SUP></B> byte boundaries, set FICL_ALIGN to <B>n</B>.&nbsp;
         </LI>
         <LI>
           <B>behavior of 6.1.1320 EMIT for non-graphic characters</B>;&nbsp;
@@ -1066,7 +1066,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>conversion of digits larger than thirty-five (3.2.1.2 Digit conversion)</B>;&nbsp;
           <BR>
-          The maximum supported value of <TT>BASE</TT> is 36. Ficl will assertion fail in function ltoa of vm.c if the base is found to be larger than 36 or smaller than 2.
+          The maximum supported value of <code>BASE</code> is 36. Ficl will assertion fail in function ltoa of vm.c if the base is found to be larger than 36 or smaller than 2.
           There will be no effect if NDEBUG is defined, however, other than possibly unexpected behavior.&nbsp;
         </LI>
         <LI>
@@ -1077,7 +1077,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>exception abort sequence (as in 6.1.0680 ABORT")</B>;&nbsp;
           <BR>
-          Does <TT>ABORT</TT>&nbsp;
+          Does <code>ABORT</code>&nbsp;
         </LI>
         <LI>
           <B>input line terminator (3.2.4.1 User input device)</B>;<FONT color="#FF0000">&nbsp;</FONT>
@@ -1212,7 +1212,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>a name is neither a valid definition name nor a valid number during text interpretation (3.4 The Forth text interpreter)</B>;&nbsp;
            <BR>
-           Ficl does <TT>ABORT</TT> and prints the name followed by " not found".&nbsp;
+           Ficl does <code>ABORT</code> and prints the name followed by " not found".&nbsp;
         </LI>
         <LI>
           <B>a definition name exceeded the maximum length allowed (3.3.1.2 Definition names)</B>;&nbsp;
@@ -1253,14 +1253,14 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>insufficient space in the dictionary</B>;&nbsp;
           <BR>
-          Ficl generates an error message if the dictionary is too full to create a definition header. It checks <TT>ALLOT</TT> as well, but it is possible to make an unchecked
+          Ficl generates an error message if the dictionary is too full to create a definition header. It checks <code>ALLOT</code> as well, but it is possible to make an unchecked
           allocation request that overflows the dictionary.&nbsp;
         </LI>
         <LI>
           <B>interpreting a word with undefined interpretation semantics</B>;&nbsp;
           <BR>
           Ficl protects all ANS Forth words with undefined interpretation semantics from being executed while in interpret state. It is possible to defeat this protection using
-          ' (tick) and <TT>EXECUTE</TT>, though.&nbsp;
+          ' (tick) and <code>EXECUTE</code>, though.&nbsp;
         </LI>
         <LI>
           <B>modifying the contents of the input buffer or a string literal (3.3.3.4 Text-literal regions, 3.3.3.5 Input buffers)</B>;&nbsp;
@@ -1278,7 +1278,7 @@ FORTH-WORDLIST 1 SET-ORDER
           <B>parsed string overflow</B>;
            <BR>
            Ficl does not copy parsed strings unless asked to. Ordinarily, a string parsed from the input buffer during normal interpretation is left in-place, so there is no possibility of overflow.
-          If you ask to parse a string into the dictionary, as in <TT>SLITERAL</TT>, you need to have enough room for the string, otherwise bad things may happen. This is not usually a problem.&nbsp;
+          If you ask to parse a string into the dictionary, as in <code>SLITERAL</code>, you need to have enough room for the string, otherwise bad things may happen. This is not usually a problem.&nbsp;
         </LI>
         <LI>
           <B>producing a result out of range, e.g., multiplication (using *) results in a value too big to be represented by a single-cell integer (6.1.0090 *, 6.1.0100 */, 6.1.0110 */MOD, 6.1.0570
@@ -1308,7 +1308,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>6.1.2120 RECURSE appears after 6.1.1250 DOES&gt;</B>
            <BR>
-           It finds the address of the definition before <TT>DOES&gt;</TT>
+           It finds the address of the definition before <code>DOES&gt;</code>
         </LI>
         <LI>
           <B>argument input source different than current input source for 6.2.2148 RESTORE-INPUT</B>
@@ -1333,7 +1333,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>less than u+2 stack items (6.2.2030 PICK, 6.2.2150 ROLL)</B>
            <BR>
-           Ficl detects a stack underflow and reports it, executing <TT>ABORT,</TT> as long as FICL_ROBUST is two or larger.&nbsp;
+           Ficl detects a stack underflow and reports it, executing <code>ABORT,</code> as long as FICL_ROBUST is two or larger.&nbsp;
         </LI>
         <LI>
           <B>loop-control parameters not available ( 6.1.0140 +LOOP, 6.1.1680 I, 6.1.1730 J, 6.1.1760 LEAVE, 6.1.1800 LOOP, 6.1.2380 UNLOOP)</B>
@@ -1349,12 +1349,12 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>name not defined by 6.2.2405 VALUE used by 6.2.2295 TO</B>
            <BR>
-           Ficl's version of <TT>TO</TT> works correctly with <TT>VALUE</TT>s, <TT>CONSTANT</TT>s and <TT>VARIABLE</TT>s.&nbsp;
+           Ficl's version of <code>TO</code> works correctly with <code>VALUE</code>s, <code>CONSTANT</code>s and <code>VARIABLE</code>s.&nbsp;
         </LI>
         <LI>
           <B>name not found (6.1.0070 ', 6.1.2033 POSTPONE, 6.1.2510 ['], 6.2.2530 [COMPILE])</B>
            <BR>
-           Ficl prints an error message and does <TT>ABORT</TT>
+           Ficl prints an error message and does <code>ABORT</code>
         </LI>
         <LI>
           <B>parameters are not of the same type (6.1.1240 DO, 6.2.0620 ?DO, 6.2.2440 WITHIN)</B>
@@ -1383,7 +1383,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
            <B>words improperly used outside 6.1.0490 &lt;# and 6.1.0040 #&gt; (6.1.0030 #, 6.1.0050 #S, 6.1.1670 HOLD, 6.1.2210 SIGN)</B>
            <BR>
-           Don't. <TT>CREATE</TT> reserves a field in words it builds for <TT>DOES&gt;</TT>to fill in. If you use <TT>DOES&gt;</TT> on a word not made by <TT>CREATE</TT>, it will overwrite the first
+           Don't. <code>CREATE</code> reserves a field in words it builds for <code>DOES&gt;</code>to fill in. If you use <code>DOES&gt;</code> on a word not made by <code>CREATE</code>, it will overwrite the first
           cell of its parameter area. That's probably not what you want. Likewise, pictured numeric words assume that there is a string under construction in the VM's scratch buffer. If that's not
           the case, results may be unpleasant.
         </LI>
@@ -1438,7 +1438,7 @@ FORTH-WORDLIST 1 SET-ORDER
         <LI>
           <B>minimum search order (16.6.1.2197 SET-ORDER, 16.6.2.1965 ONLY)</B>&nbsp;
           <BR>
-           Equivalent to <TT>FORTH-WORDLIST 1 SET-ORDER</TT>
+           Equivalent to <code>FORTH-WORDLIST 1 SET-ORDER</code>
         </LI>
       </UL>
       <H3>
