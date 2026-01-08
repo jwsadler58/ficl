@@ -24,7 +24,7 @@ libficl.lib: $(OBJECTS)
 
 # === Console Test executable ===
 ficl.exe: testmain.obj ficl.h sysdep.h libficl.lib
-	$(LINK) /nologo /NODEFAULTLIB:MSVCRT /DEFAULTLIB:ucrt /DEFAULTLIB:vcruntime /OUT:$@ testmain.obj libficl.lib
+	$(LINK) /nologo /NODEFAULTLIB:MSVCRT /DEFAULTLIB:ucrt /DEFAULTLIB:vcruntime /LIBPATH:"$(UniversalCRTSdkDir)Lib\$(UCRTVersion)\ucrt\x64" /LIBPATH:"$(VCToolsInstallDir)lib\x64" /OUT:$@ testmain.obj libficl.lib
 
 # === Compile rules ===
 .SUFFIXES: .c .obj
