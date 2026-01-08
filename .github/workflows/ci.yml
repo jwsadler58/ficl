@@ -52,7 +52,7 @@ jobs:
           echo WindowsSDKVersion=%WindowsSDKVersion%
           set "LIB=%VCToolsInstallDir%lib\x64;%UniversalCRTSdkDir%Lib\%UCRTVersion%\ucrt\x64;%WindowsSdkDir%Lib\%WindowsSDKVersion%\um\x64"
           echo LIB=%LIB%
-          nmake /f makefile.windows clean ficl.exe
+          nmake /E /f makefile.windows clean ficl.exe UniversalCRTSdkDir="%UniversalCRTSdkDir%" UCRTVersion=%UCRTVersion% VCToolsInstallDir="%VCToolsInstallDir%" WindowsSdkDir="%WindowsSdkDir%" WindowsSDKVersion=%WindowsSDKVersion%
 
       - name: Run tests (Linux/macOS)
         if: runner.os != 'Windows'
