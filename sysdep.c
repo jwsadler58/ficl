@@ -327,7 +327,7 @@ void *ficlRealloc(void *p, size_t size)
 *******************  Linux  P O R T   B E G I N S   H E R E ******************** Skip Carter, March 1998
 */
 
-#if defined(linux) || defined(riscos)
+#if defined(linux) || defined(riscos) || defined(_WIN64)
 
 #if ! PORTABLE_LONGMULDIV
     

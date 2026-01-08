@@ -1,0 +1,37 @@
+# === Toolchain & flags ===
+# C11 required for static_assert, stdint.h, and dynamic arrays in data structures
+CC      = cl
+CFLAGS  = /nologo /O2 /std:c11
+LIB     = lib
+LINK    = link
+
+OBJECTS = dict.obj ficl.obj fileaccess.obj float.obj dpmath.obj \
+          prefix.obj search.obj softcore.obj stack.obj sysdep.obj \
+          tools.obj unity.obj unix.obj vm.obj words.obj
+
+SOFTWORDS_SOURCES = softwords\softcore.fr softwords\jhlocal.fr softwords\marker.fr \
+                    softwords\prefix.fr softwords\ifbrack.fr softwords\oo.fr \
+                    softwords\classes.fr softwords\string.fr softwords\fileaccess.fr
+
+# === Softcore.c is generated from softwords folder ===
+softcore.c: softwords\softcore.py $(SOFTWORDS_SOURCES)
+	python softwords\softcore.py $(SOFTWORDS_SOURCES) >softwords\softcore.c
+	copy /Y softwords\softcore.c .
+
+# === Static library ===
+libficl.lib: $(OBJECTS)
+	$(LIB) /nologo /OUT:$@ $(OBJECTS)
+
+# === Console Test executable ===
+ficl.exe: testmain.obj ficl.h sysdep.h libficl.lib
+	$(LINK) /nologo /OUT:$@ testmain.obj libficl.lib
+
+# === Compile rules ===
+.SUFFIXES: .c .obj
+
+.c.obj:
+	$(CC) $(CFLAGS) /c $< /Fo$@
+
+# === utility targets ===
+clean:
+	-del /q *.obj *.lib *.exe
