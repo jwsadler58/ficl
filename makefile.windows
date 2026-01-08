@@ -7,7 +7,7 @@ LINK    = link
 
 OBJECTS = dict.obj ficl.obj fileaccess.obj float.obj dpmath.obj \
           prefix.obj search.obj softcore.obj stack.obj sysdep.obj \
-          tools.obj unity.obj unix.obj vm.obj words.obj
+          tools.obj unity.obj vm.obj words.obj
 
 SOFTWORDS_SOURCES = softwords\softcore.fr softwords\jhlocal.fr softwords\marker.fr \
                     softwords\prefix.fr softwords\ifbrack.fr softwords\oo.fr \

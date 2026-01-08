@@ -10,7 +10,7 @@ RANLIB   = ranlib
 
 OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
 		  prefix.o search.o softcore.o stack.o \
-		  sysdep.o tools.o unity.o unix.o vm.o words.o
+		  sysdep.o tools.o unity.o vm.o words.o
 DEPS    = $(OBJECTS:.o=.d) testmain.d
 
 # === Softcore.c is generated from softwords folder ===
