@@ -21,6 +21,19 @@ function setStatus(text) {
   statusEl.textContent = text;
 }
 
+/* Map the low 8 bits of value to the LED row. */
+function setLedBits(value) {
+  const leds = document.querySelectorAll(".led-row .led");
+  const bits = Number(value) >>> 0;
+  const count = Math.min(leds.length, 8);
+  for (let i = 0; i < count; i += 1) {
+    const isOn = (bits >> i) & 1;
+    leds[i].classList.toggle("is-on", Boolean(isOn));
+  }
+}
+
+window.setLedBits = setLedBits;
+
 function updateStack() {
   if (!Module) return;
   const bufSize = 256;

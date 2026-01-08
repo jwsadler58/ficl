@@ -49,13 +49,13 @@ object subclass c-led
 
     : on   { led# 2:this -- }
         this --> .state --> get
-        1 led# lshift or dup !oreg
+        1 led# lshift or dup !led
         this --> .state --> set
     ;
 
     : off   { led# 2:this -- }
         this --> .state --> get
-        1 led# lshift invert and dup !oreg
+        1 led# lshift invert and dup !led
         this --> .state --> set
     ;
 

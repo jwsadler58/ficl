@@ -285,11 +285,11 @@ c-byte obj: .state
     this --> class --> id type cr ;
 : on   { led# 2:this -- }
     this --> .state --> get
-    1 led# lshift or dup !oreg
+    1 led# lshift or dup !led
     this --> .state --> set  ;
 : off   { led# 2:this -- }
     this --> .state --> get
-    1 led# lshift invert and dup !oreg
+    1 led# lshift invert and dup !led
     this --> .state --> set&nbsp; ;
 end-class
 </pre>
@@ -314,7 +314,7 @@ so we didn't really need to override it in this case (see the source code
 in ficl/softwords/oo.fr).&nbsp;
 <br>The <tt>ON</tt> and <tt>OFF</tt> methods defined above hide the details
 of turning LEDs on and off. The interface to the demo's simulated hardware
-is handled by <tt>!OREG</tt>. The class keeps the LED state in a shadow
+is handled by <tt>!led</tt>. The class keeps the LED state in a shadow
 variable (<tt>.STATE</tt>) so that <tt>ON</tt> and <tt>OFF</tt> can work
 in terms of LED number rather than a bitmask.
 <p>Now make an instance of the new class:&nbsp;
@@ -434,36 +434,39 @@ that models the structure, and instantiate a <b>ref </b>from this class,
 supplying the address of the structure. After that, the <i>ref instance</i>
 behaves as a Ficl object, but its instance variables take on the values
 in the existing structure. Example (from ficlclass.fr):&nbsp;
-<blockquote><b><tt>object subclass c-wordlist</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; c-wordlist ref: .parent</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; c-ptr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; obj:
-.name</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; c-cell&nbsp;&nbsp;&nbsp;&nbsp; obj: .size</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; c-word&nbsp;&nbsp;&nbsp;&nbsp; ref: .hash</tt></b>
-<p><b><tt>&nbsp;&nbsp;&nbsp; : ?</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2drop ." ficl wordlist
-" cr ;</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; : push&nbsp; drop&nbsp; >search ;</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; : pop&nbsp;&nbsp; 2drop previous ;</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; : set-current&nbsp;&nbsp; drop set-current
-;</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; : words&nbsp;&nbsp; --> push&nbsp; words
-previous ;</tt></b>
-<br><b><tt>end-class</tt></b></blockquote>
+<pre>
+object subclass c-wordlist
+  c-wordlist  ref: .parent
+  c-ptr       obj: .name
+  c-cell      obj: .size
+  c-word      ref: .hash
+
+: ?
+  2drop ." ficl wordlist" cr ;
+: push  drop >search ;
+: pop   2drop previous ;
+: set-current drop set-current ;
+: words  --> push  words previous ;
+end-class
+</pre>
 In this case, <tt>c-wordlist</tt> describes Ficl's wordlist structure;
 named-wid creates a wordlist and binds it to a ref instance of <tt>c-wordlist</tt>.
 The fancy footwork with <tt>POSTPONE</tt> and early binding is required
 because classes are immediate. An equivalent way to define named-wid with
 late binding is:&nbsp;
-<blockquote><b><tt>: named-wid&nbsp;&nbsp; ( "name" -- )</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; wordlist&nbsp; postpone c-wordlist&nbsp;
---> ref ;</tt></b></blockquote>
+<pre>
+: named-wid   ( "name" -- )
+   wordlist  postpone c-wordlist --> ref ;
+</pre>
 To do the same thing at run-time (and call it my-wordlist):&nbsp;
-<blockquote><b><tt>wordlist&nbsp; c-wordlist --> ref&nbsp; my-wordlist</tt></b></blockquote>
+<pre>
+wordlist  c-wordlist --> ref my-wordlist
+</pre>
 Now you can deal with the wordlist through the ref instance:&nbsp;
-<blockquote><b><tt>my-wordlist --> push</tt></b>
-<br><b><tt>my-wordlist --> set-current</tt></b>
-<br><b><tt>order</tt></b></blockquote>
+<pre>
+my-wordlist --> push
+my-wordlist --> set-current
+order</pre>
 Ficl can also model linked lists and other structures that contain pointers
 to structures of the same or different types. The class constructor word
 <b><tt><a href="#exampleref:">ref:</a></tt></b>

@@ -34,6 +34,9 @@
 #include <string.h>
 
 #include "ficl.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #define WASM_OUTBUF_SIZE 8192
 
@@ -57,7 +60,7 @@ void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
     {
         outbuf[nOutbuf++] = *msg++;
     }
-    if (fNewline && nOutbuf + 1 < WASM_OUTBUF_SIZE)
+    if (fNewline && nOutbuf < WASM_OUTBUF_SIZE - 1)
     {
         outbuf[nOutbuf++] = '\n';
     }
@@ -97,6 +100,22 @@ int ficlWasmGetOutputLen(void)
     return (int)nOutbuf;
 }
 
+/* For web demo - emaulate a block of LEDs */
+static int fakeLED = 0;
+EM_JS(void, ficlWasmSetLedBits, (int value), {
+    if (typeof window !== "undefined" && typeof window.setLedBits === "function")
+        window.setLedBits(value | 0);
+});
+
+/* and call some javascript to change LED visibility*/
+static void setFakeLed(FICL_VM *pVM)
+{
+    fakeLED = stackPopINT(pVM->pStack);
+    ficlWasmSetLedBits(fakeLED);
+    return;
+}
+
+
 int ficlWasmInit(int dict_cells, int stack_cells)
 {
     if (pSys || pVm)
@@ -105,6 +124,8 @@ int ficlWasmInit(int dict_cells, int stack_cells)
     pSys = ficlInitSystem(dict_cells);
     if (!pSys)
         return -1;
+    
+    ficlBuild(pSys, "!led", setFakeLed, FW_DEFAULT);
 
     if (stack_cells > 0)
         ficlSetStackSize(stack_cells);
@@ -114,7 +135,7 @@ int ficlWasmInit(int dict_cells, int stack_cells)
         return -2;
 
     ficlWasmClearOutput();
-    (void)ficlEvaluate(pVm, ".ver .( " __DATE__ " ) cr quit");
+    (void)ficlEvaluate(pVm, ".ver 2 spaces .( " __DATE__ " ) cr");
     return 0;
 }
 
@@ -126,7 +147,7 @@ int ficlWasmEval(const char *line)
         return VM_ERREXIT;
 
     ret = ficlExec(pVm, (char *)line);
-    if (ret == VM_USEREXIT)
+    if (ret == VM_USEREXIT)   /* ignore 'bye' */
         ret = VM_OUTOFTEXT;
 
     return ret;
@@ -147,8 +168,9 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
     int i;
     int written;
     int remaining;
+    int radix;
     char *cursor;
-    char hexbuf[32];
+    char numbuf[32];
 
     if (!out || out_len <= 0)
         return 0;
@@ -158,13 +180,14 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
     if (!pVm)
         return 0;
 
+    radix = pVm->base;
     depth = stackDepth(pVm->pStack);
     count = (max_cells > 0 && max_cells < depth) ? max_cells : depth;
 
     cursor = out;
     remaining = out_len;
 
-    written = snprintf(cursor, (size_t)remaining, "n = %d", depth);
+    written = snprintf(cursor, (size_t)remaining, "%d deep", depth);
     if (written < 0 || written >= remaining)
         return count;
 
@@ -175,8 +198,8 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
     {
         CELL cell = stackFetch(pVm->pStack, i);
         FICL_UNS value = cell.u;
-        ultoa(value, hexbuf, 16);
-        written = snprintf(cursor, (size_t)remaining, "\n0x%s", hexbuf);
+        ultoa(value, numbuf, radix);
+        written = snprintf(cursor, (size_t)remaining, "\n%s", numbuf);
         if (written < 0 || written >= remaining)
             break;
         cursor += written;
