@@ -2,7 +2,7 @@
 # C11 required for static_assert, stdint.h, and dynamic arrays in data structures
 CC      = cl
 CFLAGS  = /nologo /O2 /std:c11 /MD
-LIB     = lib
+LIBTOOL = lib
 LINK    = link
 
 OBJECTS = dict.obj ficl.obj fileaccess.obj float.obj dpmath.obj \
@@ -20,7 +20,7 @@ softcore.c: softwords\softcore.py $(SOFTWORDS_SOURCES)
 
 # === Static library ===
 libficl.lib: $(OBJECTS)
-	$(LIB) /nologo /OUT:$@ $(OBJECTS)
+	$(LIBTOOL) /nologo /OUT:$@ $(OBJECTS)
 
 # === Console Test executable ===
 ficl.exe: testmain.obj ficl.h sysdep.h libficl.lib
