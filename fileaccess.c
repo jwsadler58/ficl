@@ -1,6 +1,13 @@
 #include <errno.h>
 #include <stdlib.h>
-#include <unistd.h>
+#if defined(_WIN32)
+    #include <io.h>
+    #define fileno    _fileno
+    #define unlink    _unlink
+    #define ftruncate(fd, size) (_chsize_s((fd), (size)) == 0 ? 0 : -1)
+#else
+    #include <unistd.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

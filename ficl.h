@@ -548,6 +548,11 @@ void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 */
 int        isPowerOfTwo(FICL_UNS u);
 
+#if defined(_MSC_VER)
+    #define ltoa  ficlLtoa
+    #define ultoa ficlUltoa
+#endif
+
 char       *ltoa( FICL_INT value, char *string, int radix );
 char       *ultoa(FICL_UNS value, char *string, int radix );
 char        digit_to_char(int value);
