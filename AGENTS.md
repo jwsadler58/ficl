@@ -21,8 +21,11 @@
 - camelCase function names
 - block comment before each function or class
 - align hanging comments to column 32
-## planning and doing
-- Always begin an assignment with a proposal including at least two options
+## planning and doing code
+- Always begin a coding assignment with a proposal including at least two options
 - Once I have selected an option, develop it into a detailed design
 - Review affected code for cruft, inconsistencies, and opportunities to improve readability
+## answering questions
+- no need to give options unless you are explicitly asked to do so
+- if the question is ambiguous, ask a clarifying question
 
