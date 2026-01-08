@@ -210,11 +210,11 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
                 if (isAFiclWord(pd, c.p))
                 {
                     FICL_WORD *pLit = (FICL_WORD *)c.p;
-                    sprintf(cp, "%.*s ( %#lx literal )", 
+                    sprintf(cp, "%.*s ( " PCT_IX " literal )", 
                         pLit->nName, pLit->name, c.u);
                 }
                 else
-                    sprintf(cp, "literal %ld (%#lx)", c.i, c.u);
+                    sprintf(cp, "literal " PCT_LD " (" PCT_IX ")", c.i, c.u);
                 break;
             case STRINGLIT:
                 {
@@ -276,7 +276,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
         }
         else /* probably not a word - punt and print value */
         {
-            sprintf(cp, "%ld ( %#lx )", pc->i, pc->u);
+            sprintf(cp, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
         }
 
 		vmTextOut(pVM, pVM->pad, 1);
@@ -319,19 +319,22 @@ static void seeXT(FICL_VM *pVM)
         break;
 
     case VARIABLE:
-        sprintf(pVM->pad, "variable = %ld (%#lx)", pFW->param->i, pFW->param->u);
+        sprintf(pVM->pad, "variable = " PCT_LD " (" PCT_IX ")", 
+            pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
         break;
 
 #if FICL_WANT_USER
     case USER:
-        sprintf(pVM->pad, "user variable %ld (%#lx)", pFW->param->i, pFW->param->u);
+        sprintf(pVM->pad, "user variable " PCT_LD " (" PCT_IX ")", 
+            pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
         break;
 #endif
 
     case CONSTANT:
-        sprintf(pVM->pad, "constant = %ld (%#lx)", pFW->param->i, pFW->param->u);
+        sprintf(pVM->pad, "constant = " PCT_LD " (" PCT_IX ")", 
+            pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
 
     default:

@@ -123,6 +123,19 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #define FICL_UNS unsigned long
 #endif
 
+/* 
+**         Windows - Sprintf format tags to silence MSVC warnings 
+*/
+#if defined(_WIN32)
+    #define PCT_LD     "%Id"
+    #define PCT_IX      "%#Ix"
+#else
+    #define PCT_LD     "%ld"
+    #define PCT_IX      "%#lx"
+#endif
+
+
+
 /************************************************************************************
 **         E N D  P L A T F O R M - S P E C I F I C   D E F I N I T I O N S
 *************************************************************************************/ 
