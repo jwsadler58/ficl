@@ -45,7 +45,12 @@ jobs:
         run: |
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do set VSINSTALL=%%i
           call "%VSINSTALL%\Common7\Tools\VsDevCmd.bat" -arch=x64
-          set "LIB=%VCToolsInstallDir%lib\x64;%UniversalCRTSdkDir%Lib\%UCRTVersion%\ucrt\x64;%WindowsSdkDir%Lib\%WindowsSDKVersion%\um\x64"
+          echo VCToolsInstallDir=%VCToolsInstallDir%
+          echo UniversalCRTSdkDir=%UniversalCRTSdkDir%
+          echo UCRTVersion=%UCRTVersion%
+          echo WindowsSdkDir=%WindowsSdkDir%
+          echo WindowsSDKVersion=%WindowsSDKVersion%
+          echo LIB=%LIB%
           nmake /f makefile.windows clean ficl.exe
 
       - name: Run tests (Linux/macOS)
