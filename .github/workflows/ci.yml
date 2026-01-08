@@ -50,6 +50,7 @@ jobs:
           echo UCRTVersion=%UCRTVersion%
           echo WindowsSdkDir=%WindowsSdkDir%
           echo WindowsSDKVersion=%WindowsSDKVersion%
+          set "LIB=%VCToolsInstallDir%lib\x64;%UniversalCRTSdkDir%Lib\%UCRTVersion%\ucrt\x64;%WindowsSdkDir%Lib\%WindowsSDKVersion%\um\x64"
           echo LIB=%LIB%
           nmake /f makefile.windows clean ficl.exe
 
