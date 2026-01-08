@@ -44,7 +44,13 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#if defined(_WIN32)
+#include <direct.h>
+#define getcwd _getcwd
+#define chdir  _chdir
+#else
 #include <unistd.h>
+#endif
 
 #include "ficl.h"
 
