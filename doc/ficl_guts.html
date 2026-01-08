@@ -155,7 +155,7 @@ The word below computes a factorial using a counted loop and a running accumulat
 </pre>
 <p>
 Ficl stores colon definitions as a payload of execution tokens (XTs). In simplified form, the
-payload for <TT>fact</TT> looks like this:
+payload for <tt>fact</tt> looks like this:
 </p>
 <pre>
 XT (literal) 1
@@ -169,31 +169,31 @@ XT (loop) [branch address]
 XT (;)
 </pre>
 <p>
-When C code calls <TT>ficlExecXT</TT> with the <TT>fact</TT> word, it sets up a nested exception
-frame, pushes the <TT>exit-inner</TT> sentinel on the IP stack, and then enters the inner loop.
-The inner loop walks the XT list until <TT>(;)</TT> triggers <TT>VM_INNEREXIT</TT>.
+When C code calls <tt>ficlExecXT</tt> with the <tt>fact</tt> word, it sets up a nested exception
+frame, pushes the <tt>exit-inner</tt> sentinel on the IP stack, and then enters the inner loop.
+The inner loop walks the XT list until <tt>(;)</tt> triggers <tt>VM_INNEREXIT</tt>.
 </p>
 <p>
 If an XT in the payload refers to a colon definition, the inner loop executes
 its code like any other word. The callee pushes the current instruction pointer, switches to its
-own payload, and returns to the caller when <TT>(;)</TT> pops the saved IP.
+own payload, and returns to the caller when <tt>(;)</tt> pops the saved IP.
 </p>
 <ul>
   <li>
-    <B>Setup</B> Save the current <TT>pState</TT> and <TT>runningWord</TT>, install a new
-    <TT>jmp_buf</TT>, and push <TT>pExitInner</TT> onto the IP stack.
+    <B>Setup</B> Save the current <tt>pState</tt> and <tt>runningWord</tt>, install a new
+    <tt>jmp_buf</tt>, and push <tt>pExitInner</tt> onto the IP stack.
   </li>
   <li>
-    <B>Execute</B> <TT>vmExecute</TT> positions the IP at the word's payload, then
-    <TT>vmInnerLoop</TT> executes XTs in order.
+    <B>Execute</B> <tt>vmExecute</tt> positions the IP at the word's payload, then
+    <tt>vmInnerLoop</tt> executes XTs in order.
   </li>
   <li>
-    <B>Looping</B> <TT>(?do)</TT> initializes the loop parameters, <TT>I</TT> fetches the loop
-    index, and <TT>(loop)</TT> advances or exits the loop.
+    <B>Looping</B> <tt>(?do)</tt> initializes the loop parameters, <tt>I</tt> fetches the loop
+    index, and <tt>(loop)</tt> advances or exits the loop.
   </li>
   <li>
-    <B>Exit</B> <TT>(;)</TT> throws <TT>VM_INNEREXIT</TT>, the inner loop unwinds, and
-    <TT>ficlExecXT</TT> restores the previous <TT>pState</TT>.
+    <B>Exit</B> <tt>(;)</tt> throws <tt>VM_INNEREXIT</tt>, the inner loop unwinds, and
+    <tt>ficlExecXT</tt> restores the previous <tt>pState</tt>.
   </li>
 </ul>
   </div>

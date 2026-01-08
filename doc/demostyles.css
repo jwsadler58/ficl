@@ -194,7 +194,7 @@
   100% { box-shadow: 0 0 0 rgba(226, 138, 52, 0.0); }
 }
 
-@media (orientation: landscape) and (max-width: 900px) {
+@media (orientation: portrait) and (max-width: 900px) {
   .stack-overlay {
     display: none;
   }

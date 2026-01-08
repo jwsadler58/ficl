@@ -189,7 +189,9 @@ ahead</a>.
 with an <a href="oo_in_c.html#instance-def">instance</a> (the storage for
 one set of instance variables). This is done explicitly on Ficl's stack,
 in that any Ficl object is represented by a cell pair:&nbsp;
-<blockquote><b><tt>( instance-addr class-addr )</tt></b></blockquote>
+<pre>
+( instance-addr class-addr )
+</pre>
 The instance-addr is the address of the object's storage, and the class-addr
 is the address of its class. Whenever a named Ficl object executes (eg.
 when you type its name and press enter at the Ficl prompt), it leaves this
@@ -290,7 +292,7 @@ c-byte obj: .state
 : off   { led# 2:this -- }
     this --> .state --> get
     1 led# lshift invert and dup !led
-    this --> .state --> set&nbsp; ;
+    this --> .state --> set  ;
 end-class
 </pre>
 The first line adds an instance variable called <tt>.state</tt> to the
@@ -379,29 +381,29 @@ want, great, but more often you'll want the flexibility of overriding parent
 class behaviors appropriately.&nbsp;
 <ol>
 <li>
-<code>my=></code> binds early to a method in the class being defined,
+<tt>my=></tt> binds early to a method in the class being defined,
 as in the example above.
 </li>
 <li>
-<code>my=[ ]</code> binds a sequence of methods in the current class.
-Useful when the class has object members. Lines like <code>this --> state
---> set</code> in the definition of c-led above can be replaced with
-<code>this my=[ state set ]</code> to get early binding.
+<tt>my=[ ]</tt> binds a sequence of methods in the current class.
+Useful when the class has object members. Lines like <tt>this --> state
+--> set</tt> in the definition of c-led above can be replaced with
+<tt>this my=[ state set ]</tt> to get early binding.
 </li>
 <li>
-<code>=></code> (dangerous) pops a class off the stack and compiles
+<tt>=></tt> (dangerous) pops a class off the stack and compiles
 the method in that class. Since you have to specify the class explicitly,
 there is a real danger that this will be out of sync with the class you
-really wanted. I recommend the <code>my=</code> operations.
+really wanted. I recommend the <tt>my=</tt> operations.
 </li>
 </ol>
-Early binding using <code>=></code> is dangerous because it partially
+Early binding using <tt>=></tt> is dangerous because it partially
 defeats the data-to-code matching mechanism object oriented languages were
 created to provide, but it does increase run-time speed by binding the
-method at compile time. In many cases, such as the <code>init</code> method,
+method at compile time. In many cases, such as the <tt>init</tt> method,
 you can be reasonably certain of the class of thing you're working on.
 This is also true when invoking class methods, since all classes are instances
-of <code>metaclass</code>. Here's an example from the definition of <code>metaclass</code>
+of <tt>metaclass</tt>. Here's an example from the definition of <tt>metaclass</tt>
 in oo.fr:
 <pre>
 : new   \ ( class metaclass "name" -- )
@@ -411,12 +413,12 @@ Try this...
 <pre>
 metaclass --> see new
 </pre>
-Decompiling the method with <code>SEE</code> shows the difference between the
+Decompiling the method with <tt>SEE</tt> shows the difference between the
 two strategies. The early bound method is compiled inline, while the late-binding
 operator compiles the method name and code to find and execute it in the
 context of whatever class is supplied on the stack at run-time.
-<br>Notice that the primitive early-binding operator <code>=></code> requires
-a class at compile time. For this reason, classes are <code>IMMEDIATE</code>,
+<br>Notice that the primitive early-binding operator <tt>=></tt> requires
+a class at compile time. For this reason, classes are <tt>IMMEDIATE</tt>,
 meaning that they push their signature at compile time or run time. I'd
 recommend that you avoid early binding until you're very comfortable with
 Forth, object-oriented programming, and Ficl's OOP syntax.
@@ -498,12 +500,12 @@ Source code for the class is located in ficl/softwords/string.fr. Features:
 dynamic creation and resizing; deletion, char cout, concatenation, output,
 comparison; creation from quoted string constant (s").
 <p>Examples of use:
-<blockquote>
-<pre><b>c-string --> new homer
+<pre>
+c-string --> new homer
 s" In this house, " homer --> set
 s" we obey the laws of thermodynamics!" homer --> cat
-homer --> type</b></pre>
-</blockquote>
+homer --> type
+</pre>
 </td>
 </tr>
 </table>
@@ -520,14 +522,14 @@ and instances. Also described are supporting words and execution factors.
 All are defined in softwords/oo.fr.&nbsp;
 <dl>
 <dt>
-<b><tt>-->&nbsp;&nbsp; ( instance class "method-name" -- xn )</tt></b></dt>
+<b><tt>-->   ( instance class "method-name" -- xn )</tt></b></dt>
 
 <dd>
 Late binding: looks up and executes the given method in the context of
 the class on top of the stack.&nbsp;</dd>
 
 <dt>
-<b><tt>c->&nbsp;&nbsp; ( instance class "method-name" -- xn exc )</tt></b></dt>
+<b><tt>c->   ( instance class "method-name" -- xn exc )</tt></b></dt>
 
 <dd>
 Late binding with <tt>CATCH</tt>: looks up and <tt>CATCH</tt>es the given
@@ -535,7 +537,7 @@ method in the context of the class on top of the stack, pushes zero or
 exception code upon return.</dd>
 
 <dt>
-<b><tt>my=> comp: ( "method-name" -- )&nbsp; exec: ( inst class -- xn )</tt></b></dt>
+<b><tt>my=> comp: ( "method-name" -- )  exec: ( inst class -- xn )</tt></b></dt>
 
 <dd>
 Early binding: compiles code to execute the method of the class being defined.
@@ -552,7 +554,7 @@ being defined. Only visible and valid in the scope of a <tt>--> sub</tt>
 .. <tt>end-class</tt> class definition.</dd>
 
 <dt>
-<b><tt>=>&nbsp;&nbsp; comp: ( class meta "method-name" -- )&nbsp; exec:
+<b><tt>=>   comp: ( class meta "method-name" -- )  exec:
 ( inst class -- xn )</tt></b></dt>
 
 <dd>
@@ -569,7 +571,7 @@ Compiles <b><tt>.do-instance</tt></b> in the context of a class; <tt>.do-instanc
 implements the <tt>does></tt> part of a named instance.&nbsp;</dd>
 
 <dt>
-<b><tt>exec-method&nbsp;&nbsp; ( instance class c-addr u -- xn )</tt></b></dt>
+<b><tt>exec-method   ( instance class c-addr u -- xn )</tt></b></dt>
 
 <dd>
 Given the address and length of a message (method name) on the stack, finds
@@ -578,7 +580,7 @@ to the method, the instance and class are on top of the stack, as usual.
 If unable to find the method, prints an error message and aborts.</dd>
 
 <dt>
-<b><tt>find-method-xt&nbsp;&nbsp; ( class "method-name" -- class xt )</tt></b></dt>
+<b><tt>find-method-xt   ( class "method-name" -- class xt )</tt></b></dt>
 
 <dd>
 Attempts to map the message to a method in the specified class. If successful,
@@ -586,7 +588,7 @@ leaves the class and the execution token of the method on the stack. Otherwise
 prints an error message and aborts.</dd>
 
 <dt>
-<b><tt>lookup-method&nbsp;&nbsp; ( class c-addr u -- class xt )</tt></b></dt>
+<b><tt>lookup-method   ( class c-addr u -- class xt )</tt></b></dt>
 
 <dd>
 Given the address and length of a message (method name) on the stack, finds
@@ -594,7 +596,7 @@ the method in the context of the specified class. If unable to find the
 method, prints an error message and aborts.</dd>
 
 <dt>
-<b><tt>parse-method&nbsp;&nbsp; comp: ( "method-name" -- )&nbsp; exec:
+<b><tt>parse-method   comp: ( "method-name" -- )  exec:
 ( -- c-addr u )</tt></b></dt>
 
 <dd>
@@ -622,15 +624,15 @@ that gives access to a particular field of an object, and to the field
 itself. Rather than give esentially the same example over and over, here's
 one example that shows several of the instance variable construction words
 in use:
-<blockquote><tt>object subclass c-example</tt>
-<br><tt>&nbsp;&nbsp; cell:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-.cell0</tt>
-<br><tt>&nbsp;&nbsp; c-4byte&nbsp;&nbsp; obj: .nCells</tt>
-<br><tt>&nbsp;4 c-4byte array: .quad</tt>
-<br><tt>&nbsp;&nbsp; char:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-.length</tt>
-<br><tt>79 chars:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .name</tt>
-<br><tt>end-class</tt>&nbsp;</blockquote>
+<pre>
+object subclass c-example
+  cell:         .cell0
+  c-4byte  obj: .nCells
+ 4 c-4byte array: .quad
+  char:         .length
+79 chars:       .name
+end-class
+</pre>
 This class only defines instance variables, and it inherits some methods
 from <tt>object</tt>. Each untyped instance variable (.cell0, .length,
 .name) pushes its address when executed. Each object instance variable
@@ -639,81 +641,81 @@ array instance variable leaves its base address (and its class) when executed.
 The word <tt>subclass</tt> is shorthand for "<tt>--> sub</tt>"&nbsp;
 <dl>
 <dt>
-<b><font face="Courier New"><font size=-1>cell:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-( offset "name" -- offset' )</font></font></b></dt>
+<b><tt>cell:       
+( offset "name" -- offset' )</tt></b></dt>
 
 <dt>
-<b><font face="Courier New"><font size=-1>Execution:&nbsp; ( -- cell-addr
-)</font></font></b></dt>
+<b><tt>Execution:  ( -- cell-addr
+)</tt></b></dt>
 
 <dd>
 Create an untyped instance variable one cell wide. The instance variable
 leaves its payload's address when executed.&nbsp;</dd>
 
 <dt>
-<b><tt>cells:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( offset nCells "name"
+<b><tt>cells:       ( offset nCells "name"
 -- offset' )</tt></b></dt>
 
 <dt>
-<b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Execution:&nbsp; ( -- cell-addr )</tt></b></dt>
+<b><tt>            
+Execution:  ( -- cell-addr )</tt></b></dt>
 
 <dd>
 Create an untyped instance variable n cells wide.</dd>
 
 <dt>
-<b><tt>char:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( offset "name"
+<b><tt>char:        ( offset "name"
 -- offset' )</tt></b></dt>
 
 <dt>
-<b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Execution:&nbsp; ( -- char-addr )</tt></b></dt>
+<b><tt>            
+Execution:  ( -- char-addr )</tt></b></dt>
 
 <dd>
 Create an untyped member variable one char wide</dd>
 
 <dt>
-<b><tt>chars:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( offset nChars "name"
+<b><tt>chars:       ( offset nChars "name"
 -- offset' )</tt></b></dt>
 
 <dt>
-<b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Execution:&nbsp; ( -- char-addr )</tt></b></dt>
+<b><tt>            
+Execution:  ( -- char-addr )</tt></b></dt>
 
 <dd>
 Create an untyped member variable n chars wide.</dd>
 
 <dt>
-<b><tt>obj:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( offset class
+<b><tt>obj:         ( offset class
 meta "name" -- offset' )</tt></b></dt>
 
 <dt>
-<b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Execution:&nbsp; ( -- instance class )</tt></b></dt>
+<b><tt>            
+Execution:  ( -- instance class )</tt></b></dt>
 
 <dd>
 Aggregate an uninitialized instance of <b>class</b> as a member variable
 of the class under construction.</dd>
 
 <dt>
-<a NAME="arraycolon"></a><b><tt>array:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a NAME="arraycolon"></a><b><tt>array:      
 ( offset n class meta "name" -- offset' )</tt></b></dt>
 
 <dt>
-<b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Execution:&nbsp; ( -- instance class )</tt></b></dt>
+<b><tt>            
+Execution:  ( -- instance class )</tt></b></dt>
 
 <dd>
 Aggregate an uninitialized array of instances of the class specified as
 a member variable of the class under construction.</dd>
 
 <dt>
-<a NAME="exampleref:"></a><b><tt>ref:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a NAME="exampleref:"></a><b><tt>ref:        
 ( offset class meta "name" -- offset' )</tt></b></dt>
 
 <dt>
-<b><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Execution:&nbsp; ( -- ref-instance ref-class )</tt></b></dt>
+<b><tt>            
+Execution:  ( -- ref-instance ref-class )</tt></b></dt>
 
 <dd>
 Aggregate a reference to a class instance. There is no way to set the value
@@ -722,22 +724,13 @@ structures with a Ficl OO model. For example, if your system contains a
 linked list of 4 byte quantities, you can make a class that represents
 a list element like this:&nbsp;</dd>
 
-<dl>
-<dd>
-<tt>object subclass c-4list</tt></dd>
-
-<dd>
-<tt>c-4list ref: .link</tt></dd>
-
-<dd>
-<tt>c-4byte obj: .payload</tt></dd>
-
-<dd>
-<tt>end-class;</tt></dd>
-
-<dd>
-<tt>address-of-existing-list c-4list --> ref mylist</tt></dd>
-</dl>
+<pre>
+object subclass c-4list
+c-4list ref: .link
+c-4byte obj: .payload
+end-class;
+address-of-existing-list c-4list --> ref mylist
+</pre>
 
 <dd>
 The last line binds the existing structure to an instance of the class
@@ -756,39 +749,18 @@ class - it has methods to set and get an object.</dd>
 By the way, it is also possible to construct a pair of classes that contain
 aggregate pointers to each other. Here's an example:</dd>
 
-<dl>
-<dd>
-<tt>object subclass akbar</tt></dd>
-
-<dd>
-<tt>suspend-class&nbsp;&nbsp;&nbsp;&nbsp; \ put akbar on hold while we
-define jeff</tt></dd>
-
-<dd>
-<tt>object subclass jeff</tt></dd>
-
-<dd>
-<tt>&nbsp;&nbsp;&nbsp; akbar ref: .significant-other</tt></dd>
-
-<dd>
-<tt>&nbsp;&nbsp;&nbsp; ( your additional methods here )</tt></dd>
-
-<dd>
-<tt>end-class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \ done with
-jeff</tt></dd>
-
-<dd>
-<tt>akbar --> resume-class&nbsp; \ resume defining akbar</tt></dd>
-
-<dd>
-<tt>&nbsp;&nbsp;&nbsp; jeff ref: .significant-other</tt></dd>
-
-<dd>
-<tt>&nbsp;&nbsp;&nbsp; ( your additional methods here )</tt></dd>
-
-<dl><tt>end-class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \ done
-with akbar</tt></dl>
-</dl>
+<pre>
+object subclass akbar
+suspend-class    \ put akbar on hold while we define jeff
+object subclass jeff
+   akbar ref: .significant-other
+   ( your additional methods here )
+end-class        \ done with jeff
+akbar --> resume-class  \ resume defining akbar
+   jeff ref: .significant-other
+   ( your additional methods here )
+end-class        \ done with akbar
+</pre>
 </dl>
 </td>
 </tr>
@@ -805,7 +777,7 @@ programming tools, and access to member variables of classes. Source is
 in softwords/oo.fr.&nbsp;
 <dl>
 <dt>
-<b><tt>instance&nbsp;&nbsp;&nbsp;&nbsp; ( class metaclass "name" -- instance
+<b><tt>instance     ( class metaclass "name" -- instance
 class )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -814,10 +786,10 @@ The method leaves the instance 's signature on the stack (handy if you
 want to initialize). Example:</dd>
 
 <dd>
-<tt>c_ref --> instance uninit-ref&nbsp; 2drop</tt></dd>
+<tt>c_ref --> instance uninit-ref  2drop</tt></dd>
 
 <dt>
-<b><tt>new&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class
+<b><tt>new          ( class
 metaclass "name" -- )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -825,7 +797,7 @@ Create an initialized instance of class, giving it the name specified.
 This method calls init to perform initialization.&nbsp;</dd>
 
 <dt>
-<b><tt>array&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( nObj class metaclass
+<b><tt>array        ( nObj class metaclass
 "name" -- nObjs instance class )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -833,17 +805,17 @@ Create an array of nObj instances of the specified class. Instances are
 not initialized. Example:</dd>
 
 <dd>
-<tt>10 c_4byte --> array&nbsp; 40-raw-bytes&nbsp; 2drop drop</tt></dd>
+<tt>10 c_4byte --> array  40-raw-bytes  2drop drop</tt></dd>
 
 <dt>
-<b><tt>new-array&nbsp;&nbsp;&nbsp; ( nObj class metaclass "name" -- )</tt></b>&nbsp;</dt>
+<b><tt>new-array    ( nObj class metaclass "name" -- )</tt></b>&nbsp;</dt>
 
 <dd>
 Creates an initialized array of nObj instances of the class. Same syntax
 as <tt>array</tt></dd>
 
 <dt>
-<a NAME="alloc"></a><b><tt>alloc&nbsp;&nbsp; ( class metaclass -- instance
+<a NAME="alloc"></a><b><tt>alloc   ( class metaclass -- instance
 class )</tt></b></dt>
 
 <dd>
@@ -852,14 +824,14 @@ to ficlMalloc() to get the memory). Leaves the payload and class addresses
 on the stack. Usage example:</dd>
 
 <dd>
-<tt>c-ref --> alloc&nbsp; 2constant instance-of-ref</tt></dd>
+<tt>c-ref --> alloc  2constant instance-of-ref</tt></dd>
 
 <dd>
 Creates a double-cell constant that pushes the payload and class address
 of a heap instance of c-ref.</dd>
 
 <dt>
-<a NAME="allocarray"></a><b><tt>alloc-array&nbsp;&nbsp; ( nObj class metaclass
+<a NAME="allocarray"></a><b><tt>alloc-array   ( nObj class metaclass
 -- instance class )</tt></b></dt>
 
 <dd>
@@ -869,7 +841,7 @@ a call to ficlMalloc(). Each instance is initialized using the class's
 method</dd>
 
 <dt>
-<a NAME="allot"></a><b><tt>allot&nbsp;&nbsp; ( class metaclass -- instance
+<a NAME="allot"></a><b><tt>allot   ( class metaclass -- instance
 class )</tt></b></dt>
 
 <dd>
@@ -877,14 +849,14 @@ Creates an anonymous instance of <b>class</b> from the dictionary. Leaves
 the payload and class addresses on the stack. Usage example:</dd>
 
 <dd>
-<tt>c-ref --> allot&nbsp; 2constant instance-of-ref</tt></dd>
+<tt>c-ref --> allot  2constant instance-of-ref</tt></dd>
 
 <dd>
 Creates a double-cell constant that pushes the payload and class address
 of a heap instance of c-ref.</dd>
 
 <dt>
-<a NAME="allotarray"></a><b><tt>allot-array&nbsp;&nbsp; ( nObj class metaclass
+<a NAME="allotarray"></a><b><tt>allot-array   ( nObj class metaclass
 -- instance class )</tt></b></dt>
 
 <dd>
@@ -893,7 +865,7 @@ Each instance is initialized using the class's
 <tt>init</tt> method</dd>
 
 <dt>
-<b><tt>ref&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance-addr
+<b><tt>ref          ( instance-addr
 class metaclass "name" -- )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -905,7 +877,7 @@ structures.</dd>
 
 <dl>
 <dt>
-<b><tt>sub&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class
+<b><tt>sub          ( class
 metaclass -- old-wid addr[size] size )</tt></b></dt>
 
 <dd>
@@ -936,7 +908,7 @@ or</dd>
 </dl>
 
 <dt>
-<b><tt>.size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class metaclass
+<b><tt>.size        ( class metaclass
 -- instance-size )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -944,7 +916,7 @@ Returns address of the class's instance size field, in address units. This
 is a metaclass member variable.</dd>
 
 <dt>
-<b><tt>.super&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class metaclass --
+<b><tt>.super       ( class metaclass --
 superclass )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -952,7 +924,7 @@ Returns address of the class's superclass field. This is a metaclass member
 variable.</dd>
 
 <dt>
-<b><tt>.wid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class metaclass
+<b><tt>.wid         ( class metaclass
 -- wid )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -967,7 +939,7 @@ Returns the size of an instance of the class in address units. Imeplemented
 as</dd>
 
 <dd>
-<tt>: get-size&nbsp;&nbsp; metaclass => .size @ ;</tt></dd>
+<tt>: get-size   metaclass => .size @ ;</tt></dd>
 
 <dt>
 <b><tt>get-wid</tt></b></dt>
@@ -976,7 +948,7 @@ as</dd>
 Returns the wordlist ID of the class. Implemented as&nbsp;</dd>
 
 <dd>
-<tt>: get-wid&nbsp;&nbsp; metaclass => .wid @ ;</tt></dd>
+<tt>: get-wid   metaclass => .wid @ ;</tt></dd>
 
 <dt>
 <b><tt>get-super</tt></b></dt>
@@ -985,23 +957,23 @@ Returns the wordlist ID of the class. Implemented as&nbsp;</dd>
 Returns the class's superclass. Implemented as</dd>
 
 <dd>
-<tt>: get-super&nbsp;&nbsp; metaclass => .super @ ;</tt></dd>
+<tt>: get-super   metaclass => .super @ ;</tt></dd>
 
 <dt>
-<b><tt>id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (
+<b><tt>id           (
 class metaclass -- c-addr u )</tt></b>&nbsp;</dt>
 
 <dd>
 Returns the address and length of a string that names the class.</dd>
 
 <dt>
-<b><tt>methods&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class metaclass -- )</tt></b>&nbsp;</dt>
+<b><tt>methods      ( class metaclass -- )</tt></b>&nbsp;</dt>
 
 <dd>
 Lists methods of the class and all its superclasses</dd>
 
 <dt>
-<b><tt>offset-of&nbsp;&nbsp;&nbsp; ( class metaclass "name" -- offset )</tt></b></dt>
+<b><tt>offset-of    ( class metaclass "name" -- offset )</tt></b></dt>
 
 <dd>
 Pushes the offset from the instance base address of the named member variable.
@@ -1014,13 +986,13 @@ There is presently no way to detect this error. Example:</dd>
 </dl>
 
 <dt>
-<b><tt>pedigree&nbsp;&nbsp;&nbsp;&nbsp; ( class metaclass -- )</tt></b>&nbsp;</dt>
+<b><tt>pedigree     ( class metaclass -- )</tt></b>&nbsp;</dt>
 
 <dd>
 Lists the pedigree of the class (inheritance trail)</dd>
 
 <dt>
-<b><tt>see&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( class
+<b><tt>see          ( class
 metaclass "name" -- )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -1043,7 +1015,7 @@ The methods include default initialization, array manipulations, aliases
 of class methods, upcasting, and programming tools.&nbsp;
 <dl>
 <dt>
-<b><tt>init&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance
+<b><tt>init         ( instance
 class -- )</tt>&nbsp;</b></dt>
 
 <dd>
@@ -1053,7 +1025,7 @@ or <tt>new-array</tt>. Zero-fills the instance. You do not normally need
 to invoke <tt>init</tt> explicitly.</dd>
 
 <dt>
-<b><tt>array-init&nbsp;&nbsp; ( nObj instance class -- )</tt></b>&nbsp;</dt>
+<b><tt>array-init   ( nObj instance class -- )</tt></b>&nbsp;</dt>
 
 <dd>
 Applies <tt>init</tt> to an array of objects created by <tt>new-array</tt>.
@@ -1061,7 +1033,7 @@ Note that <tt>array:</tt> does not cause aggregate arrays to be initialized
 automatically. You do not normally need to invoke <tt>array-init</tt> explicitly.</dd>
 
 <dt>
-<a NAME="oofree"></a><b><tt>free&nbsp;&nbsp; ( instance class -- )</tt></b></dt>
+<a NAME="oofree"></a><b><tt>free   ( instance class -- )</tt></b></dt>
 
 <dd>
 Releases memory used by an instance previously created with <tt>alloc</tt>
@@ -1071,7 +1043,7 @@ this, Bad Things are likely to happen. Be careful for the moment to apply
 free only to instances created with <tt>alloc</tt> or <tt>alloc-array</tt>.</dd>
 
 <dt>
-<b><tt>class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance class
+<b><tt>class        ( instance class
 -- class metaclass )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -1079,7 +1051,7 @@ Convert an object signature into that of its class. Useful for calling
 class methods that have no object aliases.</dd>
 
 <dt>
-<b><tt>super&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance class
+<b><tt>super        ( instance class
 -- instance parent-class )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -1087,14 +1059,14 @@ Upcast an object to its parent class. The parent class of <tt>object</tt>
 is zero. Useful for invoking an overridden parent class method.</dd>
 
 <dt>
-<b><tt>pedigree&nbsp;&nbsp;&nbsp;&nbsp; ( instance class -- )</tt></b>&nbsp;</dt>
+<b><tt>pedigree     ( instance class -- )</tt></b>&nbsp;</dt>
 
 <dd>
 Display an object's pedigree - its chain of inheritance. This is an alias
 for the corresponding class method.</dd>
 
 <dt>
-<b><tt>size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance
+<b><tt>size         ( instance
 class -- sizeof(instance) )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -1102,14 +1074,14 @@ Returns the size, in address units, of one instance. Does not know about
 arrays! This is an alias for the class method <tt>get-size</tt></dd>
 
 <dt>
-<b><tt>methods&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance class -- )</tt></b>&nbsp;</dt>
+<b><tt>methods      ( instance class -- )</tt></b>&nbsp;</dt>
 
 <dd>
 Class method alias. Displays the list of methods of the class and all superclasses
 of the instance.</dd>
 
 <dt>
-<b><tt>index&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( n instance class
+<b><tt>index        ( n instance class
 -- instance[n] class )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -1134,7 +1106,7 @@ Check out the <a href="#minusrot">description of <tt>-ROT</tt></a> for
 help in dealing with indices on the stack.</dd>
 
 <dt>
-<b><tt>next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance[n]
+<b><tt>next         ( instance[n]
 class -- instance[n+1] class )</tt></b>&nbsp;</dt>
 
 <dd>
@@ -1142,7 +1114,7 @@ Convert an array-object signature&nbsp; into the signature of the next
 object in the array. No check for bounds overflow.</dd>
 
 <dt>
-<b><tt>prev&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( instance[n]
+<b><tt>prev         ( instance[n]
 class -- instance[n-1] class )</tt></b>&nbsp;</dt>
 
 <br>Convert an object signature into the signature of the previous object
@@ -1159,7 +1131,7 @@ in the array. No check for bounds underflow.</dl>
 
 <dl>
 <dt>
-<b><tt>metaclass&nbsp;</tt></b></dt>
+<b><tt>metaclass </tt></b></dt>
 
 <dd>
 Describes all classes of Ficl. Contains class methods. Should never be
@@ -1182,34 +1154,34 @@ structure or container class to get polymorphic behavior. Methods &amp;
 members:&nbsp;</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; ( inst class -- ref-inst ref-class )</tt></dd>
+<tt>get   ( inst class -- ref-inst ref-class )</tt></dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( ref-inst ref-class inst class -- )</tt></dd>
+<tt>set   ( ref-inst ref-class inst class -- )</tt></dd>
 
 <dd>
-<tt>.instance&nbsp;&nbsp; ( inst class -- a-addr ) </tt>cell member that
+<tt>.instance   ( inst class -- a-addr ) </tt>cell member that
 holds the instance</dd>
 
 <dd>
-<tt>.class&nbsp;&nbsp; ( inst class -- a-addr ) </tt>cell member that holds
+<tt>.class   ( inst class -- a-addr ) </tt>cell member that holds
 the class</dd>
 
 <dt>
-<b><tt>c-byte&nbsp;</tt></b></dt>
+<b><tt>c-byte </tt></b></dt>
 
 <dd>
 Primitive class derived from <tt>object</tt>, with a 1-byte payload. Set
 and get methods perform correct width fetch and store. Methods &amp; members:</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; ( inst class -- c )</tt></dd>
+<tt>get   ( inst class -- c )</tt></dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( c inst class -- )</tt></dd>
+<tt>set   ( c inst class -- )</tt></dd>
 
 <dd>
-<tt>.payload&nbsp;&nbsp; ( inst class -- addr ) </tt>member holds instance's
+<tt>.payload   ( inst class -- addr ) </tt>member holds instance's
 value</dd>
 
 <dt>
@@ -1220,13 +1192,13 @@ Primitive class derived from <tt>object</tt>, with a 2-byte payload. Set
 and get methods perform correct width fetch and store. Methods &amp; members:</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; ( inst class -- 2byte )</tt></dd>
+<tt>get   ( inst class -- 2byte )</tt></dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( 2byte inst class -- )</tt></dd>
+<tt>set   ( 2byte inst class -- )</tt></dd>
 
 <dd>
-<tt>.payload&nbsp;&nbsp; ( inst class -- addr ) </tt>member holds instance's
+<tt>.payload   ( inst class -- addr ) </tt>member holds instance's
 value</dd>
 
 <dt>
@@ -1237,13 +1209,13 @@ Primitive class derived from <tt>object</tt>, with a 4-byte payload. Set
 and get methods perform correct width fetch and store. Methods &amp; members:</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; ( inst class -- x )</tt></dd>
+<tt>get   ( inst class -- x )</tt></dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( x inst class -- )</tt></dd>
+<tt>set   ( x inst class -- )</tt></dd>
 
 <dd>
-<tt>.payload&nbsp;&nbsp; ( inst class -- addr ) </tt>member holds instance's
+<tt>.payload   ( inst class -- addr ) </tt>member holds instance's
 value</dd>
 
 <dt>
@@ -1255,13 +1227,13 @@ to c-4byte in 32 bit implementations, 64 bits wide on Alpha). Set and get
 methods perform correct width fetch and store. Methods &amp; members:</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; ( inst class -- x )</tt></dd>
+<tt>get   ( inst class -- x )</tt></dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( x inst class -- )</tt></dd>
+<tt>set   ( x inst class -- )</tt></dd>
 
 <dd>
-<tt>.payload&nbsp;&nbsp; ( inst class -- addr ) </tt>member holds instance's
+<tt>.payload   ( inst class -- addr ) </tt>member holds instance's
 value</dd>
 
 <dt>
@@ -1273,24 +1245,24 @@ This class is not complete by itself: several methods depend on a derived
 class definition of <tt>@size</tt>. Methods &amp; members:</dd>
 
 <dd>
-<tt>.addr&nbsp;&nbsp; ( inst class -- a-addr )</tt> member variable - holds
+<tt>.addr   ( inst class -- a-addr )</tt> member variable - holds
 the pointer address</dd>
 
 <dd>
-<tt>get-ptr&nbsp;&nbsp; ( inst class -- ptr )</tt></dd>
+<tt>get-ptr   ( inst class -- ptr )</tt></dd>
 
 <dd>
-<tt>set-ptr&nbsp;&nbsp; ( ptr inst class -- )</tt></dd>
+<tt>set-ptr   ( ptr inst class -- )</tt></dd>
 
 <dd>
-<tt>inc-ptr&nbsp;&nbsp; ( inst class -- )</tt> Adds @size to pointer address</dd>
+<tt>inc-ptr   ( inst class -- )</tt> Adds @size to pointer address</dd>
 
 <dd>
-<tt>dec-ptr&nbsp;&nbsp; ( inst class -- )</tt> Subtracts @size from pointer
+<tt>dec-ptr   ( inst class -- )</tt> Subtracts @size from pointer
 address</dd>
 
 <dd>
-<tt>index-ptr&nbsp;&nbsp; ( i inst class -- )</tt> Adds i*@size to pointer
+<tt>index-ptr   ( i inst class -- )</tt> Adds i*@size to pointer
 address</dd>
 
 <dt>
@@ -1300,15 +1272,15 @@ address</dd>
 Pointer to byte derived from c-ptr. Methods &amp; members:</dd>
 
 <dd>
-<tt>@size&nbsp;&nbsp; ( inst class -- size )</tt> Push size of the pointed-to
+<tt>@size   ( inst class -- size )</tt> Push size of the pointed-to
 thing</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; (&nbsp; inst class -- c ) </tt>Fetch the pointer's
+<tt>get   (  inst class -- c ) </tt>Fetch the pointer's
 referent byte</dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( c inst class -- ) </tt>Store c at the pointer address</dd>
+<tt>set   ( c inst class -- ) </tt>Store c at the pointer address</dd>
 
 <dt>
 <b><tt>c-2bytePtr</tt></b></dt>
@@ -1317,15 +1289,15 @@ referent byte</dd>
 Pointer to double byte derived from c-ptr. Methods &amp; members:</dd>
 
 <dd>
-<tt>@size&nbsp;&nbsp; ( inst class -- size )</tt> Push size of the pointed-to
+<tt>@size   ( inst class -- size )</tt> Push size of the pointed-to
 thing</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; (&nbsp; inst class -- x ) </tt>Fetch the pointer's
+<tt>get   (  inst class -- x ) </tt>Fetch the pointer's
 referent 2byte</dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( x inst class -- )</tt> Store 2byte x at the pointer
+<tt>set   ( x inst class -- )</tt> Store 2byte x at the pointer
 address</dd>
 
 <dt>
@@ -1335,15 +1307,15 @@ address</dd>
 Pointer to quad-byte derived from c-ptr. Methods &amp; members:</dd>
 
 <dd>
-<tt>@size&nbsp;&nbsp; ( inst class -- size )</tt> Push size of the pointed-to
+<tt>@size   ( inst class -- size )</tt> Push size of the pointed-to
 thing</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; (&nbsp; inst class -- x ) </tt>Fetch the pointer's
+<tt>get   (  inst class -- x ) </tt>Fetch the pointer's
 referent 2byte</dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( x inst class -- )</tt> Store 2byte x at the pointer
+<tt>set   ( x inst class -- )</tt> Store 2byte x at the pointer
 address</dd>
 
 <dt>
@@ -1353,15 +1325,15 @@ address</dd>
 Pointer to cell derived from c-ptr. Methods &amp; members:</dd>
 
 <dd>
-<tt>@size&nbsp;&nbsp; ( inst class -- size )</tt> Push size of the pointed-to
+<tt>@size   ( inst class -- size )</tt> Push size of the pointed-to
 thing</dd>
 
 <dd>
-<tt>get&nbsp;&nbsp; (&nbsp; inst class -- x ) </tt>Fetch the pointer's
+<tt>get   (  inst class -- x ) </tt>Fetch the pointer's
 referent cell</dd>
 
 <dd>
-<tt>set&nbsp;&nbsp; ( x inst class -- )</tt> Storex at the pointer address</dd>
+<tt>set   ( x inst class -- )</tt> Storex at the pointer address</dd>
 
 <dt>
 <b><tt>c-string</tt></b>&nbsp; (see string.fr)</dt>
@@ -1371,32 +1343,25 @@ Dynamically allocated string similar to MFC CString (Partial list of methods
 follows)</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>set ( c-addr u 2:this -- ) </font></font><font size=+0>Initialize
-buffer to the specified string</font></dd>
+<tt>set ( c-addr u 2:this -- )</tt> Initialize buffer to the specified string</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>get ( 2:this -- c-addr u ) Return
-buffer contents as counted string</font></font></dd>
+<tt>get ( 2:this -- c-addr u )</tt> Return buffer contents as counted string</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>cat ( c-addr u 2:this -- ) Append
-given string to end of buffer</font></font></dd>
+<tt>cat ( c-addr u 2:this -- )</tt> Append given string to end of buffer</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>compare ( 2string 2:this -- n ) Return
-result of lexical compare</font></font></dd>
+<tt>compare ( 2string 2:this -- n )</tt> Return result of lexical compare</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>type ( 2:this -- ) Print buffer to
-the output stream</font></font></dd>
+<tt>type ( 2:this -- )</tt> Print buffer to the output stream</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>hashcode ( 2:this -- x ) Return hashcode
-of string (as in dictionary)</font></font></dd>
+<tt>hashcode ( 2:this -- x )</tt> Return hashcode of string (as in dictionary)</dd>
 
 <dd>
-<font face="Courier New"><font size=-1>free ( 2:this -- ) Release internal
-buffer</font></font></dd>
+<tt>free ( 2:this -- )</tt> Release internal buffer</dd>
 
 <dt>
 <b><tt>c-hashstring</tt>&nbsp; </b>(see string.fr)</dt>

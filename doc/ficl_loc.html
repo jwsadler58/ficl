@@ -60,8 +60,9 @@ Hayes et al. This is my preferred form, and I've extended it to make <a href="fi
 a bit simpler. Local variables can only be declared inside a definition,
 and are only visible in that definition. Here's the syntax of a JH local
 variable declaration:
-<blockquote><tt><b>{ </b>&lt;initialized-locals><b> | </b>&lt;cleared-locals><b>
--- </b>&lt;ignored><b> }</b></tt></blockquote>
+<pre>
+{ &lt;initialized-locals> | &lt;cleared-locals> -- &lt;ignored> }
+</pre>
 The declaration is designed to look like a stack comment, but it uses curly
 braces instead of parens. The &lt;initialized-locals> names get their initial
 values from the stack when the word executes. The &lt;cleared-locals> names
@@ -79,26 +80,29 @@ value of a double cell local with <tt><a href="http://www.taygeta.com/forth/dpan
 the same as you would a single cell local.
 <br>Following are some examples to illustrate usage (they are not intended
 to be good code otherwise). Try these out in the <A href="demo.html">demo</A> to get a feeling for
-how they work. Also see <code>softwords/string.fr</code> for an example of use of locals
+how they work. Also see <tt>softwords/string.fr</tt> for an example of use of locals
 in OO code.
-<blockquote><b><tt>: local-demo&nbsp; { a b | c -- }</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; ." a = " a . cr</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; ." b = " b . cr</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; ." c = " c . cr ;</tt></b>
-<br><b><tt>1 2 local-demo&nbsp; ( you should see 1 2 0 )</tt></b>
-<p><b><tt>: my2dup&nbsp; { 2:x }&nbsp;&nbsp; x x ;&nbsp; ( uses a 2local
-)</tt></b>
-<br><b><tt>1 2 my2dup .s&nbsp;</tt></b>
-<br><b><tt>.( you should see 1 2 1 2 on the stack ) cr empty</tt></b>
-<p><b><tt>: my2swap&nbsp;&nbsp; { 2:x 2:y -- y x }&nbsp;&nbsp; y x ;&nbsp;
-( note use of 2locals )</tt></b>
-<br><b><tt>1 2 3 4 my2swap .s</tt></b>
-<br><b><tt>.( you should see 3 4 1 2 on the stack ) cr empty</tt></b>
-<p><b><tt>: totally-lame-swap&nbsp; { x y | temp -- y x }</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; y to temp</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; x to y</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; temp to x</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; x y ;</tt></b></blockquote>
+<pre>
+: local-demo  { a b | c -- }
+   ." a = " a . cr
+   ." b = " b . cr
+   ." c = " c . cr ;
+1 2 local-demo  ( you should see 1 2 0 )
+
+: my2dup  { 2:x }  x x ;  ( uses a 2local )
+1 2 my2dup .s
+.( you should see 1 2 1 2 on the stack ) cr empty
+
+: my2swap  { 2:x 2:y -- y x }  y x ;  ( note use of 2locals )
+1 2 3 4 my2swap .s
+.( you should see 3 4 1 2 on the stack ) cr empty
+
+: totally-lame-swap  { x y | temp -- y x }
+   y to temp
+   x to y
+   temp to x
+   x y ;
+</pre>
 The last definition introduces the use of <tt>TO</tt> applied to local
 variables. <tt>TO</tt> knows whether it's operating on a <tt>LOCAL</tt>,
 a <tt>2LOCAL</tt>, or a <tt>VALUE</tt>, and does the right thing accordingly.&nbsp;
@@ -112,21 +116,25 @@ Johns-Hopkins syntax is more readable, more flexible, and supports <tt>2LOCAL</t
 (all three of them!). I've implemented both of the local variable syntaxes
 suggested in DPANS Appendix A.13. Examples: (By the way, Ficl implements
 <tt>-ROT</tt>
-as <tt>: -rot&nbsp;&nbsp; 2 -roll ;</tt> )
-<blockquote><b><tt>\ Using LOCALS| from LOCALS EXT</tt></b>
-<br><b><tt>: -rot&nbsp;&nbsp; ( a b c -- c a b )</tt></b>
-<br><b><tt>&nbsp;&nbsp; locals| c b a |</tt></b>
-<br><b><tt>&nbsp; c a b&nbsp;</tt></b>
-<br><b><tt>;</tt></b></blockquote>
+as <tt>: -rot  2 -roll ;</tt> )
+<pre>
+\ Using LOCALS| from LOCALS EXT
+: -rot  ( a b c -- c a b )
+  locals| c b a |
+  c a b
+;
+</pre>
 
-<ul><b><tt>\ Using LOCAL END-LOCAL</tt></b>
-<br><b><tt>: -rot&nbsp;&nbsp; ( a b c -- c a b )</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; local c</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; local b</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; local a</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; end-locals</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; c a b</tt></b>
-<br><b><tt>;</tt></b></ul>
+<pre>
+\ Using LOCAL END-LOCAL
+: -rot  ( a b c -- c a b )
+   local c
+   local b
+   local a
+   end-locals
+   c a b
+;
+</pre>
 
 <h2>
 Build Controls</h2>
@@ -148,8 +156,10 @@ Variables in the declaration appear in the "correct" order for a stack
 comment. Everything after the -- is treated as a comment. In addition,
 you can insert a | before the -- to declare one or more zero-initialized
 locals. Example:&nbsp;</p>
-<blockquote><b><tt>:tuck0&nbsp;&nbsp; { a b c | d -- 0 a b c }</tt></b>
-<br><b><tt>&nbsp;&nbsp;&nbsp; d a b c ;</tt></b></blockquote>
+<pre>
+:tuck0  { a b c | d -- 0 a b c }
+   d a b c ;
+</pre>
 The | and -- delimiters can appear at most once, and must appear in the
 order shown in the example to work correctly. The local declaration ends
 at the first occurrence of }. The declaration must all be on one line as
@@ -159,22 +169,24 @@ a stack comment. This one is not compiled in the release, but you can add
 it by editing softwords/softcore.bat to include the file ficllocal.fr.
 In this case, parameters are re-ordered so that the rightmost initialized
 param comes from the top of the stack. The syntax is:&nbsp;
-<blockquote><b><tt>{{ &lt;initialized params> -- &lt;cleared params> }}</tt></b></blockquote>
+<pre>
+{{ &lt;initialized params> -- &lt;cleared params> }}
+</pre>
 You can omit either the initialized or the cleared parameters. Parameters
 after the double dash are set to zero initially. Those to the left are
 initialized from the stack at execution time. Examples (lame ones, admittedly):&nbsp;
 <br>&nbsp;
-<blockquote>
-<pre><b><tt>: -rot&nbsp;&nbsp; ( a b c -- c a b )
-&nbsp;&nbsp;&nbsp; {{ a b c }}</tt></b>&nbsp;
-&nbsp;&nbsp;&nbsp; <b><tt>c a b&nbsp;</tt></b>&nbsp;
-<b><tt>;</tt></b>&nbsp;
+<pre>
+: -rot  ( a b c -- c a b )
+   {{ a b c }}
+   c a b
+;
 
-<b><tt>: tuck0&nbsp; ( a b c -- 0 a b c )</tt></b>&nbsp;
-<b><tt>&nbsp;&nbsp;&nbsp; {{ a b c -- d }}</tt></b>&nbsp;
-<b><tt>&nbsp;&nbsp;&nbsp; d a b c&nbsp;</tt></b>&nbsp;
-<b><tt>;&nbsp;</tt></b></pre>
-</blockquote>
+: tuck0  ( a b c -- 0 a b c )
+   {{ a b c -- d }}
+   d a b c
+;
+</pre>
 </td>
 </tr>
         </table>
