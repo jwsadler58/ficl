@@ -45,9 +45,7 @@ jobs:
         run: |
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do set VSINSTALL=%%i
           call "%VSINSTALL%\Common7\Tools\VsDevCmd.bat" -arch=x64
-          for /f "usebackq tokens=2*" %%i in (`reg query "HKLM\SOFTWARE\Microsoft\Windows Kits\Installed Roots" /v KitsRoot10`) do set KITSROOT=%%j
-          for /f "usebackq tokens=*" %%i in (`dir /b /ad "%KITSROOT%Lib" ^| sort`) do set KITSVERSION=%%i
-          set "LIB=%VCToolsInstallDir%lib\x64;%KITSROOT%Lib\%KITSVERSION%\um\x64;%KITSROOT%Lib\%KITSVERSION%\ucrt\x64"
+          set "LIB=%VCToolsInstallDir%lib\x64;%UniversalCRTSdkDir%Lib\%UCRTVersion%\ucrt\x64;%WindowsSdkDir%Lib\%WindowsSDKVersion%\um\x64"
           nmake /f makefile.windows clean ficl.exe
 
       - name: Run tests (Linux/macOS)
