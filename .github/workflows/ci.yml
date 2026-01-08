@@ -39,15 +39,12 @@ jobs:
             make -f makefile.macos clean ficl
           fi
 
-      - name: Set up MSVC toolchain
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-
       - name: Build (Windows)
         if: runner.os == 'Windows'
+        shell: cmd
         run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do set VSINSTALL=%%i
+          call "%VSINSTALL%\Common7\Tools\VsDevCmd.bat" -arch=x64
           nmake /f makefile.windows clean ficl.exe
 
       - name: Run tests (Linux/macOS)
