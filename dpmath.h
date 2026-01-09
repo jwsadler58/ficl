@@ -74,7 +74,7 @@ UNS16   dpmUMod(DPUNS *pUD, UNS16 base);
 #define dpmCastQRIU(iqr) (*(UNSQR *)(&(iqr)))
 #define dpmCastQRUI(uqr) (*(INTQR *)(&(uqr)))
 
-#define CELL_HI_BIT (1L << (CELL_BITS-1))
+#define CELL_HI_BIT ((FICL_UNS)1 << (CELL_BITS-1))
 
 #ifdef __cplusplus
 }
