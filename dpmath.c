@@ -343,15 +343,15 @@ UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
                    "HALF_BITS must be at least 16 bits");
 
     /* mask for extracting each half‐word */
-    enum { HALF_MASK = ((FICL_UNS)1 << HALF_BITS) - 1 };
+    const FICL_UNS halfMask = ((FICL_UNS)1 << HALF_BITS) - 1;
     enum { TOTAL = 4 };   /* two halves in hi + two in lo */
 
     /* break into four “digits” */
     FICL_UNS parts[TOTAL] = {
-        (pUD->hi >> HALF_BITS) & HALF_MASK,
-         pUD->hi              & HALF_MASK,
-        (pUD->lo >> HALF_BITS) & HALF_MASK,
-         pUD->lo              & HALF_MASK
+        (pUD->hi >> HALF_BITS) & halfMask,
+         pUD->hi              & halfMask,
+        (pUD->lo >> HALF_BITS) & halfMask,
+         pUD->lo              & halfMask
     };
 
     FICL_UNS quot[TOTAL];

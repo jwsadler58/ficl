@@ -434,9 +434,9 @@ int main(int argc, char **argv)
         RUN_TEST(hashLayoutTest);
         RUN_TEST(hashCreateTest);
         nTestFails = UNITY_END(); 
-        if (fUnit && (nTestFails > 0))
+        if (nTestFails > 0)
         {
-            printf("Unit tests failed: %d\n", nTestFails);
+            printf("***** Unit tests failed: %d *****\n", nTestFails);
             return nTestFails;
         }
     }
@@ -454,7 +454,7 @@ int main(int argc, char **argv)
         if (ret == VM_ERREXIT)
             return 1;
         
-        printf("***** Scripted tests completed: %d failures *****\n", nTestFails);
+        printf("***** Scripted tests failed: %d *****\n", nTestFails);
         return nTestFails;
     }
 
