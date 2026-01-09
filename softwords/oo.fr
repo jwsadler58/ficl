@@ -169,6 +169,7 @@ user current-class
 \ Usage
 \   my-class get-wid  ( -- wid-of-my-class )
 \
+
 1 ficl-named-wordlist instance-vars
 instance-vars dup >search ficl-set-current
 
@@ -182,7 +183,7 @@ instance-vars dup >search ficl-set-current
 
 \ Problem: my=[ assumes that each method except the last is am obj: member
 \ which contains its class as the first field of its parameter area. The code
-\ detects non-obect members and assumes the class does not change in this case.
+\ detects non-object members and assumes the class does not change in this case.
 \ This handles methods like index, prev, and next correctly, but does not deal
 \ correctly with CLASS.
 : my=[   \ same as my=> , but binds a chain of methods
