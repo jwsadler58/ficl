@@ -1,7 +1,7 @@
 \ test file for ficl - requires MARKER from softwords
 \ test ANSI CORE stuff first...
 marker ficltest-marker 
--1 set-order
+-1 set-order                   \ guarantee default search order
 
 \ set up local variable regressions before { gets redefined!
 : local1 { a b c | clr -- c b a 0 }
@@ -98,5 +98,4 @@ testing number builder
 { 3. -> 0 3 }
 { -1 -> -1 }
 
-.errors                \ print error count
 ficltest-marker        \ dictionary cleanup

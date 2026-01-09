@@ -301,13 +301,13 @@ static void clocksPerSec(FICL_VM *pVM)
 }
 
 /* 
-** t e s t - e r r o r
-** Test error reporting for scripted tests 
+**             t e s t - e r r o r
+** Test error reporting callback for scripted tests (see test/tester.fr)
 */
 static int nTestFails = 0;
 static void testError(FICL_VM *pVM)
 {
-    nTestFails = stackPopINT(pVM->pStack); 
+    nTestFails++; 
     return;
 }
 
@@ -419,23 +419,26 @@ int main(int argc, char **argv)
             break;
 #else
             printf("Error: Unit tests not enabled in this build.\n");
-            exit(1); 
+            return 1; 
 #endif
         }
     }
 
 #if FICL_UNIT_TEST
-    UNITY_BEGIN();
-    RUN_TEST(dpmUnitTest);
-    RUN_TEST(wordLayoutTest);
-    RUN_TEST(wordAppendBodyTest);
-    RUN_TEST(hashLayoutTest);
-    RUN_TEST(hashCreateTest);
-    nTestFails = UNITY_END(); 
-    if (fUnit && (nTestFails > 0))
+    if (fUnit)
     {
-        printf("Unit tests failed: %d\n", nTestFails);
-        return nTestFails;
+        UNITY_BEGIN();
+        RUN_TEST(dpmUnitTest);
+        RUN_TEST(wordLayoutTest);
+        RUN_TEST(wordAppendBodyTest);
+        RUN_TEST(hashLayoutTest);
+        RUN_TEST(hashCreateTest);
+        nTestFails = UNITY_END(); 
+        if (fUnit && (nTestFails > 0))
+        {
+            printf("Unit tests failed: %d\n", nTestFails);
+            return nTestFails;
+        }
     }
 #endif
 
@@ -443,11 +446,12 @@ int main(int argc, char **argv)
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
-    ret = ficlEvaluate(pVM, ".ver 2 spaces .( " __DATE__ " ) cr quit");
-    if (fUnit)
+    ret = ficlEvaluate(pVM, ".ver 2 spaces .( " __DATE__ " ) cr");
+    if (fUnit)                 /* run tests and return rather than going interactive */
     {
         ret = ficlEvaluate(pVM, "cd test\n load ficltest.fr");
         ficlTermSystem(pSys);
+        printf("***** Scripted tests completed: %d failures *****\n", nTestFails);
         return nTestFails;
     }
 

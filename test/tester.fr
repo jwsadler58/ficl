@@ -20,32 +20,22 @@ VARIABLE VERBOSE
 
 
 \ callback to pass error count back to calling system (if implemented)
-variable errors 0 errors !
+\ initialize to a positive sentinel value in case something aborts mid-test
+\ then subtract 1 when reporting
 
 c" test-error" find 0<> 
 [if] drop
-   :  test-callback   ( n --)  ['] test-error execute ;
+   : another-error    1 ['] test-error execute ;
 [else] drop
-   : test-callback   ( n -- )  drop  ." NOTE: test-error is not defined (ignored) " cr ;
+   : another-error    42 emit ;
 [endif]
 
-
-: .errors ( -- )
-   ." ==== TEST RESULTS === " cr   
-   errors @ 0= if
-      ." No errors" cr
-   else
-      ." Errors found: " errors @ dup .
-      test-callback           \ pass error count back to calling system (if implemented)
-   endif 
-   cr 
-; 
 
 : ERROR		\ ( C-ADDR U -- ) DISPLAY AN ERROR MESSAGE FOLLOWED BY
 	                           \ THE LINE THAT HAD THE ERROR.
    TYPE SOURCE TYPE CR		   \ DISPLAY LINE CORRESPONDING TO ERROR
    EMPTY-STACK				      \ THROW AWAY EVERYTHING ELSE
-   1 errors +!
+   another-error              \ accumulate total fails for reporting
    break	\ jws
 ;
 
