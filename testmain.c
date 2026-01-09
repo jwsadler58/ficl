@@ -454,7 +454,9 @@ int main(int argc, char **argv)
         if (ret == VM_ERREXIT)
             return 1;
         
-        printf("***** Scripted tests failed: %d *****\n", nTestFails);
+        if (nTestFails > 0)
+            printf("***** Scripted tests failed: %d *****\n", nTestFails);
+        
         return nTestFails;
     }
 
