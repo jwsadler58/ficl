@@ -551,6 +551,7 @@ int        isPowerOfTwo(FICL_UNS u);
 #if defined(_MSC_VER)
     #define ltoa  ficlLtoa
     #define ultoa ficlUltoa
+    #define strrev ficlStrrev
 #endif
 
 char       *ltoa( FICL_INT value, char *string, int radix );
