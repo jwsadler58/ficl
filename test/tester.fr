@@ -25,7 +25,7 @@ VARIABLE VERBOSE
 
 c" test-error" find 0<> 
 [if] drop
-   : another-error    1 ['] test-error execute ;
+   : another-error    ['] test-error execute ;
 [else] drop
    : another-error    42 emit ;
 [endif]
