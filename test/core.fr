@@ -102,6 +102,7 @@ TESTING COMPARISONS: 0= = 0< < > U< MIN MAX
 
 0S CONSTANT <FALSE> .( <FALSE> is ) <FALSE> x. cr
 1S CONSTANT <TRUE>  .( <TRUE> is  ) <TRUE>  x. cr
+0 0= .( 0 0= ) x. cr
 
 { 0 0= -> <TRUE> }
 { 1 0= -> <FALSE> }
