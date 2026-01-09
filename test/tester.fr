@@ -19,16 +19,16 @@ VARIABLE VERBOSE
    DEPTH ?DUP IF DUP 0< IF NEGATE 0 DO 0 LOOP ELSE 0 DO DROP LOOP THEN THEN ;
 
 
+\ callback to pass error count back to calling system (if implemented)
 variable errors 0 errors !
-\ pass error count back to calling system (if implemented)
-: test-callback ( n -- )      \ test-error ( n -- ) if implemented
-   c" test-error" find 
-   dup 0 <> if                \ found: stack is ( n xt 1|-1 )
-     drop execute
-   else                       \ not found: stack is ( n c-addr 0 )
-     2drop drop
-   endif
-;
+
+c" test-error" find 0<> 
+[if] drop
+   :  test-callback   ( n --)  ['] test-error execute ;
+[else] drop
+   : test-callback   ( n -- )  drop  ." NOTE: test-error is not defined (ignored) " cr ;
+[endif]
+
 
 : .errors ( -- )
    ." ==== TEST RESULTS === " cr   
