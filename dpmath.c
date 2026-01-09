@@ -48,6 +48,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <stdint.h>
 #include "ficl.h"
 #include "dpmath.h"
 #if FICL_UNIT_TEST
@@ -734,6 +735,28 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         DPUNS quot;
         DPUNS expQuot;
         
+        TEST_MESSAGE("***** Testing cell bit width *****");
+        {
+            FICL_UNS expected = (FICL_UNS)1 << (sizeof(FICL_UNS) * CHAR_BIT - 1);
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE((uint64_t)expected,
+                                             (uint64_t)CELL_HI_BIT,
+                                             "CELL_HI_BIT");
+        }
+        {
+            DPUNS in = { .hi = 0, .lo = CELL_HI_BIT };
+            DPUNS out = dpmASL(in);
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE(1u, (uint64_t)out.hi, "dpmASL hi carry");
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE(0u, (uint64_t)out.lo, "dpmASL lo shift");
+        }
+        {
+            DPUNS in = { .hi = 1, .lo = 0 };
+            DPUNS out = dpmASR(in);
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE(0u, (uint64_t)out.hi, "dpmASR hi shift");
+            TEST_ASSERT_EQUAL_UINT64_MESSAGE((uint64_t)CELL_HI_BIT,
+                                             (uint64_t)out.lo,
+                                             "dpmASR hi-to-lo");
+        }
+
         TEST_MESSAGE("***** Testing dpmUMod *****");
         /*--- 1) zero divided by anything → 0, rem 0 ---*/
         dpmUModTestCase(

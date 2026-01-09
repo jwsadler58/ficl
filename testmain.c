@@ -451,6 +451,9 @@ int main(int argc, char **argv)
     {
         ret = ficlEvaluate(pVM, "cd test\n load ficltest.fr");
         ficlTermSystem(pSys);
+        if (ret != VM_USEREXIT)
+            return 1;
+        
         printf("***** Scripted tests completed: %d failures *****\n", nTestFails);
         return nTestFails;
     }
