@@ -273,13 +273,6 @@ Its job is to list all the methods that a class knows. What you get when
 you execute this line is a list of all the class methods Ficl provides.&nbsp;
 <pre>
 object --> sub c-led
-</pre>
-Causes base-class <code>OBJECT</code> to derive from itself a new class called
-c-led. Now we'll add some instance variables and methods to the new class...&nbsp;
-<br><b>Note</b>: I like to prefix the names of classes with "c-", and the
-names of member variables with a dot, but this is just a convention. If
-you don't like it, you can pick your own.
-<pre>
 c-byte obj: .state
 : init   { 2:this -- }
     this --> super --> init
@@ -295,10 +288,18 @@ c-byte obj: .state
     this --> .state --> set  ;
 end-class
 </pre>
-The first line adds an instance variable called <code>.state</code> to the
+The first line causes base-class <code>OBJECT</code> to derive from itself a new class called
+c-led. If you type <tt>order</tt> and <tt>words</tt> you will see that class building words are now visible. Now we'll add some instance variables and methods to the new class...&nbsp;
+<br>
+<p>
+Note: I like to prefix the names of classes with "c-", and the
+names of member variables with a dot, but this is just a convention. If
+you don't like it, you can pick your own.
+</p>
+The second line adds an instance variable called <code>.state</code> to the
 class. This particular instance variable is an object - it will be an instance
 of c-byte, one of ficl's stock classes (the source for which can be found
-in the distribution in sorftowrds/classes.fr).&nbsp;
+in the distribution in softwords/classes.fr).&nbsp;
 <br>Next we've defined a method called <code>init</code>. This line also declares
 a <a href="ficl_loc.html">local variable</a> called <b><code>this</code></b>
 (the 2 in front tells Ficl that this is a double-cell local). All methods
@@ -1043,9 +1044,7 @@ this, Bad Things are likely to happen. Be careful for the moment to apply
 free only to instances created with <code>alloc</code> or <code>alloc-array</code>.</dd>
 
 <dt>
-<b><code>class        ( instance class
--- class metaclass )</code></b>&nbsp;</dt>
-
+<b><code>class        ( instance class -- class metaclass )</code></b>&nbsp;</dt>
 <dd>
 Convert an object signature into that of its class. Useful for calling
 class methods that have no object aliases.</dd>
@@ -1060,7 +1059,6 @@ is zero. Useful for invoking an overridden parent class method.</dd>
 
 <dt>
 <b><code>pedigree     ( instance class -- )</code></b>&nbsp;</dt>
-
 <dd>
 Display an object's pedigree - its chain of inheritance. This is an alias
 for the corresponding class method.</dd>
@@ -1068,14 +1066,12 @@ for the corresponding class method.</dd>
 <dt>
 <b><code>size         ( instance
 class -- sizeof(instance) )</code></b>&nbsp;</dt>
-
 <dd>
 Returns the size, in address units, of one instance. Does not know about
 arrays! This is an alias for the class method <code>get-size</code></dd>
 
 <dt>
 <b><code>methods      ( instance class -- )</code></b>&nbsp;</dt>
-
 <dd>
 Class method alias. Displays the list of methods of the class and all superclasses
 of the instance.</dd>
@@ -1083,7 +1079,6 @@ of the instance.</dd>
 <dt>
 <b><code>index        ( n instance class
 -- instance[n] class )</code></b>&nbsp;</dt>
-
 <dd>
 Convert array-of-objects base signature into signature for array element
 n. No check for bounds overflow. Index is zero-based, like C, so&nbsp;</dd>
