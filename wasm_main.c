@@ -48,7 +48,24 @@ static FICL_VM *pVm = NULL;
 static char outbuf[WASM_OUTBUF_SIZE];
 static size_t nOutbuf = 0;
 
+void *ficlMalloc(size_t size)
+{
+    return malloc(size);
+}
 
+void *ficlRealloc(void *p, size_t size)
+{
+    return realloc(p, size);
+}
+
+void ficlFree(void *p)
+{
+    free(p);
+}
+
+/*
+**         F i c l T e x t O u t
+*/ 
 void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
 {
     IGNORE(pVM);
@@ -68,21 +85,6 @@ void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
     return;
 }
 
-void *ficlMalloc(size_t size)
-{
-    return malloc(size);
-}
-
-void *ficlRealloc(void *p, size_t size)
-{
-    return realloc(p, size);
-}
-
-void ficlFree(void *p)
-{
-    free(p);
-}
-
 void ficlWasmClearOutput(void)
 {
     nOutbuf = 0;
@@ -100,20 +102,71 @@ int ficlWasmGetOutputLen(void)
     return (int)nOutbuf;
 }
 
-/* For web demo - emaulate a block of LEDs */
-static int fakeLED = 0;
+
+/* 
+** For web demo - emulate a block of LEDs 
+*/
 EM_JS(void, ficlWasmSetLedBits, (int value), {
     if (typeof window !== "undefined" && typeof window.setLedBits === "function")
         window.setLedBits(value | 0);
 });
 
-/* and call some javascript to change LED visibility*/
+/* 
+** For web demo - request a display refresh
+*/
+EM_JS(void, ficlWasmRequestRefresh, (void), {
+    if (typeof window !== "undefined" && typeof window.requestRefresh === "function")
+        window.requestRefresh();
+});
+
+/* Call through to javascript to change LED visibility*/
 static void setFakeLed(FICL_VM *pVM)
 {
-    fakeLED = stackPopINT(pVM->pStack);
-    ficlWasmSetLedBits(fakeLED);
+    int nBit = stackPopINT(pVM->pStack);
+    ficlWasmSetLedBits(nBit);
+    ficlWasmRequestRefresh();
+#ifdef __EMSCRIPTEN__
+    emscripten_sleep(0);
+#endif
     return;
 }
+
+/* 
+** Yield to the browser so the UI can repaint
+*/
+static void wasmRefresh(FICL_VM *pVM)
+{
+    IGNORE(pVM);
+    ficlWasmRequestRefresh();
+#ifdef __EMSCRIPTEN__
+    emscripten_sleep(0);
+#endif
+    return;
+}
+
+/*
+** ms - insert delay in milliseconds
+*/
+static void wasmDelay(FICL_VM *pVM)
+{
+    FICL_INT ms = stackPopINT(pVM->pStack);
+    IGNORE(pVM);
+#ifdef __EMSCRIPTEN__
+    emscripten_sleep((unsigned int)ms);
+#endif
+    return;
+}   
+
+
+/*
+** Breakpoint for the debugger
+*/
+static void ficlBreak(FICL_VM *pVM)
+{
+    pVM->state = pVM->state; /* no-op for the debugger to grab - set a breakpoint here */
+    return;
+}
+
 
 
 int ficlWasmInit(int dict_cells, int stack_cells)
@@ -125,7 +178,11 @@ int ficlWasmInit(int dict_cells, int stack_cells)
     if (!pSys)
         return -1;
     
-    ficlBuild(pSys, "!led", setFakeLed, FW_DEFAULT);
+    /* demo interface words */
+    ficlBuild(pSys, "!led",     setFakeLed, FW_DEFAULT);
+    ficlBuild(pSys, "yield",    wasmRefresh, FW_DEFAULT);
+    ficlBuild(pSys, "break",    ficlBreak,    FW_DEFAULT);
+    ficlBuild(pSys, "ms",       wasmDelay,    FW_DEFAULT);
 
     if (stack_cells > 0)
         ficlSetStackSize(stack_cells);

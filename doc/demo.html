@@ -61,15 +61,15 @@
           </div>
         </section>
         <div class="demo-notes">
-          <h3>Try these</h3>
-          <ul>
-            <li><code>decimal 10000 355 113 */ . cr</code></li>
-            <li><code>.( Hello ficl! ) cr</code></li>
-            <li><code>: aloha  depth 0= if -1 endif  invert dup 0= if ." Hello" else ." Goodbye " endif cr ; </code></li>
-            <li><code>: fact ( n -- n! ) 1 swap 1+ 1 ?DO I * LOOP ;</code></li>
-            <li><code>10 fact . cr</code></li>
-            <li><code>see fact</code></li>
-          </ul>
+          <h3>Demo words</h3>
+          <dl>
+            <dt><code>!led  ( n -- ) </code></dt>
+            <dd>Bottom 8 bits of n map to simulated LEDs</dd>
+            <dt><code>ms  ( ms -- ) </code></dt>
+            <dd>Insert delay in milliseconds </dd>
+            <dt><code>yield  ( -- ) </code></dt>
+            <dd>Yield to browser to refresh display</dd>
+          </dl>
         </div>
       </div>
     </main>

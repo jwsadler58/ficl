@@ -34,6 +34,15 @@ function setLedBits(value) {
 
 window.setLedBits = setLedBits;
 
+/* Schedule a repaint so long-running words can yield. */
+function requestRefresh() {
+  if (typeof window.requestAnimationFrame === "function") {
+    window.requestAnimationFrame(() => {});
+  }
+}
+
+window.requestRefresh = requestRefresh;
+
 function updateStack() {
   if (!Module) return;
   const bufSize = 256;
