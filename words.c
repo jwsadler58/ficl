@@ -728,7 +728,7 @@ static void ficlSprintf(FICL_VM *pVM) /*  */
     int base = 10;
     int unsignedInteger = FALSE;
 
-    int append = (int)FICL_TRUE;
+    FICL_INT success = FICL_TRUE;
 
     while (format < formatStop)
     {
@@ -812,32 +812,48 @@ static void ficlSprintf(FICL_VM *pVM) /*  */
             }
         }
 
-        if (append == FICL_TRUE)
+        if (!desiredLength)
+            desiredLength = actualLength;
+
+        /*
+        ** Left-pad to the requested field width (e.g. "%5d" or "%05d").
+        ** Pad with spaces, or with '0' when the '0' flag is present.
+        ** If the output buffer fills up, stop writing but set success to false.
+        */
+        while (desiredLength > actualLength)
         {
-            if (!desiredLength)
-                desiredLength = actualLength;
-            if (desiredLength > bufferLength)
+            if (bufferLength > 0)
             {
-                append = FICL_FALSE;
-                desiredLength = bufferLength;
-            }
-            while (desiredLength > actualLength)
-                {
-                *buffer++ = (char)((leadingZeroes) ? '0' : ' ');
+                *buffer++ = leadingZeroes ? '0' : ' ';
                 bufferLength--;
-                desiredLength--;
-                }
-            memcpy(buffer, source, actualLength);
-            buffer += actualLength;
-            bufferLength -= actualLength;
+            }
+            else
+                success = FICL_FALSE;
+            desiredLength--;
         }
+
+        /*
+        ** If a maximum field width was specified (e.g. "%8s"),
+        ** truncate the source if it is longer than that width.
+        */
+        if (desiredLength < actualLength)
+            actualLength = desiredLength;
+
+        if (bufferLength < actualLength) {
+            actualLength = bufferLength;
+            success = FICL_FALSE;
+        }
+
+        memcpy(buffer, source, actualLength);
+        buffer += actualLength;
+        bufferLength -= actualLength;
 
         format++;
     }
 
     stackPushPtr(pVM->pStack, bufferStart);
     stackPushINT(pVM->pStack, buffer - bufferStart);
-    stackPushINT(pVM->pStack, append);
+    stackPushINT(pVM->pStack, success);
 }
 
 
