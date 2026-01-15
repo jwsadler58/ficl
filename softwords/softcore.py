@@ -8,9 +8,9 @@ import time;
 
 print( """/*******************************************************************
 ** s o f t c o r e . c
-** Forth Inspired Command Language - 
+** Forth Inspired Command Language -
 ** Words from CORE set written in FICL
-** Author: John W Sadler 
+** Author: John W Sadler
 ** Created: 27 December 1997
 ** Last update: """ + time.ctime(time.time()) + """
 *******************************************************************/
@@ -29,8 +29,8 @@ print( """/*******************************************************************
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -41,7 +41,7 @@ print( """/*******************************************************************
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -60,7 +60,7 @@ print( """/*******************************************************************
 
 #include "ficl.h"
 
-static const char softWords[] = 
+static const char softWords[] =
 #if FICL_WANT_SOFTWORDS""")
 
 escapedQuotes = re.compile( r'^"(.*)"$' )

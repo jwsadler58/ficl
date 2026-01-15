@@ -1,4 +1,4 @@
-\ ** 
+\ **
 \ ** win32.fr
 \ ** submitted by Larry Hastings, larry@hastings.org
 \ **

@@ -25,9 +25,9 @@ object subclass c-word
 
     : next   ( inst class -- link-inst class )
         my=> .link ;
-        
+
     : ?
-        ." c-word: " 
+        ." c-word: "
         2dup --> get-name type cr
     ;
 
@@ -54,7 +54,7 @@ object subclass c-wordlist
     : set-current   drop set-current ;
     : get-name   drop wid-get-name ;
     : words   { 2:this -- }
-        this my=[ .size get ] 0 do 
+        this my=[ .size get ] 0 do
             i this my=[ .hash index ]  ( 2list-head )
             begin
                 2dup --> get-name type space

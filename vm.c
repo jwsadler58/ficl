@@ -1,7 +1,7 @@
 /*******************************************************************
 ** v m . c
 ** Forth Inspired Command Language - virtual machine methods
-** Author: John W Sadler 
+** Author: John W Sadler
 ** Created: 19 July 1997
 ** $Id: vm.c,v 1.12 2001-12-04 17:58:14-08 jsadler Exp jsadler $
 *******************************************************************/
@@ -20,8 +20,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -32,7 +32,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -59,8 +59,8 @@ static char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
 /**************************************************************************
-                        v m B r a n c h R e l a t i v e 
-** 
+                        v m B r a n c h R e l a t i v e
+**
 **************************************************************************/
 void vmBranchRelative(FICL_VM *pVM, int offset)
 {
@@ -107,7 +107,7 @@ FICL_VM *vmCreate(FICL_VM *pVM, unsigned nPStack, unsigned nRStack)
 
 /**************************************************************************
                         v m D e l e t e
-** Free all memory allocated to the specified VM and its subordinate 
+** Free all memory allocated to the specified VM and its subordinate
 ** structures.
 **************************************************************************/
 void vmDelete (FICL_VM *pVM)
@@ -158,7 +158,7 @@ FICL_DICT  *vmGetDict(FICL_VM *pVM)
 ** Parses a string out of the VM input buffer and copies up to the first
 ** FICL_STRING_MAX characters to the supplied destination buffer, a
 ** FICL_STRING. The destination string is NULL terminated.
-** 
+**
 ** Returns the address of the first unused character in the dest buffer.
 **************************************************************************/
 char *vmGetString(FICL_VM *pVM, FICL_STRING *spDest, char delimiter)
@@ -180,7 +180,7 @@ char *vmGetString(FICL_VM *pVM, FICL_STRING *spDest, char delimiter)
 
 /**************************************************************************
                         v m G e t W o r d
-** vmGetWord calls vmGetWord0 repeatedly until it gets a string with 
+** vmGetWord calls vmGetWord0 repeatedly until it gets a string with
 ** non-zero length.
 **************************************************************************/
 STRINGINFO vmGetWord(FICL_VM *pVM)
@@ -249,7 +249,7 @@ STRINGINFO vmGetWord0(FICL_VM *pVM)
 /**************************************************************************
                         v m G e t W o r d T o P a d
 ** Does vmGetWord and copies the result to the pad as a NULL terminated
-** string. Returns the length of the string. If the string is too long 
+** string. Returns the length of the string. If the string is too long
 ** to fit in the pad, it is truncated.
 **************************************************************************/
 int vmGetWordToPad(FICL_VM *pVM)
@@ -271,14 +271,14 @@ int vmGetWordToPad(FICL_VM *pVM)
                         v m P a r s e S t r i n g
 ** Parses a string out of the input buffer using the delimiter
 ** specified. Skips leading delimiters, marks the start of the string,
-** and counts characters to the next delimiter it encounters. It then 
+** and counts characters to the next delimiter it encounters. It then
 ** updates the vm input buffer to consume all these chars, including the
-** trailing delimiter. 
+** trailing delimiter.
 ** Returns the address and length of the parsed string, not including the
 ** trailing delimiter.
 **************************************************************************/
 STRINGINFO vmParseString(FICL_VM *pVM, char delim)
-{ 
+{
     return vmParseStringEx(pVM, delim, 1);
 }
 
@@ -299,7 +299,7 @@ STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, char fSkipLeading)
 
     for (ch = *pSrc; (pSrc != pEnd)
                   && (ch != delim)
-                  && (ch != '\r') 
+                  && (ch != '\r')
                   && (ch != '\n'); ch = *++pSrc)
     {
         ;                   /* find next delimiter or end of line */
@@ -318,7 +318,7 @@ STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, char fSkipLeading)
 
 /**************************************************************************
                         v m P o p
-** 
+**
 **************************************************************************/
 CELL vmPop(FICL_VM *pVM)
 {
@@ -328,7 +328,7 @@ CELL vmPop(FICL_VM *pVM)
 
 /**************************************************************************
                         v m P u s h
-** 
+**
 **************************************************************************/
 void vmPush(FICL_VM *pVM, CELL c)
 {
@@ -339,7 +339,7 @@ void vmPush(FICL_VM *pVM, CELL c)
 
 /**************************************************************************
                         v m P o p I P
-** 
+**
 **************************************************************************/
 void vmPopIP(FICL_VM *pVM)
 {
@@ -350,7 +350,7 @@ void vmPopIP(FICL_VM *pVM)
 
 /**************************************************************************
                         v m P u s h I P
-** 
+**
 **************************************************************************/
 void vmPushIP(FICL_VM *pVM, IPTYPE newIP)
 {
@@ -389,7 +389,7 @@ void vmPopTib(FICL_VM *pVM, TIB *pTib)
 
 /**************************************************************************
                         v m Q u i t
-** 
+**
 **************************************************************************/
 void vmQuit(FICL_VM *pVM)
 {
@@ -408,8 +408,8 @@ void vmQuit(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        v m R e s e t 
-** 
+                        v m R e s e t
+**
 **************************************************************************/
 void vmReset(FICL_VM *pVM)
 {
@@ -455,7 +455,7 @@ void vmTextOut(FICL_VM *pVM, char *text, int fNewline)
 
 /**************************************************************************
                         v m T h r o w
-** 
+**
 **************************************************************************/
 void vmThrow(FICL_VM *pVM, int except)
 {
@@ -477,7 +477,7 @@ void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
 
 /**************************************************************************
                         w o r d I s I m m e d i a t e
-** 
+**
 **************************************************************************/
 int wordIsImmediate(FICL_WORD *pFW)
 {
@@ -487,7 +487,7 @@ int wordIsImmediate(FICL_WORD *pFW)
 
 /**************************************************************************
                         w o r d I s C o m p i l e O n l y
-** 
+**
 **************************************************************************/
 int wordIsCompileOnly(FICL_WORD *pFW)
 {
@@ -497,9 +497,9 @@ int wordIsCompileOnly(FICL_WORD *pFW)
 
 /**************************************************************************
                         s t r r e v
-** 
+**
 **************************************************************************/
-char *strrev( char *string )    
+char *strrev( char *string )
 {                               /* reverse a string in-place */
     int i = strlen(string);
     char *p1 = string;          /* first char of string */
@@ -516,14 +516,14 @@ char *strrev( char *string )
             p1++; p2--;
         }
     }
-        
+
     return string;
 }
 
 
 /**************************************************************************
                         d i g i t _ t o _ c h a r
-** 
+**
 **************************************************************************/
 char digit_to_char(int value)
 {
@@ -553,7 +553,7 @@ int isPowerOfTwo(FICL_UNS u)
 
 /**************************************************************************
                         l t o a
-** 
+**
 **************************************************************************/
 char *ltoa( FICL_INT value, char *string, int radix )
 {                               /* convert long to string, any base */
@@ -607,7 +607,7 @@ char *ltoa( FICL_INT value, char *string, int radix )
 
 /**************************************************************************
                         u l t o a
-** 
+**
 **************************************************************************/
 char *ultoa(FICL_UNS value, char *string, int radix )
 {                               /* convert long to string, any base */
@@ -684,7 +684,7 @@ int strincmp(char *cp1, char *cp2, FICL_UNS count)
                         s k i p S p a c e
 ** Given a string pointer, returns a pointer to the first non-space
 ** char of the string, or to the NULL terminator if no such char found.
-** If the pointer reaches "end" first, stop there. Pass NULL to 
+** If the pointer reaches "end" first, stop there. Pass NULL to
 ** suppress this behavior.
 **************************************************************************/
 char *skipSpace(char *cp, char *end)

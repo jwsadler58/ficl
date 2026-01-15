@@ -14,8 +14,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -26,7 +26,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -46,13 +46,13 @@
 #include "ficl.h"
 
 /*
-** (jws) revisions: 
+** (jws) revisions:
 ** A prefix is a word in a dedicated wordlist (name stored in list_name below)
 ** that is searched in a special way by the prefix parse step. When a prefix
 ** matches the beginning of an incoming token, push the non-prefix part of the
 ** token back onto the input stream and execute the prefix code.
 **
-** The parse step is called ficlParsePrefix. 
+** The parse step is called ficlParsePrefix.
 ** Storing prefix entries in the dictionary greatly simplifies
 ** the process of matching and dispatching prefixes, avoids the
 ** need to clean up a dynamically allocated prefix list when the system
@@ -73,7 +73,7 @@ int ficlParsePrefix(FICL_VM *pVM, STRINGINFO si)
     FICL_HASH *pHash;
     FICL_WORD *pFW = ficlLookup(pVM->pSys, list_name);
 
-    /* 
+    /*
     ** Make sure we found the prefix dictionary - otherwise silently fail
     ** If forth-wordlist is not in the search order, we won't find the prefixes.
     */
@@ -117,7 +117,7 @@ static void tempBase(FICL_VM *pVM, int base)
     STRINGINFO si = vmGetWord0(pVM);
 
     pVM->base = base;
-    if (!ficlParseNumber(pVM, si)) 
+    if (!ficlParseNumber(pVM, si))
     {
         int i = SI_COUNT(si);
         vmThrowErr(pVM, "%.*s not recognized", i, SI_PTR(si));
@@ -162,7 +162,7 @@ void ficlCompilePrefix(FICL_SYSTEM *pSys)
 #if (FICL_EXTENDED_PREFIX)
     FICL_WORD *pFW;
 #endif
-    
+
     /*
     ** Create a named wordlist for prefixes to reside in...
     ** Since we're doing a special kind of search, make it

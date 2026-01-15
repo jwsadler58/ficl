@@ -339,7 +339,7 @@ static void ficlReadLine(FICL_VM *pVM) /* ( c-addr u1 fileid -- u2 flag ior ) */
     flag = (length > 0);
     if (length && ((address[length - 1] == '\r') || (address[length - 1] == '\n')))
         length--;
-    
+
     stackPushINT(pVM->pStack, length);
     stackPushINT(pVM->pStack, flag);
     stackPushINT(pVM->pStack, 0); /* ior */

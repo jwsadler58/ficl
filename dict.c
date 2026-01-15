@@ -1,17 +1,17 @@
 /*******************************************************************
 ** d i c t . c
 ** Forth Inspired Command Language - dictionary methods
-** Author: John W Sadler 
+** Author: John W Sadler
 ** Created: 19 July 1997
 ** $Id: dict.c,v 1.12 2001-10-28 10:59:22-08 jsadler Exp jsadler $
 *******************************************************************/
 /*
-** This file implements the dictionary -- FICL's model of 
+** This file implements the dictionary -- FICL's model of
 ** memory management. All FICL words are stored in the
 ** dictionary. A word is a named chunk of data with its
 ** associated code. FICL treats all words the same, even
 ** precompiled ones, so your words become first-class
-** extensions of the language. You can even define new 
+** extensions of the language. You can even define new
 ** control structures.
 **
 ** 29 jun 1998 (sadler) added variable sized hash table support
@@ -25,8 +25,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -37,7 +37,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -64,7 +64,7 @@ static char *dictCopyName(FICL_DICT *pDict, STRINGINFO si);
 /**************************************************************************
                         d i c t A b o r t D e f i n i t i o n
 ** Abort a definition in process: reclaim its memory and unlink it
-** from the dictionary list. Assumes that there is a smudged 
+** from the dictionary list. Assumes that there is a smudged
 ** definition in process...otherwise does nothing.
 ** NOTE: this function is not smart enough to unlink a word that
 ** has been successfully defined (ie linked into a hash). It
@@ -204,9 +204,9 @@ void dictAppendChar(FICL_DICT *pDict, char c)
 ** Create a new word in the dictionary with the specified
 ** name, code, and flags. Name must be NULL-terminated.
 **************************************************************************/
-FICL_WORD *dictAppendWord(FICL_DICT *pDict, 
-                          char *name, 
-                          FICL_CODE pCode, 
+FICL_WORD *dictAppendWord(FICL_DICT *pDict,
+                          char *name,
+                          FICL_CODE pCode,
                           UNS8 flags)
 {
     STRINGINFO si;
@@ -222,9 +222,9 @@ FICL_WORD *dictAppendWord(FICL_DICT *pDict,
 ** STRINGINFO, code, and flags. Does not require a NULL-terminated
 ** name.
 **************************************************************************/
-FICL_WORD *dictAppendWord2(FICL_DICT *pDict, 
-                           STRINGINFO si, 
-                           FICL_CODE pCode, 
+FICL_WORD *dictAppendWord2(FICL_DICT *pDict,
+                           STRINGINFO si,
+                           FICL_CODE pCode,
                            UNS8 flags)
 {
     FICL_COUNT len  = (FICL_COUNT)SI_COUNT(si);
@@ -349,7 +349,7 @@ static char *dictCopyName(FICL_DICT *pDict, STRINGINFO si)
 
     if (i > nFICLNAME)
         i = nFICLNAME;
-    
+
     for (; i > 0; --i)
     {
         *cp++ = *name++;
@@ -398,7 +398,7 @@ FICL_DICT  *dictCreateHashed(unsigned nCells, unsigned nHash)
 FICL_HASH *dictCreateWordlist(FICL_DICT *dp, int nBuckets)
 {
     FICL_HASH *pHash;
-    
+
     dictAlign(dp);
     pHash    = (FICL_HASH *)dp->here;
     dictAllot(dp, FICL_HASH_BYTES(nBuckets));
@@ -410,8 +410,8 @@ FICL_HASH *dictCreateWordlist(FICL_DICT *dp, int nBuckets)
 
 
 /**************************************************************************
-                        d i c t D e l e t e 
-** Free all memory allocated for the given dictionary 
+                        d i c t D e l e t e
+** Free all memory allocated for the given dictionary
 **************************************************************************/
 void dictDelete(FICL_DICT *pDict)
 {
@@ -446,7 +446,7 @@ void dictEmpty(FICL_DICT *pDict, unsigned nHash)
 }
 
 /**************************************************************************
-                        d i c t S u m m a r y  
+                        d i c t S u m m a r y
 ** Print a summary of the dictionary usage to the VM's text output
 **************************************************************************/
 void dictSummary(FICL_VM *pVM)
@@ -454,9 +454,9 @@ void dictSummary(FICL_VM *pVM)
     FICL_DICT *dp = vmGetDict(pVM);
     FICL_HASH *pHash = dp->pSearch[dp->nLists - 1];
 
-    sprintf(pVM->pad, 
-        "Dictionary: %ld cells used of %u total", 
-        (long)(dp->here - dp->dict), dp->size); 
+    sprintf(pVM->pad,
+        "Dictionary: %ld cells used of %u total",
+        (long)(dp->here - dp->dict), dp->size);
     vmTextOut(pVM, pVM->pad, 1);
     return;
 }
@@ -468,7 +468,7 @@ void dictSummary(FICL_VM *pVM)
 ** assuming uniform distribution of target keys. The figure of merit
 ** is the ratio of the total search depth for all keys in the table
 ** versus a theoretical optimum that would be achieved if the keys
-** were distributed into the table as evenly as possible. 
+** were distributed into the table as evenly as possible.
 ** The figure would be worse if the hash table used an open
 ** addressing scheme (i.e. collisions resolved by searching the
 ** table for an empty slot) for a given size table.
@@ -495,7 +495,7 @@ void dictHashSummary(FICL_VM *pVM)
     pFHash   = dp->pSearch[dp->nLists - 1];
     pHash    = pFHash->table;
     nBuckets = nFilled = pFHash->size;
-    
+
     for (i = 0; i < nBuckets; i++)
     {
         int n = 0;
@@ -509,7 +509,7 @@ void dictHashSummary(FICL_VM *pVM)
         }
 
         avg += (double)(n * (n+1)) / 2.0; /* Sum of digits: summing search depths for all keys in the bucket. Fair.  */
-        
+
         if (n > 1)
             nCollisions += n-1;
 
@@ -521,21 +521,21 @@ void dictHashSummary(FICL_VM *pVM)
 
     /* Average search depth for this hash */
     avg = avg / nWords;
-    
+
     /* Calc best possible performance with this size hash */
     nAvg = nWords / nBuckets;
     nRem = nWords % nBuckets;
     nDepth = nBuckets * (nAvg * (nAvg+1))/2 + (nAvg+1)*nRem;
     best = (double)nDepth/nWords;
 
-    sprintf(pVM->pad, 
-        "%d bins, %d filled, Depth: Max=%d, Avg=%2.1f, Best Possible=%2.1f, Collisions: %d", 
+    sprintf(pVM->pad,
+        "%d bins, %d filled, Depth: Max=%d, Avg=%2.1f, Best Possible=%2.1f, Collisions: %d",
         nBuckets, nFilled, nMax, avg, best, nCollisions);
 
     ficlTextOut(pVM, pVM->pad, 1);
 
-    sprintf(pVM->pad, 
-        "Dictionary: %ld cells used of %u total", 
+    sprintf(pVM->pad,
+        "Dictionary: %ld cells used of %u total",
         (long)(dp->here - dp->dict), dp->size);
 
     ficlTextOut(pVM, pVM->pad, 1);
@@ -550,7 +550,7 @@ void dictHashSummary(FICL_VM *pVM)
 
 /**************************************************************************
                         d i c t I n c l u d e s
-** Returns TRUE iff the given pointer is within the address range of 
+** Returns TRUE iff the given pointer is within the address range of
 ** the dictionary.
 **************************************************************************/
 int dictIncludes(FICL_DICT *pDict, void *p)
@@ -608,14 +608,14 @@ FICL_WORD *ficlLookupLoc(FICL_SYSTEM *pSys, STRINGINFO si)
     assert(pDict);
 
     ficlLockDictionary(1);
-    /* 
-    ** check the locals dict first... 
+    /*
+    ** check the locals dict first...
     */
     pFW = hashLookup(pHash, si, hashCode);
 
-    /* 
+    /*
     ** If no joy, (!pFW) --------------------------v
-    ** iterate over the search list in the main dict 
+    ** iterate over the search list in the main dict
     */
     for (i = (int)pDict->nLists - 1; (i >= 0) && (!pFW); --i)
     {
@@ -660,7 +660,7 @@ void dictSetFlags(FICL_DICT *pDict, UNS8 set, UNS8 clr)
 
 
 /**************************************************************************
-                        d i c t S e t I m m e d i a t e 
+                        d i c t S e t I m m e d i a t e
 ** Set the most recently defined word as IMMEDIATE
 **************************************************************************/
 void dictSetImmediate(FICL_DICT *pDict)
@@ -672,7 +672,7 @@ void dictSetImmediate(FICL_DICT *pDict)
 
 
 /**************************************************************************
-                        d i c t U n s m u d g e 
+                        d i c t U n s m u d g e
 ** Completes the definition of a word by linking it
 ** into the main list
 **************************************************************************/
@@ -736,18 +736,18 @@ void hashForget(FICL_HASH *pHash, void *where)
 
 /**************************************************************************
                         h a s h H a s h C o d e
-** 
-** Generate a 16 bit hashcode from a character string 
-** PJW_HASH uses a rolling shift+add from PJ Weinberger of Bell Labs. 
+**
+** Generate a 16 bit hashcode from a character string
+** PJW_HASH uses a rolling shift+add from PJ Weinberger of Bell Labs.
 ** Case fold the name before hashing it...
 ** N O T E : If string has zero length, returns zero.
 **************************************************************************/
-#if PJW_HASH 
+#if PJW_HASH
 /* Based on PJ Weinberger hash algorithm
-** Experiments suggest 251 buckets (last prime number before 255) 
+** Experiments suggest 251 buckets (last prime number before 255)
 */
 UNS16 hashHashCode(STRINGINFO si)
-{   
+{
     /* hashPJW */
     UNS8 *cp;
     UNS16 code = (UNS16)si.count;
@@ -772,11 +772,11 @@ UNS16 hashHashCode(STRINGINFO si)
 }
 
 #else
-/* 
+/*
 ** Pearson hash optimized to minimize total collisions over the 385 built-in words
 ** THis spreads the keys very evenly across a 256 slot table
 **
-** Total collisions computed across all buckets as 
+** Total collisions computed across all buckets as
 ** Sum of max(0, (number of keys in bucket n, less 1))
 ** Buckets with zero or one key count as no collisions
 ** chain-len    #buckets    cum #
@@ -811,16 +811,16 @@ UNS16 hashHashCode(STRINGINFO si)
 {
     UNS16 len = si.count;
     UNS8 *cp = (UNS8 *)si.cp;
-    
+
     if (len == 0)
         return 0;
 
     UNS8 h = PearsonTable[tolower(*cp++)];
-    while (--len > 0) 
+    while (--len > 0)
     {
         h = PearsonTable[h ^ tolower(*cp++)];
     }
-    
+
     return h;
 }
 #endif
@@ -856,7 +856,7 @@ void hashInsertWord(FICL_HASH *pHash, FICL_WORD *pFW)
 /**************************************************************************
                         h a s h L o o k u p
 ** Find a name in the hash table given the hashcode and text of the name.
-** Returns the address of the corresponding FICL_WORD if found, 
+** Returns the address of the corresponding FICL_WORD if found,
 ** otherwise NULL.
 ** Note: outer loop on link field supports inheritance in wordlists.
 ** It's not part of ANS Forth - ficl only. hashReset creates wordlists
@@ -867,7 +867,7 @@ FICL_WORD *hashLookup(FICL_HASH *pHash, STRINGINFO si, UNS16 hashCode)
     FICL_UNS nCmp = si.count;
     FICL_WORD *pFW;
     UNS16 hashIdx;
-    
+
     if (nCmp > nFICLNAME)
         nCmp = nFICLNAME;
 
@@ -877,7 +877,7 @@ FICL_WORD *hashLookup(FICL_HASH *pHash, STRINGINFO si, UNS16 hashCode)
 
         for (pFW = pHash->table[hashIdx]; pFW; pFW = pFW->link)
         {
-            if ( (pFW->nName == si.count) 
+            if ( (pFW->nName == si.count)
                 && (!strincmp(si.cp, pFW->name, nCmp)) )
                 return pFW;
 #if FICL_ROBUST

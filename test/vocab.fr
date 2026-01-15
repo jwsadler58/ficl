@@ -1,5 +1,5 @@
 \ Here is an implementation of ALSO/ONLY in terms of the
-\ primitive search-order word set. 
+\ primitive search-order word set.
 \
 WORDLIST CONSTANT ROOT   ROOT SET-CURRENT
 

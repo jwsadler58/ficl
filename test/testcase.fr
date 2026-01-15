@@ -20,7 +20,7 @@
 see test-case
 
 .( You should see 1 2 3 ->)
-.s 
+.s
 .( <-) cr
 
 .( You should see "zero": )
@@ -33,7 +33,7 @@ see test-case
 324 test-case
 
 .( You should still see 1 2 3 ->)
-.s 
+.s
 .( <-) cr
 
 
@@ -59,7 +59,7 @@ see test-case-2
 cr
 
 .( You should once more see 1 2 3 ->)
-.s 
+.s
 .( <-) cr
 
 .( You should see "zeroone": )
@@ -75,7 +75,7 @@ cr
 324 test-case-2
 
 .( You should still see 1 2 3 ->)
-.s 
+.s
 .( <-) cr
 
 

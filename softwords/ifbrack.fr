@@ -14,7 +14,7 @@ hide
 
 : ?[then]   ( c-addr u -- c-addr u flag )
     2dup s" [then]" compare-insensitive 0= >r
-    2dup s" [endif]" compare-insensitive 0= r> 
+    2dup s" [endif]" compare-insensitive 0= r>
     or
 ;
 
@@ -31,7 +31,7 @@ set-current
             ?[else] if                    \ ( level addr len )
                  2drop 1- dup if 1+ endif
             else
-                ?[then] if 2drop 1- else 2drop endif 
+                ?[then] if 2drop 1- else 2drop endif
             endif
         endif ?dup 0=  if exit endif      \ level
       repeat  2drop                       \ level

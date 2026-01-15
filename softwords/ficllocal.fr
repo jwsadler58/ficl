@@ -17,7 +17,7 @@ set-current
 : {{
     0 dup  locals| nLocs locstate |
     begin
-        parse-word 
+        parse-word
         ?dup 0= abort" Error: out of text without seeing }}"
         2dup 2dup  ?-- -rot ?}} or 0=
     while
@@ -27,7 +27,7 @@ set-current
     ?-- if 1 to locstate endif
 
     nLocs 0 do
-        (local) 
+        (local)
     loop
 
     locstate 1 = if
@@ -42,5 +42,5 @@ set-current
 
     0 0 (local)
 ; immediate compile-only
- 
+
 previous

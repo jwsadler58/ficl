@@ -14,7 +14,7 @@ object --> sub c-example
     ;
 
     : get-name  ( inst class -- c-addr u )
-        2dup 
+        2dup
         --> .name  -rot      ( c-addr inst class )
         --> .length --> get
     ;
@@ -37,12 +37,12 @@ c-word --> get-wid ficl-set-current
 \ list dictionary thread
 : list  ( inst class )
     begin
-        2dup --> get-name type cr 
-        --> next over 
+        2dup --> get-name type cr
+        --> next over
     0= until
     2drop
 ;
-set-current 
+set-current
 
 object subclass c-led
     c-byte obj: .state
@@ -65,7 +65,7 @@ end-class
 object subclass c-switch
 
     : ?on   { bit# 2:this -- flag }
-        
+
         1 bit# lshift
     ;
 end-class

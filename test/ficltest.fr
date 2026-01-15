@@ -1,6 +1,6 @@
 \ test file for ficl - requires MARKER from softwords
 \ test ANSI CORE stuff first...
-marker ficltest-marker 
+marker ficltest-marker
 -1 set-order                   \ guarantee default search order
 
 \ set up local variable regressions before { gets redefined!
@@ -13,7 +13,7 @@ marker ficltest-marker
     a to c
     b to a
     c to b
-    a b 
+    a b
 ;
 
 load tester.fr
