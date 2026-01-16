@@ -460,11 +460,8 @@ int main(int argc, char **argv)
         return nTestFails;
     }
 
-    while (ret != VM_USEREXIT)
-    {
-        (void) fgets(in, nINBUF, stdin);
+    while (ret != VM_USEREXIT && fgets(in, nINBUF, stdin) != NULL)
         ret = ficlExec(pVM, in);
-    }
 
     ficlTermSystem(pSys);
     return 0;
