@@ -1,8 +1,8 @@
 \ test file for ficl
 \ string array...
-: $array ( caddr u ... caddr u n -- ) 
-    create 0 ?do , , loop 
-    does> swap 2* cells + 2@ type 
+: $array ( caddr u ... caddr u n -- )
+    create 0 ?do , , loop
+    does> swap 2* cells + 2@ type
 ;
 
 : s
@@ -10,7 +10,7 @@
     s" string 2"
     s" string 1"
     s" string 0"
-    4 
+    4
 ;
 
 s $array s

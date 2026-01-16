@@ -31,21 +31,21 @@ hide
 \ Otherwise push false
 \ Problem if the local is named "2:" - we fall off the end...
 : ?2loc ( c-addr u -- c-addr u flag )
-    over dup c@ [char] 2 = 
+    over dup c@ [char] 2 =
 	swap 1+  c@ [char] : = and
-    if 
+    if
         2 - swap char+ char+ swap  \ dcs/jws: nibble the '2:'
-        true 
-    else 
-	    false 
-    endif 
+        true
+    else
+	    false
+    endif
 ;
 
 : ?delim   ( c-addr u -- state | c-addr u 0 )
     ?|  if  2drop 1 exit endif
     ?-- if  2drop 2 exit endif
     ?}  if  2drop 3 exit endif
-    dup 0= 
+    dup 0=
         if  2drop 4 exit endif
     0
 ;
@@ -54,7 +54,7 @@ set-current
 
 : {
     0 dup locals| locstate |
-    
+
     \ stack locals until we hit a delimiter
     begin
         parse-word      \ ( nLocals c-addr u )
@@ -64,8 +64,8 @@ set-current
     repeat
 
     \ now unstack the locals
-    0 ?do 
-	    ?2loc if (2local) else (local) endif 
+    0 ?do
+	    ?2loc if (2local) else (local) endif
 	loop   \ ( )
 
     \ zero locals until -- or }
@@ -98,6 +98,6 @@ set-current
     locstate 3 <> abort" syntax error in { } local line"
 ; immediate compile-only
 
-previous 
+previous
 \ #endif
 

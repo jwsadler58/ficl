@@ -8,11 +8,11 @@
 also oop definitions
 
 \ Design goals:
-\ 0. Traditional OOP: late binding by default for safety. 
+\ 0. Traditional OOP: late binding by default for safety.
 \    Early binding if you ask for it.
 \ 1. Single inheritance
 \ 2. Object aggregation (has-a relationship)
-\ 3. Support objects in the dictionary and as proxies for 
+\ 3. Support objects in the dictionary and as proxies for
 \    existing structures (by reference):
 \    *** A ficl object can wrap a C struct ***
 \ 4. Separate name-spaces for methods - methods are
@@ -23,13 +23,13 @@ also oop definitions
 \ General info:
 \ Classes are objects, too: all classes are instances of METACLASS
 \ All classes are derived (by convention) from OBJECT. This
-\ base class provides a default initializer and superclass 
+\ base class provides a default initializer and superclass
 \ access method
 
 \ A ficl object binds instance storage (payload) to a class.
 \ object  ( -- instance class )
 \ All objects push their payload address and class address when
-\ executed. 
+\ executed.
 
 \ A ficl class consists of a parent class pointer, a wordlist
 \ ID for the methods of the class, and a size for the payload
@@ -40,9 +40,9 @@ also oop definitions
 \ cell 1: wordlist ID
 \ cell 2: size of instance's payload
 
-\ Methods expect an object couple ( instance class ) 
-\ on the stack. This is by convention - ficl has no way to 
-\ police your code to make sure this is always done, but it 
+\ Methods expect an object couple ( instance class )
+\ on the stack. This is by convention - ficl has no way to
+\ police your code to make sure this is always done, but it
 \ happens naturally if you use the facilities presented here.
 \
 \ Overridden methods must maintain the same stack signature as
@@ -56,7 +56,7 @@ also oop definitions
 \
 \ Planned: Ficl vtable support
 \ Each class has a vtable size parameter
-\ END-CLASS allocates and clears the vtable - then it walks class's method 
+\ END-CLASS allocates and clears the vtable - then it walks class's method
 \ list and inserts all new methods into table. For each method, if the table
 \ slot is already nonzero, do nothing (overridden method). Otherwise fill
 \ vtable slot. Now do same check for parent class vtable, filling only
@@ -103,17 +103,17 @@ user current-class
 
 \ l o o k u p - m e t h o d
 \ takes a counted string method name from the stack (as compiled
-\ by parse-method) and attempts to look this method up in the method list of 
+\ by parse-method) and attempts to look this method up in the method list of
 \ the class that's on the stack. If successful, it leaves the class on the stack
 \ and pushes the xt of the method. If not, it aborts with an error message.
 
 : lookup-method  { class 2:name -- class xt }
     class name (lookup-method)    ( 0 | xt 1 | xt -1 )
     0= if
-        name type ."  not found in " 
+        name type ."  not found in "
         class body> >name type
-        cr abort 
-    endif 
+        cr abort
+    endif
 ;
 
 : find-method-xt   \ name ( class -- class xt )
@@ -134,8 +134,8 @@ user current-class
 \
 : -->   ( instance class -- ??? )
     state @ 0= if
-        find-method-xt execute 
-    else  
+        find-method-xt execute
+    else
         parse-method  postpone exec-method
     endif
 ; immediate
@@ -143,8 +143,8 @@ user current-class
 \ Method lookup with CATCH in case of exceptions
 : c->   ( instance class -- ?? exc-flag )
     state @ 0= if
-        find-method-xt catch  
-    else  
+        find-method-xt catch
+    else
         parse-method  postpone catch-method
     endif
 ; immediate
@@ -164,7 +164,7 @@ user current-class
 \ Early binding operator compiles code to execute a method
 \ given its class at compile time. Classes are immediate,
 \ so they leave their cell-pair on the stack when compiling.
-\ Example: 
+\ Example:
 \   : get-wid   metaclass => .wid @ ;
 \ Usage
 \   my-class get-wid  ( -- wid-of-my-class )
@@ -187,18 +187,18 @@ instance-vars dup >search ficl-set-current
 \ This handles methods like index, prev, and next correctly, but does not deal
 \ correctly with CLASS.
 : my=[   \ same as my=> , but binds a chain of methods
-    current-class @  
-    begin 
+    current-class @
+    begin
         parse-word 2dup             ( class c-addr u c-addr u )
         s" ]" compare while         ( class c-addr u )
         lookup-method               ( class xt )
         dup compile,                ( class xt )
         dup ?object if        \ If object member, get new class. Otherwise assume same class
            nip >body cell+ @        ( new-class )
-        else 
+        else
            drop                     ( class )
         endif
-    repeat 2drop drop 
+    repeat 2drop drop
 ; immediate compile-only
 
 
@@ -222,7 +222,7 @@ instance-vars dup >search ficl-set-current
 ;
 
 : addr-units:  ( offset size "name" -- offset' )
-    create over , + 
+    create over , +
     do-instance-var
 ;
 
@@ -251,8 +251,8 @@ instance-vars dup >search ficl-set-current
     + swap      ( a-inst a-class )
 ;
 
-: obj:   { offset class meta -- offset' }  \ "name" 
-    create  offset , class , 
+: obj:   { offset class meta -- offset' }  \ "name"
+    create  offset , class ,
     class meta --> get-size  offset +
     do-aggregate
 ;
@@ -265,8 +265,8 @@ instance-vars dup >search ficl-set-current
 \
 : array:   ( offset n class meta "name" -- offset' )
     locals| meta class nobjs offset |
-    create offset , class , 
-    class meta --> get-size  nobjs * offset + 
+    create offset , class ,
+    class meta --> get-size  nobjs * offset +
     do-aggregate
 ;
 
@@ -287,7 +287,7 @@ instance-vars dup >search ficl-set-current
 
 \ #if FICL_WANT_VCALL
 \ vcall extensions contributed by Guy Carver
-: vcall:  ( paramcnt "name" -- )   
+: vcall:  ( paramcnt "name" -- )
     current-class @ 8 + dup @ dup 1+ rot !  \ Kludge fix to get to .vtCount before it's defined.
     create , ,                              \ ( paramcnt index -- )
     does>                                   \ ( inst class pfa -- ptr-inst ptr-class )
@@ -298,7 +298,7 @@ instance-vars dup >search ficl-set-current
 
 \ #if FICL_WANT_FLOAT
 : vcallf:                                   \ ( paramcnt -<name>- f: r )
-    0x80000000 or 
+    0x80000000 or
     current-class @ 8 + dup @ dup 1+ rot !  \ Kludge fix to get to .vtCount before it's defined.
     create , ,                              \ ( paramcnt index -- )
     does>                                   \ ( inst class pfa -- ptr-inst ptr-class )
@@ -312,7 +312,7 @@ instance-vars dup >search ficl-set-current
 \ ( -- old-wid addr[size] 0 )
 \
 : end-class  ( old-wid addr[size] size -- )
-    swap ! set-current 
+    swap ! set-current
     search> drop        \ pop struct builder wordlist
 ;
 
@@ -327,7 +327,7 @@ set-current previous
 
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 \ D O - D O - I N S T A N C E
-\ Makes a class method that contains the code for an 
+\ Makes a class method that contains the code for an
 \ instance of the class. This word gets compiled into
 \ the wordlist of every class by the SUB method.
 \ PRECONDITION: current-class contains the class address
@@ -337,12 +337,12 @@ set-current previous
 \ >> easiest way around this is use of this thread-local variable
 \
 : do-do-instance  ( -- )
-    s" : .do-instance does> [ current-class @ ] literal ;" 
-    evaluate 
+    s" : .do-instance does> [ current-class @ ] literal ;"
+    evaluate
 ;
 
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-\ ** M E T A C L A S S 
+\ ** M E T A C L A S S
 \ Every class is an instance of metaclass. This lets
 \ classes have methods that are different from those
 \ of their instances.
@@ -351,18 +351,18 @@ set-current previous
 \
 :noname
     wordlist
-    create  
+    create
     immediate
     0       ,   \ NULL parent class
     dup     ,   \ wid
 \ #if FICL_WANT_VCALL
-    4 cells ,   \ instance size 
+    4 cells ,   \ instance size
 \ #else
-    3 cells ,   \ instance size 
+    3 cells ,   \ instance size
 \ #endif
     ficl-set-current
     does> dup
-;  execute metaclass 
+;  execute metaclass
 \ now brand OBJECT's wordlist (so that ORDER can display it by name)
 metaclass drop cell+ @ brand-wordlist
 
@@ -375,20 +375,20 @@ do-do-instance
 instance-vars >search
 
 create .super  ( class metaclass -- parent-class )
-    0 cells , do-instance-var 
+    0 cells , do-instance-var
 
 create .wid    ( class metaclass -- wid ) \ return wid of class
-    1 cells , do-instance-var 
+    1 cells , do-instance-var
 
 \ #if FICL_WANT_VCALL
 create .vtCount   \ Number of VTABLE methods, if any
-    2 cells , do-instance-var 
+    2 cells , do-instance-var
 
-create  .size  ( class metaclass -- size ) \ return class's payload size 
-    3 cells , do-instance-var 
+create  .size  ( class metaclass -- size ) \ return class's payload size
+    3 cells , do-instance-var
 \ #else
-create  .size  ( class metaclass -- size ) \ return class's payload size 
-    2 cells , do-instance-var 
+create  .size  ( class metaclass -- size ) \ return class's payload size
+    2 cells , do-instance-var
 \ #endif
 
 : get-size    metaclass => .size  @ ;
@@ -406,12 +406,12 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
     locals| meta parent |
     create
     here parent --> .do-instance \ ( inst class )
-    parent meta metaclass => get-size 
+    parent meta metaclass => get-size
     allot                        \ allocate payload space
 ;
 
 \ create an uninitialized array
-: array   ( n class metaclass "name" -- n instance class ) 
+: array   ( n class metaclass "name" -- n instance class )
     locals| meta parent nobj |
     create  nobj
     here parent --> .do-instance \ ( nobj inst class )
@@ -421,13 +421,13 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
 
 \ create an initialized instance
 \
-: new   \ ( class metaclass "name" -- ) 
+: new   \ ( class metaclass "name" -- )
     metaclass => instance --> init
 ;
 
 \ create an initialized array of instances
-: new-array   ( n class metaclass "name" -- ) 
-    metaclass => array 
+: new-array   ( n class metaclass "name" -- )
+    metaclass => array
     --> array-init
 ;
 
@@ -442,11 +442,11 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
 \ Create an anonymous array of initialized instances from the heap
 : alloc-array   \ ( n class metaclass -- instance class )
     locals| meta class nobj |
-    class meta metaclass => get-size 
+    class meta metaclass => get-size
     nobj * allocate                 ( -- addr fail-flag )
     abort" allocate failed "        ( -- addr )
     nobj over class --> array-init
-    class 
+    class
 ;
 
 \ Create an anonymous initialized instance from the dictionary
@@ -467,11 +467,11 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
 \ create a proxy object with initialized payload address given
 : ref   ( instance-addr class metaclass "name" -- )
     drop create , ,
-    does> 2@ 
+    does> 2@
 ;
 
 \ suspend-class and resume-class help to build mutually referent classes.
-\ Example: 
+\ Example:
 \ object subclass c-akbar
 \ suspend-class   ( put akbar on hold while we define jeff )
 \ object subclass c-jeff
@@ -507,7 +507,7 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
     parent ,                \ save parent class
     wid    ,                \ save wid
 \ #if FICL_WANT_VCALL
-    parent meta --> get-vtCount , 
+    parent meta --> get-vtCount ,
 \ #endif
     here parent meta --> get-size dup ,  ( addr[size] size )
     metaclass => .do-instance
@@ -528,11 +528,11 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
     drop body> >name  ;
 
 \ list methods of the class
-: methods \ ( class meta -- ) 
+: methods \ ( class meta -- )
     locals| meta class |
     begin
-        class body> >name type ."  methods:" cr 
-        class meta --> get-wid >search words cr previous 
+        class body> >name type ."  methods:" cr
+        class meta --> get-wid >search words cr previous
         class meta metaclass => get-super
         dup to class
     0= until  cr
@@ -549,7 +549,7 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
 ;
 
 \ decompile an instance method
-: see  ( class meta -- )   
+: see  ( class meta -- )
     metaclass => get-wid >search see previous ;
 
 \ debug a method of metaclass
@@ -557,11 +557,11 @@ create  .size  ( class metaclass -- size ) \ return class's payload size
 : debug  ( class meta -- )
 	find-method-xt debug-xt ;
 
-previous set-current    
+previous set-current
 \ E N D   M E T A C L A S S
 
 \ ** META is a nickname for the address of METACLASS...
-metaclass drop  
+metaclass drop
 constant meta
 
 \ ** SUBCLASS is a nickname for a class's SUB method...
@@ -584,14 +584,14 @@ constant meta
     create  immediate
     0       ,   \ NULL parent class
     dup     ,   \ wid
-    0       ,   \ instance size 
+    0       ,   \ instance size
     ficl-set-current
     does> meta
 ;  execute object
 \ now brand OBJECT's wordlist (so that ORDER can display it by name)
 object drop cell+ @ brand-wordlist
 
-object drop current-class ! 
+object drop current-class !
 do-do-instance
 instance-vars >search
 
@@ -603,7 +603,7 @@ instance-vars >search
 
 \ default INIT method zero fills an instance
 : init   ( instance class -- )
-    meta 
+    meta
     metaclass => get-size   ( inst size )
     erase ;
 
@@ -617,8 +617,8 @@ instance-vars >search
     class s" init" lookup-method to &init
           s" next" lookup-method to &next
     drop
-    0 ?do 
-        inst class 2dup 
+    0 ?do
+        inst class 2dup
         &init execute
         &next execute  drop to inst
     loop
@@ -628,7 +628,7 @@ instance-vars >search
 \ NOTE: not protected against errors like FREEing something that's
 \ really in the dictionary.
 : free   \ ( instance class -- )
-    drop free 
+    drop free
     abort" free failed "
 ;
 
@@ -638,15 +638,15 @@ instance-vars >search
     meta  metaclass => get-super ;
 
 : pedigree  ( instance class -- )
-    object => class 
+    object => class
     metaclass => pedigree ;
 
 : size      ( instance class -- sizeof-instance )
-    object => class 
+    object => class
     metaclass => get-size ;
 
 : methods   ( instance class -- )
-    object => class 
+    object => class
     metaclass => methods ;
 
 \ Array indexing methods...
@@ -656,22 +656,22 @@ instance-vars >search
 \
 : index   ( n instance class -- instance[n] class )
     locals| class inst |
-    inst class 
+    inst class
     object => class
     metaclass => get-size  *   ( n*size )
     inst +  class ;
 
 : next   ( instance[n] class -- instance[n+1] class )
     locals| class inst |
-    inst class 
+    inst class
     object => class
-    metaclass => get-size 
+    metaclass => get-size
     inst +
     class ;
 
 : prev   ( instance[n] class -- instance[n-1] class )
     locals| class inst |
-    inst class 
+    inst class
     object => class
     metaclass => get-size
     inst swap -

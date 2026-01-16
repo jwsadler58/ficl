@@ -10,8 +10,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -22,7 +22,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -61,7 +61,7 @@
 
 /*
 ** Ficl interface to POSIX getcwd()
-** Prints the current working directory using the VM's 
+** Prints the current working directory using the VM's
 ** textOut method...
 */
 static void ficlGetCWD(FICL_VM *pVM)
@@ -160,7 +160,7 @@ static void ficlLoad(FICL_VM *pVM)
     }
 
     /*
-    ** get the file's size and make sure it exists 
+    ** get the file's size and make sure it exists
     */
     result = stat( pFilename->text, &buf );
 
@@ -179,7 +179,7 @@ static void ficlLoad(FICL_VM *pVM)
         vmThrow(pVM, VM_QUIT);
     }
 
-    vmTextOut(pVM, "Loading: ", 0); 
+    vmTextOut(pVM, "Loading: ", 0);
     vmTextOut(pVM, pFilename->text, 1);
 
     /* save any prior file in process*/
@@ -210,7 +210,7 @@ static void ficlLoad(FICL_VM *pVM)
                 pVM->sourceID = id;
                 fclose(fp);
                 vmThrowErr(pVM, "Error loading file <%s> line %d", pFilename->text, nLine);
-                break; 
+                break;
         }
     }
     /*
@@ -253,7 +253,7 @@ static void spewHash(FICL_VM *pVM)
 
     /* header line */
     fprintf(pOut, "Row\tnEntries\tNames\n");
-    
+
     for (i=0; i < nHash; i++)
     {
         int n = 0;
@@ -300,14 +300,14 @@ static void clocksPerSec(FICL_VM *pVM)
     return;
 }
 
-/* 
+/*
 **             t e s t - e r r o r
 ** Test error reporting callback for scripted tests (see test/tester.fr)
 */
 static int nTestFails = 0;
 static void testError(FICL_VM *pVM)
 {
-    nTestFails++; 
+    nTestFails++;
     return;
 }
 
@@ -322,7 +322,7 @@ void buildTestInterface(FICL_SYSTEM *pSys)
     ficlBuild(pSys, "system",   ficlSystem,   FW_DEFAULT);
     ficlBuild(pSys, "spewhash", spewHash,     FW_DEFAULT);
     ficlBuild(pSys, "test-error", testError,  FW_DEFAULT); /* signaling from ficltest.fr */
-    ficlBuild(pSys, "clocks/sec", 
+    ficlBuild(pSys, "clocks/sec",
                                 clocksPerSec, FW_DEFAULT);
 
     return;
@@ -332,7 +332,7 @@ void buildTestInterface(FICL_SYSTEM *pSys)
     void setUp(void)
     {
     }
-    
+
     void tearDown(void)
     {
     }
@@ -412,14 +412,14 @@ int main(int argc, char **argv)
     /* Find '--test' anywhere on the command line */
     for (i = 1; i < argc; i++)
     {
-        if (strcmp(argv[i], "--test") == 0) 
+        if (strcmp(argv[i], "--test") == 0)
         {
 #if FICL_UNIT_TEST
             fUnit = 1;
             break;
 #else
             printf("Error: Unit tests not enabled in this build.\n");
-            return 1; 
+            return 1;
 #endif
         }
     }
@@ -433,7 +433,7 @@ int main(int argc, char **argv)
         RUN_TEST(wordAppendBodyTest);
         RUN_TEST(hashLayoutTest);
         RUN_TEST(hashCreateTest);
-        nTestFails = UNITY_END(); 
+        nTestFails = UNITY_END();
         if (nTestFails > 0)
         {
             printf("***** Unit tests failed: %d *****\n", nTestFails);
@@ -453,15 +453,18 @@ int main(int argc, char **argv)
         ficlTermSystem(pSys);
         if (ret == VM_ERREXIT)
             return 1;
-        
+
         if (nTestFails > 0)
             printf("***** Scripted tests failed: %d *****\n", nTestFails);
-        
+
         return nTestFails;
     }
 
-    while (ret != VM_USEREXIT && fgets(in, nINBUF, stdin) != NULL)
+    while (ret != VM_USEREXIT)
+    {
+        (void) fgets(in, nINBUF, stdin);
         ret = ficlExec(pVM, in);
+    }
 
     ficlTermSystem(pSys);
     return 0;

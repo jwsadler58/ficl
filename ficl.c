@@ -7,7 +7,7 @@
 *******************************************************************/
 /*
 ** Ficl is an ANS Forth interpreter written in C.
-** Ficl uses Forth syntax for its commands, but turns the Forth 
+** Ficl uses Forth syntax for its commands, but turns the Forth
 ** model on its head in other respects.
 ** Ficl provides facilities for interoperating
 ** with programs written in C: C functions can be exported to Ficl,
@@ -15,10 +15,10 @@
 ** interpreter is re-entrant, so it can be used in multiple instances
 ** in a multitasking system. Unlike Forth, Ficl's outer interpreter
 ** expects a text block as input, and returns to the caller after each
-** text block, so the data pump is somewhere in external code in the 
+** text block, so the data pump is somewhere in external code in the
 ** style of TCL.
 **
-** Code is written in ANSI C for portability. 
+** Code is written in ANSI C for portability.
 */
 /*
 ** Get the latest Ficl release at https://sourceforge.net/projects/ficl/
@@ -28,8 +28,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -40,7 +40,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -79,7 +79,7 @@ static void ficlSetVersionEnv(FICL_SYSTEM *pSys);
 
 /**************************************************************************
                         f i c l I n i t S y s t e m
-** Binds a global dictionary to the interpreter system. 
+** Binds a global dictionary to the interpreter system.
 ** You specify the address and size of the allocated area.
 ** After that, ficl manages it.
 ** First step is to set up the static pointers to the area.
@@ -122,9 +122,9 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
 #endif
 
     /*
-    ** Build the precompiled dictionary and load softwords. 
+    ** Build the precompiled dictionary and load softwords.
     */
-    ficlCompileCore(pSys); 
+    ficlCompileCore(pSys);
     ficlCompilePrefix(pSys);
 #if FICL_WANT_FLOAT
     ficlCompileFloat(pSys);
@@ -143,7 +143,7 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
 
     /*
     ** Establish the parse order. Prefixes precede numbers - literally and in the parse order.
-    ** This allows constructs like "0b101010" to parse as binary numbers. 
+    ** This allows constructs like "0b101010" to parse as binary numbers.
     ** Newer Forth Standards use single character prefixes for this purpose.
     */
     ficlAddPrecompiledParseStep(pSys, "?prefix", ficlParsePrefix);
@@ -179,7 +179,7 @@ FICL_SYSTEM *ficlInitSystem(int nDictCells)
 
 /**************************************************************************
                         f i c l A d d P a r s e S t e p
-** Appends a parse step function to the end of the parse list (see 
+** Appends a parse step function to the end of the parse list (see
 ** FICL_PARSE_STEP notes in ficl.h for details). Returns 0 if successful,
 ** nonzero if there's no more room in the list.
 **************************************************************************/
@@ -201,7 +201,7 @@ int ficlAddParseStep(FICL_SYSTEM *pSys, FICL_WORD *pFW)
 
 /*
 ** Compile a word into the dictionary that invokes the specified FICL_PARSE_STEP
-** function. It is up to the user (as usual in Forth) to make sure the stack 
+** function. It is up to the user (as usual in Forth) to make sure the stack
 ** preconditions are valid (there needs to be a counted string on top of the stack)
 ** before using the resulting word.
 */
@@ -302,7 +302,7 @@ void ficlFreeVM(FICL_VM *pVM)
 ** code  -- code to execute when the word is invoked - must take a single param
 **          pointer to a FICL_VM
 ** flags -- 0 or more of F_IMMEDIATE, F_COMPILE, use bitwise OR!
-** 
+**
 **************************************************************************/
 int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)
 {
@@ -376,7 +376,7 @@ int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
     vmPushTib(pVM, pText, size, &saveTib);
 
     /*
-    ** Save and restore VM's jmp_buf to enable nested calls to ficlExec 
+    ** Save and restore VM's jmp_buf to enable nested calls to ficlExec
     */
     oldState = pVM->pState;
     pVM->pState = &vmState; /* This has to come before the setjmp! */
@@ -473,8 +473,8 @@ int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
 
     assert(pVM);
     assert(pVM->pSys->pExitInner);
-    
-    /* 
+
+    /*
     ** Save the runningword so that RESTART behaves correctly
     ** over nested calls.
     */

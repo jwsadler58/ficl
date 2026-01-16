@@ -50,7 +50,7 @@ object subclass c-cell
 end-class
 
 
-\ ** C - P T R 
+\ ** C - P T R
 \ Base class for pointers to scalars (not objects).
 \ Note: use c-ref to make references to objects. C-ptr
 \ subclasses refer to untyped quantities of various sizes.
@@ -67,14 +67,14 @@ object subclass c-ptr
 
     \ get the value of the pointer
     : get-ptr   ( inst class -- addr )
-        c-ptr  => .addr  
-        c-cell => get  
+        c-ptr  => .addr
+        c-cell => get
     ;
 
     \ set the pointer to address supplied
     : set-ptr   ( addr inst class -- )
-        c-ptr  => .addr  
-        c-cell => set  
+        c-ptr  => .addr
+        c-cell => set
     ;
 
     \ force the pointer to be null
@@ -84,7 +84,7 @@ object subclass c-ptr
 
     \ return flag indicating null-ness
 	: ?null     ( inst class -- flag )
-	    c-ptr => get-ptr 0= 
+	    c-ptr => get-ptr 0=
 	;
 
     \ increment the pointer in place
@@ -113,57 +113,57 @@ object subclass c-ptr
 end-class
 
 
-\ ** C - C E L L P T R 
-\ Models a pointer to cell (a 32 or 64 bit scalar). 
+\ ** C - C E L L P T R
+\ Models a pointer to cell (a 32 or 64 bit scalar).
 c-ptr subclass c-cellPtr
     : @size   2drop  1 cells ;
     \ fetch and store through the pointer
 	: get   ( inst class -- cell )
-        c-ptr => get-ptr @  
+        c-ptr => get-ptr @
     ;
 	: set   ( value inst class -- )
-        c-ptr => get-ptr !  
+        c-ptr => get-ptr !
     ;
 end-class
 
 
 \ ** C - 4 B Y T E P T R
-\ Models a pointer to a quadbyte scalar 
+\ Models a pointer to a quadbyte scalar
 c-ptr subclass c-4bytePtr
     : @size   2drop  4  ;
     \ fetch and store through the pointer
 	: get   ( inst class -- value )
-        c-ptr => get-ptr q@  
+        c-ptr => get-ptr q@
     ;
 	: set   ( value inst class -- )
-        c-ptr => get-ptr q!  
+        c-ptr => get-ptr q!
     ;
  end-class
- 
-\ ** C - 2 B Y T E P T R 
+
+\ ** C - 2 B Y T E P T R
 \ Models a pointer to a 16 bit scalar
 c-ptr subclass c-2bytePtr
     : @size   2drop  2  ;
     \ fetch and store through the pointer
 	: get   ( inst class -- value )
-        c-ptr => get-ptr w@  
+        c-ptr => get-ptr w@
     ;
 	: set   ( value inst class -- )
-        c-ptr => get-ptr w!  
+        c-ptr => get-ptr w!
     ;
 end-class
 
 
-\ ** C - B Y T E P T R 
+\ ** C - B Y T E P T R
 \ Models a pointer to an 8 bit scalar
 c-ptr subclass c-bytePtr
     : @size   2drop  1  ;
     \ fetch and store through the pointer
 	: get   ( inst class -- value )
-        c-ptr => get-ptr c@  
+        c-ptr => get-ptr c@
     ;
 	: set   ( value inst class -- )
-        c-ptr => get-ptr c!  
+        c-ptr => get-ptr c!
     ;
 end-class
 

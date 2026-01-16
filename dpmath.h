@@ -1,12 +1,12 @@
 /*******************************************************************
 ** d p m a t h . h
-** Forth Inspired Command Language - double precision math 
+** Forth Inspired Command Language - double precision math
 ** Portable versions of ficlLongMul anb ficlLongDiv
-** Author: John W Sadler 
+** Author: John W Sadler
 ** PORTABLE_LONGMULDIV contributed by Michael A. Gauland
 ** Created: 25 January 1998
 ** Rev 2.03: 128 bit DP math. This file ought to be renamed!
-** Rev 2.04: renamed prefixes to dpm rather than m64. 
+** Rev 2.04: renamed prefixes to dpm rather than m64.
 ** $Id: math64.h,v 1.6 2001-05-16 07:56:19-07 jsadler Exp jsadler $
 *******************************************************************/
 /*
@@ -17,8 +17,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -29,7 +29,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -68,7 +68,7 @@ UNS16   dpmUMod(DPUNS *pUD, UNS16 base);
     void dpmUnitTest(void);
 #endif
 
-#define dpmExtendI(idp) (idp).hi = ((idp).lo < 0) ? -1L : 0 
+#define dpmExtendI(idp) (idp).hi = ((idp).lo < 0) ? -1L : 0
 #define dpmCastIU(idp) (*(DPUNS *)(&(idp)))
 #define dpmCastUI(udp) (*(DPINT *)(&(udp)))
 #define dpmCastQRIU(iqr) (*(UNSQR *)(&(iqr)))

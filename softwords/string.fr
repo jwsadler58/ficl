@@ -30,22 +30,22 @@ object subclass c-string
     : set-buflen   ( len 2:this -- )  my=[ .buflen  set ] ;
 
     : get-buf   ( 2:this -- ptr )     my=[ .buf get-ptr ] ;
-    : set-buf   { ptr len 2:this -- }  
+    : set-buf   { ptr len 2:this -- }
         ptr this my=[ .buf set-ptr ]
-        len this my=> set-buflen 
+        len this my=> set-buflen
     ;
 
     \ set buffer to null and buflen to zero
     : clr-buf   ( 2:this -- )
-        0 0 2over  my=> set-buf 
+        0 0 2over  my=> set-buf
         0 -rot     my=> set-count
     ;
 
     \ free the buffer if there is one, set buf pointer to null
     : free-buf   { 2:this -- }
-        this my=> get-buf 
-        ?dup if 
-            free 
+        this my=> get-buf
+        ?dup if
+            free
 			abort" c-string free failed"
 			this  my=> clr-buf
         endif
@@ -54,7 +54,7 @@ object subclass c-string
     \ guarantee buffer is large enough to hold size chars
     : size-buf  { size 2:this -- }
         size 0< abort" need positive size for size-buf"
-        size 0= if 
+        size 0= if
             this --> free-buf exit
         endif
 
@@ -62,9 +62,9 @@ object subclass c-string
         my=> min-buf size over / 1+ * chars to size
 
         \ if buffer is null, allocate one, else resize it
-        this --> get-buflen  0= 
+        this --> get-buflen  0=
         if
-            size allocate 
+            size allocate
             abort" out of memory"
             size this --> set-buf
             size this --> set-buflen
@@ -81,7 +81,7 @@ object subclass c-string
     : set   { c-addr u 2:this -- }
         u this --> size-buf
         u this --> set-count
-        c-addr this --> get-buf  u move  
+        c-addr this --> get-buf  u move
     ;
 
     : get   { 2:this -- c-addr u }
@@ -99,15 +99,15 @@ object subclass c-string
 
     : type   { 2:this -- }
 	    this --> ?empty if ." (empty) " exit endif
-        this --> .buf --> get-ptr 
-        this --> .count --> get 
-        type  
+        this --> .buf --> get-ptr
+        this --> .count --> get
+        type
     ;
 
     : compare   ( 2string 2:this -- n )
-        --> get 
-        2swap 
-        --> get 
+        --> get
+        2swap
+        --> get
         2swap compare
     ;
 
@@ -115,7 +115,7 @@ object subclass c-string
         --> get  hash
     ;
 
-    \ destructor method (overrides object --> free) 
+    \ destructor method (overrides object --> free)
     : free   ( 2:this -- )  2dup --> free-buf  object => free ;
 
 end-class
@@ -124,7 +124,7 @@ c-string subclass c-hashstring
     c-2byte obj: .hashcode
 
     : set-hashcode   { 2:this -- }
-        this  --> super --> hashcode 
+        this  --> super --> hashcode
         this  --> .hashcode --> set
     ;
 

@@ -1,11 +1,11 @@
 /*******************************************************************
 ** d p m a t h . c
-** Forth Inspired Command Language - double precision math 
+** Forth Inspired Command Language - double precision math
 ** Portable versions of ficlLongMul anb ficlLongDiv
 ** Author: John W Sadler
 ** PORTABLE_LONGMULDIV contributed by Michael A. Gauland
 ** Created: 25 January 1998
-** Rev 2.03: 128 bit DP math. 
+** Rev 2.03: 128 bit DP math.
 ** Rev 2.04: bugfix in dpmAdd - int carry failed with 64 bit operands
 **           Renamed prefixes from m64 to dpm (double precision math)
 ** $Id: math64.c,v 1.6 2001-05-16 07:56:16-07 jsadler Exp jsadler $
@@ -18,8 +18,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -69,7 +69,7 @@ static  DPUNS   dpmASR( DPUNS x );
 static  int     dpmCompare(DPUNS x, DPUNS y);
 static  DPUNS   dpmOr( DPUNS x, DPUNS y );
 static  DPUNS   dpmSub(DPUNS x, DPUNS y);
-#endif /* LONGMULDIV_MAG != 0 */    
+#endif /* LONGMULDIV_MAG != 0 */
 #endif
 
 
@@ -88,15 +88,15 @@ DPINT dpmAbs(DPINT x)
 
 /**************************************************************************
                         d p m F l o o r e d D i v I
-** 
+**
 ** FROM THE FORTH ANS...
 ** Floored division is integer division in which the remainder carries
 ** the sign of the divisor or is zero, and the quotient is rounded to
 ** its arithmetic floor. Symmetric division is integer division in which
 ** the remainder carries the sign of the dividend or is zero and the
 ** quotient is the mathematical quotient rounded towards zero or
-** truncated. Examples of each are shown in tables 3.3 and 3.4. 
-** 
+** truncated. Examples of each are shown in tables 3.3 and 3.4.
+**
 ** Table 3.3 - Floored Division Example
 ** Dividend        Divisor Remainder       Quotient
 ** --------        ------- ---------       --------
@@ -104,8 +104,8 @@ DPINT dpmAbs(DPINT x)
 ** -10                7       4               -2
 **  10               -7      -4               -2
 ** -10               -7      -3                1
-** 
-** 
+**
+**
 ** Table 3.4 - Symmetric Division Example
 ** Dividend        Divisor Remainder       Quotient
 ** --------        ------- ---------       --------
@@ -167,8 +167,8 @@ int dpmIsNegative(DPINT x)
                         d p m M a c
 ** Mixed precision multiply and accumulate primitive for number building.
 ** Multiplies DPUNS u by FICL_UNS mul and adds FICL_UNS add. Mul is typically
-** the numeric base, and add represents a digit to be appended to the 
-** growing number. 
+** the numeric base, and add represents a digit to be appended to the
+** growing number.
 ** Returns the result of the operation
 **************************************************************************/
 DPUNS dpmMac(DPUNS u, FICL_UNS mul, FICL_UNS add)
@@ -376,13 +376,13 @@ UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
 #if LONGMULDIV_MAG != 0
 /**************************************************************************
 ** Contributed by
-** Michael A. Gauland   gaulandm@mdhost.cse.tek.com  
+** Michael A. Gauland   gaulandm@mdhost.cse.tek.com
 **************************************************************************/
 
 /**************************************************************************
                         d p m A d d
 ** Double precision add
-** 08 Jul 2025 - revised carry detection for correct behavior 
+** 08 Jul 2025 - revised carry detection for correct behavior
 **************************************************************************/
 static DPUNS dpmAdd(DPUNS x, DPUNS y)
 {
@@ -410,11 +410,11 @@ static DPUNS dpmAdd(DPUNS x, DPUNS y)
 static DPUNS dpmSub(DPUNS x, DPUNS y)
 {
     DPUNS result;
-    
+
     result.hi = x.hi - y.hi;
     result.lo = x.lo - y.lo;
 
-    if (x.lo < y.lo) 
+    if (x.lo < y.lo)
     {
         result.hi--;
     }
@@ -430,9 +430,9 @@ static DPUNS dpmSub(DPUNS x, DPUNS y)
 static DPUNS dpmASL( DPUNS x )
 {
     DPUNS result;
-    
+
     result.hi = x.hi << 1;
-    if (x.lo & CELL_HI_BIT) 
+    if (x.lo & CELL_HI_BIT)
     {
         result.hi++;
     }
@@ -450,9 +450,9 @@ static DPUNS dpmASL( DPUNS x )
 static DPUNS dpmASR( DPUNS x )
 {
     DPUNS result;
-    
+
     result.lo = x.lo >> 1;
-    if (x.hi & 1) 
+    if (x.hi & 1)
     {
         result.lo |= CELL_HI_BIT;
     }
@@ -469,10 +469,10 @@ static DPUNS dpmASR( DPUNS x )
 static DPUNS dpmOr( DPUNS x, DPUNS y )
 {
     DPUNS result;
-    
+
     result.hi = x.hi | y.hi;
     result.lo = x.lo | y.lo;
-    
+
     return result;
 }
 
@@ -485,32 +485,32 @@ static DPUNS dpmOr( DPUNS x, DPUNS y )
 static int dpmCompare(DPUNS x, DPUNS y)
 {
     int result;
-    
-    if (x.hi > y.hi) 
+
+    if (x.hi > y.hi)
     {
         result = +1;
-    } 
-    else if (x.hi < y.hi) 
+    }
+    else if (x.hi < y.hi)
     {
         result = -1;
-    } 
-    else 
+    }
+    else
     {
         /* High parts are equal */
-        if (x.lo > y.lo) 
+        if (x.lo > y.lo)
         {
             result = +1;
-        } 
-        else if (x.lo < y.lo) 
+        }
+        else if (x.lo < y.lo)
         {
             result = -1;
-        } 
-        else 
+        }
+        else
         {
             result = 0;
         }
     }
-    
+
     return result;
 }
 
@@ -519,19 +519,19 @@ static int dpmCompare(DPUNS x, DPUNS y)
                         f i c l L o n g M u l
 ** Portable versions of ficlLongMul and ficlLongDiv in C
 ** Contributed by:
-** Michael A. Gauland   gaulandm@mdhost.cse.tek.com  
+** Michael A. Gauland   gaulandm@mdhost.cse.tek.com
 **************************************************************************/
 DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
 {
     DPUNS result = { 0, 0 };
     DPUNS addend;
-    
+
     addend.lo = y;
     addend.hi = 0; /* No sign extension--arguments are unsigned */
-    
-    while (x != 0) 
+
+    while (x != 0)
     {
-        if ( x & 1) 
+        if ( x & 1)
         {
             result = dpmAdd(result, addend);
         }
@@ -546,7 +546,7 @@ DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
                         f i c l L o n g D i v
 ** Portable versions of ficlLongMul and ficlLongDiv in C
 ** Contributed by:
-** Michael A. Gauland   gaulandm@mdhost.cse.tek.com  
+** Michael A. Gauland   gaulandm@mdhost.cse.tek.com
 **************************************************************************/
 UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
 {
@@ -557,23 +557,23 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
 
     quotient.lo = 0;
     quotient.hi = 0;
-    
+
     subtrahend.lo = y;
     subtrahend.hi = 0;
-    
+
     mask.lo = 1;
     mask.hi = 0;
-    
+
     while ((dpmCompare(subtrahend, q) < 0) &&
            (subtrahend.hi & CELL_HI_BIT) == 0)
     {
         mask = dpmASL(mask);
         subtrahend = dpmASL(subtrahend);
     }
-    
-    while (mask.lo != 0 || mask.hi != 0) 
+
+    while (mask.lo != 0 || mask.hi != 0)
     {
-        if (dpmCompare(subtrahend, q) <= 0) 
+        if (dpmCompare(subtrahend, q) <= 0)
         {
             q = dpmSub( q, subtrahend);
             quotient = dpmOr(quotient, mask);
@@ -581,7 +581,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         mask = dpmASR(mask);
         subtrahend = dpmASR(subtrahend);
     }
-    
+
     result.quot = quotient.lo;
     result.rem = q.lo;
     return result;
@@ -689,7 +689,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     static void dpmUModTestCase(DPUNS input, UNS16 base, DPUNS qExpected, UNS16 rExpected)
     {
         UNS16 r   = dpmUMod(&input, base);
-    
+
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(rExpected, r, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.hi, input.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.lo, input.lo, "Quotient Lo");
@@ -723,7 +723,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
             TEST_ASSERT_EQUAL_UINT64_MESSAGE(dividend.lo, sum.lo, "Div Recompose Lo");
         }
     }
-    
+
 
     void dpmUnitTest(void)
     {
@@ -734,7 +734,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         UNS16 base;
         DPUNS quot;
         DPUNS expQuot;
-        
+
         TEST_MESSAGE("***** Testing cell bit width *****");
         {
             FICL_UNS expected = (FICL_UNS)1 << (sizeof(FICL_UNS) * CHAR_BIT - 1);
@@ -753,7 +753,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
+
         /*--- 2) small < base → quotient 0, rem = value ---*/
         dpmUModTestCase(
                  ((DPUNS){ .hi = 0, .lo = 10 }),
@@ -763,7 +763,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
+
         /*--- 3) exact divide in lo only ---*/
         dpmUModTestCase(
                  ((DPUNS){ .hi = 0, .lo = 100 }),
@@ -773,7 +773,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
+
         /*--- 4) power‐of‐two boundary → carry from hi → hi=0, lo=256 ---*/
         dpmUModTestCase(
                  ((DPUNS){ .hi = 0, .lo = 0x10000UL }),
@@ -783,7 +783,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
+
         /*--- 5) single-word value splitting across hi & lo:
               word-size dependent expected quotient ---*/
         {
@@ -803,7 +803,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
         /* testmain.c:388:dpmUnitTest:FAIL: Expected 1431655765 Was 6148914691236517205. Quotient Lo */
 
-    
+
         /*--- 6) hi only (value = 2^WORD_BITS) ÷2 → Q=2^(WORD_BITS-1), R=0 ---*/
         {
             DPUNS exp6;
@@ -820,7 +820,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
+
         /*--- 7) max-lo, small base (exact divide) ---*/
         dpmUModTestCase(
                  ((DPUNS){ .hi = 0, .lo = 0xFFFFUL }),
@@ -830,7 +830,7 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
         TEST_ASSERT_EQUAL_UINT16_MESSAGE(expRem, rem, "Remainder");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.hi, quot.hi, "Quotient Hi");
         TEST_ASSERT_EQUAL_UINT64_MESSAGE(expQuot.lo, quot.lo, "Quotient Lo");
-    
+
         /*--- 8) large hi+lo randomish values ---*/
         {
             DPUNS exp8;

@@ -1,9 +1,9 @@
 /*******************************************************************
 ** s y s d e p . c
 ** Forth Inspired Command Language
-** Author: John W Sadler 
+** Author: John W Sadler
 ** Created: 16 Oct 1997
-** Implementations of FICL external interface functions... 
+** Implementations of FICL external interface functions...
 **
 ** (simple) port to Linux, Skip Carter 26 March 1998
 ** $Id: sysdep.c,v 1.9 2001-07-23 22:01:24-07 jsadler Exp jsadler $
@@ -16,8 +16,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -28,7 +28,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -60,7 +60,7 @@ static_assert(sizeof(FICL_INT) == sizeof(void *),   "FICL_INT must be pointer si
 static_assert(sizeof(FICL_UNS) == sizeof(void *),   "FICL_UNS must be pointer sized");
 
 /*
-**                 M A C O S   P O R T   B E G I N S 
+**                 M A C O S   P O R T   B E G I N S
 */
 #if defined(MACOS)
 #include <unistd.h>
@@ -97,24 +97,24 @@ void  ficlFree   (void *p)
     {
         unsigned __int128 prod = (unsigned __int128)x * (unsigned __int128)y;
         DPUNS result;
-    
+
         /* low half = bottom N bits */
         result.lo = (FICL_UNS)prod;
         /* high half = top N bits */
         result.hi = (FICL_UNS)(prod >> (sizeof(FICL_UNS) * CHAR_BIT));
-    
+
         return result;
     }
-    
+
     UNSQR ficlLongDiv(DPUNS dividend, FICL_UNS y)
     {
-        unsigned __int128 numerator = 
+        unsigned __int128 numerator =
            ((unsigned __int128)dividend.hi << (sizeof(FICL_UNS) * CHAR_BIT))
           | (unsigned __int128)dividend.lo;
-    
+
         unsigned __int128 q128 = numerator / y;
         unsigned __int128 r128 = numerator % y;
-    
+
         UNSQR result;
         result.quot = (FICL_UNS)q128;
         result.rem  = (FICL_UNS)r128;
@@ -126,31 +126,31 @@ void  ficlFree   (void *p)
 *******************  FreeBSD  P O R T   B E G I N S   H E R E ******************** Michael Smith
 */
 #elif defined (FREEBSD_ALPHA)
-#if ! PORTABLE_LONGMULDIV 
+#if ! PORTABLE_LONGMULDIV
     DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
     {
         DPUNS q;
         u_int64_t qx;
-    
+
         qx = (u_int64_t)x * (u_int64_t) y;
-    
+
         q.hi = (u_int32_t)( qx >> 32 );
         q.lo = (u_int32_t)( qx & 0xFFFFFFFFL);
-    
+
         return q;
     }
-    
+
     UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     {
         UNSQR result;
         u_int64_t qx, qh;
-    
+
         qh = q.hi;
         qx = (qh << 32) | q.lo;
-    
+
         result.quot = qx / y;
         result.rem  = qx % y;
-    
+
         return result;
     }
 #endif
@@ -187,11 +187,11 @@ void  ficlFree   (void *p)
 *******************  P C / W I N 3 2   P O R T   B E G I N S   H E R E ***********************
 */
 #elif defined (_M_IX86)
-#if ! PORTABLE_LONGMULDIV 
+#if ! PORTABLE_LONGMULDIV
     DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
     {
         DPUNS q;
-    
+
         __asm
         {
             mov eax,x
@@ -200,14 +200,14 @@ void  ficlFree   (void *p)
             mov q.hi,edx
             mov q.lo,eax
         }
-    
+
         return q;
     }
-    
+
     UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     {
         UNSQR result;
-    
+
         __asm
         {
             mov eax,q.lo
@@ -216,7 +216,7 @@ void  ficlFree   (void *p)
             mov result.quot,eax
             mov result.rem,edx
         }
-    
+
         return result;
     }
 #endif
@@ -225,14 +225,14 @@ void  ficlFree   (void *p)
     void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
     {
         IGNORE(pVM);
-    
+
         if (fNewline)
             puts(msg);
         else
             fputs(msg, stdout);
-    
+
        return;
-    }    
+    }
 #endif
 
 void *ficlMalloc (size_t size)
@@ -265,24 +265,24 @@ void *ficlRealloc(void *p, size_t size)
         IGNORE(q);    /* suppress goofy compiler warnings */
         IGNORE(x);
         IGNORE(y);
-    
+
     #pragma ASM
         move.l (S_x,a6),d1
         mulu.l (S_y,a6),d0:d1
         move.l d1,(S_q+4,a6)
         move.l d0,(S_q+0,a6)
     #pragma END_ASM
-    
+
         return q;
     }
-    
+
     UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     {
         UNSQR result;
         IGNORE(result); /* suppress goofy compiler warnings */
         IGNORE(q);
         IGNORE(y);
-    
+
     #pragma ASM
         move.l (S_q+0,a6),d0    ; hi 32 --> d0
         move.l (S_q+4,a6),d1    ; lo 32 --> d1
@@ -290,7 +290,7 @@ void *ficlRealloc(void *p, size_t size)
         move.l d1,(S_result+0,a6)
         move.l d0,(S_result+4,a6)
     #pragma END_ASM
-    
+
         return result;
     }
 #endif
@@ -330,37 +330,37 @@ void *ficlRealloc(void *p, size_t size)
 #if defined(linux) || defined(riscos) || defined(_WIN64)
 
 #if ! PORTABLE_LONGMULDIV
-    
+
     typedef unsigned long long __udp;
     typedef unsigned long __u32;
-    
+
     DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
     {
         DPUNS q;
         __udp qx;
-    
+
         qx = (__udp)x * (__udp) y;
-    
+
         q.hi = (__u32)( qx >> 32 );
         q.lo = (__u32)( qx & 0xFFFFFFFFL);
-    
+
         return q;
     }
-    
+
     UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     {
         UNSQR result;
         __udp qx, qh;
-    
+
         qh = q.hi;
         qx = (qh << 32) | q.lo;
-    
+
         result.quot = qx / y;
         result.rem  = qx % y;
-    
+
         return result;
     }
-    
+
 #endif
 
 void  ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
@@ -395,7 +395,7 @@ void *ficlRealloc(void *p, size_t size)
 
 /*
 ** D E P R E C A T E D   F I C L _ M U L T I S E S S I O N
-** Never implemented to my knowledge, and should refer to multi-session 
+** Never implemented to my knowledge, and should refer to multi-session
 ** rather than multithread.
 **
 ** Stub function for dictionary access control - does nothing
