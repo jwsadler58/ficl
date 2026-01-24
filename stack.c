@@ -45,6 +45,7 @@
 #include "ficl.h"
 
 #define STKDEPTH(s) ((s)->sp - (s)->base)
+#define FSTKDEPTH(s) ((s)->sp - (s)->base)
 
 /*
 ** N O T E: Stack convention:
@@ -86,10 +87,10 @@ void vmCheckStack(FICL_VM *pVM, int popCells, int pushCells)
 #if FICL_WANT_FLOAT
 void vmCheckFStack(FICL_VM *pVM, int popCells, int pushCells)
 {
-    FICL_STACK *fStack = pVM->fStack;
-    int nFree = fStack->base + fStack->nCells - fStack->sp;
+    FICL_FSTACK *fStack = pVM->fStack;
+    int nFree = (int)(fStack->base + fStack->nCells - fStack->sp);
 
-    if (popCells > STKDEPTH(fStack))
+    if (popCells > FSTKDEPTH(fStack))
     {
         vmThrowErr(pVM, "Error: float stack underflow");
     }
@@ -122,6 +123,26 @@ FICL_STACK *stackCreate(unsigned nCells)
     return pStack;
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k C r e a t e F l o a t
+**
+*******************************************************************/
+FICL_FSTACK *stackCreateFloat(unsigned nCells)
+{
+    size_t size = FICL_FSTACK_BYTES(nCells);
+    FICL_FSTACK *pStack = ficlMalloc(size);
+
+#if FICL_ROBUST
+    assert (nCells != 0);
+    assert (pStack != NULL);
+#endif
+
+    pStack->nCells = nCells;
+    pStack->sp     = pStack->base;
+    return pStack;
+}
+#endif
 
 /*******************************************************************
                     s t a c k D e l e t e
@@ -135,6 +156,18 @@ void stackDelete(FICL_STACK *pStack)
     return;
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k D e l e t e F l o a t
+**
+*******************************************************************/
+void stackDeleteFloat(FICL_FSTACK *pStack)
+{
+    if (pStack)
+        ficlFree(pStack);
+    return;
+}
+#endif
 
 /*******************************************************************
                     s t a c k D e p t h
@@ -146,6 +179,16 @@ int stackDepth(FICL_STACK *pStack)
     return STKDEPTH(pStack);
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k D e p t h F l o a t
+**
+*******************************************************************/
+int stackDepthFloat(FICL_FSTACK *pStack)
+{
+    return FSTKDEPTH(pStack);
+}
+#endif
 /*******************************************************************
                     s t a c k D r o p
 **
@@ -160,6 +203,20 @@ void stackDrop(FICL_STACK *pStack, int n)
     return;
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k D r o p F l o a t
+**
+*******************************************************************/
+void stackDropFloat(FICL_FSTACK *pStack, int n)
+{
+#if FICL_ROBUST
+    assert(n > 0);
+#endif
+    pStack->sp -= n;
+    return;
+}
+#endif
 
 /*******************************************************************
                     s t a c k F e t c h
@@ -188,6 +245,26 @@ CELL stackGetTop(FICL_STACK *pStack)
     return pStack->sp[-1];
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k G e t T o p F l o a t
+**
+*******************************************************************/
+FICL_FLOAT stackGetTopFloat(FICL_FSTACK *pStack)
+{
+    return pStack->sp[-1];
+}
+
+/*******************************************************************
+                    s t a c k S e t T o p F l o a t
+**
+*******************************************************************/
+void stackSetTopFloat(FICL_FSTACK *pStack, FICL_FLOAT f)
+{
+    pStack->sp[-1] = f;
+    return;
+}
+#endif
 
 /*******************************************************************
                     s t a c k L i n k
@@ -233,6 +310,17 @@ void stackPick(FICL_STACK *pStack, int n)
     return;
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k P i c k F l o a t
+**
+*******************************************************************/
+void stackPickFloat(FICL_FSTACK *pStack, int n)
+{
+    stackPushFloat(pStack, pStack->sp[-n-1]);
+    return;
+}
+#endif
 
 /*******************************************************************
                     s t a c k P o p
@@ -260,9 +348,9 @@ FICL_INT stackPopINT(FICL_STACK *pStack)
 }
 
 #if (FICL_WANT_FLOAT)
-float stackPopFloat(FICL_STACK *pStack)
+FICL_FLOAT stackPopFloat(FICL_FSTACK *pStack)
 {
-    return (*(--pStack->sp)).f;
+    return *--pStack->sp;
 }
 #endif
 
@@ -292,9 +380,9 @@ void stackPushINT(FICL_STACK *pStack, FICL_INT i)
 }
 
 #if (FICL_WANT_FLOAT)
-void stackPushFloat(FICL_STACK *pStack, FICL_FLOAT f)
+void stackPushFloat(FICL_FSTACK *pStack, FICL_FLOAT f)
 {
-    *pStack->sp++ = LVALUEtoCELL(f);
+    *pStack->sp++ = f;
 }
 #endif
 
@@ -309,6 +397,17 @@ void stackReset(FICL_STACK *pStack)
     return;
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k R e s e t F l o a t
+**
+*******************************************************************/
+void stackResetFloat(FICL_FSTACK *pStack)
+{
+    pStack->sp = pStack->base;
+    return;
+}
+#endif
 
 /*******************************************************************
                     s t a c k R o l l
@@ -352,6 +451,48 @@ void stackRoll(FICL_STACK *pStack, int n)
     return;
 }
 
+#if FICL_WANT_FLOAT
+/*******************************************************************
+                    s t a c k R o l l F l o a t
+** Roll nth stack entry to the top (counting from zero), if n is
+** >= 0. Drop other entries as needed to fill the hole.
+** If n < 0, roll top-of-stack to nth entry, pushing others
+** upward as needed to fill the hole.
+*******************************************************************/
+void stackRollFloat(FICL_FSTACK *pStack, int n)
+{
+    FICL_FLOAT f;
+    FICL_FLOAT *pFloat;
+
+    if (n == 0)
+        return;
+    else if (n > 0)
+    {
+        pFloat = pStack->sp - n - 1;
+        f = *pFloat;
+
+        for (;n > 0; --n, pFloat++)
+        {
+            *pFloat = pFloat[1];
+        }
+
+        *pFloat = f;
+    }
+    else
+    {
+        pFloat = pStack->sp - 1;
+        f = *pFloat;
+
+        for (; n < 0; ++n, pFloat--)
+        {
+            *pFloat = pFloat[-1];
+        }
+
+        *pFloat = f;
+    }
+    return;
+}
+#endif
 
 /*******************************************************************
                     s t a c k S e t T o p
@@ -363,5 +504,3 @@ void stackSetTop(FICL_STACK *pStack, CELL c)
     pStack->sp[-1] = c;
     return;
 }
-
-

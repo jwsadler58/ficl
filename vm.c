@@ -94,8 +94,8 @@ FICL_VM *vmCreate(FICL_VM *pVM, unsigned nPStack, unsigned nRStack)
 
 #if FICL_WANT_FLOAT
     if (pVM->fStack)
-        stackDelete(pVM->fStack);
-    pVM->fStack = stackCreate(nPStack);
+        stackDeleteFloat(pVM->fStack);
+    pVM->fStack = stackCreateFloat(nPStack);
 #endif
 
     pVM->textOut = ficlTextOut;
@@ -117,7 +117,7 @@ void vmDelete (FICL_VM *pVM)
         ficlFree(pVM->pStack);
         ficlFree(pVM->rStack);
 #if FICL_WANT_FLOAT
-        ficlFree(pVM->fStack);
+        stackDeleteFloat(pVM->fStack);
 #endif
         ficlFree(pVM);
     }
@@ -416,7 +416,7 @@ void vmReset(FICL_VM *pVM)
     vmQuit(pVM);
     stackReset(pVM->pStack);
 #if FICL_WANT_FLOAT
-    stackReset(pVM->fStack);
+    stackResetFloat(pVM->fStack);
 #endif
     pVM->base        = 10;
     return;
@@ -696,5 +696,4 @@ char *skipSpace(char *cp, char *end)
 
     return cp;
 }
-
 

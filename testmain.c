@@ -456,6 +456,8 @@ int main(int argc, char **argv)
 
         if (nTestFails > 0)
             printf("***** Scripted tests failed: %d *****\n", nTestFails);
+        else
+            printf("***** Scripted tests passed *****\n");
 
         return nTestFails;
     }

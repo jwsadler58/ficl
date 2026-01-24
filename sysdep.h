@@ -8,7 +8,7 @@
 ** Note: Ficl depends on the use of "assert" when
 ** FICL_ROBUST is enabled. This may require some consideration
 ** in firmware systems since assert often
-** assumes stderr/stdout.  
+** assumes stderr/stdout.
 ** $Id: sysdep.h,v 1.11 2001-11-11 12:25:46-08 jsadler Exp jsadler $
 *******************************************************************/
 /*
@@ -19,8 +19,8 @@
 ** if you would like to contribute to Ficl, please contact me on sourceforge.
 **
 ** L I C E N S E  and  D I S C L A I M E R
-** 
-** Copyright (c) 1997-2026 John W Sadler 
+**
+** Copyright (c) 1997-2026 John W Sadler
 ** All rights reserved.
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions
@@ -31,7 +31,7 @@
 **    notice, this list of conditions and the following disclaimer in the
 **    documentation and/or other materials provided with the distribution.
 ** 3. Neither the name of the copyright holder nor the names of its contributors
-**    may be used to endorse or promote products derived from this software 
+**    may be used to endorse or promote products derived from this software
 **    without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -48,13 +48,14 @@
 */
 
 #if !defined (__SYSDEP_H__)
-#define __SYSDEP_H__ 
+#define __SYSDEP_H__
 
 #include <stddef.h> /* size_t, NULL */
 #include <setjmp.h>
 #include <assert.h>
 #include <limits.h> /* CHAR_BIT, UCHAR_MAX */
 #include <stdint.h> /* int32_t, uint32_t, uint16_t, uint8_t */
+#include <stdalign.h>
 
 /*
 ** A Ficl CELL must be wide enough to contain a (void *) pointer, an unsigned, or an int.
@@ -67,8 +68,8 @@
 ** of the target system; 2 is safe on any 16 or 32 bit
 ** machine. 3 would be appropriate for a 64 bit machine.
 */
-enum { 
-    CELL_BYTES = sizeof(void *), 
+enum {
+    CELL_BYTES = sizeof(void *),
     CELL_BITS = CELL_BYTES * CHAR_BIT,
     CELL_ALIGN = (CELL_BYTES == 4) ? 2 :
                  (CELL_BYTES == 8) ? 3 :
@@ -87,7 +88,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 
 /************************************************************************************
 **         P L A T F O R M - S P E C I F I C   D E F I N I T I O N S
-*************************************************************************************/ 
+*************************************************************************************/
 
 /*
 **         MAC OSX Sequoia 15.4.x (so far)
@@ -98,7 +99,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
         #define FICL_INT long
         #define FICL_UNS unsigned long
         #define FICL_HAVE_FTRUNCATE 1
-        
+
         #define MACOS
     #elif TARGET_OS_IOS
         /* iOS only */
@@ -111,7 +112,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 */
 #if defined(linux)
     #define FICL_HAVE_FTRUNCATE 1
-#endif 
+#endif
 
 /*
 **         FreeBSD Alpha (64 bit) data types
@@ -123,8 +124,8 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #define FICL_UNS unsigned long
 #endif
 
-/* 
-**         Windows - Sprintf format tags to silence MSVC warnings 
+/*
+**         Windows - Sprintf format tags to silence MSVC warnings
 */
 #if defined(_WIN32)
     #define PCT_LD     "%Id"
@@ -138,7 +139,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 
 /************************************************************************************
 **         E N D  P L A T F O R M - S P E C I F I C   D E F I N I T I O N S
-*************************************************************************************/ 
+*************************************************************************************/
 
 /*
 ** IGNORE Macro to silence "unused parameter" warnings
@@ -150,7 +151,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 /*
 ** TRUE and FALSE for C boolean operations, and
 ** portable 32 bit types for CELLs
-** 
+**
 */
 #if !defined TRUE
     #define TRUE 1
@@ -161,7 +162,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 
 /************************************************************************************
 **         B U I L D   C O N T R O L S
-*************************************************************************************/ 
+*************************************************************************************/
 
 #if !defined (FICL_MINIMAL)
 #define FICL_MINIMAL 0
@@ -175,7 +176,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #define FICL_WANT_DEBUGGER   0
 #define FICL_WANT_OOP        0
 #define FICL_PLATFORM_EXTEND 0
-#define FICL_MULTISESSION     0
+#define FICL_MULTISESSION    0
 #define FICL_ROBUST          0
 #define FICL_EXTENDED_PREFIX 0
 #define FICL_UNIT_TEST       0
@@ -203,8 +204,8 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 
 /*
 ** FICL_WANT_FLOAT
-** Includes a floating point stack for the VM, and words to do float operations.
-** Contributed by Guy Carver
+** Includes a floating point stack for the VM, and words to do float and float extension operations.
+** Contributed by Giuseppe Stanghellini and Guy Carver
 */
 #if !defined (FICL_WANT_FLOAT)
 #define FICL_WANT_FLOAT 1
@@ -240,19 +241,19 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
         #define FICL_WANT_LOCALS 1
     #else
         #undef FICL_WANT_LOCALS
-        #define FICL_WANT_LOCALS 1  
+        #define FICL_WANT_LOCALS 1
     #endif
     #if !defined (FICL_WANT_USER)
         #define FICL_WANT_USER 1
     #else
         #undef FICL_WANT_USER
-        #define FICL_WANT_USER 1  
+        #define FICL_WANT_USER 1
     #endif
 #endif
 
 /*
 ** User variables: per-instance variables bound to the VM.
-** Kinda like thread-local storage. Could be implemented in a 
+** Kinda like thread-local storage. Could be implemented in a
 ** VM private dictionary, but I've chosen the lower overhead
 ** approach of an array of CELLs instead.
 */
@@ -264,7 +265,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #define FICL_USER_CELLS 16
 #endif
 
-/* 
+/*
 ** FICL_WANT_LOCALS controls the creation of the LOCALS wordset and
 ** a private dictionary for local variable compilation.
 */
@@ -286,12 +287,12 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
-** DEPRECATED: FICL_MULTISESSION 
+** DEPRECATED: FICL_MULTISESSION
 ** This has never been implemented to my knowledge.
 ** FICL_MULTISESSION enables dictionary mutual exclusion
 ** wia the ficlLockDictionary system dependent function.
-** Note: experimental. Necessary only if you intend to support 
-** multiple threads that modify the dictionaryat the same time.
+** Note: experimental. Necessary only if you intend to support
+** multiple threads per FICL_SYSTEM more than one of which may modify the dictionary.
 */
 #if !defined FICL_MULTISESSION
 #define FICL_MULTISESSION 0
@@ -300,7 +301,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 /*
 ** PORTABLE_LONGMULDIV causes ficlLongMul and ficlLongDiv to be defined in C in sysdep.c.
 ** If set to 0, you will need to implement them.
-*/ 
+*/
 #if !defined (PORTABLE_LONGMULDIV)
 #define PORTABLE_LONGMULDIV 1
 #endif
@@ -321,7 +322,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 
 /*
 ** FICL_DEFAULT_STACK Specifies the default size (in CELLs) of
-** a new virtual machine's stacks, unless overridden at 
+** a new virtual machine's stacks, unless overridden at
 ** create time.
 */
 #if !defined FICL_DEFAULT_STACK
@@ -344,7 +345,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
-** FICL_DEFAULT_VOCS specifies the maximum number of wordlists in 
+** FICL_DEFAULT_VOCS specifies the maximum number of wordlists in
 ** the dictionary search order. See Forth DPANS sec 16.3.3
 ** (file://dpans16.htm#16.3.3)
 */
@@ -385,9 +386,9 @@ static_assert(sizeof(INT32) * CHAR_BIT == 32, "INT32 must be 32 bits");
 static_assert(sizeof(UNS32) * CHAR_BIT == 32, "UNS32 must be 32 bits");
 
 /*
-** FICL_UNS, FICL_INT, and FICL_FLOAT must be the same size as a void* on
+** FICL_UNS and FICL_INT must be the same size as a void* on
 ** the target system. Static asserts below enforce this.
-** A CELL is a union of void*, FICL_UNS, and FICL_INT. 
+** A CELL is a union of void*, FICL_UNS, and FICL_INT.
 */
 #if !defined FICL_INT
     typedef intptr_t FICL_INT;
@@ -401,18 +402,49 @@ static_assert(sizeof(FICL_INT) == sizeof(void *), "FICL_INT must match pointer s
 static_assert(sizeof(FICL_UNS) == sizeof(void *), "FICL_UNS must match pointer size");
 
 #if FICL_WANT_FLOAT
-    #if !defined FICL_FLOAT
+    /*
+    ** FICL_FLOAT is auto-sized to match pointer size by default.
+    ** FICL_FLOAT_BITS may be set to 32 or 64 to override auto float size selection.
+    ** FICL_FLOATs have their own stack, and need not be the same size as CELLs.
+    */
+    #if defined FICL_FLOAT_BITS
+        #if (FICL_FLOAT_BITS == 32)
+            #define FICL_FLOAT float
+            #define FICL_FLT_MAX FLT_MAX /* float.h */
+            #define FICL_FLOAT_EPSILON FLT_EPSILON
+        #elif (FICL_FLOAT_BITS == 64)
+            #define FICL_FLOAT double
+            #define FICL_FLT_MAX DBL_MAX /* float.h */
+            #define FICL_FLOAT_EPSILON DBL_EPSILON
+        #else
+            #error FICL_FLOAT_BITS must be 32 or 64
+        #endif
+    #else           /* auto-select float size to match pointer size */
         #if INTPTR_MAX == INT64_MAX
             #define FICL_FLOAT double
+            #define FICL_FLT_MAX DBL_MAX /* float.h */
+            #define FICL_FLOAT_EPSILON DBL_EPSILON
+            #define FICL_FLOAT_BITS 64
         #elif INTPTR_MAX == INT32_MAX
             #define FICL_FLOAT float
+            #define FICL_FLT_MAX FLT_MAX /* float.h */
+            #define FICL_FLOAT_EPSILON FLT_EPSILON
+            #define FICL_FLOAT_BITS 32
         #else
             #error Unsupported pointer size for FICL_FLOAT
         #endif
     #endif
 
-    static_assert(sizeof(FICL_FLOAT) == sizeof(void *), "FICL_FLOAT must match pointer size");
-#endif
+    #if defined FICL_FLOAT_BITS
+        static_assert((FICL_FLOAT_BITS == 32) || (FICL_FLOAT_BITS == 64),
+                      "FICL_FLOAT_BITS must be 32 or 64");
+        static_assert(sizeof(FICL_FLOAT) * CHAR_BIT == FICL_FLOAT_BITS,
+                      "FICL_FLOAT_BITS does not match FICL_FLOAT size");
+    #endif
+    #define FICL_FLOAT_ALIGN_BYTES ((size_t)alignof(FICL_FLOAT))
+    #define FICL_FLOAT_ALIGN_MASK  (FICL_FLOAT_ALIGN_BYTES - 1)
+    static_assert(FICL_FLOAT_ALIGN_BYTES > 0, "FICL_FLOAT_ALIGN_BYTES must be non-zero");
+#endif /* FICL_WANT_FLOAT */
 
 
 typedef struct
@@ -444,11 +476,11 @@ typedef struct
 ** System dependent routines --
 ** Edit the implementations in sysdep.c to fit your runtime environment.
 **
-** ficlTextOut sends a NULL terminated string to the 
+** ficlTextOut sends a NULL terminated string to the
 **   default output device - used for system error messages
 ** ficlMalloc and ficlFree have the same semantics as malloc and free
 **   in standard C
-** ficlLongMul multiplies two UNS32s and returns a 64 bit unsigned 
+** ficlLongMul multiplies two UNS32s and returns a 64 bit unsigned
 **   product
 ** ficlLongDiv divides an UNS64 by an UNS32 and returns UNS32 quotient
 **   and remainder
@@ -461,7 +493,7 @@ void *ficlRealloc(void *p, size_t size);
 
 /*
 ** DEPRECATED Stub function for dictionary access control
-** Does nothing by default. 
+** Does nothing by default.
 ** Redefine to guarantee exclusive dict access to a single thread for updates.
 ** All dict update code must be bracketed as follows:
 ** ficlLockDictionary(TRUE);
@@ -484,6 +516,7 @@ int ficlLockDictionary(short fLock);
 ** Double precision integer math support routines: multiply two FICL_UNS
 ** to get a double width product, & divide the product by a FICL_UNS
 ** to get an FICL_UNS quotient and remainder.
+** These are implemented in sysdep.c by default using portable C code.
 */
 DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y);
 UNSQR ficlLongDiv(DPUNS    q, FICL_UNS y);

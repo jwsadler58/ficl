@@ -608,6 +608,27 @@ void ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo)
     return;
 }
 
+void ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f)
+{
+    FICL_WORD *pFW;
+    STRINGINFO si;
+    FICL_DICT *envp = pSys->envp;
+    SI_PSZ(si, name);
+    pFW = dictLookup(envp, si);
+
+    if (pFW == NULL)
+    {
+        dictAppendWord(envp, name, constantParen, FW_DEFAULT);
+        dictAppendFloat(envp, f);
+    }
+    else
+    {
+        memcpy(&(pFW->param[0]), &f, sizeof(FICL_FLOAT));
+    }
+
+    return;
+}
+
 
 /**************************************************************************
                         f i c l G e t L o c

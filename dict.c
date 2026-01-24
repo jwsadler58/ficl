@@ -112,6 +112,25 @@ void dictAlign(FICL_DICT *pDict)
     pDict->here = alignPtr(pDict->here);
 }
 
+#if FICL_WANT_FLOAT
+/**************************************************************************
+                        d i c t A l i g n F l o a t
+** Align the dictionary's free space pointer to FICL_FLOAT alignment.
+**************************************************************************/
+void dictAlignFloat(FICL_DICT *pDict)
+{
+    uintptr_t addr;
+
+    if (FICL_FLOAT_ALIGN_BYTES <= sizeof(CELL))
+        return;
+
+    addr = (uintptr_t)pDict->here;
+    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~(uintptr_t)FICL_FLOAT_ALIGN_MASK;
+    pDict->here = (CELL *)addr;
+    return;
+}
+#endif
+
 
 /**************************************************************************
                         d i c t A l l o t
@@ -184,6 +203,20 @@ void dictAppendCell(FICL_DICT *pDict, CELL c)
     *pDict->here++ = c;
     return;
 }
+
+#if FICL_WANT_FLOAT
+/**************************************************************************
+                        d i c t A p p e n d F l o a t
+** Append the specified FICL_FLOAT to the dictionary.
+**************************************************************************/
+void dictAppendFloat(FICL_DICT *pDict, FICL_FLOAT f)
+{
+    dictAlignFloat(pDict);
+    memcpy(pDict->here, &f, sizeof(f));
+    pDict->here += FICL_FLOAT_CELLS;
+    return;
+}
+#endif
 
 
 /**************************************************************************
@@ -909,5 +942,4 @@ void hashReset(FICL_HASH *pHash)
     pHash->name = NULL;
     return;
 }
-
 

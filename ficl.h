@@ -126,14 +126,14 @@ struct ficl_system_info;
 typedef struct ficl_system_info FICL_SYSTEM_INFO;
 
 /*
-** the Good Stuff starts here...
+** Version major.minor string
 */
 /* Helper macros for turning a macro value into a string */
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
 #define FICL_VER_MAJOR 3
-#define FICL_VER_MINOR 05
+#define FICL_VER_MINOR 06
 #define FICL_VER STR(FICL_VER_MAJOR) "." STR(FICL_VER_MINOR)
 
 #if !defined (FICL_PROMPT)
@@ -160,9 +160,6 @@ typedef union _cell
 {
     FICL_INT i;
     FICL_UNS u;
-#if (FICL_WANT_FLOAT)
-    FICL_FLOAT f;
-#endif
     void *p;
     void (*fn)(void);
 } CELL;
@@ -262,6 +259,17 @@ typedef struct _ficlStack
 } FICL_STACK;
 #define FICL_STACK_BYTES(nCells) (offsetof(FICL_STACK, base) + (nCells) * sizeof(CELL))
 
+#if (FICL_WANT_FLOAT)
+typedef struct _ficlFloatStack
+{
+    FICL_UNS nCells;    /* size of the stack */
+    FICL_FLOAT *sp;     /* stack pointer */
+    FICL_FLOAT base[];  /* Top of stack */
+} FICL_FSTACK;
+#define FICL_FSTACK_BYTES(nCells) (offsetof(FICL_FSTACK, base) + (nCells) * sizeof(FICL_FLOAT))
+#define FICL_FLOAT_CELLS ((sizeof(FICL_FLOAT) + sizeof(CELL) - 1) / sizeof(CELL))
+#endif
+
 /*
 ** Stack methods... many map closely to required Forth words.
 */
@@ -288,8 +296,17 @@ void        stackStore    (FICL_STACK *pStack, int n, CELL c);
 void        stackUnlink   (FICL_STACK *pStack);
 
 #if (FICL_WANT_FLOAT)
-float       stackPopFloat (FICL_STACK *pStack);
-void        stackPushFloat(FICL_STACK *pStack, FICL_FLOAT f);
+FICL_FSTACK *stackCreateFloat  (unsigned nCells);
+void         stackDeleteFloat  (FICL_FSTACK *pStack);
+int          stackDepthFloat   (FICL_FSTACK *pStack);
+void         stackDropFloat    (FICL_FSTACK *pStack, int n);
+FICL_FLOAT   stackGetTopFloat  (FICL_FSTACK *pStack);
+void         stackSetTopFloat  (FICL_FSTACK *pStack, FICL_FLOAT f);
+void         stackPickFloat    (FICL_FSTACK *pStack, int n);
+FICL_FLOAT   stackPopFloat     (FICL_FSTACK *pStack);
+void         stackPushFloat    (FICL_FSTACK *pStack, FICL_FLOAT f);
+void         stackResetFloat   (FICL_FSTACK *pStack);
+void         stackRollFloat    (FICL_FSTACK *pStack, int n);
 #endif
 
 /*
@@ -307,17 +324,17 @@ void        stackPushFloat(FICL_STACK *pStack, FICL_FLOAT f);
 #define POP()        stackPop(pVM->pStack)
 #define GETTOP()     stackGetTop(pVM->pStack)
 #define SETTOP(c)    stackSetTop(pVM->pStack,LVALUEtoCELL(c))
-#define GETTOPF()    stackGetTop(pVM->fStack)
-#define SETTOPF(c)   stackSetTop(pVM->fStack,LVALUEtoCELL(c))
+#define GETTOPF()    stackGetTopFloat(pVM->fStack)
+#define SETTOPF(c)   stackSetTopFloat(pVM->fStack,(c))
 #define STORE(n,c)   stackStore(pVM->pStack,n,LVALUEtoCELL(c))
 #define DEPTH()      stackDepth(pVM->pStack)
 #define DROP(n)      stackDrop(pVM->pStack,n)
-#define DROPF(n)     stackDrop(pVM->fStack,n)
+#define DROPF(n)     stackDropFloat(pVM->fStack,n)
 #define FETCH(n)     stackFetch(pVM->pStack,n)
 #define PICK(n)      stackPick(pVM->pStack,n)
-#define PICKF(n)     stackPick(pVM->fStack,n)
+#define PICKF(n)     stackPickFloat(pVM->fStack,n)
 #define ROLL(n)      stackRoll(pVM->pStack,n)
-#define ROLLF(n)     stackRoll(pVM->fStack,n)
+#define ROLLF(n)     stackRollFloat(pVM->fStack,n)
 
 /*
 ** The virtual machine (VM) contains the state for one interpreter.
@@ -385,7 +402,7 @@ struct vm
     FICL_STACK     *pStack;     /* param stack                      */
     FICL_STACK     *rStack;     /* return stack                     */
 #if FICL_WANT_FLOAT
-    FICL_STACK     *fStack;     /* float stack (optional)           */
+    FICL_FSTACK    *fStack;     /* float stack (optional)           */
 #endif
     CELL            sourceID;   /* -1 if EVALUATE, 0 if normal input */
     TIB             tib;        /* address of incoming text string  */
@@ -494,6 +511,7 @@ void        vmTextOut      (FICL_VM *pVM, char *text, int fNewline);
 void        vmTextOut      (FICL_VM *pVM, char *text, int fNewline);
 void        vmThrow        (FICL_VM *pVM, int except);
 void        vmThrowErr     (FICL_VM *pVM, char *fmt, ...);
+int         isPowerOfTwo   (FICL_UNS u);
 
 #define vmGetRunningWord(pVM) ((pVM)->runningWord)
 
@@ -546,7 +564,6 @@ void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 ** Generally useful string manipulators omitted by ANSI C...
 ** ltoa complements strtol
 */
-int        isPowerOfTwo(FICL_UNS u);
 
 #if defined(_MSC_VER)
     #define ltoa  ficlLtoa
@@ -640,10 +657,16 @@ struct ficl_dict
 void       *alignPtr(void *ptr);
 void        dictAbortDefinition(FICL_DICT *pDict);
 void        dictAlign      (FICL_DICT *pDict);
+#if FICL_WANT_FLOAT
+void        dictAlignFloat (FICL_DICT *pDict);
+#endif
 int         dictAllot      (FICL_DICT *pDict, int n);
 int         dictAllotCells (FICL_DICT *pDict, int nCells);
 void        dictAppendCell (FICL_DICT *pDict, CELL c);
 void        dictAppendChar (FICL_DICT *pDict, char c);
+#if FICL_WANT_FLOAT
+void        dictAppendFloat(FICL_DICT *pDict, FICL_FLOAT f);
+#endif
 FICL_WORD  *dictAppendWord (FICL_DICT *pDict,
                            char *name,
                            FICL_CODE pCode,
@@ -909,6 +932,9 @@ FICL_DICT *ficlGetDict(FICL_SYSTEM *pSys);
 FICL_DICT *ficlGetEnv (FICL_SYSTEM *pSys);
 void       ficlSetEnv (FICL_SYSTEM *pSys, char *name, FICL_UNS value);
 void       ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo);
+#if FICL_WANT_FLOAT
+void       ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f);
+#endif
 #if FICL_WANT_LOCALS
 FICL_DICT *ficlGetLoc (FICL_SYSTEM *pSys);
 #endif
