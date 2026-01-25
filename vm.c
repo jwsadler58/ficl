@@ -259,8 +259,8 @@ int vmGetWordToPad(FICL_VM *pVM)
     char *cp = (char *)pVM->pad;
     si = vmGetWord(pVM);
 
-    if (SI_COUNT(si) > nPAD)
-        SI_SETLEN(si, nPAD);
+    if (SI_COUNT(si) > nPAD-1)
+        SI_SETLEN(si, nPAD-1);
 
     strncpy(cp, SI_PTR(si), SI_COUNT(si));
     cp[SI_COUNT(si)] = '\0';

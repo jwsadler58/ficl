@@ -133,7 +133,7 @@ typedef struct ficl_system_info FICL_SYSTEM_INFO;
 #define STR(x) STR_HELPER(x)
 
 #define FICL_VER_MAJOR 3
-#define FICL_VER_MINOR 06
+#define FICL_VER_MINOR 052
 #define FICL_VER STR(FICL_VER_MAJOR) "." STR(FICL_VER_MINOR)
 
 #if !defined (FICL_PROMPT)
@@ -986,6 +986,9 @@ int        ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
 */
 void       constantParen(FICL_VM *pVM);
 void       twoConstParen(FICL_VM *pVM);
+#if FICL_WANT_FLOAT
+void       fConstantParen(FICL_VM *pVM);
+#endif
 int        ficlParseNumber(FICL_VM *pVM, STRINGINFO si);
 void       ficlTick(FICL_VM *pVM);
 void       parseStepParen(FICL_VM *pVM);

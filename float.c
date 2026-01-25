@@ -254,9 +254,9 @@ static void idivf(FICL_VM *pVM)
 
 /*******************************************************************
 ** Do integer to float conversion.
-** n>d ( n -- r )
+** s>f ( n -- r )
 *******************************************************************/
-static void itof(FICL_VM *pVM)
+static void sToF(FICL_VM *pVM)
 {
     FICL_FLOAT f;
 
@@ -271,9 +271,9 @@ static void itof(FICL_VM *pVM)
 
 /*******************************************************************
 ** Do float to integer conversion.
-** d>n ( r -- n )
+** f>s ( r -- n )
 *******************************************************************/
-static void Ftoi(FICL_VM *pVM)
+static void fToS(FICL_VM *pVM)
 {
     FICL_INT i;
 
@@ -289,7 +289,7 @@ static void Ftoi(FICL_VM *pVM)
 /*******************************************************************
 ** Floating point constant execution word.
 *******************************************************************/
-void FconstantParen(FICL_VM *pVM)
+void fConstantParen(FICL_VM *pVM)
 {
     FICL_WORD *pFW = pVM->runningWord;
 
@@ -302,9 +302,9 @@ void FconstantParen(FICL_VM *pVM)
 
 /*******************************************************************
 ** Create a floating point constant.
-** fconstant ( r -"name"- )
+** fConstant ( r -"name"- )
 *******************************************************************/
-static void Fconstant(FICL_VM *pVM)
+static void fConstant(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
     STRINGINFO si = vmGetWord(pVM);
@@ -315,7 +315,7 @@ static void Fconstant(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    dictAppendWord2(dp, si, FconstantParen, FW_DEFAULT);
+    dictAppendWord2(dp, si, fConstantParen, FW_DEFAULT);
     dictAppendFloat(dp, f);
 }
 
@@ -371,7 +371,7 @@ static void displayFStack(FICL_VM *pVM)
     vmTextOut(pVM, "F:", 0);
 
     if (d == 0)
-        vmTextOut(pVM, "[0]", 0);
+        vmTextOut(pVM, "(Float Stack Empty)", 0);
     else
     {
         ltoa(d, &pVM->pad[1], pVM->base);
@@ -382,8 +382,8 @@ static void displayFStack(FICL_VM *pVM)
         pFloat = pVM->fStack->sp - d;
         for (i = 0; i < d; i++)
         {
-            sprintf(pVM->pad,"%#f ", (double)(*pFloat++));
-            vmTextOut(pVM,pVM->pad,0);
+            sprintf(pVM->pad, "%.5e ", (double)(*pFloat++));
+            vmTextOut(pVM,pVM->pad, 1);
         }
     }
 }
@@ -491,7 +491,7 @@ static void FSdot(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    sprintf(pVM->pad, "%.15e ", (double)f);
+    sprintf(pVM->pad, "%.*e ", (int)pVM->fPrecision, (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
 
@@ -1480,11 +1480,10 @@ static void FzeroGreater(FICL_VM *pVM)
 }
 
 /*******************************************************************
-** Simple float equality comparison: r1 ~= r2.
-** Takes machiine epsilon into account. (ficl306)
+** Simple float equality comparison: | r1- r2 | < 2*epsilon
 ** f= ( r1 r2 -- T/F )
 *******************************************************************/
-static void FisEqual(FICL_VM *pVM)
+static void FTildEqual(FICL_VM *pVM)
 {
     FICL_FLOAT diff;
 
@@ -1733,11 +1732,13 @@ static void toFloat(FICL_VM *pVM)
 void ficlCompileFloat(FICL_SYSTEM *pSys)
 {
     FICL_DICT *dp = pSys->dp;
+    FICL_VM   *pVM = pSys->vmList;
     assert(dp);
+    assert(pVM);
 
 /* 12.6.1 Floating-point words */
     dictAppendWord(dp, ">float",    toFloat,        FW_DEFAULT);
-    dictAppendWord(dp, "d>f",       itof,           FW_DEFAULT);
+/*                      d>f         unimplemented  */
     dictAppendWord(dp, "f!",        Fstore,         FW_DEFAULT);
     dictAppendWord(dp, "f*",        Fmul,           FW_DEFAULT);
     dictAppendWord(dp, "f+",        Fadd,           FW_DEFAULT);
@@ -1746,11 +1747,11 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "f0<",       FzeroLess,      FW_DEFAULT);
     dictAppendWord(dp, "f0=",       FzeroEquals,    FW_DEFAULT);
     dictAppendWord(dp, "f<",        FisLess,        FW_DEFAULT);
-    dictAppendWord(dp, "f>d",       Ftoi,           FW_DEFAULT);
+/*                      f>d         unimplemented  */
     dictAppendWord(dp, "f@",        Ffetch,         FW_DEFAULT);
     dictAppendWord(dp, "falign",    Falign,         FW_DEFAULT);
     dictAppendWord(dp, "faligned",  Faligned,       FW_DEFAULT);
-    dictAppendWord(dp, "fconstant", Fconstant,      FW_DEFAULT);
+    dictAppendWord(dp, "fconstant", fConstant,      FW_DEFAULT);
     dictAppendWord(dp, "fdepth",    Fdepth,         FW_DEFAULT);
     dictAppendWord(dp, "fdrop",     Fdrop,          FW_DEFAULT);
     dictAppendWord(dp, "fdup",      Fdup,           FW_DEFAULT);
@@ -1766,12 +1767,10 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "fround",    Fround,         FW_DEFAULT);
     dictAppendWord(dp, "fswap",     Fswap,          FW_DEFAULT);
     dictAppendWord(dp, "fvariable", Fvariable,      FW_DEFAULT);
-/*  UNIMPLEMENTED       represent  */
+/*                      represent   unimplemented */
 
 /*  12.6.2 Floating-point extension words */
-    dictAppendWord(dp, "f.",        FDotWithPrecision, FW_DEFAULT);
-
-/*   #todo: MISSING FLOAT EXTENSION WORDS
+/*   #todo: unimplemented FLOAT EXTENSION words
                        df*
                        df@
                        dfalign
@@ -1779,11 +1778,9 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
                        dffield:
                        dfloat+
                        dfloats
-                       f>s
                        ffield:
                        fvalue
-                       f~
-                       s>f
+                       f~           see f~=
                        sf!
                        sf@
                        sfalign
@@ -1793,6 +1790,8 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
                        sfloats
 */
     dictAppendWord(dp, "f**",       Fpower,         FW_DEFAULT);
+    dictAppendWord(dp, "f.",        FDotWithPrecision, FW_DEFAULT);
+    dictAppendWord(dp, "f>s",       fToS,           FW_DEFAULT);
     dictAppendWord(dp, "fabs",      Fabs,           FW_DEFAULT);
     dictAppendWord(dp, "facos",     Facos,          FW_DEFAULT);
     dictAppendWord(dp, "facosh",    Facosh,         FW_DEFAULT);
@@ -1821,6 +1820,7 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "ftanh",     Ftanh,          FW_DEFAULT);
     dictAppendWord(dp, "ftrunc",    Ftrunc,         FW_DEFAULT);
     dictAppendWord(dp, "precision", Fprecision,     FW_DEFAULT);
+    dictAppendWord(dp, "s>f",       sToF,           FW_DEFAULT);
     dictAppendWord(dp, "set-precision", FsetPrecision, FW_DEFAULT);
 
 /*  Ficl floating point extras */
@@ -1835,7 +1835,7 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
 
     dictAppendWord(dp, "f.s",       displayFStack,  FW_DEFAULT);
     dictAppendWord(dp, "f?dup",     FquestionDup,   FW_DEFAULT);
-    dictAppendWord(dp, "f=",        FisEqual,       FW_DEFAULT);
+    dictAppendWord(dp, "f~=",       FTildEqual,     FW_DEFAULT);
     dictAppendWord(dp, "f>",        FisGreater,     FW_DEFAULT);
     dictAppendWord(dp, "f0>",       FzeroGreater,   FW_DEFAULT);
     dictAppendWord(dp, "f2drop",    FtwoDrop,       FW_DEFAULT);
@@ -1857,8 +1857,8 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
 
     ficlSetEnv(pSys, "floating",       FICL_TRUE);
     ficlSetEnv(pSys, "floating-ext",   FICL_TRUE);
-    ficlSetEnv(pSys, "floating-stack", FICL_DEFAULT_STACK);
-    /* ficlSetEnvF(pSys, "max-float",     FICL_FLT_MAX); */
+    ficlSetEnv(pSys, "floating-stack", pVM->fStack->nCells);
+    ficlSetEnvF(pSys, "max-float",    FICL_FLT_MAX);
     return;
 }
 #endif  /* FICL_WANT_FLOAT */

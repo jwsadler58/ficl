@@ -316,7 +316,9 @@ int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)
     assert(dictCellsAvail(pSys->dp) > FICL_WORD_BASE_CELLS);
     dictAppendWord(pSys->dp, name, code, flags);
 
+#if FICL_MULTISESSION
     ficlLockDictionary(FALSE);
+#endif /* FICL_MULTISESSION */
     return 0;
 }
 
@@ -620,7 +622,7 @@ void ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f)
 
     if (pFW == NULL)
     {
-        dictAppendWord(envp, name, constantParen, FW_DEFAULT);
+        dictAppendWord(envp, name, fConstantParen, FW_DEFAULT);
         dictAppendFloat(envp, f);
     }
     else

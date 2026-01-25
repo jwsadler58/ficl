@@ -16,6 +16,11 @@ variable nUser  0 nUser !
 \ ** ficl extras
 \ EMPTY cleans the parameter stack
 : empty   ( xn..x1 -- ) depth 0 ?do drop loop ;
+\ #if FICL_WANT_FLOAT
+\ and FEMPTY does the same for the float stack if floats are enabled
+: fempty fdepth ?dup if 0 do fdrop loop endif ;
+\ #endif
+
 \ CELL- undoes CELL+
 : cell-   ( addr -- addr )  [ 1 cells ] literal -  ;
 : -rot   ( a b c -- c a b )  2 -roll ;
