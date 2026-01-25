@@ -402,6 +402,7 @@ struct vm
     FICL_STACK     *pStack;     /* param stack                      */
     FICL_STACK     *rStack;     /* return stack                     */
 #if FICL_WANT_FLOAT
+    FICL_UNS        fPrecision; /* number of decimal places for float output */
     FICL_FSTACK    *fStack;     /* float stack (optional)           */
 #endif
     CELL            sourceID;   /* -1 if EVALUATE, 0 if normal input */
@@ -805,6 +806,10 @@ struct ficl_system
 	FICL_WORD *pTo2LocalParen;
 	FICL_WORD *pToLocal0;
 	FICL_WORD *pToLocal1;
+#if FICL_WANT_FLOAT
+	FICL_WORD *pGetFLocalParen;
+	FICL_WORD *pToFLocalParen;
+#endif
 	FICL_WORD *pLinkParen;
 	FICL_WORD *pUnLinkParen;
 	FICL_INT   nLocals;

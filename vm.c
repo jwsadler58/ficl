@@ -96,6 +96,7 @@ FICL_VM *vmCreate(FICL_VM *pVM, unsigned nPStack, unsigned nRStack)
     if (pVM->fStack)
         stackDeleteFloat(pVM->fStack);
     pVM->fStack = stackCreateFloat(nPStack);
+    pVM->fPrecision = 5; /* default float output precision */
 #endif
 
     pVM->textOut = ficlTextOut;

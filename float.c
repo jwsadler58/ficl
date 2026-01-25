@@ -781,6 +781,7 @@ static void Fsqrt(FICL_VM *pVM)
 
 /*******************************************************************
 ** fcbrt ( r1 -- r2 )
+** Cube Root
 *******************************************************************/
 static void Fcbrt(FICL_VM *pVM)
 {
@@ -1083,16 +1084,15 @@ static void Fsincos(FICL_VM *pVM)
 
 /*******************************************************************
 ** precision ( -- u )
+** State variable is in pVM->fPrecision
 *******************************************************************/
-static int floatPrecision = 17;  /* #todo: this needs to be in the dictionary*/
-
 static void Fprecision(FICL_VM *pVM)
 {
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 0, 1);
 #endif
 
-    PUSHINT(floatPrecision);
+    PUSHINT(pVM->fPrecision);
 }
 
 /*******************************************************************
@@ -1111,7 +1111,7 @@ static void FsetPrecision(FICL_VM *pVM)
         prec = 1;
     if (prec > 17)
         prec = 17;
-    floatPrecision = prec;
+    pVM->fPrecision = prec;
 }
 
 /*******************************************************************
@@ -1127,7 +1127,7 @@ static void FDotWithPrecision(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    sprintf(format, "%%.%dg ", floatPrecision);
+    sprintf(format, "%%.%dg ", (int)pVM->fPrecision);
     sprintf(pVM->pad, format, (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
@@ -1725,6 +1725,7 @@ static void toFloat(FICL_VM *pVM)
         PUSHINT(0);
 }
 
+
 /**************************************************************************
 ** Add float words to a system's dictionary.
 ** pSys -- Pointer to the FICL sytem to add float words to.
@@ -1770,7 +1771,7 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
 /*  12.6.2 Floating-point extension words */
     dictAppendWord(dp, "f.",        FDotWithPrecision, FW_DEFAULT);
 
-/*   MISSING EXTENSIONS LISTED IN FICL SPECIFICATION
+/*   #todo: MISSING FLOAT EXTENSION WORDS
                        df*
                        df@
                        dfalign

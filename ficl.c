@@ -121,6 +121,14 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     pSys->localp = dictCreate((unsigned)FICL_MAX_LOCALS * CELLS_PER_WORD);
 #endif
 
+   /*
+    ** Create a temporary VM to compile any softwords.
+    ** Since all VMs are linked into the vmList of FICL_SYSTEM,
+    ** we don't have to pass the VM to ficlCompileSoftCore:
+    ** it uses the first VM in the VM list.
+    */
+    ficlNewVM(pSys);
+
     /*
     ** Build the precompiled dictionary and load softwords.
     */
@@ -152,15 +160,9 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     ficlAddPrecompiledParseStep(pSys, ">float", ficlParseFloatNumber);
 #endif
 
-    /*
-    ** Now create a temporary VM to compile the softwords. Since all VMs are
-    ** linked into the vmList of FICL_SYSTEM, we don't have to pass the VM
-    ** to ficlCompileSoftCore -- it just hijacks whatever it finds in the VM list.
-    */
-    ficlNewVM(pSys);
+    /* Must have a VM to compile soft core */
     ficlCompileSoftCore(pSys);
     ficlFreeVM(pSys->vmList);
-
 
     return pSys;
 }

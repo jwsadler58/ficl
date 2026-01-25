@@ -273,9 +273,14 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #define FICL_WANT_LOCALS 1
 #endif
 
-/* Max number of local variables per definition - standard requires 16 min */
+/*
+** Max number of local variables per definition
+** Standard requires at least 16
+** 2locals require 2 cells each
+** flocals may require 1 or 2 cells each depending on float size
+*/
 #if !defined FICL_MAX_LOCALS
-#define FICL_MAX_LOCALS 16
+#define FICL_MAX_LOCALS 32
 #endif
 
 /*

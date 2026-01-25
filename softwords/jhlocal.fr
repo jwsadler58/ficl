@@ -17,6 +17,7 @@
 hide
 
 0 constant zero
+0E fconstant fzero
 
 
 : ?--   ( c-addr u -- c-addr u flag )
@@ -35,6 +36,17 @@ hide
 	swap 1+  c@ [char] : = and
     if
         2 - swap char+ char+ swap  \ dcs/jws: nibble the '2:'
+        true
+    else
+	    false
+    endif
+;
+
+: ?floc ( c-addr u -- c-addr u flag )
+    over dup c@ dup [char] f = swap [char] F = or
+	swap 1+  c@ [char] : = and
+    if
+        2 - swap char+ char+ swap
         true
     else
 	    false
@@ -65,7 +77,7 @@ set-current
 
     \ now unstack the locals
     0 ?do
-	    ?2loc if (2local) else (local) endif
+	    ?floc if (flocal) else ?2loc if (2local) else (local) endif endif
 	loop   \ ( )
 
     \ zero locals until -- or }
@@ -74,10 +86,14 @@ set-current
             parse-word
             ?delim dup to locstate
         0= while
-            ?2loc if
-                postpone zero postpone zero (2local)
+            ?floc if
+                postpone fzero (flocal)
             else
-                postpone zero (local)
+                ?2loc if
+                    postpone zero postpone zero (2local)
+                else
+                    postpone zero (local)
+                endif
             endif
         repeat
     endif
@@ -100,4 +116,3 @@ set-current
 
 previous
 \ #endif
-

@@ -70,8 +70,11 @@ static char ofTag[]  = "of";
 static char fallthroughTag[]  = "fallthrough";
 
 #if FICL_WANT_LOCALS
-static void doLocalIm(FICL_VM *pVM);
-static void do2LocalIm(FICL_VM *pVM);
+    static void doLocalIm(FICL_VM *pVM);
+    static void do2LocalIm(FICL_VM *pVM);
+    #if FICL_WANT_FLOAT
+        static void doFLocalIm(FICL_VM *pVM);
+    #endif
 #endif
 
 
@@ -4147,6 +4150,14 @@ static void toValue(FICL_VM *pVM)
             dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
             return;
         }
+#if FICL_WANT_FLOAT
+        else if (pFW && pFW->code == doFLocalIm)
+        {
+            dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToFLocalParen));
+            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            return;
+        }
+#endif
     }
 #endif
 
@@ -4284,6 +4295,58 @@ static void doLocalIm(FICL_VM *pVM)
 
 
 /**************************************************************************
+                        l o c a l s A d d
+** Add a local to the locals dictionary and emit initialization code.
+**************************************************************************/
+static void localsAdd(FICL_VM *pVM, STRINGINFO si, FICL_CODE pCode,
+                      FICL_WORD *pToLocalParen, FICL_WORD *pToLocal0,
+                      FICL_WORD *pToLocal1, int nCells)
+{
+    FICL_DICT *pDict = vmGetDict(pVM);
+    FICL_DICT *pLoc = ficlGetLoc(pVM->pSys);
+
+    if (pVM->pSys->nLocals >= FICL_MAX_LOCALS)
+    {
+        vmThrowErr(pVM, "Error: out of local space");
+    }
+
+    dictAppendWord2(pLoc, si, pCode, FW_COMPIMMED);
+    dictAppendCell(pLoc, LVALUEtoCELL(pVM->pSys->nLocals));
+
+    if (pVM->pSys->nLocals == 0)
+    {
+        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pLinkParen));
+        pVM->pSys->pMarkLocals = pDict->here;
+        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
+    }
+
+    if (nCells == 1 && pToLocal0 && pToLocal1)
+    {
+        if (pVM->pSys->nLocals == 0)
+        {
+            dictAppendCell(pDict, LVALUEtoCELL(pToLocal0));
+        }
+        else if (pVM->pSys->nLocals == 1)
+        {
+            dictAppendCell(pDict, LVALUEtoCELL(pToLocal1));
+        }
+        else
+        {
+            dictAppendCell(pDict, LVALUEtoCELL(pToLocalParen));
+            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
+        }
+    }
+    else
+    {
+        dictAppendCell(pDict, LVALUEtoCELL(pToLocalParen));
+        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
+    }
+
+    pVM->pSys->nLocals += nCells;
+}
+
+
+/**************************************************************************
                         l o c a l P a r e n
 ** paren-local-paren LOCAL
 ** Interpretation: Interpretation semantics for this word are undefined.
@@ -4319,39 +4382,12 @@ static void localParen(FICL_VM *pVM)
     SI_SETPTR(si, (char *)POPPTR());
 
     if (SI_COUNT(si) > 0)
-    {   /* add a local to the **locals** dict and update nLocals */
-        FICL_DICT *pLoc = ficlGetLoc(pVM->pSys);
-        if (pVM->pSys->nLocals >= FICL_MAX_LOCALS)
-        {
-            vmThrowErr(pVM, "Error: out of local space");
-        }
-
-        dictAppendWord2(pLoc, si, doLocalIm, FW_COMPIMMED);
-        dictAppendCell(pLoc,  LVALUEtoCELL(pVM->pSys->nLocals));
-
-        if (pVM->pSys->nLocals == 0)
-        {   /* compile code to create a local stack frame */
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pLinkParen));
-            /* save location in dictionary for #locals */
-            pVM->pSys->pMarkLocals = pDict->here;
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
-            /* compile code to initialize first local */
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pToLocal0));
-        }
-        else if (pVM->pSys->nLocals == 1)
-        {
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pToLocal1));
-        }
-        else
-        {
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pToLocalParen));
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
-        }
-
-        (pVM->pSys->nLocals)++;
+    {
+        localsAdd(pVM, si, doLocalIm, pVM->pSys->pToLocalParen,
+                  pVM->pSys->pToLocal0, pVM->pSys->pToLocal1, 1);
     }
     else if (pVM->pSys->nLocals > 0)
-    {       /* write nLocals to (link) param area in dictionary */
+    {       /* Last local: write nLocals to (link) param area in dictionary */
         *(FICL_INT *)(pVM->pSys->pMarkLocals) = pVM->pSys->nLocals;
     }
 
@@ -4404,36 +4440,79 @@ static void twoLocalParen(FICL_VM *pVM)
     SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
 
     if (SI_COUNT(si) > 0)
-    {   /* add a local to the **locals** dict and update nLocals */
-        FICL_DICT *pLoc = ficlGetLoc(pVM->pSys);
-        if (pVM->pSys->nLocals >= FICL_MAX_LOCALS)
-        {
-            vmThrowErr(pVM, "Error: out of local space");
-        }
-
-        dictAppendWord2(pLoc, si, do2LocalIm, FW_COMPIMMED);
-        dictAppendCell(pLoc,  LVALUEtoCELL(pVM->pSys->nLocals));
-
-        if (pVM->pSys->nLocals == 0)
-        {   /* compile code to create a local stack frame */
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pLinkParen));
-            /* save location in dictionary for #locals */
-            pVM->pSys->pMarkLocals = pDict->here;
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
-        }
-
-        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pTo2LocalParen));
-        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
-
-        pVM->pSys->nLocals += 2;
+    {
+        localsAdd(pVM, si, do2LocalIm, pVM->pSys->pTo2LocalParen,
+                  NULL, NULL, 2);
     }
     else if (pVM->pSys->nLocals > 0)
-    {       /* write nLocals to (link) param area in dictionary */
+    {       /* Last local: write nLocals to (link) param area in dictionary */
         *(FICL_INT *)(pVM->pSys->pMarkLocals) = pVM->pSys->nLocals;
     }
 
     return;
 }
+
+
+#if FICL_WANT_FLOAT
+static void getFLocalParen(FICL_VM *pVM)
+{
+    FICL_INT nLocal = *(FICL_INT *)(pVM->ip++);
+    FICL_FLOAT f;
+
+    memcpy(&f, &pVM->rStack->pFrame[nLocal], sizeof(f));
+    PUSHFLOAT(f);
+    return;
+}
+
+
+static void toFLocalParen(FICL_VM *pVM)
+{
+    FICL_INT nLocal = *(FICL_INT *)(pVM->ip++);
+    FICL_FLOAT f = POPFLOAT();
+
+    memcpy(&pVM->rStack->pFrame[nLocal], &f, sizeof(f));
+    return;
+}
+
+
+static void doFLocalIm(FICL_VM *pVM)
+{
+    FICL_DICT *pDict = vmGetDict(pVM);
+    FICL_INT nLocal = pVM->runningWord->param[0].i;
+
+    if (pVM->state == INTERPRET)
+    {
+        FICL_FLOAT f;
+        memcpy(&f, &pVM->rStack->pFrame[nLocal], sizeof(f));
+        PUSHFLOAT(f);
+    }
+    else
+    {
+        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pGetFLocalParen));
+        dictAppendCell(pDict, LVALUEtoCELL(nLocal));
+    }
+    return;
+}
+
+
+static void floatLocalParen(FICL_VM *pVM)
+{
+    STRINGINFO si;
+    SI_SETLEN(si, stackPopUNS(pVM->pStack));
+    SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
+
+    if (SI_COUNT(si) > 0)
+    {
+        localsAdd(pVM, si, doFLocalIm, pVM->pSys->pToFLocalParen,
+                  NULL, NULL, FICL_FLOAT_CELLS);
+    }
+    else if (pVM->pSys->nLocals > 0)
+    {       /* Last local: write nLocals to (link) param area in dictionary */
+        *(FICL_INT *)(pVM->pSys->pMarkLocals) = pVM->pSys->nLocals;
+    }
+    return;
+}
+#endif
 
 
 #endif
@@ -5096,6 +5175,14 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "(to2Local)",to2LocalParen,  FW_COMPILE);
     dictAppendWord(dp, "(2local)",  twoLocalParen,  FW_COMPILE);
 
+#if FICL_WANT_FLOAT
+    pSys->pGetFLocalParen =
+    dictAppendWord(dp, "(@flocal)", getFLocalParen, FW_COMPILE);
+    pSys->pToFLocalParen =
+    dictAppendWord(dp, "(toFLocal)",toFLocalParen,  FW_COMPILE);
+    dictAppendWord(dp, "(flocal)",  floatLocalParen, FW_COMPILE);
+#endif
+
     ficlSetEnv(pSys, "locals",            FICL_TRUE);
     ficlSetEnv(pSys, "locals-ext",        FICL_TRUE);
     ficlSetEnv(pSys, "#locals",           FICL_MAX_LOCALS);
@@ -5213,4 +5300,3 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
 
     return;
 }
-

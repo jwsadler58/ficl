@@ -39,7 +39,7 @@ ficl: testmain.o ficl.h sysdep.h libficl.a
 #  === utility targets ===
 #
 clean:
-	rm -f *.o *.a *.d tags ficl_wasm.js ficl_wasm.wasm
+	rm -f *.o *.a *.d tags ficl_wasm.js ficl_wasm.wasm softcore.c
 
 tags:
 	ctags -w *
