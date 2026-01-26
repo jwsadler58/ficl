@@ -485,7 +485,6 @@ void dictEmpty(FICL_DICT *pDict, unsigned nHash)
 void dictSummary(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-    FICL_HASH *pHash = dp->pSearch[dp->nLists - 1];
 
     sprintf(pVM->pad,
         "Dictionary: %ld cells used of %u total",
@@ -556,6 +555,7 @@ void dictHashSummary(FICL_VM *pVM)
     avg = avg / nWords;
 
     /* Calc best possible performance with this size hash */
+    assert(nBuckets > 0);
     nAvg = nWords / nBuckets;
     nRem = nWords % nBuckets;
     nDepth = nBuckets * (nAvg * (nAvg+1))/2 + (nAvg+1)*nRem;

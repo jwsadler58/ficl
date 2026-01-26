@@ -331,7 +331,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 ** create time.
 */
 #if !defined FICL_DEFAULT_STACK
-#define FICL_DEFAULT_STACK 128
+#define FICL_DEFAULT_STACK 256
 #endif
 
 /*

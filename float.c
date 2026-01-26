@@ -371,7 +371,7 @@ static void displayFStack(FICL_VM *pVM)
     vmTextOut(pVM, "F:", 0);
 
     if (d == 0)
-        vmTextOut(pVM, "(Float Stack Empty)", 0);
+        vmTextOut(pVM, "(Float Stack Empty)", 1);
     else
     {
         ltoa(d, &pVM->pad[1], pVM->base);

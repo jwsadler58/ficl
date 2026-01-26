@@ -718,7 +718,7 @@ static void ficlStrlen(FICL_VM *ficlVM)
 **
 ** -- Contributed by Larry Hastings
 **************************************************************************/
-static void ficlSprintf(FICL_VM *pVM) /*  */
+static void ficlSprintf(FICL_VM *pVM)
 {
     int bufferLength = stackPopINT(pVM->pStack);
     char *buffer = (char *)stackPopPtr(pVM->pStack);
@@ -4134,7 +4134,10 @@ static void toValue(FICL_VM *pVM)
     FICL_WORD *pFW;
 
 #if FICL_WANT_LOCALS
-    if ((pVM->pSys->nLocals > 0) && (pVM->state == COMPILE))
+    /*
+    ** Look for local, 2local, and flocal when compiling
+    */
+    if ((pVM->state == COMPILE) && (pVM->pSys->nLocals > 0))
     {
         FICL_DICT *pLoc = ficlGetLoc(pVM->pSys);
         pFW = dictLookup(pLoc, si);
@@ -4150,19 +4153,19 @@ static void toValue(FICL_VM *pVM)
             dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
             return;
         }
-#if FICL_WANT_FLOAT
+    #if FICL_WANT_FLOAT
         else if (pFW && pFW->code == doFLocalIm)
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToFLocalParen));
             dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
             return;
         }
-#endif
+    #endif
     }
 #endif
-
-    assert(pVM->pSys->pStore);
-
+    /*
+    ** Done with locals - shift attention to the main dictionary
+    */
     pFW = dictLookup(dp, si);
     if (!pFW)
     {
@@ -4171,9 +4174,34 @@ static void toValue(FICL_VM *pVM)
     }
 
     if (pVM->state == INTERPRET)
-        pFW->param[0] = stackPop(pVM->pStack);
-    else        /* compile code to store to word's param */
     {
+#if FICL_WANT_FLOAT
+        if (pFW->code == fConstantParen)
+        {
+            FICL_FLOAT f = POPFLOAT();
+            memcpy(&pFW->param[0], &f, sizeof(FICL_FLOAT));
+            return;
+        }
+#endif
+        if (pFW->code == constantParen)
+        {
+            pFW->param[0] = stackPop(pVM->pStack);
+            return;
+        }
+        else if (pFW->code == twoConstParen)
+        {
+            pFW->param[0] = stackPop(pVM->pStack);
+            pFW->param[1] = stackPop(pVM->pStack);
+            return;
+        }
+        else
+        {
+            vmThrowErr(pVM, "Error: %.*s not a VALUE", SI_COUNT(si), SI_PTR(si));
+        }
+    }
+    else        /* COMPILING: compile code to store to word's param */
+    {
+        assert(pVM->pSys->pStore);
         PUSHPTR(&pFW->param[0]);
         literalIm(pVM);
         dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStore));
@@ -4377,7 +4405,6 @@ static void localParen(FICL_VM *pVM)
     vmCheckStack(pVM,2,0);
 #endif
 
-    pDict = vmGetDict(pVM);
     SI_SETLEN(si, POPUNS());
     SI_SETPTR(si, (char *)POPPTR());
 
@@ -4434,7 +4461,6 @@ static void to2LocalParen(FICL_VM *pVM)
 
 static void twoLocalParen(FICL_VM *pVM)
 {
-    FICL_DICT *pDict = vmGetDict(pVM);
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
     SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
@@ -4917,7 +4943,7 @@ WORDKIND ficlWordClassify(FICL_WORD *pFW)
 **************************************************************************/
 static void ficlRandom(FICL_VM *pVM)
 {
-    PUSHINT(rand());
+    PUSHINT(arc4random());
 }
 
 

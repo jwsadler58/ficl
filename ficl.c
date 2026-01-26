@@ -110,7 +110,7 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     pSys->dp = dictCreateHashed((unsigned)nDictCells, HASHSIZE);
     pSys->dp->pForthWords->name = "forth-wordlist";
 
-    pSys->envp = dictCreate((unsigned)nEnvCells);
+    pSys->envp = dictCreateHashed((unsigned)nEnvCells, 64);
     pSys->envp->pForthWords->name = "environment";
 
     pSys->textOut = fsi->textOut;
