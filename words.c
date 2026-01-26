@@ -4127,11 +4127,86 @@ static void userVariable(FICL_VM *pVM)
 ** name. An ambiguous condition exists if name was not defined by VALUE.
 ** NOTE: In ficl, VALUE is an alias of CONSTANT
 **************************************************************************/
+typedef void (*TO_VALUE_INTERPRET)(FICL_VM *pVM, FICL_WORD *pFW);
+
+typedef struct
+{
+    FICL_CODE code;
+    TO_VALUE_INTERPRET interpret;
+    const char *storeName;
+} TO_VALUE_DISPATCH;
+
+static void toValueInterpretConstant(FICL_VM *pVM, FICL_WORD *pFW)
+{
+    pFW->param[0] = stackPop(pVM->pStack);
+    return;
+}
+
+static void toValueInterpretTwoConst(FICL_VM *pVM, FICL_WORD *pFW)
+{
+    pFW->param[1] = stackPop(pVM->pStack);
+    pFW->param[0] = stackPop(pVM->pStack);
+    return;
+}
+
+#if FICL_WANT_FLOAT
+static void toValueInterpretFConst(FICL_VM *pVM, FICL_WORD *pFW)
+{
+    FICL_FLOAT f = POPFLOAT();
+    memcpy(&pFW->param[0], &f, sizeof(FICL_FLOAT));
+    return;
+}
+#endif
+
+static const TO_VALUE_DISPATCH *toValueFindDispatch(FICL_CODE code)
+{
+    static const TO_VALUE_DISPATCH dispatchTable[] =
+    {
+        {constantParen,  toValueInterpretConstant, "!"},
+        {twoConstParen,  toValueInterpretTwoConst, "2!"},
+    #if FICL_WANT_FLOAT
+        {fConstantParen, toValueInterpretFConst,   "f!"},
+    #endif
+    };
+    int i;
+
+    for (i = 0; i < (int)(sizeof(dispatchTable) / sizeof(dispatchTable[0])); ++i)
+    {
+        if (dispatchTable[i].code == code)
+        {
+            return &dispatchTable[i];
+        }
+    }
+
+    return NULL;
+}
+
+static void toValueCompileStore(FICL_VM *pVM, FICL_WORD *pFW,
+                                const char *storeName)
+{
+    FICL_DICT *dp = vmGetDict(pVM);
+    FICL_WORD *pStore;
+    STRINGINFO storeSi;
+
+    SI_PSZ(storeSi, (char *)storeName);
+    pStore = dictLookup(dp, storeSi);
+    if (!pStore)
+    {
+        vmThrowErr(pVM, "Error: %s not found", storeName);
+    }
+
+    PUSHPTR(&pFW->param[0]);
+    literalIm(pVM);
+    dictAppendCell(dp, LVALUEtoCELL(pStore));
+    return;
+}
+
 static void toValue(FICL_VM *pVM)
 {
     STRINGINFO si = vmGetWord(pVM);
     FICL_DICT *dp = vmGetDict(pVM);
     FICL_WORD *pFW;
+    const TO_VALUE_DISPATCH *dispatch;
 
 #if FICL_WANT_LOCALS
     /*
@@ -4173,38 +4248,19 @@ static void toValue(FICL_VM *pVM)
         vmThrowErr(pVM, "%.*s not found", i, SI_PTR(si));
     }
 
+    dispatch = toValueFindDispatch(pFW->code);
+    if (!dispatch)
+    {
+        vmThrowErr(pVM, "Error: %.*s not a VALUE", SI_COUNT(si), SI_PTR(si));
+    }
+
     if (pVM->state == INTERPRET)
     {
-#if FICL_WANT_FLOAT
-        if (pFW->code == fConstantParen)
-        {
-            FICL_FLOAT f = POPFLOAT();
-            memcpy(&pFW->param[0], &f, sizeof(FICL_FLOAT));
-            return;
-        }
-#endif
-        if (pFW->code == constantParen)
-        {
-            pFW->param[0] = stackPop(pVM->pStack);
-            return;
-        }
-        else if (pFW->code == twoConstParen)
-        {
-            pFW->param[0] = stackPop(pVM->pStack);
-            pFW->param[1] = stackPop(pVM->pStack);
-            return;
-        }
-        else
-        {
-            vmThrowErr(pVM, "Error: %.*s not a VALUE", SI_COUNT(si), SI_PTR(si));
-        }
+        dispatch->interpret(pVM, pFW);
     }
     else        /* COMPILING: compile code to store to word's param */
     {
-        assert(pVM->pSys->pStore);
-        PUSHPTR(&pFW->param[0]);
-        literalIm(pVM);
-        dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStore));
+        toValueCompileStore(pVM, pFW, dispatch->storeName);
     }
     return;
 }
@@ -5141,7 +5197,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     ficlSetEnv(pSys, "/counted-string",   FICL_STRING_MAX);
     ficlSetEnv(pSys, "/hold",             nPAD);
     ficlSetEnv(pSys, "/pad",              nPAD);
-    ficlSetEnv(pSys, "address-unit-bits", 8);
+    ficlSetEnv(pSys, "address-unit-bits", CHAR_BIT);
     ficlSetEnv(pSys, "core",              FICL_TRUE);
     ficlSetEnv(pSys, "core-ext",          FICL_FALSE);
     ficlSetEnv(pSys, "floored",           FICL_FALSE);

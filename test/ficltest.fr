@@ -93,6 +93,11 @@ testing prefixes
 { hex 100
 -> decimal 256 }
 
+testing 2constant
+2 3 2constant 2c23
+{ 2c23 -> 2 3 }
+{ 2c23 swap to 2c23 2c23 -> 3 2 }
+
 testing number builder
 { 1 -> 1 }
 { 3. -> 0 3 }
@@ -112,12 +117,11 @@ testing floating point
 { 2e0 1e0 f> -> true }
 
 2e0  : flit1 fliteral ;
+3e-1 : flit2 fliteral ;
 { flit1 2e0 f- f0= -> true }
-
-2e0 fconstant fconst2
-3e0 fconstant fconst3
-{ fconst2 2e0 f- f0= -> true }
-fconst3 to fconst2
-{ fconst2 fconst3 f~= -> true }
+{ flit1 fconstant fconst2 -> }
+{ flit2 fconstant fconst3 -> }
+{ fconst2 -> flit1 }
+{ fconst3 to fconst2 fconst2 fconst3 f~= -> true }
 
 ficltest-marker        \ dictionary cleanup
