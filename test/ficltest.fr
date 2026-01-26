@@ -115,6 +115,9 @@ testing floating point
 { flit1 2e0 f- f0= -> true }
 
 2e0 fconstant fconst2
+3e0 fconstant fconst3
 { fconst2 2e0 f- f0= -> true }
+fconst3 to fconst2
+{ fconst2 fconst3 f~= -> true }
 
 ficltest-marker        \ dictionary cleanup
