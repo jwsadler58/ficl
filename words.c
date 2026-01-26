@@ -5019,6 +5019,7 @@ static void rndSeed(uint32_t seed)
     rndState = 0;
     rndInc = ((uint64_t)seed << 1u) | 1u;
     (void)rndNext();
+    (void)rndNext();
 }
 
 static void ficlRandom(FICL_VM *pVM)
