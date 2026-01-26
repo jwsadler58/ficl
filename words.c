@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 #include "ficl.h"
 #include "dpmath.h"
 
@@ -4995,21 +4996,49 @@ WORDKIND ficlWordClassify(FICL_WORD *pFW)
 
 /**************************************************************************
 **                     r a n d o m
-** FICL-specific
+** FICL-specific PCG32 implementation
 **************************************************************************/
+static uint64_t rndState;
+static uint64_t rndInc;
+static int rndIsSeeded;
+
+static uint32_t rndNext(void)
+{
+    uint64_t oldstate = rndState;
+    uint32_t xorshifted;
+    uint32_t rot;
+
+    rndState = oldstate * 6364136223846793005ULL + (rndInc | 1ULL);
+    xorshifted = (uint32_t)(((oldstate >> 18u) ^ oldstate) >> 27u);
+    rot = (uint32_t)(oldstate >> 59u);
+    return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+}
+
+static void rndSeed(uint32_t seed)
+{
+    rndState = 0;
+    rndInc = ((uint64_t)seed << 1u) | 1u;
+    (void)rndNext();
+}
+
 static void ficlRandom(FICL_VM *pVM)
 {
-    PUSHINT(arc4random());
+    if (!rndIsSeeded)
+    {
+        rndSeed(1u);
+        rndIsSeeded = 1;
+    }
+    PUSHINT((FICL_INT)rndNext());
 }
 
 
 /**************************************************************************
 **                     s e e d - r a n d o m
-** FICL-specific
 **************************************************************************/
 static void ficlSeedRandom(FICL_VM *pVM)
 {
-    srand(POPINT());
+    rndSeed((uint32_t)POPINT());
+    rndIsSeeded = 1;
 }
 
 
