@@ -942,13 +942,13 @@ FORTH-WORDLIST 1 SET-ORDER
           <A name="clock"></A><code>clock&nbsp;&nbsp; ( -- now )</code>
         </DT>
         <DD>
-          Wrapper for the ANSI C clock() function. Returns the number of clock ticks elapsed since process start.
+          Returns the number of high-resolution timer ticks elapsed since process start (monotonic on POSIX/macOS, QPC on Windows).
         </DD>
         <DT>
           <A name="clockspersec"></A><code>clocks/sec&nbsp;&nbsp; ( -- clocks_per_sec )</code>
         </DT>
         <DD>
-          Pushes the number of ticks in a second as returned by <code>clock</code>
+          Pushes the number of ticks in a second for <code>clock</code> (1,000,000,000 on POSIX/macOS; QPC frequency on Windows).
         </DD>
         <DT>
           <A name="ficlload"></A><code>load&nbsp;&nbsp;&nbsp; ( "filename&lt;newline&gt;" -- )</code>

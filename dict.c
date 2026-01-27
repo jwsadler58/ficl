@@ -278,6 +278,7 @@ FICL_WORD *dictAppendWord2(FICL_DICT *pDict,
     pFW->flags    = (UNS8)(flags | FW_SMUDGE);
     pFW->nName    = (char)len;
     pFW->name     = pName;
+    pFW->opcode   = FICL_OP_CALL;
     /*
     ** Point "here" to first cell of new word's param area...
     */
@@ -942,4 +943,3 @@ void hashReset(FICL_HASH *pHash)
     pHash->name = NULL;
     return;
 }
-
