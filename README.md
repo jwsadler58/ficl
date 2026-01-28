@@ -11,8 +11,9 @@ ____________
 ## INSTALLATION
 
 Ficl builds out-of-the-box on the following platforms:
-* MacOS (Apple silicon): use Makefile.macos
-* Linux: use "Makefile.linux".
+* MacOS (Apple silicon): makefile.macos
+* Linux: makefile.linux
+* Windows: makefile.windows
 
 To port to other platforms, be sure to examine "sysdep.h". We suggest you start with the Linux makefile.
 **Please submit your updates!**
