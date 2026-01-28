@@ -4,7 +4,7 @@
 ## Ficl .c and .h file conventions
 - Function Naming:
   - camelCase
-  - first three letters reference the module name. Example: dpmath.c function names begin with dpm. 
+  - first three letters reference the module name. Example: dpmath.c function names begin with dpm.
 - Macro naming
   - ALL CAPS for constants
   - Underscores between words
@@ -28,4 +28,5 @@
 ## answering questions
 - no need to give options unless you are explicitly asked to do so
 - if the question is ambiguous, ask a clarifying question
+- When you use an acronym for the first time, explain what it means
 
