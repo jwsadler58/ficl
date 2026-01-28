@@ -1,18 +1,24 @@
-Ficl is a lightweight, embeddable scripting language designed to be incorporated into other programs, including memory constrained embedded systems. Ficl conforms to the 1994 ANSI Standard for Forth, and provides several useful extensions including object oriented programming that can wrap compiled code and hardware interfaces. Ficl stands for "Forth Inspired Command Language".
+Ficl is a lightweight, embeddable scripting language designed to be incorporated into other programs, and especially embedded systems that may have memory and OS constraints. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
 
-Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuff to do, it does the stuff, and comes back to you for more. You can export compiled code to Ficl, execute Ficl code from your compiled code, or interact. Your choice. Ficl includes a simple but capable object model that can wrap existing data structures. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
+Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuff to do, it does the stuff, and comes back to you for more. You can export compiled code to Ficl, execute Ficl code from your compiled code, or interact. Your choice.
+
+### Notes
+1. Ficl is written portably in Standard C (11) without special compiler features.
+2. Ficl includes a compact object model that can wrap compiled code and data structures.
+3. Ficl conforms to the 1994 ANSI Standard for Forth
+
 ____________
 ## More information
+### Current release: Ficl305, January 2026
 ### The [official Ficl website](https://ficl.sourceforge.net/)
 ### Get the [latest Ficl release](https://sourceforge.net/projects/ficl/)
-### Current release: Ficl305, January 2026
+### Ficl [Github Repo](https://github.com/jwsadler58/ficl)
 
 ____________
 ## INSTALLATION
 
 Ficl builds out-of-the-box on MacOS, Linux, and Windows.
 To port to other platforms, examine and revise **sysdep.h** as needed. We suggest you start with the Linux makefile.
-**Please submit your updates!**
 
 ____________
 ## FICL LICENSE (BSD 2.0)
