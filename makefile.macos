@@ -24,14 +24,29 @@ libficl.a: $(OBJECTS)
 	$(RANLIB) $@
 
 # === Console Test executable ===
-ficl: testmain.o ficl.h sysdep.h libficl.a
-	$(CC) testmain.o -o $@ -L. -lficl -lm
+CONSOLE = ficl
+
+console: testmain.o ficl.h sysdep.h libficl.a
+	$(CC) testmain.o -o $(CONSOLE) -L. -lficl -lm
+
+ficl:
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) console CONSOLE=ficl
+
+ficlmin:
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) clean-objects
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) console CONSOLE=ficlmin CFLAGS="$(CFLAGS) -DFICL_MINIMAL=1"
+
+ficlsubr:
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) clean-objects
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) console CONSOLE=ficlsubr CFLAGS="$(CFLAGS) -DINLINE_INNER_LOOP=1"
+
 
 # === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
+
 
 -include $(DEPS)
 
@@ -40,6 +55,9 @@ ficl: testmain.o ficl.h sysdep.h libficl.a
 #
 clean:
 	rm -f *.o *.a *.d tags ficl_wasm.js ficl_wasm.wasm softcore.c
+
+clean-objects:
+	rm -f *.o *.a *.d
 
 tags:
 	ctags -w *
