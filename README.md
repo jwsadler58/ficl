@@ -1,34 +1,21 @@
-Ficl is a lightweight, embeddable scripting language designed to be incorporated into other programs,
-including memory constrained embedded systems. Ficl conforms to the 1994 ANSI Standard for Forth,
-and provides several useful extensions including object oriented programming that can wrap compiled code
-and hardware interfaces. Ficl stands for "Forth Inspired Command Language".
+Ficl is a lightweight, embeddable scripting language designed to be incorporated into other programs, including memory constrained embedded systems. Ficl conforms to the 1994 ANSI Standard for Forth, and provides several useful extensions including object oriented programming that can wrap compiled code and hardware interfaces. Ficl stands for "Forth Inspired Command Language".
 
-Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuff to do, it does the stuff,
-and comes back to you for more. You can export compiled code to Ficl, execute Ficl code from your compiled
-code, or interact. Your choice. Ficl includes a simple but capable object model that can wrap existing data
-structures. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
-
-For more information please see:
-  * The official Ficl website: https://ficl.sourceforge.net/
-  * The "doc" directory
-  * Release notes in "doc/ficl_rel.html"
-
-## Latest release: Ficl305, January 2026
-
-Get the latest Ficl release at https://sourceforge.net/projects/ficl/
+Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuff to do, it does the stuff, and comes back to you for more. You can export compiled code to Ficl, execute Ficl code from your compiled code, or interact. Your choice. Ficl includes a simple but capable object model that can wrap existing data structures. Applications include scripting, hardware bring-up, rapid prototyping, and system extensions.
+____________
+## More information
+### The [official Ficl website](https://ficl.sourceforge.net/)
+### Get the [latest Ficl release](https://sourceforge.net/projects/ficl/)
+### Current release: Ficl305, January 2026
 
 ____________
-INSTALLATION
+## INSTALLATION
 
-Ficl builds out-of-the-box on the following platforms:
-* MacOS (Apple silicon): use Makefile.macos
-* Linux: use "Makefile.linux".
-
-To port to other platforms, be sure to examine "sysdep.h". We suggest you start with the Linux makefile.
-(Please submit your updates!)
+Ficl builds out-of-the-box on MacOS, Linux, and Windows.
+To port to other platforms, examine and revise **sysdep.h** as needed. We suggest you start with the Linux makefile.
+**Please submit your updates!**
 
 ____________
-FICL LICENSE (BSD 2.0)
+## FICL LICENSE (BSD 2.0)
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
