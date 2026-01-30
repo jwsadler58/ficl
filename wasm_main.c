@@ -40,7 +40,7 @@
 
 #define WASM_OUTBUF_SIZE 8192
 
-/* 
+/*
 ** Static pointers to the system and vm
 */
 static FICL_SYSTEM *pSys = NULL;
@@ -65,7 +65,7 @@ void ficlFree(void *p)
 
 /*
 **         F i c l T e x t O u t
-*/ 
+*/
 void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
 {
     IGNORE(pVM);
@@ -103,15 +103,15 @@ int ficlWasmGetOutputLen(void)
 }
 
 
-/* 
-** For web demo - emulate a block of LEDs 
+/*
+** For web demo - emulate a block of LEDs
 */
 EM_JS(void, ficlWasmSetLedBits, (int value), {
     if (typeof window !== "undefined" && typeof window.setLedBits === "function")
         window.setLedBits(value | 0);
 });
 
-/* 
+/*
 ** For web demo - request a display refresh
 */
 EM_JS(void, ficlWasmRequestRefresh, (void), {
@@ -131,7 +131,7 @@ static void setFakeLed(FICL_VM *pVM)
     return;
 }
 
-/* 
+/*
 ** Yield to the browser so the UI can repaint
 */
 static void wasmRefresh(FICL_VM *pVM)
@@ -155,7 +155,7 @@ static void wasmDelay(FICL_VM *pVM)
     emscripten_sleep((unsigned int)ms);
 #endif
     return;
-}   
+}
 
 
 /*
@@ -177,7 +177,7 @@ int ficlWasmInit(int dict_cells, int stack_cells)
     pSys = ficlInitSystem(dict_cells);
     if (!pSys)
         return -1;
-    
+
     /* demo interface words */
     ficlBuild(pSys, "!led",     setFakeLed, FW_DEFAULT);
     ficlBuild(pSys, "yield",    wasmRefresh, FW_DEFAULT);
@@ -255,7 +255,7 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
     {
         CELL cell = stackFetch(pVm->pStack, i);
         FICL_UNS value = cell.u;
-        ultoa(value, numbuf, radix);
+        ficlUltoa(value, numbuf, radix);
         written = snprintf(cursor, (size_t)remaining, "\n%s", numbuf);
         if (written < 0 || written >= remaining)
             break;

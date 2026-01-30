@@ -565,17 +565,10 @@ void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 ** Generally useful string manipulators omitted by ANSI C...
 ** ltoa complements strtol
 */
-
-#if defined(_MSC_VER)
-    #define ltoa  ficlLtoa
-    #define ultoa ficlUltoa
-    #define strrev ficlStrrev
-#endif
-
-char       *ltoa( FICL_INT value, char *string, int radix );
-char       *ultoa(FICL_UNS value, char *string, int radix );
+char       *ficlLtoa( FICL_INT value, char *string, int radix );
+char       *ficlUltoa(FICL_UNS value, char *string, int radix );
 char        digit_to_char(int value);
-char       *strrev( char *string );
+char       *ficlStrrev(char *string );
 char       *skipSpace(char *cp, char *end);
 char       *caseFold(char *cp);
 int         strincmp(char *cp1, char *cp2, FICL_UNS count);

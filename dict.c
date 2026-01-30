@@ -115,7 +115,7 @@ void dictAlign(FICL_DICT *pDict)
 #if FICL_WANT_FLOAT
 /**************************************************************************
                         d i c t A l i g n F l o a t
-** Align the dictionary's free space pointer to FICL_FLOAT alignment.
+** Align the dictionary pointer (HERE) to FICL_FLOAT size.
 **************************************************************************/
 void dictAlignFloat(FICL_DICT *pDict)
 {
@@ -211,7 +211,9 @@ void dictAppendCell(FICL_DICT *pDict, CELL c)
 **************************************************************************/
 void dictAppendFloat(FICL_DICT *pDict, FICL_FLOAT f)
 {
-    dictAlignFloat(pDict);
+    /*
+    ** Store floats densely in cells. Use falign explicitly when needed.
+    */
     memcpy(pDict->here, &f, sizeof(f));
     pDict->here += FICL_FLOAT_CELLS;
     return;
@@ -942,4 +944,3 @@ void hashReset(FICL_HASH *pHash)
     pHash->name = NULL;
     return;
 }
-

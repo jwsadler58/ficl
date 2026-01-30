@@ -500,7 +500,7 @@ int wordIsCompileOnly(FICL_WORD *pFW)
                         s t r r e v
 **
 **************************************************************************/
-char *strrev( char *string )
+char *ficlStrrev(char *string )
 {                               /* reverse a string in-place */
     int i = strlen(string);
     char *p1 = string;          /* first char of string */
@@ -556,7 +556,7 @@ int isPowerOfTwo(FICL_UNS u)
                         l t o a
 **
 **************************************************************************/
-char *ltoa( FICL_INT value, char *string, int radix )
+char *ficlLtoa( FICL_INT value, char *string, int radix )
 {                               /* convert long to string, any base */
     char *cp = string;
     int sign = ((radix == 10) && (value < 0));
@@ -602,7 +602,7 @@ char *ltoa( FICL_INT value, char *string, int radix )
 
     *cp++ = '\0';
 
-    return strrev(string);
+    return ficlStrrev(string);
 }
 
 
@@ -610,7 +610,7 @@ char *ltoa( FICL_INT value, char *string, int radix )
                         u l t o a
 **
 **************************************************************************/
-char *ultoa(FICL_UNS value, char *string, int radix )
+char *ficlUltoa(FICL_UNS value, char *string, int radix )
 {                               /* convert long to string, any base */
     char *cp = string;
     DPUNS ud;
@@ -638,7 +638,7 @@ char *ultoa(FICL_UNS value, char *string, int radix )
 
     *cp++ = '\0';
 
-    return strrev(string);
+    return ficlStrrev(string);
 }
 
 

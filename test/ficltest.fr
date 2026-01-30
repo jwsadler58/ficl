@@ -124,4 +124,19 @@ testing floating point
 { fconst2 -> flit1 }
 { fconst3 to fconst2 fconst2 fconst3 f~= -> true }
 
+testing compiled float literals
+fvariable vflit
+: t-flit-store  100e vflit f! ;
+{ t-flit-store vflit f@ 100e f- f0= -> true }
+
+: t-flit-two  1e 2e f+ ;
+{ t-flit-two 3e f- f0= -> true }
+
+1.25e fconstant fc-lit
+{ fc-lit 1.25e f- f0= -> true }
+
+: t-fplusstore  0e vflit f!  1e vflit f+!  vflit f@ 1e f- f0= ;
+{ t-fplusstore -> true }
+
+
 ficltest-marker        \ dictionary cleanup

@@ -645,7 +645,7 @@ static void displayCell(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
     c = stackPop(pVM->pStack);
-    ltoa((c).i, pVM->pad, pVM->base);
+    ficlLtoa((c).i, pVM->pad, pVM->base);
     strcat(pVM->pad, " ");
     vmTextOut(pVM, pVM->pad, 0);
     return;
@@ -658,7 +658,7 @@ static void uDot(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
     u = stackPopUNS(pVM->pStack);
-    ultoa(u, pVM->pad, pVM->base);
+    ficlUltoa(u, pVM->pad, pVM->base);
     strcat(pVM->pad, " ");
     vmTextOut(pVM, pVM->pad, 0);
     return;
@@ -672,7 +672,7 @@ static void hexDot(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
     u = stackPopUNS(pVM->pStack);
-    ultoa(u, pVM->pad, 16);
+    ficlUltoa(u, pVM->pad, 16);
     strcat(pVM->pad, " ");
     vmTextOut(pVM, pVM->pad, 0);
     return;
@@ -799,9 +799,9 @@ static void ficlSprintf(FICL_VM *pVM)
                 {
                     int integer = stackPopINT(pVM->pStack);
                     if (unsignedInteger)
-                        ultoa(integer, scratch, base);
+                        ficlUltoa(integer, scratch, base);
                     else
-                        ltoa(integer, scratch, base);
+                        ficlLtoa(integer, scratch, base);
                     base = 10;
                     unsignedInteger = FALSE;
                     source = scratch;
@@ -2965,7 +2965,7 @@ static void numberSignGreater(FICL_VM *pVM)
 
     sp = PTRtoSTRING pVM->pad;
     sp->text[sp->count] = 0;
-    strrev(sp->text);
+    ficlStrrev(sp->text);
     DROP(2);
     PUSHPTR(sp->text);
     PUSHUNS(sp->count);

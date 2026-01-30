@@ -630,7 +630,7 @@ static void displayPStack(FICL_VM *pVM)
         pCell = pStk->base;
         for (i = 0; i < d; i++)
         {
-            vmTextOut(pVM, ltoa((*pCell++).i, pVM->pad, pVM->base), 0);
+            vmTextOut(pVM, ficlLtoa((*pCell++).i, pVM->pad, pVM->base), 0);
             vmTextOut(pVM, " ", 0);
         }
     }
@@ -673,7 +673,7 @@ static void displayRStack(FICL_VM *pVM)
                     continue;  /* no need to print the numeric value */
                 }
             }
-            vmTextOut(pVM, ltoa(c.i, pVM->pad, pVM->base), 0);
+            vmTextOut(pVM, ficlLtoa(c.i, pVM->pad, pVM->base), 0);
             vmTextOut(pVM, " ", 0);
         }
     }
@@ -777,7 +777,6 @@ static void listWords(FICL_VM *pVM)
     if (nChars > 0)
     {
         pPad[nChars] = '\0';
-        nChars = 0;
         vmTextOut(pVM, pPad, 1);
     }
 

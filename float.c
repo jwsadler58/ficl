@@ -52,14 +52,6 @@
 
 #if FICL_WANT_FLOAT
 
-static FICL_FLOAT floatFetchFromCells(const CELL *pCell)
-{
-    FICL_FLOAT f;
-
-    memcpy(&f, pCell, sizeof(f));
-    return f;
-}
-
 /*******************************************************************
 ** Do float addition r1 + r2.
 ** f+ ( r1 r2 -- r )
@@ -292,12 +284,14 @@ static void fToS(FICL_VM *pVM)
 void fConstantParen(FICL_VM *pVM)
 {
     FICL_WORD *pFW = pVM->runningWord;
+    FICL_FLOAT f;
 
 #if FICL_ROBUST > 1
     vmCheckFStack(pVM, 0, 1);
 #endif
 
-    PUSHFLOAT(floatFetchFromCells(pFW->param));
+    memcpy(&f, pFW->param, sizeof(f));
+    PUSHFLOAT(f);
 }
 
 /*******************************************************************
@@ -374,7 +368,7 @@ static void displayFStack(FICL_VM *pVM)
         vmTextOut(pVM, "(Float Stack Empty)", 1);
     else
     {
-        ltoa(d, &pVM->pad[1], pVM->base);
+        ficlLtoa(d, &pVM->pad[1], pVM->base);
         pVM->pad[0] = '[';
         strcat(pVM->pad,"] ");
         vmTextOut(pVM,pVM->pad,0);
@@ -1353,6 +1347,7 @@ static void FtwoSwap(FICL_VM *pVM)
 static void Ffetch(FICL_VM *pVM)
 {
     FICL_FLOAT *pFloat;
+    FICL_FLOAT f;
 
 #if FICL_ROBUST > 1
     vmCheckFStack(pVM, 0, 1);
@@ -1360,7 +1355,8 @@ static void Ffetch(FICL_VM *pVM)
 #endif
 
     pFloat = (FICL_FLOAT *)POPPTR();
-    PUSHFLOAT(*pFloat);
+    memcpy(&f, pFloat, sizeof(f));
+    PUSHFLOAT(f);
 }
 
 /*******************************************************************
@@ -1370,6 +1366,7 @@ static void Ffetch(FICL_VM *pVM)
 static void Fstore(FICL_VM *pVM)
 {
     FICL_FLOAT *pFloat;
+    FICL_FLOAT f;
 
 #if FICL_ROBUST > 1
     vmCheckFStack(pVM, 1, 0);
@@ -1377,7 +1374,8 @@ static void Fstore(FICL_VM *pVM)
 #endif
 
     pFloat = (FICL_FLOAT *)POPPTR();
-    *pFloat = POPFLOAT();
+    f = POPFLOAT();
+    memcpy(pFloat, &f, sizeof(f));
 }
 
 /*******************************************************************
@@ -1387,6 +1385,7 @@ static void Fstore(FICL_VM *pVM)
 static void FplusStore(FICL_VM *pVM)
 {
     FICL_FLOAT *pFloat;
+    FICL_FLOAT f;
 
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
@@ -1394,7 +1393,9 @@ static void FplusStore(FICL_VM *pVM)
 #endif
 
     pFloat = (FICL_FLOAT *)POPPTR();
-    *pFloat += POPFLOAT();
+    memcpy(&f, pFloat, sizeof(f));
+    f += POPFLOAT();
+    memcpy(pFloat, &f, sizeof(f));
 }
 
 /*******************************************************************
@@ -1402,11 +1403,14 @@ static void FplusStore(FICL_VM *pVM)
 *******************************************************************/
 static void fliteralParen(FICL_VM *pVM)
 {
+    FICL_FLOAT f;
+
 #if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
+    vmCheckFStack(pVM, 0, 1);
 #endif
 
-    PUSHFLOAT(floatFetchFromCells((CELL *)pVM->ip));
+    memcpy(&f, (CELL *)pVM->ip, sizeof(f));
+    PUSHFLOAT(f);
     vmBranchRelative(pVM, FICL_FLOAT_CELLS);
 }
 
