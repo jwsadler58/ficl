@@ -1500,6 +1500,19 @@ static void FTildEqual(FICL_VM *pVM)
     PUSHINT(FICL_BOOL(diff < 2*FICL_FLOAT_EPSILON));
 }
 
+static void FIsEqual(FICL_VM *pVM)
+{
+    FICL_FLOAT x,y;
+
+#if FICL_ROBUST > 1
+    vmCheckFStack(pVM, 2, 0);
+    vmCheckStack(pVM, 0, 1);
+#endif
+
+    y = POPFLOAT();
+    x = POPFLOAT();
+    PUSHINT(FICL_BOOL(x == y));
+}
 /*******************************************************************
 ** Do float < comparison r1 < r2.
 ** f< ( r1 r2 -- T/F )
@@ -1840,6 +1853,7 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "f.s",       displayFStack,  FW_DEFAULT);
     dictAppendWord(dp, "f?dup",     FquestionDup,   FW_DEFAULT);
     dictAppendWord(dp, "f~=",       FTildEqual,     FW_DEFAULT);
+    dictAppendWord(dp, "f=",        FIsEqual,     FW_DEFAULT);
     dictAppendWord(dp, "f>",        FisGreater,     FW_DEFAULT);
     dictAppendWord(dp, "f0>",       FzeroGreater,   FW_DEFAULT);
     dictAppendWord(dp, "f2drop",    FtwoDrop,       FW_DEFAULT);
@@ -1863,6 +1877,7 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     ficlSetEnv(pSys, "floating-ext",   FICL_TRUE);
     ficlSetEnv(pSys, "floating-stack", pVM->fStack->nCells);
     ficlSetEnvF(pSys, "max-float",    FICL_FLT_MAX);
+    ficlSetEnvF(pSys, "float-epsilon", FICL_FLOAT_EPSILON);
     return;
 }
 #endif  /* FICL_WANT_FLOAT */
