@@ -1484,20 +1484,27 @@ static void FzeroGreater(FICL_VM *pVM)
 }
 
 /*******************************************************************
-** Simple float equality comparison: | r1- r2 | < 2*epsilon
+** Float approximate equality comparison based on python math.isclose
+** returns result of: abs(a-b) <= max( relTol * max( abs(a), abs(b) ), absTol )
+** AbsTol is useful if one value is zero
 ** f= ( r1 r2 -- T/F )
 *******************************************************************/
-static void FTildEqual(FICL_VM *pVM)
+static void fIsClose(FICL_VM *pVM)
 {
-    FICL_FLOAT diff;
+    const FICL_FLOAT relTol = 1e-9;
+    const FICL_FLOAT absTol = 2*FICL_FLOAT_EPSILON;
 
 #if FICL_ROBUST > 1
     vmCheckFStack(pVM, 2, 0);
     vmCheckStack(pVM, 0, 1);
 #endif
 
-    diff = fabs(POPFLOAT() - POPFLOAT());
-    PUSHINT(FICL_BOOL(diff < 2*FICL_FLOAT_EPSILON));
+    FICL_FLOAT b = POPFLOAT();
+    FICL_FLOAT a = POPFLOAT();
+    FICL_FLOAT diff = fabs(a - b);
+    FICL_FLOAT maxAbs = fmax(fabs(a), fabs(b));
+    FICL_FLOAT maxDiff = fmax(relTol * maxAbs, absTol);
+    PUSHINT(FICL_BOOL(diff <= maxDiff));
 }
 
 static void FIsEqual(FICL_VM *pVM)
@@ -1852,8 +1859,8 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
 
     dictAppendWord(dp, "f.s",       displayFStack,  FW_DEFAULT);
     dictAppendWord(dp, "f?dup",     FquestionDup,   FW_DEFAULT);
-    dictAppendWord(dp, "f~=",       FTildEqual,     FW_DEFAULT);
-    dictAppendWord(dp, "f=",        FIsEqual,     FW_DEFAULT);
+    dictAppendWord(dp, "f~=",       fIsClose,     FW_DEFAULT);
+    dictAppendWord(dp, "f=",        FIsEqual,       FW_DEFAULT);
     dictAppendWord(dp, "f>",        FisGreater,     FW_DEFAULT);
     dictAppendWord(dp, "f0>",       FzeroGreater,   FW_DEFAULT);
     dictAppendWord(dp, "f2drop",    FtwoDrop,       FW_DEFAULT);
