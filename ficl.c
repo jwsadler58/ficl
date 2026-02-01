@@ -612,6 +612,7 @@ void ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo)
     return;
 }
 
+#if FICL_WANT_FLOAT
 void ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f)
 {
     FICL_WORD *pFW;
@@ -632,6 +633,7 @@ void ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f)
 
     return;
 }
+#endif /* FICL_WANT_FLOAT */
 
 
 /**************************************************************************

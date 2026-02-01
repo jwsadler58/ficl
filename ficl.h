@@ -432,6 +432,121 @@ typedef void (*FICL_CODE)(FICL_VM *pVm);
     #define VM_ASSERT(pVM)
 #endif
 
+typedef enum
+{
+    FICL_OP_CALL = 0,
+    FICL_OP_DUP,
+    FICL_OP_DROP,
+    FICL_OP_SWAP,
+    FICL_OP_OVER,
+    FICL_OP_ROT,
+    FICL_OP_MINUS_ROT,
+    FICL_OP_PICK,
+    FICL_OP_ROLL,
+    FICL_OP_MINUS_ROLL,
+    FICL_OP_2DUP,
+    FICL_OP_2DROP,
+    FICL_OP_2SWAP,
+    FICL_OP_2OVER,
+    FICL_OP_QUESTION_DUP,
+    FICL_OP_FETCH,
+    FICL_OP_STORE,
+    FICL_OP_2FETCH,
+    FICL_OP_2STORE,
+    FICL_OP_PLUS_STORE,
+    FICL_OP_C_FETCH,
+    FICL_OP_C_STORE,
+    FICL_OP_W_FETCH,
+    FICL_OP_W_STORE,
+    FICL_OP_PLUS,
+    FICL_OP_MINUS,
+    FICL_OP_STAR,
+    FICL_OP_SLASH,
+    FICL_OP_MOD,
+    FICL_OP_SLASH_MOD,
+    FICL_OP_STAR_SLASH,
+    FICL_OP_STAR_SLASH_MOD,
+    FICL_OP_ONE_PLUS,
+    FICL_OP_ONE_MINUS,
+    FICL_OP_TWO_STAR,
+    FICL_OP_TWO_SLASH,
+    FICL_OP_NEGATE,
+    FICL_OP_MAX,
+    FICL_OP_MIN,
+    FICL_OP_ZERO_LESS,
+    FICL_OP_ZERO_EQUALS,
+    FICL_OP_ZERO_GREATER,
+    FICL_OP_LESS,
+    FICL_OP_EQUALS,
+    FICL_OP_GREATER,
+    FICL_OP_U_LESS,
+    FICL_OP_AND,
+    FICL_OP_OR,
+    FICL_OP_XOR,
+    FICL_OP_INVERT,
+    FICL_OP_LSHIFT,
+    FICL_OP_RSHIFT,
+    FICL_OP_TO_R,
+    FICL_OP_R_FROM,
+    FICL_OP_R_FETCH,
+    FICL_OP_2TO_R,
+    FICL_OP_2R_FROM,
+    FICL_OP_2R_FETCH,
+    FICL_OP_DEPTH,
+    FICL_OP_BRANCH,
+    FICL_OP_BRANCH0,
+    FICL_OP_DO,
+    FICL_OP_QDO,
+    FICL_OP_LOOP,
+    FICL_OP_PLOOP,
+    FICL_OP_LIT,
+    FICL_OP_2LIT,
+    FICL_OP_EXIT,
+    FICL_OP_SEMI,
+#if FICL_WANT_FLOAT
+    FICL_OP_FDUP,
+    FICL_OP_FDROP,
+    FICL_OP_FSWAP,
+    FICL_OP_FOVER,
+    FICL_OP_FROT,
+    FICL_OP_FMINUS_ROT,
+    FICL_OP_FPICK,
+    FICL_OP_FROLL,
+    FICL_OP_FMINUS_ROLL,
+    FICL_OP_F2DUP,
+    FICL_OP_F2DROP,
+    FICL_OP_F2SWAP,
+    FICL_OP_F2OVER,
+    FICL_OP_FQUESTION_DUP,
+    FICL_OP_FPLUS,
+    FICL_OP_FMINUS,
+    FICL_OP_FSTAR,
+    FICL_OP_FSLASH,
+    FICL_OP_FNEGATE,
+    FICL_OP_FABS,
+    FICL_OP_FMAX,
+    FICL_OP_FMIN,
+    FICL_OP_FPLUS_STORE,
+    FICL_OP_FFETCH,
+    FICL_OP_FSTORE,
+    FICL_OP_F0LESS,
+    FICL_OP_F0EQUALS,
+    FICL_OP_F0GREATER,
+    FICL_OP_FLESS,
+    FICL_OP_FTILDEQUAL,
+    FICL_OP_FGREATER,
+    FICL_OP_FDEPTH,
+    FICL_OP_S_TO_F,
+    FICL_OP_F_TO_S,
+    FICL_OP_FPLUS_I,
+    FICL_OP_FMINUS_I,
+    FICL_OP_FSTAR_I,
+    FICL_OP_FSLASH_I,
+    FICL_OP_I_MINUS_F,
+    FICL_OP_I_SLASH_F,
+#endif
+} FICL_OPCODE;
+
 /*
 ** Ficl models memory as a contiguous space divided into
 ** words in a linked list called the dictionary.
@@ -448,6 +563,7 @@ struct ficl_word
     FICL_COUNT nName;           /* Number of chars in word name         */
     char *name;                 /* First nFICLNAME chars of word name   */
     FICL_CODE code;             /* Native code to execute the word      */
+    UNS8 opcode;
     CELL param[];               /* First data cell of the word          */
 };
 
@@ -525,11 +641,14 @@ int         isPowerOfTwo   (FICL_UNS u);
         (pVM)->runningWord = tempFW; \
         tempFW->code(pVM);
 
-#define M_INNER_LOOP(pVM) \
-    for (;;)  { M_VM_STEP(pVM) }
+#if INLINE_INNER_LOOP != 0
+    #define M_INNER_LOOP(pVM) \
+        for (;;)  { M_VM_STEP(pVM) }
 
-
-#define     vmInnerLoop(pVM) M_INNER_LOOP(pVM)
+    #define     vmInnerLoop(pVM) M_INNER_LOOP(pVM)
+#else
+    void        vmInnerLoop(FICL_VM *pVM);
+#endif
 
 /*
 ** vmCheckStack needs a vm pointer because it might have to say

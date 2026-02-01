@@ -42,6 +42,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#if defined(_WIN32)
+    #include <windows.h>
+#else
+    #include <sys/time.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #if defined(_WIN32)
@@ -289,14 +294,29 @@ static void ficlBreak(FICL_VM *pVM)
 
 static void ficlClock(FICL_VM *pVM)
 {
-    clock_t now = clock(); /* time.h */
-    stackPushUNS(pVM->pStack, (FICL_UNS)now);
+    FICL_UNS now;
+#if defined(_WIN32)
+    LARGE_INTEGER counter;
+    QueryPerformanceCounter(&counter);
+    now = (FICL_UNS)counter.QuadPart;
+#else
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    now = (FICL_UNS)ts.tv_sec * 1000000000u + (FICL_UNS)ts.tv_nsec;
+#endif
+    stackPushUNS(pVM->pStack, now);
     return;
 }
 
 static void clocksPerSec(FICL_VM *pVM)
 {
-    stackPushUNS(pVM->pStack, CLOCKS_PER_SEC);
+#if defined(_WIN32)
+    LARGE_INTEGER freq;
+    QueryPerformanceFrequency(&freq);
+    stackPushUNS(pVM->pStack, (FICL_UNS)freq.QuadPart);
+#else
+    stackPushUNS(pVM->pStack, 1000000000u);
+#endif
     return;
 }
 
@@ -470,5 +490,4 @@ int main(int argc, char **argv)
     ficlTermSystem(pSys);
     return 0;
 }
-
 

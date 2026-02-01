@@ -311,6 +311,15 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #define PORTABLE_LONGMULDIV 1
 #endif
 
+/*
+** INLINE_INNER_LOOP causes the inner interpreter to be inline code
+** instead of a function call. This can be useful for some toolchains,
+** but the default here is a function-based inner loop.
+*/
+#if !defined INLINE_INNER_LOOP
+#define INLINE_INNER_LOOP 0
+#endif
+
 
 /*
 ** FICL_ROBUST enables bounds checking of stacks and the dictionary.
@@ -322,7 +331,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 */
 
 #if !defined FICL_ROBUST
-#define FICL_ROBUST 2
+#define FICL_ROBUST 1
 #endif
 
 /*
