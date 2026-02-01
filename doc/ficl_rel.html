@@ -67,7 +67,7 @@ Revised portable DP math routines for 32 and 64 bit machines. Unit tests for dpm
 MacOS build support.
 </li>
 <li>
-All known bugs in the 3.x releases fixed and tested. Retired Ficl 4. 
+All known bugs in the 3.x releases fixed and tested. Retired Ficl 4.
 </li>
 <li>
 Various updates to reduce standard library dependency and incorporate recent Standard C changes.
@@ -172,7 +172,7 @@ Ficlwin uses multi-system constructs (see ficlthread.c)
 Documentation changes:
 <ul>
 <li>
-Corrected various bugs in docs. 
+Corrected various bugs in docs.
 </li>
 <li>
 Added ficl-ized version of JV Noble's Forth Primer
@@ -262,7 +262,7 @@ Added pSys parameter to most ficlXXXX functions for multiple system support. Aff
 <li>Ficl parse-steps now work correctly - mods to interpret()</li>
 <li>Made tools.c:isAFiclWord more selective</li>
 <li>Tweaked makefiles and code to make gcc happy under linux</li>
-<li>Vetted all instances of LVALUEtoCELL to make sure they're working on CELL sized operands 
+<li>Vetted all instances of LVALUEtoCELL to make sure they're working on CELL sized operands
 (for 64 bit compatibility)</li>
 </ul>
 
@@ -279,7 +279,7 @@ Added pSys parameter to most ficlXXXX functions for multiple system support. Aff
 </ul>
 <li>Added Guy Carver's changes to oo.fr for VTABLE support</li>
 <li><code>float.c</code> words f&gt; and &gt;f to move floats to and from the param stack, analogous to &gt;r and r&gt;</li>
-<li><code>LOOKUP</code> - Surrogate precompiled parse step for ficlParseWord (this step is hard 
+<li><code>LOOKUP</code> - Surrogate precompiled parse step for ficlParseWord (this step is hard
   coded in <code>INTERPRET</code>)</li>
 <li>License text at top of source files changed from LGPL to BSD by request</li>
 <li>Win32 console version now handles exceptions more gracefully rather than crashing - uses win32
@@ -302,7 +302,7 @@ to expect AU. </li>
 <li>The text interpreter is now extensible - this is accomplished through the use
 of <code>ficlAddParseStep()</code>. <code>FICL_MAX_PARSE_STEPS</code> limits the number of parse steps
 (default: 8). You can write a precompiled parse step (see <code>ficlParseNumber</code>) and
-append it to the chain, or you can write one in ficl and use <code>ADD-PARSE-STEP</code> 
+append it to the chain, or you can write one in ficl and use <code>ADD-PARSE-STEP</code>
 to append it. Default parse steps are initialized in <code>ficlInitSystem</code>. You can list
 the parse steps with <code>parse-order ( -- )</code>.</li>
 <li>There is now a FICL_SYSTEM structure. This is a transitional release - version 3.0
@@ -320,10 +320,10 @@ Ficl is now 64 bit friendly! UNS32 is now FICL_UNS.</li>
 <li>Floating point support contributed by Guy Carver (Enable FICL_WANT_FLOAT in sysdep.h).</li>
 <li>Win32 vtable model for objects (Guy Carver)</li>
 <li>Win32 dll load/call suport (Larry Hastings)</li>
-<li>Prefix support (Larry Hastings) (prefix.c prefix.fr FICL_EXTENDED_PREFIX) makes it 
+<li>Prefix support (Larry Hastings) (prefix.c prefix.fr FICL_EXTENDED_PREFIX) makes it
 easy to extend the parser to recignize prefixes like 0x and act on them. Use show-prefixes
 to see what's defined.</li>
-<li>Cleaned up initialization sequence so that it's all in ficlInitSystem, and so that 
+<li>Cleaned up initialization sequence so that it's all in ficlInitSystem, and so that
 a VM can be created successfully before the dictionary is created</li>
 </ul>
 
@@ -452,7 +452,7 @@ object subclass myfclass hasvtable   \ hasvtable adds 4 to the offset to
                                    \  accommodate for the VTABLE pointer.
 0 VCALL: Destructor()      \ VCALL: ( ParamCount -<MethodName>- )
 1 VCALL: Test(int)         \ Test takes 1 int parameter.
-2 VCALLR: iTest(int,char)  \ iTest takes 2 parameters and returns an int.  
+2 VCALLR: iTest(int,char)  \ iTest takes 2 parameters and returns an int.
 0 VCALLF: fTest()          \ fTest takes no parameters and returns a float.
 end-class
 
@@ -681,7 +681,7 @@ since the check accepts all syntactally legal constructs.</li>
 <li>
 Added vmInnerLoop() to vm.h. This function/macro factors the inner&nbsp;
 interpreter out of ficlExec so it can be used in other places. Function/macro
-behavior is conditioned on INLINE_INNER_LOOP in sysdep.h. Default: 1 unless
+behavior is conditioned on FICL_SUBR_THREADING in sysdep.h. Default: 1 unless
 _DEBUG is set. In part, this is because VC++ 5 goes apoplectic when trying
 to compile it as a function. See&nbsp;</li>
 

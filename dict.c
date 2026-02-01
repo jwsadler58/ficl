@@ -250,6 +250,25 @@ FICL_WORD *dictAppendWord(FICL_DICT *pDict,
     return dictAppendWord2(pDict, si, pCode, flags);
 }
 
+/**************************************************************************
+                        d i c t A p p e n d O p W o r d
+** Create a new word in the dictionary with the specified
+** name, code, flags, and opcode. Name must be NULL-terminated.
+**************************************************************************/
+FICL_WORD *dictAppendOpWord(FICL_DICT *pDict,
+                            char *name,
+                            FICL_CODE pCode,
+                            UNS8 flags,
+                            FICL_OPCODE opcode)
+{
+    STRINGINFO si;
+    SI_SETLEN(si, strlen(name));
+    SI_SETPTR(si, name);
+    FICL_WORD *pFW = dictAppendWord2(pDict, si, pCode, flags);
+    pFW->opcode = opcode;
+    return pFW;
+}
+
 
 /**************************************************************************
                         d i c t A p p e n d W o r d 2

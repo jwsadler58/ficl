@@ -1757,58 +1757,39 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
 {
     FICL_DICT *dp = pSys->dp;
     FICL_VM   *pVM = pSys->vmList;
-    FICL_WORD *pWord;
     assert(dp);
     assert(pVM);
 
 /* 12.6.1 Floating-point words */
     dictAppendWord(dp, ">float",    toFloat,        FW_DEFAULT);
 /*                      d>f         unimplemented  */
-    pWord = dictAppendWord(dp, "f!",        Fstore,         FW_DEFAULT);
-    pWord->opcode = FICL_OP_FSTORE;
-    pWord = dictAppendWord(dp, "f*",        Fmul,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FSTAR;
-    pWord = dictAppendWord(dp, "f+",        Fadd,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FPLUS;
-    pWord = dictAppendWord(dp, "f-",        Fsub,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FMINUS;
-    pWord = dictAppendWord(dp, "f/",        Fdiv,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FSLASH;
-    pWord = dictAppendWord(dp, "f0<",       FzeroLess,      FW_DEFAULT);
-    pWord->opcode = FICL_OP_F0LESS;
-    pWord = dictAppendWord(dp, "f0=",       FzeroEquals,    FW_DEFAULT);
-    pWord->opcode = FICL_OP_F0EQUALS;
-    pWord = dictAppendWord(dp, "f<",        FisLess,        FW_DEFAULT);
-    pWord->opcode = FICL_OP_FLESS;
+    dictAppendOpWord(dp, "f!",        Fstore,         FW_DEFAULT, FICL_OP_FSTORE);
+    dictAppendOpWord(dp, "f*",        Fmul,           FW_DEFAULT, FICL_OP_FSTAR);
+    dictAppendOpWord(dp, "f+",        Fadd,           FW_DEFAULT, FICL_OP_FPLUS);
+    dictAppendOpWord(dp, "f-",        Fsub,           FW_DEFAULT, FICL_OP_FMINUS);
+    dictAppendOpWord(dp, "f/",        Fdiv,           FW_DEFAULT, FICL_OP_FSLASH);
+    dictAppendOpWord(dp, "f0<",       FzeroLess,      FW_DEFAULT, FICL_OP_F0LESS);
+    dictAppendOpWord(dp, "f0=",       FzeroEquals,    FW_DEFAULT, FICL_OP_F0EQUALS);
+    dictAppendOpWord(dp, "f<",        FisLess,        FW_DEFAULT, FICL_OP_FLESS);
 /*                      f>d         unimplemented  */
-    pWord = dictAppendWord(dp, "f@",        Ffetch,         FW_DEFAULT);
-    pWord->opcode = FICL_OP_FFETCH;
+    dictAppendOpWord(dp, "f@",        Ffetch,         FW_DEFAULT, FICL_OP_FFETCH);
     dictAppendWord(dp, "falign",    Falign,         FW_DEFAULT);
     dictAppendWord(dp, "faligned",  Faligned,       FW_DEFAULT);
     dictAppendWord(dp, "fconstant", fConstant,      FW_DEFAULT);
-    pWord = dictAppendWord(dp, "fdepth",    Fdepth,         FW_DEFAULT);
-    pWord->opcode = FICL_OP_FDEPTH;
-    pWord = dictAppendWord(dp, "fdrop",     Fdrop,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FDROP;
-    pWord = dictAppendWord(dp, "fdup",      Fdup,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FDUP;
+    dictAppendOpWord(dp, "fdepth",    Fdepth,         FW_DEFAULT, FICL_OP_FDEPTH);
+    dictAppendOpWord(dp, "fdrop",     Fdrop,          FW_DEFAULT, FICL_OP_FDROP);
+    dictAppendOpWord(dp, "fdup",      Fdup,           FW_DEFAULT, FICL_OP_FDUP);
     dictAppendWord(dp, "fliteral",  fliteralIm,     FW_IMMEDIATE);
     dictAppendWord(dp, "float+",    FfloatPlus,     FW_DEFAULT);
     dictAppendWord(dp, "floats",    Ffloats,        FW_DEFAULT);
     dictAppendWord(dp, "floor",     Ffloor,         FW_DEFAULT);
-    pWord = dictAppendWord(dp, "fmax",      Fmax,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FMAX;
-    pWord = dictAppendWord(dp, "fmin",      Fmin,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FMIN;
-    pWord = dictAppendWord(dp, "fnegate",   Fnegate,        FW_DEFAULT);
-    pWord->opcode = FICL_OP_FNEGATE;
-    pWord = dictAppendWord(dp, "fover",     Fover,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FOVER;
-    pWord = dictAppendWord(dp, "frot",      Frot,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FROT;
+    dictAppendOpWord(dp, "fmax",      Fmax,           FW_DEFAULT, FICL_OP_FMAX);
+    dictAppendOpWord(dp, "fmin",      Fmin,           FW_DEFAULT, FICL_OP_FMIN);
+    dictAppendOpWord(dp, "fnegate",   Fnegate,        FW_DEFAULT, FICL_OP_FNEGATE);
+    dictAppendOpWord(dp, "fover",     Fover,          FW_DEFAULT, FICL_OP_FOVER);
+    dictAppendOpWord(dp, "frot",      Frot,           FW_DEFAULT, FICL_OP_FROT);
     dictAppendWord(dp, "fround",    Fround,         FW_DEFAULT);
-    pWord = dictAppendWord(dp, "fswap",     Fswap,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FSWAP;
+    dictAppendOpWord(dp, "fswap",     Fswap,          FW_DEFAULT, FICL_OP_FSWAP);
     dictAppendWord(dp, "fvariable", Fvariable,      FW_DEFAULT);
 /*                      represent   unimplemented */
 
@@ -1834,10 +1815,8 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
 */
     dictAppendWord(dp, "f**",       Fpower,         FW_DEFAULT);
     dictAppendWord(dp, "f.",        FDotWithPrecision, FW_DEFAULT);
-    pWord = dictAppendWord(dp, "f>s",       fToS,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_F_TO_S;
-    pWord = dictAppendWord(dp, "fabs",      Fabs,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_FABS;
+    dictAppendOpWord(dp, "f>s",       fToS,           FW_DEFAULT, FICL_OP_F_TO_S);
+    dictAppendOpWord(dp, "fabs",      Fabs,           FW_DEFAULT, FICL_OP_FABS);
     dictAppendWord(dp, "facos",     Facos,          FW_DEFAULT);
     dictAppendWord(dp, "facosh",    Facosh,         FW_DEFAULT);
     dictAppendWord(dp, "falog",     Falog,          FW_DEFAULT);
@@ -1865,8 +1844,7 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "ftanh",     Ftanh,          FW_DEFAULT);
     dictAppendWord(dp, "ftrunc",    Ftrunc,         FW_DEFAULT);
     dictAppendWord(dp, "precision", Fprecision,     FW_DEFAULT);
-    pWord = dictAppendWord(dp, "s>f",       sToF,           FW_DEFAULT);
-    pWord->opcode = FICL_OP_S_TO_F;
+    dictAppendOpWord(dp, "s>f",       sToF,           FW_DEFAULT, FICL_OP_S_TO_F);
     dictAppendWord(dp, "set-precision", FsetPrecision, FW_DEFAULT);
 
 /*  Ficl floating point extras */
@@ -1880,45 +1858,26 @@ void ficlCompileFloat(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "fe",        Fe,             FW_DEFAULT);
 
     dictAppendWord(dp, "f.s",       displayFStack,  FW_DEFAULT);
-    pWord = dictAppendWord(dp, "f?dup",     FquestionDup,   FW_DEFAULT);
-    pWord->opcode = FICL_OP_FQUESTION_DUP;
-    pWord = dictAppendWord(dp, "f~=",       fIsClose,     FW_DEFAULT);
-    pWord->opcode = FICL_OP_FTILDEQUAL;
+    dictAppendOpWord(dp, "f?dup",     FquestionDup,   FW_DEFAULT, FICL_OP_FQUESTION_DUP);
+    dictAppendOpWord(dp, "f~=",       fIsClose,     FW_DEFAULT, FICL_OP_FCLOSE);
     dictAppendWord(dp, "f=",        FIsEqual,       FW_DEFAULT);
-    pWord = dictAppendWord(dp, "f>",        FisGreater,     FW_DEFAULT);
-    pWord->opcode = FICL_OP_FGREATER;
-    pWord = dictAppendWord(dp, "f0>",       FzeroGreater,   FW_DEFAULT);
-    pWord->opcode = FICL_OP_F0GREATER;
-    pWord = dictAppendWord(dp, "f2drop",    FtwoDrop,       FW_DEFAULT);
-    pWord->opcode = FICL_OP_F2DROP;
-    pWord = dictAppendWord(dp, "f2dup",     FtwoDup,        FW_DEFAULT);
-    pWord->opcode = FICL_OP_F2DUP;
-    pWord = dictAppendWord(dp, "f2over",    FtwoOver,       FW_DEFAULT);
-    pWord->opcode = FICL_OP_F2OVER;
-    pWord = dictAppendWord(dp, "f2swap",    FtwoSwap,       FW_DEFAULT);
-    pWord->opcode = FICL_OP_F2SWAP;
-    pWord = dictAppendWord(dp, "f+!",       FplusStore,     FW_DEFAULT);
-    pWord->opcode = FICL_OP_FPLUS_STORE;
-    pWord = dictAppendWord(dp, "f+i",       Faddi,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FPLUS_I;
-    pWord = dictAppendWord(dp, "f-i",       Fsubi,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FMINUS_I;
-    pWord = dictAppendWord(dp, "f*i",       Fmuli,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FSTAR_I;
-    pWord = dictAppendWord(dp, "f/i",       Fdivi,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FSLASH_I;
-    pWord = dictAppendWord(dp, "fpick",     Fpick,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FPICK;
-    pWord = dictAppendWord(dp, "froll",     Froll,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_FROLL;
-    pWord = dictAppendWord(dp, "i-f",       isubf,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_I_MINUS_F;
-    pWord = dictAppendWord(dp, "i/f",       idivf,          FW_DEFAULT);
-    pWord->opcode = FICL_OP_I_SLASH_F;
-    pWord = dictAppendWord(dp, "f-roll",    FminusRoll,     FW_DEFAULT);
-    pWord->opcode = FICL_OP_FMINUS_ROLL;
-    pWord = dictAppendWord(dp, "f-rot",     Fminusrot,      FW_DEFAULT);
-    pWord->opcode = FICL_OP_FMINUS_ROT;
+    dictAppendOpWord(dp, "f>",        FisGreater,     FW_DEFAULT, FICL_OP_FGREATER);
+    dictAppendOpWord(dp, "f0>",       FzeroGreater,   FW_DEFAULT, FICL_OP_F0GREATER);
+    dictAppendOpWord(dp, "f2drop",    FtwoDrop,       FW_DEFAULT, FICL_OP_F2DROP);
+    dictAppendOpWord(dp, "f2dup",     FtwoDup,        FW_DEFAULT, FICL_OP_F2DUP);
+    dictAppendOpWord(dp, "f2over",    FtwoOver,       FW_DEFAULT, FICL_OP_F2OVER);
+    dictAppendOpWord(dp, "f2swap",    FtwoSwap,       FW_DEFAULT, FICL_OP_F2SWAP);
+    dictAppendOpWord(dp, "f+!",       FplusStore,     FW_DEFAULT, FICL_OP_FPLUS_STORE);
+    dictAppendOpWord(dp, "f+i",       Faddi,          FW_DEFAULT, FICL_OP_FPLUS_I);
+    dictAppendOpWord(dp, "f-i",       Fsubi,          FW_DEFAULT, FICL_OP_FMINUS_I);
+    dictAppendOpWord(dp, "f*i",       Fmuli,          FW_DEFAULT, FICL_OP_FSTAR_I);
+    dictAppendOpWord(dp, "f/i",       Fdivi,          FW_DEFAULT, FICL_OP_FSLASH_I);
+    dictAppendOpWord(dp, "fpick",     Fpick,          FW_DEFAULT, FICL_OP_FPICK);
+    dictAppendOpWord(dp, "froll",     Froll,          FW_DEFAULT, FICL_OP_FROLL);
+    dictAppendOpWord(dp, "i-f",       isubf,          FW_DEFAULT, FICL_OP_I_MINUS_F);
+    dictAppendOpWord(dp, "i/f",       idivf,          FW_DEFAULT, FICL_OP_I_SLASH_F);
+    dictAppendOpWord(dp, "f-roll",    FminusRoll,     FW_DEFAULT, FICL_OP_FMINUS_ROLL);
+    dictAppendOpWord(dp, "f-rot",     Fminusrot,      FW_DEFAULT, FICL_OP_FMINUS_ROT);
     dictAppendWord(dp, "(fliteral)", fliteralParen, FW_COMPILE);
 
     ficlSetEnv(pSys, "floating",       FICL_TRUE);

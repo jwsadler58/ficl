@@ -756,7 +756,7 @@
             dataTop++; \
             goto OP_DONE; \
         } \
-        case FICL_OP_FTILDEQUAL: { \
+        case FICL_OP_FCLOSE: { \
             FICL_FLOAT diff; \
             FICL_FLOAT f1; \
             FICL_FLOAT f2; \
@@ -766,6 +766,17 @@
             f2 = *--floatTop; \
             diff = (FICL_FLOAT)fabs((double)(f2 - f1)); \
             dataTop->i = FICL_BOOL(diff < (FICL_FLOAT)(2 * FICL_FLOAT_EPSILON)); \
+            dataTop++; \
+            goto OP_DONE; \
+        } \
+        case FICL_OP_FEQUAL: { \
+            FICL_FLOAT x; \
+            FICL_FLOAT y; \
+            VM_CHECK_STACK_LOCAL(0, 1); \
+            VM_CHECK_FSTACK_LOCAL(2, 0); \
+            y = *--floatTop; \
+            x = *--floatTop; \
+            dataTop->i = FICL_BOOL(x == y); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -1057,7 +1068,7 @@ CALL_FALLBACK:
     pWord->code(pVM);
 }
 
-#if INLINE_INNER_LOOP == 0
+#if FICL_SUBR_THREADING == 0
 void vmInnerLoop(FICL_VM *pVM)
 {
     FICL_WORD *pWord;

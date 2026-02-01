@@ -8,44 +8,80 @@ LIB      = ar cr
 RANLIB   = ranlib
 
 
-OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
-          prefix.o search.o softcore.o stack.o \
-          sysdep.o tools.o unity.o vm.o words.o
-DEPS    = $(OBJECTS:.o=.d) testmain.d
+OBJDIR          = obj
+FICL_OBJDIR     = $(OBJDIR)/ficl
+FICLMIN_OBJDIR  = $(OBJDIR)/ficlmin
+FICLSUBR_OBJDIR = $(OBJDIR)/ficlsubr
+
+FICL_SRCS = dict.c ficl.c fileaccess.c float.c dpmath.c \
+            prefix.c search.c softcore.c stack.c \
+            sysdep.c tools.c unity.c vm.c words.c
+FICL_OBJS = $(FICL_SRCS:.c=.o)
+
+CFLAGS_FICL     =
+CFLAGS_FICLMIN  = -DFICL_MINIMAL=1
+CFLAGS_FICLSUBR = -DFICL_SUBR_THREADING=1
+
+LIBFICL_OBJS     = $(addprefix $(FICL_OBJDIR)/,$(FICL_OBJS))
+LIBFICLMIN_OBJS  = $(addprefix $(FICLMIN_OBJDIR)/,$(FICL_OBJS))
+LIBFICLSUBR_OBJS = $(addprefix $(FICLSUBR_OBJDIR)/,$(FICL_OBJS))
+
+FICL_TEST_OBJ     = $(FICL_OBJDIR)/testmain.o
+FICLMIN_TEST_OBJ  = $(FICLMIN_OBJDIR)/testmain.o
+FICLSUBR_TEST_OBJ = $(FICLSUBR_OBJDIR)/testmain.o
+
+DEPS = $(LIBFICL_OBJS:.o=.d) $(LIBFICLMIN_OBJS:.o=.d) $(LIBFICLSUBR_OBJS:.o=.d) \
+       $(FICL_TEST_OBJ:.o=.d) $(FICLMIN_TEST_OBJ:.o=.d) $(FICLSUBR_TEST_OBJ:.o=.d)
 
 # === Softcore.c is generated from softwords folder ===
 softcore.c:
 	make -C softwords softcore.c
 	cp softwords/softcore.c .
 
+# === Default target ===
+ficl: $(FICL_TEST_OBJ) libficl.a
+	$(CC) $(FICL_TEST_OBJ) -o ficl -L. -lficl -lm
+
 # === Static library ===
-libficl.a: $(OBJECTS)
-	$(LIB) $@ $(OBJECTS)
+libficl.a: $(LIBFICL_OBJS)
+	$(LIB) $@ $(LIBFICL_OBJS)
 	$(RANLIB) $@
 
-# === Console Test executable ===
-CONSOLE = ficl
+libficlmin.a: $(LIBFICLMIN_OBJS)
+	$(LIB) $@ $(LIBFICLMIN_OBJS)
+	$(RANLIB) $@
 
-console: testmain.o ficl.h sysdep.h libficl.a
-	$(CC) testmain.o -o $(CONSOLE) -L. -lficl -lm
+libficlsubr.a: $(LIBFICLSUBR_OBJS)
+	$(LIB) $@ $(LIBFICLSUBR_OBJS)
+	$(RANLIB) $@
 
-ficl:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) console CONSOLE=ficl
+ficlmin: $(FICLMIN_TEST_OBJ) libficlmin.a
+	$(CC) $(FICLMIN_TEST_OBJ) -o ficlmin -L. -lficlmin -lm
 
-ficlmin:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) clean-objects
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) console CONSOLE=ficlmin CFLAGS="$(CFLAGS) -DFICL_MINIMAL=1"
-
-ficlsubr:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) clean-objects
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) console CONSOLE=ficlsubr CFLAGS="$(CFLAGS) -DINLINE_INNER_LOOP=1"
+ficlsubr: $(FICLSUBR_TEST_OBJ) libficlsubr.a
+	$(CC) $(FICLSUBR_TEST_OBJ) -o ficlsubr -L. -lficlsubr -lm
 
 
 # === Compile rules ===
-.SUFFIXES: .cxx .cc .c .o
+.SUFFIXES: .c .o
 
-.c.o:
-	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
+$(FICL_OBJDIR)/%.o: %.c | $(FICL_OBJDIR) softcore.c
+	$(CC) $(CFLAGS) $(CFLAGS_FICL) $(DEPFLAGS) -MF $(@:.o=.d) -c $< -o $@
+
+$(FICLMIN_OBJDIR)/%.o: %.c | $(FICLMIN_OBJDIR) softcore.c
+	$(CC) $(CFLAGS) $(CFLAGS_FICLMIN) $(DEPFLAGS) -MF $(@:.o=.d) -c $< -o $@
+
+$(FICLSUBR_OBJDIR)/%.o: %.c | $(FICLSUBR_OBJDIR) softcore.c
+	$(CC) $(CFLAGS) $(CFLAGS_FICLSUBR) $(DEPFLAGS) -MF $(@:.o=.d) -c $< -o $@
+
+$(FICL_OBJDIR):
+	@mkdir -p $(FICL_OBJDIR)
+
+$(FICLMIN_OBJDIR):
+	@mkdir -p $(FICLMIN_OBJDIR)
+
+$(FICLSUBR_OBJDIR):
+	@mkdir -p $(FICLSUBR_OBJDIR)
 
 
 -include $(DEPS)
@@ -53,11 +89,15 @@ ficlsubr:
 #
 #  === utility targets ===
 #
+.PHONY: clean clean-objects tags wasm
+
 clean:
-	rm -f *.o *.a *.d tags ficl_wasm.js ficl_wasm.wasm softcore.c
+	rm -rf $(OBJDIR)
+	rm -f *.a tags ficl ficlmin ficlsubr ficl_wasm.js ficl_wasm.wasm softcore.c
 
 clean-objects:
-	rm -f *.o *.a *.d
+	rm -rf $(OBJDIR)
+	rm -f *.a
 
 tags:
 	ctags -w *

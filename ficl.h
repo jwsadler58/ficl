@@ -533,7 +533,8 @@ typedef enum
     FICL_OP_F0EQUALS,
     FICL_OP_F0GREATER,
     FICL_OP_FLESS,
-    FICL_OP_FTILDEQUAL,
+    FICL_OP_FCLOSE,
+    FICL_OP_FEQUAL,
     FICL_OP_FGREATER,
     FICL_OP_FDEPTH,
     FICL_OP_S_TO_F,
@@ -641,7 +642,7 @@ int         isPowerOfTwo   (FICL_UNS u);
         (pVM)->runningWord = tempFW; \
         tempFW->code(pVM);
 
-#if INLINE_INNER_LOOP != 0
+#if FICL_SUBR_THREADING != 0
     #define M_INNER_LOOP(pVM) \
         for (;;)  { M_VM_STEP(pVM) }
 
@@ -780,10 +781,16 @@ void        dictAppendChar (FICL_DICT *pDict, char c);
 #if FICL_WANT_FLOAT
 void        dictAppendFloat(FICL_DICT *pDict, FICL_FLOAT f);
 #endif
+
 FICL_WORD  *dictAppendWord (FICL_DICT *pDict,
                            char *name,
                            FICL_CODE pCode,
                            UNS8 flags);
+FICL_WORD  *dictAppendOpWord(FICL_DICT *pDict,
+                             char *name,
+                             FICL_CODE pCode,
+                             UNS8 flags,
+                             FICL_OPCODE opcode);
 FICL_WORD  *dictAppendWord2(FICL_DICT *pDict,
                            STRINGINFO si,
                            FICL_CODE pCode,

@@ -312,12 +312,11 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
-** INLINE_INNER_LOOP causes the inner interpreter to be inline code
-** instead of a function call. This can be useful for some toolchains,
-** but the default here is a function-based inner loop.
+** FICL_SUBR_THREADING causes the inner interpreter to use subroutine threading at all times.
+** If this is 0 (default), we will use hybrid token threading instead for speed.
 */
-#if !defined INLINE_INNER_LOOP
-#define INLINE_INNER_LOOP 0
+#if !defined FICL_SUBR_THREADING
+#define FICL_SUBR_THREADING 0
 #endif
 
 
