@@ -93,7 +93,7 @@ $(FICLSUBR_OBJDIR):
 
 clean:
 	rm -rf $(OBJDIR)
-	rm -f *.a tags ficl ficlmin ficlsubr ficl_wasm.js ficl_wasm.wasm softcore.c
+	rm -f *.a tags softcore.c
 
 clean-objects:
 	rm -rf $(OBJDIR)

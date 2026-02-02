@@ -105,7 +105,7 @@ testing number builder
 
 s" floating" environment?
 [if] drop
-    testing floating point
+testing floating point
     { fdepth -> 0 }
     { 1e0 2e0 f+ 3e0 f- f0= -> true }
     { 6e0 2e0 f/ 3e0 f- f0= -> true }
@@ -126,7 +126,7 @@ s" floating" environment?
     { fconst2 -> flit1 }
     { fconst3 to fconst2 fconst2 fconst3 f~= -> true }
 
-    testing compiled float literals
+testing compiled float literals
     fvariable vflit
     : t-flit-store  100e vflit f! ;
     { t-flit-store vflit f@ 100e f- f0= -> true }

@@ -64,11 +64,11 @@
             int depth = (int)(dataTop - pVM->pStack->base); \
             if (depth < (pop)) { \
                 pVM->pStack->sp = dataTop; \
-                vmThrowErr(pVM, "Error: stack underflow"); \
+                vmThrowUnderflow(pVM); \
             } \
             if (depth - (pop) + (push) > (int)pVM->pStack->nCells) { \
                 pVM->pStack->sp = dataTop; \
-                vmThrowErr(pVM, "Error: stack overflow"); \
+                vmThrowOverflow(pVM); \
             } \
         } while (0)
 #else
@@ -78,18 +78,19 @@
 
 #if FICL_WANT_FLOAT
     #if FICL_ROBUST > 1
+        /* Float stack cached - use local floatTop variable */
         #define VM_CHECK_FSTACK_LOCAL(pop, push) \
             do { \
                 int fdepth = (int)(floatTop - pVM->fStack->base); \
                 if (fdepth < (pop)) { \
                     pVM->fStack->sp = floatTop; \
                     pVM->pStack->sp = dataTop; \
-                    vmThrowErr(pVM, "Error: fstack underflow"); \
+                    vmThrowUnderflow(pVM); \
                 } \
                 if (fdepth - (pop) + (push) > (int)pVM->fStack->nCells) { \
                     pVM->fStack->sp = floatTop; \
                     pVM->pStack->sp = dataTop; \
-                    vmThrowErr(pVM, "Error: fstack overflow"); \
+                    vmThrowOverflow(pVM); \
                 } \
             } while (0)
     #else
@@ -98,58 +99,60 @@
     #endif
 #endif
 
+/*
+** X-Macro definitions for stack operations
+** Each operation is defined once and can be instantiated with different continuations.
+** The generator takes: (label, name, pop_count, push_count, code_block)
+** where 'label' is the goto target (OP_DONE or OP_CONTINUE)
+*/
+#define GEN_OP_CASE_LABEL(label, name, pop, push, code) \
+    case FICL_OP_##name: { \
+        VM_CHECK_STACK_LOCAL(pop, push); \
+        code \
+        goto label; \
+    }
+
+/* Old macro now uses X-macro (fully backward compatible) */
 #define VM_OP_CASES_BASE(OP_DONE) \
-    case FICL_OP_DUP: { \
-        VM_CHECK_STACK_LOCAL(1, 2); \
+    STACK_OPS_LIST_WITH_LABEL(OP_DONE, GEN_OP_CASE_LABEL)
+
+#define STACK_OPS_LIST_WITH_LABEL(label, OP) \
+    OP(label, DUP, 1, 2, { \
         *dataTop = dataTop[-1]; \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_DROP: { \
-        VM_CHECK_STACK_LOCAL(1, 0); \
+    }) \
+    OP(label, DROP, 1, 0, { \
         dataTop--; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_SWAP: { \
-        VM_CHECK_STACK_LOCAL(2, 2); \
+    }) \
+    OP(label, SWAP, 2, 2, { \
         c = dataTop[-1]; \
         dataTop[-1] = dataTop[-2]; \
         dataTop[-2] = c; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_OVER: { \
-        VM_CHECK_STACK_LOCAL(2, 3); \
+    }) \
+    OP(label, OVER, 2, 3, { \
         *dataTop = dataTop[-2]; \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ROT: { \
-        VM_CHECK_STACK_LOCAL(3, 3); \
+    }) \
+    OP(label, ROT, 3, 3, { \
         c = dataTop[-3]; \
         dataTop[-3] = dataTop[-2]; \
         dataTop[-2] = dataTop[-1]; \
         dataTop[-1] = c; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_MINUS_ROT: { \
-        VM_CHECK_STACK_LOCAL(3, 3); \
+    }) \
+    OP(label, MINUS_ROT, 3, 3, { \
         c = dataTop[-1]; \
         dataTop[-1] = dataTop[-2]; \
         dataTop[-2] = dataTop[-3]; \
         dataTop[-3] = c; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_PICK: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, PICK, 1, 1, { \
         i = dataTop[-1].i; \
         if (i >= 0) { \
             VM_CHECK_STACK_LOCAL(i + 2, i + 2); \
             dataTop[-1] = dataTop[-i - 2]; \
         } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ROLL: { \
-        VM_CHECK_STACK_LOCAL(1, 0); \
+    }) \
+    OP(label, ROLL, 1, 0, { \
         i = (--dataTop)->i; \
         if (i > 0) { \
             VM_CHECK_STACK_LOCAL(i + 1, i + 1); \
@@ -157,10 +160,8 @@
             memmove(&dataTop[-i - 1], &dataTop[-i], i * sizeof(CELL)); \
             dataTop[-1] = c; \
         } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_MINUS_ROLL: { \
-        VM_CHECK_STACK_LOCAL(1, 0); \
+    }) \
+    OP(label, MINUS_ROLL, 1, 0, { \
         i = (--dataTop)->i; \
         if (i > 0) { \
             VM_CHECK_STACK_LOCAL(i + 1, i + 1); \
@@ -168,154 +169,102 @@
             memmove(&dataTop[-i], &dataTop[-i - 1], i * sizeof(CELL)); \
             dataTop[-i - 1] = c; \
         } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2DUP: { \
-        VM_CHECK_STACK_LOCAL(2, 4); \
+    }) \
+    OP(label, 2DUP, 2, 4, { \
         dataTop[0] = dataTop[-2]; \
         dataTop[1] = dataTop[-1]; \
         dataTop += 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2DROP: { \
-        VM_CHECK_STACK_LOCAL(2, 0); \
+    }) \
+    OP(label, 2DROP, 2, 0, { \
         dataTop -= 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2SWAP: { \
-        VM_CHECK_STACK_LOCAL(4, 4); \
+    }) \
+    OP(label, 2SWAP, 4, 4, { \
         c = dataTop[-1]; \
         c2 = dataTop[-2]; \
         dataTop[-1] = dataTop[-3]; \
         dataTop[-2] = dataTop[-4]; \
         dataTop[-3] = c; \
         dataTop[-4] = c2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2OVER: { \
-        VM_CHECK_STACK_LOCAL(4, 6); \
+    }) \
+    OP(label, 2OVER, 4, 6, { \
         dataTop[0] = dataTop[-4]; \
         dataTop[1] = dataTop[-3]; \
         dataTop += 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_QUESTION_DUP: { \
-        VM_CHECK_STACK_LOCAL(1, 2); \
+    }) \
+    OP(label, QUESTION_DUP, 1, 2, { \
         if (dataTop[-1].i != 0) { \
             *dataTop = dataTop[-1]; \
             dataTop++; \
         } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_FETCH: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, FETCH, 1, 1, { \
         dataTop[-1] = *(CELL *)dataTop[-1].p; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_STORE: { \
-        VM_CHECK_STACK_LOCAL(2, 0); \
-        { \
-            CELL *addr = (CELL *)(--dataTop)->p; \
-            *addr = *--dataTop; \
-        } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2FETCH: { \
-        VM_CHECK_STACK_LOCAL(1, 2); \
-        { \
-            CELL *addr = (CELL *)dataTop[-1].p; \
-            dataTop[-1] = addr[0]; \
-            *dataTop = addr[1]; \
-            dataTop++; \
-            c = dataTop[-1]; \
-            dataTop[-1] = dataTop[-2]; \
-            dataTop[-2] = c; \
-        } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2STORE: { \
-        VM_CHECK_STACK_LOCAL(3, 0); \
-        { \
-            CELL *addr = (CELL *)(--dataTop)->p; \
-            addr[0] = *--dataTop; \
-            addr[1] = *--dataTop; \
-        } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_PLUS_STORE: { \
-        VM_CHECK_STACK_LOCAL(2, 0); \
-        { \
-            CELL *addr = (CELL *)(--dataTop)->p; \
-            addr->i += (--dataTop)->i; \
-        } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_C_FETCH: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, STORE, 2, 0, { \
+        CELL *addr = (CELL *)(--dataTop)->p; \
+        *addr = *--dataTop; \
+    }) \
+    OP(label, 2FETCH, 1, 2, { \
+        CELL *addr = (CELL *)dataTop[-1].p; \
+        dataTop[-1] = addr[0]; \
+        *dataTop = addr[1]; \
+        dataTop++; \
+        c = dataTop[-1]; \
+        dataTop[-1] = dataTop[-2]; \
+        dataTop[-2] = c; \
+    }) \
+    OP(label, 2STORE, 3, 0, { \
+        CELL *addr = (CELL *)(--dataTop)->p; \
+        addr[0] = *--dataTop; \
+        addr[1] = *--dataTop; \
+    }) \
+    OP(label, PLUS_STORE, 2, 0, { \
+        CELL *addr = (CELL *)(--dataTop)->p; \
+        addr->i += (--dataTop)->i; \
+    }) \
+    OP(label, C_FETCH, 1, 1, { \
         dataTop[-1].u = (FICL_UNS)(*(UNS8 *)dataTop[-1].p); \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_C_STORE: { \
-        VM_CHECK_STACK_LOCAL(2, 0); \
-        { \
-            UNS8 *addr = (UNS8 *)(--dataTop)->p; \
-            *addr = (UNS8)(--dataTop)->u; \
-        } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_W_FETCH: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, C_STORE, 2, 0, { \
+        UNS8 *addr = (UNS8 *)(--dataTop)->p; \
+        *addr = (UNS8)(--dataTop)->u; \
+    }) \
+    OP(label, W_FETCH, 1, 1, { \
         dataTop[-1].u = (FICL_UNS)(*(UNS16 *)dataTop[-1].p); \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_W_STORE: { \
-        VM_CHECK_STACK_LOCAL(2, 0); \
-        { \
-            UNS16 *addr = (UNS16 *)(--dataTop)->p; \
-            *addr = (UNS16)(--dataTop)->u; \
-        } \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_PLUS: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, W_STORE, 2, 0, { \
+        UNS16 *addr = (UNS16 *)(--dataTop)->p; \
+        *addr = (UNS16)(--dataTop)->u; \
+    }) \
+    OP(label, PLUS, 2, 1, { \
         i = (--dataTop)->i; \
         dataTop[-1].i += i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_MINUS: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, MINUS, 2, 1, { \
         i = (--dataTop)->i; \
         dataTop[-1].i -= i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_STAR: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, STAR, 2, 1, { \
         i = (--dataTop)->i; \
         dataTop[-1].i *= i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_SLASH: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, SLASH, 2, 1, { \
         i = (--dataTop)->i; \
         dataTop[-1].i /= i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_MOD: { \
+    }) \
+    OP(label, MOD, 2, 1, { \
         DPINT d1; \
         INTQR qr; \
-        VM_CHECK_STACK_LOCAL(2, 1); \
         i = (--dataTop)->i; \
         d1.lo = (--dataTop)->i; \
         dpmExtendI(d1); \
         qr = dpmSymmetricDivI(d1, i); \
         dataTop->i = qr.rem; \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_SLASH_MOD: { \
+    }) \
+    OP(label, SLASH_MOD, 2, 2, { \
         DPINT d1; \
         INTQR qr; \
-        VM_CHECK_STACK_LOCAL(2, 2); \
         i = (--dataTop)->i; \
         d1.lo = (--dataTop)->i; \
         dpmExtendI(d1); \
@@ -323,23 +272,19 @@
         dataTop[0].i = qr.rem; \
         dataTop[1].i = qr.quot; \
         dataTop += 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_STAR_SLASH: { \
+    }) \
+    OP(label, STAR_SLASH, 3, 1, { \
         DPINT prod; \
-        VM_CHECK_STACK_LOCAL(3, 1); \
         i = (--dataTop)->i; \
         c = *--dataTop; \
         c2 = *--dataTop; \
         prod = dpmMulI(c2.i, c.i); \
         dataTop->i = dpmSymmetricDivI(prod, i).quot; \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_STAR_SLASH_MOD: { \
+    }) \
+    OP(label, STAR_SLASH_MOD, 3, 2, { \
         DPINT prod; \
         INTQR qr; \
-        VM_CHECK_STACK_LOCAL(3, 2); \
         i = (--dataTop)->i; \
         c = *--dataTop; \
         c2 = *--dataTop; \
@@ -348,233 +293,183 @@
         dataTop[0].i = qr.rem; \
         dataTop[1].i = qr.quot; \
         dataTop += 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ONE_PLUS: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, ONE_PLUS, 1, 1, { \
         dataTop[-1].i += 1; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ONE_MINUS: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, ONE_MINUS, 1, 1, { \
         dataTop[-1].i -= 1; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_TWO_STAR: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, TWO_STAR, 1, 1, { \
         dataTop[-1].i *= 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_TWO_SLASH: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, TWO_SLASH, 1, 1, { \
         dataTop[-1].i >>= 1; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_NEGATE: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, NEGATE, 1, 1, { \
         dataTop[-1].i = -dataTop[-1].i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_MAX: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, MAX, 2, 1, { \
         i = (--dataTop)->i; \
         if (dataTop[-1].i < i) \
             dataTop[-1].i = i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_MIN: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, MIN, 2, 1, { \
         i = (--dataTop)->i; \
         if (dataTop[-1].i > i) \
             dataTop[-1].i = i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ZERO_LESS: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, ZERO_LESS, 1, 1, { \
         i = (--dataTop)->i; \
         dataTop->i = FICL_BOOL(i < 0); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ZERO_EQUALS: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, ZERO_EQUALS, 1, 1, { \
         i = (--dataTop)->i; \
         dataTop->i = FICL_BOOL(i == 0); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_ZERO_GREATER: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, ZERO_GREATER, 1, 1, { \
         i = (--dataTop)->i; \
         dataTop->i = FICL_BOOL(i > 0); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_LESS: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, LESS, 2, 1, { \
         i = (--dataTop)->i; \
         c = *--dataTop; \
         dataTop->i = FICL_BOOL(c.i < i); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_EQUALS: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, EQUALS, 2, 1, { \
         c = *--dataTop; \
         i = (--dataTop)->i; \
         dataTop->i = FICL_BOOL(i == c.i); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_GREATER: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, GREATER, 2, 1, { \
         i = (--dataTop)->i; \
         c = *--dataTop; \
         dataTop->i = FICL_BOOL(c.i > i); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_U_LESS: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, U_LESS, 2, 1, { \
         u = (--dataTop)->u; \
         c = *--dataTop; \
         dataTop->i = FICL_BOOL(c.u < u); \
         dataTop++; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_AND: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, AND, 2, 1, { \
         c = *--dataTop; \
         dataTop[-1].i &= c.i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_OR: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, OR, 2, 1, { \
         c = *--dataTop; \
         dataTop[-1].i |= c.i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_XOR: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, XOR, 2, 1, { \
         c = *--dataTop; \
         dataTop[-1].i ^= c.i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_INVERT: { \
-        VM_CHECK_STACK_LOCAL(1, 1); \
+    }) \
+    OP(label, INVERT, 1, 1, { \
         dataTop[-1].i = ~dataTop[-1].i; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_LSHIFT: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, LSHIFT, 2, 1, { \
         u = (--dataTop)->u; \
         dataTop[-1].u <<= u; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_RSHIFT: { \
-        VM_CHECK_STACK_LOCAL(2, 1); \
+    }) \
+    OP(label, RSHIFT, 2, 1, { \
         u = (--dataTop)->u; \
         dataTop[-1].u >>= u; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_TO_R: { \
-        VM_CHECK_STACK_LOCAL(1, 0); \
-        *returnTop++ = *--dataTop; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_R_FROM: { \
-        VM_CHECK_STACK_LOCAL(0, 1); \
-        *dataTop++ = *--returnTop; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_R_FETCH: { \
-        VM_CHECK_STACK_LOCAL(0, 1); \
-        *dataTop++ = returnTop[-1]; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2TO_R: { \
-        VM_CHECK_STACK_LOCAL(2, 0); \
+    }) \
+    OP(label, TO_R, 1, 0, { \
+        *pVM->rStack->sp++ = *--dataTop; \
+    }) \
+    OP(label, R_FROM, 0, 1, { \
+        *dataTop++ = *--pVM->rStack->sp; \
+    }) \
+    OP(label, R_FETCH, 0, 1, { \
+        *dataTop++ = pVM->rStack->sp[-1]; \
+    }) \
+    OP(label, 2TO_R, 2, 0, { \
         c = dataTop[-1]; \
         dataTop[-1] = dataTop[-2]; \
         dataTop[-2] = c; \
-        *returnTop++ = *--dataTop; \
-        *returnTop++ = *--dataTop; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2R_FROM: { \
-        VM_CHECK_STACK_LOCAL(0, 2); \
-        *dataTop++ = *--returnTop; \
-        *dataTop++ = *--returnTop; \
+        *pVM->rStack->sp++ = *--dataTop; \
+        *pVM->rStack->sp++ = *--dataTop; \
+    }) \
+    OP(label, 2R_FROM, 0, 2, { \
+        *dataTop++ = *--pVM->rStack->sp; \
+        *dataTop++ = *--pVM->rStack->sp; \
         c = dataTop[-1]; \
         dataTop[-1] = dataTop[-2]; \
         dataTop[-2] = c; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_2R_FETCH: { \
-        VM_CHECK_STACK_LOCAL(0, 2); \
-        dataTop[0] = returnTop[-2]; \
-        dataTop[1] = returnTop[-1]; \
+    }) \
+    OP(label, 2R_FETCH, 0, 2, { \
+        dataTop[0] = pVM->rStack->sp[-2]; \
+        dataTop[1] = pVM->rStack->sp[-1]; \
         dataTop += 2; \
-        goto OP_DONE; \
-    } \
-    case FICL_OP_DEPTH: { \
-        VM_CHECK_STACK_LOCAL(0, 1); \
+    }) \
+    OP(label, DEPTH, 0, 1, { \
         dataTop->i = (FICL_INT)(dataTop - pVM->pStack->base); \
         dataTop++; \
-        goto OP_DONE; \
-    }
+    })
+
+/* Old VM_OP_CASES_BASE duplicate code removed - now generated from X-macro above */
 
 #if FICL_WANT_FLOAT
+    /* Macro to access float stack top - abstracts whether it's cached or not */
+    #define FSTACK_TOP floatTop
+
     #define VM_OP_CASES_FLOAT(OP_DONE) \
         case FICL_OP_FDUP: { \
             VM_CHECK_FSTACK_LOCAL(1, 2); \
-            *floatTop = floatTop[-1]; \
-            floatTop++; \
+            *FSTACK_TOP = FSTACK_TOP[-1]; \
+            FSTACK_TOP++; \
             goto OP_DONE; \
         } \
         case FICL_OP_FDROP: { \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            floatTop--; \
+            FSTACK_TOP--; \
             goto OP_DONE; \
         } \
         case FICL_OP_FSWAP: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 2); \
-            f = floatTop[-1]; \
-            floatTop[-1] = floatTop[-2]; \
-            floatTop[-2] = f; \
+            f = FSTACK_TOP[-1]; \
+            FSTACK_TOP[-1] = FSTACK_TOP[-2]; \
+            FSTACK_TOP[-2] = f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FOVER: { \
             VM_CHECK_FSTACK_LOCAL(2, 3); \
-            *floatTop = floatTop[-2]; \
-            floatTop++; \
+            *FSTACK_TOP = FSTACK_TOP[-2]; \
+            FSTACK_TOP++; \
             goto OP_DONE; \
         } \
         case FICL_OP_FROT: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(3, 3); \
-            f = floatTop[-3]; \
-            floatTop[-3] = floatTop[-2]; \
-            floatTop[-2] = floatTop[-1]; \
-            floatTop[-1] = f; \
+            f = FSTACK_TOP[-3]; \
+            FSTACK_TOP[-3] = FSTACK_TOP[-2]; \
+            FSTACK_TOP[-2] = FSTACK_TOP[-1]; \
+            FSTACK_TOP[-1] = f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FMINUS_ROT: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(3, 3); \
-            f = floatTop[-1]; \
-            floatTop[-1] = floatTop[-2]; \
-            floatTop[-2] = floatTop[-3]; \
-            floatTop[-3] = f; \
+            f = FSTACK_TOP[-1]; \
+            FSTACK_TOP[-1] = FSTACK_TOP[-2]; \
+            FSTACK_TOP[-2] = FSTACK_TOP[-3]; \
+            FSTACK_TOP[-3] = f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FPICK: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             i = (--dataTop)->i; \
             VM_CHECK_FSTACK_LOCAL(i + 1, i + 2); \
-            *floatTop = floatTop[-i - 1]; \
-            floatTop++; \
+            *FSTACK_TOP = FSTACK_TOP[-i - 1]; \
+            FSTACK_TOP++; \
             goto OP_DONE; \
         } \
         case FICL_OP_FROLL: { \
@@ -584,9 +479,9 @@
                 i = 0; \
             VM_CHECK_FSTACK_LOCAL(i + 1, i + 1); \
             if (i > 0) { \
-                FICL_FLOAT f = floatTop[-i - 1]; \
-                memmove(&floatTop[-i - 1], &floatTop[-i], i * sizeof(FICL_FLOAT)); \
-                floatTop[-1] = f; \
+                FICL_FLOAT f = FSTACK_TOP[-i - 1]; \
+                memmove(&FSTACK_TOP[-i - 1], &FSTACK_TOP[-i], i * sizeof(FICL_FLOAT)); \
+                FSTACK_TOP[-1] = f; \
             } \
             goto OP_DONE; \
         } \
@@ -597,102 +492,102 @@
                 i = 0; \
             VM_CHECK_FSTACK_LOCAL(i + 1, i + 1); \
             if (i > 0) { \
-                FICL_FLOAT f = floatTop[-1]; \
-                memmove(&floatTop[-i], &floatTop[-i - 1], i * sizeof(FICL_FLOAT)); \
-                floatTop[-i - 1] = f; \
+                FICL_FLOAT f = FSTACK_TOP[-1]; \
+                memmove(&FSTACK_TOP[-i], &FSTACK_TOP[-i - 1], i * sizeof(FICL_FLOAT)); \
+                FSTACK_TOP[-i - 1] = f; \
             } \
             goto OP_DONE; \
         } \
         case FICL_OP_F2DUP: { \
             VM_CHECK_FSTACK_LOCAL(2, 4); \
-            floatTop[0] = floatTop[-2]; \
-            floatTop[1] = floatTop[-1]; \
-            floatTop += 2; \
+            FSTACK_TOP[0] = FSTACK_TOP[-2]; \
+            FSTACK_TOP[1] = FSTACK_TOP[-1]; \
+            FSTACK_TOP += 2; \
             goto OP_DONE; \
         } \
         case FICL_OP_F2DROP: { \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
-            floatTop -= 2; \
+            FSTACK_TOP -= 2; \
             goto OP_DONE; \
         } \
         case FICL_OP_F2SWAP: { \
             FICL_FLOAT f1, f2; \
             VM_CHECK_FSTACK_LOCAL(4, 4); \
-            f1 = floatTop[-1]; \
-            f2 = floatTop[-2]; \
-            floatTop[-1] = floatTop[-3]; \
-            floatTop[-2] = floatTop[-4]; \
-            floatTop[-3] = f1; \
-            floatTop[-4] = f2; \
+            f1 = FSTACK_TOP[-1]; \
+            f2 = FSTACK_TOP[-2]; \
+            FSTACK_TOP[-1] = FSTACK_TOP[-3]; \
+            FSTACK_TOP[-2] = FSTACK_TOP[-4]; \
+            FSTACK_TOP[-3] = f1; \
+            FSTACK_TOP[-4] = f2; \
             goto OP_DONE; \
         } \
         case FICL_OP_F2OVER: { \
             VM_CHECK_FSTACK_LOCAL(4, 6); \
-            floatTop[0] = floatTop[-4]; \
-            floatTop[1] = floatTop[-3]; \
-            floatTop += 2; \
+            FSTACK_TOP[0] = FSTACK_TOP[-4]; \
+            FSTACK_TOP[1] = FSTACK_TOP[-3]; \
+            FSTACK_TOP += 2; \
             goto OP_DONE; \
         } \
         case FICL_OP_FQUESTION_DUP: { \
             VM_CHECK_FSTACK_LOCAL(1, 2); \
-            if (floatTop[-1] != 0) { \
-                *floatTop = floatTop[-1]; \
-                floatTop++; \
+            if (FSTACK_TOP[-1] != 0) { \
+                *FSTACK_TOP = FSTACK_TOP[-1]; \
+                FSTACK_TOP++; \
             } \
             goto OP_DONE; \
         } \
         case FICL_OP_FPLUS: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 1); \
-            f = *--floatTop; \
-            floatTop[-1] += f; \
+            f = *--FSTACK_TOP; \
+            FSTACK_TOP[-1] += f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FMINUS: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 1); \
-            f = *--floatTop; \
-            floatTop[-1] -= f; \
+            f = *--FSTACK_TOP; \
+            FSTACK_TOP[-1] -= f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FSTAR: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 1); \
-            f = *--floatTop; \
-            floatTop[-1] *= f; \
+            f = *--FSTACK_TOP; \
+            FSTACK_TOP[-1] *= f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FSLASH: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 1); \
-            f = *--floatTop; \
-            floatTop[-1] /= f; \
+            f = *--FSTACK_TOP; \
+            FSTACK_TOP[-1] /= f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FNEGATE: { \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] = -floatTop[-1]; \
+            FSTACK_TOP[-1] = -FSTACK_TOP[-1]; \
             goto OP_DONE; \
         } \
         case FICL_OP_FABS: { \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] = (FICL_FLOAT)fabs((double)floatTop[-1]); \
+            FSTACK_TOP[-1] = (FICL_FLOAT)fabs((double)FSTACK_TOP[-1]); \
             goto OP_DONE; \
         } \
         case FICL_OP_FMAX: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 1); \
-            f = *--floatTop; \
-            if (floatTop[-1] < f) \
-                floatTop[-1] = f; \
+            f = *--FSTACK_TOP; \
+            if (FSTACK_TOP[-1] < f) \
+                FSTACK_TOP[-1] = f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FMIN: { \
             FICL_FLOAT f; \
             VM_CHECK_FSTACK_LOCAL(2, 1); \
-            f = *--floatTop; \
-            if (floatTop[-1] > f) \
-                floatTop[-1] = f; \
+            f = *--FSTACK_TOP; \
+            if (FSTACK_TOP[-1] > f) \
+                FSTACK_TOP[-1] = f; \
             goto OP_DONE; \
         } \
         case FICL_OP_FPLUS_STORE: { \
@@ -700,41 +595,41 @@
             VM_CHECK_FSTACK_LOCAL(1, 0); \
             { \
                 FICL_FLOAT *addr = (FICL_FLOAT *)(--dataTop)->p; \
-                *addr += *--floatTop; \
+                *addr += *--FSTACK_TOP; \
             } \
             goto OP_DONE; \
         } \
         case FICL_OP_FFETCH: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(0, 1); \
-            floatTop[0] = *(FICL_FLOAT *)(--dataTop)->p; \
-            floatTop++; \
+            FSTACK_TOP[0] = *(FICL_FLOAT *)(--dataTop)->p; \
+            FSTACK_TOP++; \
             goto OP_DONE; \
         } \
         case FICL_OP_FSTORE: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            *(FICL_FLOAT *)(--dataTop)->p = *--floatTop; \
+            *(FICL_FLOAT *)(--dataTop)->p = *--FSTACK_TOP; \
             goto OP_DONE; \
         } \
         case FICL_OP_F0LESS: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = FICL_BOOL(*--floatTop < 0); \
+            dataTop->i = FICL_BOOL(*--FSTACK_TOP < 0); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_F0EQUALS: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = FICL_BOOL(*--floatTop == 0); \
+            dataTop->i = FICL_BOOL(*--FSTACK_TOP == 0); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_F0GREATER: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = FICL_BOOL(*--floatTop > 0); \
+            dataTop->i = FICL_BOOL(*--FSTACK_TOP > 0); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -742,8 +637,8 @@
             FICL_FLOAT f; \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
-            f = *--floatTop; \
-            dataTop->i = FICL_BOOL(*--floatTop < f); \
+            f = *--FSTACK_TOP; \
+            dataTop->i = FICL_BOOL(*--FSTACK_TOP < f); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -751,8 +646,8 @@
             FICL_FLOAT f; \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
-            f = *--floatTop; \
-            dataTop->i = FICL_BOOL(*--floatTop > f); \
+            f = *--FSTACK_TOP; \
+            dataTop->i = FICL_BOOL(*--FSTACK_TOP > f); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -762,8 +657,8 @@
             FICL_FLOAT f2; \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
-            f1 = *--floatTop; \
-            f2 = *--floatTop; \
+            f1 = *--FSTACK_TOP; \
+            f2 = *--FSTACK_TOP; \
             diff = (FICL_FLOAT)fabs((double)(f2 - f1)); \
             dataTop->i = FICL_BOOL(diff < (FICL_FLOAT)(2 * FICL_FLOAT_EPSILON)); \
             dataTop++; \
@@ -774,65 +669,65 @@
             FICL_FLOAT y; \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
-            y = *--floatTop; \
-            x = *--floatTop; \
+            y = *--FSTACK_TOP; \
+            x = *--FSTACK_TOP; \
             dataTop->i = FICL_BOOL(x == y); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_FDEPTH: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
-            dataTop->i = (FICL_INT)(floatTop - pVM->fStack->base); \
+            dataTop->i = (FICL_INT)(FSTACK_TOP - pVM->fStack->base); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_S_TO_F: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(0, 1); \
-            *floatTop++ = (FICL_FLOAT)(--dataTop)->i; \
+            *FSTACK_TOP++ = (FICL_FLOAT)(--dataTop)->i; \
             goto OP_DONE; \
         } \
         case FICL_OP_F_TO_S: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = (FICL_INT)(*--floatTop); \
+            dataTop->i = (FICL_INT)(*--FSTACK_TOP); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_FPLUS_I: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] += (FICL_FLOAT)(--dataTop)->i; \
+            FSTACK_TOP[-1] += (FICL_FLOAT)(--dataTop)->i; \
             goto OP_DONE; \
         } \
         case FICL_OP_FMINUS_I: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] -= (FICL_FLOAT)(--dataTop)->i; \
+            FSTACK_TOP[-1] -= (FICL_FLOAT)(--dataTop)->i; \
             goto OP_DONE; \
         } \
         case FICL_OP_FSTAR_I: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] *= (FICL_FLOAT)(--dataTop)->i; \
+            FSTACK_TOP[-1] *= (FICL_FLOAT)(--dataTop)->i; \
             goto OP_DONE; \
         } \
         case FICL_OP_FSLASH_I: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] /= (FICL_FLOAT)(--dataTop)->i; \
+            FSTACK_TOP[-1] /= (FICL_FLOAT)(--dataTop)->i; \
             goto OP_DONE; \
         } \
         case FICL_OP_I_MINUS_F: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] = (FICL_FLOAT)(--dataTop)->i - floatTop[-1]; \
+            FSTACK_TOP[-1] = (FICL_FLOAT)(--dataTop)->i - FSTACK_TOP[-1]; \
             goto OP_DONE; \
         } \
         case FICL_OP_I_SLASH_F: { \
             VM_CHECK_STACK_LOCAL(1, 0); \
             VM_CHECK_FSTACK_LOCAL(1, 1); \
-            floatTop[-1] = (FICL_FLOAT)(--dataTop)->i / floatTop[-1]; \
+            FSTACK_TOP[-1] = (FICL_FLOAT)(--dataTop)->i / FSTACK_TOP[-1]; \
             goto OP_DONE; \
         }
 #else
@@ -857,39 +752,39 @@
         CELL index; \
         CELL limit; \
         VM_CHECK_STACK_LOCAL(2, 0); \
-        *returnTop++ = *(CELL *)ip; \
+        *pVM->rStack->sp++ = *(CELL *)ip; \
         ip += 1; \
         index = *--dataTop; \
         limit = *--dataTop; \
-        *returnTop++ = limit; \
-        *returnTop++ = index; \
+        *pVM->rStack->sp++ = limit; \
+        *pVM->rStack->sp++ = index; \
         goto OP_DONE; \
     } \
     case FICL_OP_QDO: { \
         CELL index; \
         CELL limit; \
         VM_CHECK_STACK_LOCAL(2, 0); \
-        *returnTop++ = *(CELL *)ip; \
+        *pVM->rStack->sp++ = *(CELL *)ip; \
         ip += 1; \
         index = *--dataTop; \
         limit = *--dataTop; \
         if (limit.u == index.u) { \
-            ip = (IPTYPE)(--returnTop)->p; \
+            ip = (IPTYPE)(--pVM->rStack->sp)->p; \
         } else { \
-            *returnTop++ = limit; \
-            *returnTop++ = index; \
+            *pVM->rStack->sp++ = limit; \
+            *pVM->rStack->sp++ = index; \
         } \
         goto OP_DONE; \
     } \
     case FICL_OP_LOOP: { \
-        FICL_INT index = returnTop[-1].i; \
-        FICL_INT limit = returnTop[-2].i; \
+        FICL_INT index = pVM->rStack->sp[-1].i; \
+        FICL_INT limit = pVM->rStack->sp[-2].i; \
         index++; \
         if (index >= limit) { \
-            returnTop -= 3; \
+            pVM->rStack->sp -= 3; \
             ip += 1; \
         } else { \
-            returnTop[-1].i = index; \
+            pVM->rStack->sp[-1].i = index; \
             ip += *(int *)ip; \
         } \
         goto OP_DONE; \
@@ -900,8 +795,8 @@
         FICL_INT increment; \
         int flag; \
         VM_CHECK_STACK_LOCAL(1, 0); \
-        index = returnTop[-1].i; \
-        limit = returnTop[-2].i; \
+        index = pVM->rStack->sp[-1].i; \
+        limit = pVM->rStack->sp[-2].i; \
         increment = (--dataTop)->i; \
         index += increment; \
         if (increment < 0) \
@@ -909,10 +804,10 @@
         else \
             flag = (index >= limit); \
         if (flag) { \
-            returnTop -= 3; \
+            pVM->rStack->sp -= 3; \
             ip += 1; \
         } else { \
-            returnTop[-1].i = index; \
+            pVM->rStack->sp[-1].i = index; \
             ip += *(int *)ip; \
         } \
         goto OP_DONE; \
@@ -933,11 +828,11 @@
         goto OP_DONE; \
     } \
     case FICL_OP_EXIT: { \
-        ip = (IPTYPE)(--returnTop)->p; \
+        ip = (IPTYPE)(--pVM->rStack->sp)->p; \
         goto OP_DONE; \
     } \
     case FICL_OP_SEMI: { \
-        ip = (IPTYPE)(--returnTop)->p; \
+        ip = (IPTYPE)(--pVM->rStack->sp)->p; \
         goto OP_DONE; \
     }
 
@@ -1068,12 +963,73 @@ CALL_FALLBACK:
     pWord->code(pVM);
 }
 
+#if FICL_SUBR_THREADING != 0
+/**************************************************************************
+                        v m S t e p
+** Execute a single instruction.
+**************************************************************************/
+void vmStep(FICL_VM *pVM)
+{
+    M_VM_STEP(pVM)
+    return;
+}
+#else
+/**************************************************************************
+                        v m S t e p
+** Execute a single instruction.
+**************************************************************************/
+void vmStep(FICL_VM *pVM)
+{
+    FICL_WORD *pWord;
+    CELL *dataTop = pVM->pStack->sp;
+    /* returnTop removed - return stack accessed directly via pVM->rStack->sp for reduced register pressure */
+#if FICL_WANT_FLOAT
+    FICL_FLOAT *floatTop = pVM->fStack->sp;
+#endif
+    IPTYPE ip = pVM->ip;
+
+    FICL_INT i;
+    FICL_UNS u;
+    CELL c, c2;
+    FICL_OPCODE opcode;
+
+    pWord = *ip++;
+    pVM->runningWord = pWord;
+
+    opcode = pWord->opcode;
+    if (opcode != FICL_OP_CALL)
+    {
+        VM_OP_SWITCH_INNER(OP_DONE);
+    }
+
+    pVM->pStack->sp = dataTop;
+    /* pVM->rStack->sp not synced - already accessed directly in operations */
+#if FICL_WANT_FLOAT
+    pVM->fStack->sp = floatTop;
+#endif
+    pVM->ip = ip;
+
+    pWord->code(pVM);
+
+    return;
+
+OP_DONE:
+    pVM->pStack->sp = dataTop;
+    /* pVM->rStack->sp not synced - already accessed directly in operations */
+#if FICL_WANT_FLOAT
+    pVM->fStack->sp = floatTop;
+#endif
+    pVM->ip = ip;
+    return;
+}
+#endif
+
 #if FICL_SUBR_THREADING == 0
 void vmInnerLoop(FICL_VM *pVM)
 {
     FICL_WORD *pWord;
     CELL *dataTop = pVM->pStack->sp;
-    CELL *returnTop = pVM->rStack->sp;
+    /* returnTop removed - return stack accessed directly via pVM->rStack->sp for reduced register pressure */
 #if FICL_WANT_FLOAT
     FICL_FLOAT *floatTop = pVM->fStack->sp;
 #endif
@@ -1096,7 +1052,7 @@ void vmInnerLoop(FICL_VM *pVM)
         }
 
         pVM->pStack->sp = dataTop;
-        pVM->rStack->sp = returnTop;
+        /* pVM->rStack->sp not synced - already accessed directly in operations */
 #if FICL_WANT_FLOAT
         pVM->fStack->sp = floatTop;
 #endif
@@ -1105,7 +1061,7 @@ void vmInnerLoop(FICL_VM *pVM)
         pWord->code(pVM);
 
         dataTop = pVM->pStack->sp;
-        returnTop = pVM->rStack->sp;
+        /* returnTop removed - no need to reload */
 #if FICL_WANT_FLOAT
         floatTop = pVM->fStack->sp;
 #endif
@@ -1441,7 +1397,6 @@ void vmThrow(FICL_VM *pVM, int except)
         longjmp(*(pVM->pState), except);
 }
 
-
 void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
 {
     va_list va;
@@ -1452,6 +1407,17 @@ void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
     longjmp(*(pVM->pState), VM_ERREXIT);
 }
 
+void vmThrowOverflow(FICL_VM *pVM)
+{
+    vmTextOut(pVM, "Error: Stack overflow", 1);
+    longjmp(*(pVM->pState), VM_ERREXIT);
+}
+
+void vmThrowUnderflow(FICL_VM *pVM)
+{
+    vmTextOut(pVM, "Error: Stack underflow", 1);
+    longjmp(*(pVM->pState), VM_ERREXIT);
+}
 
 /**************************************************************************
                         w o r d I s I m m e d i a t e

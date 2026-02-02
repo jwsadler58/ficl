@@ -211,6 +211,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #define FICL_WANT_FLOAT 1
 #endif
 
+
 /*
 ** FICL_WANT_DEBUGGER
 ** Inludes a simple source level debugger
@@ -318,7 +319,6 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #if !defined FICL_SUBR_THREADING
 #define FICL_SUBR_THREADING 0
 #endif
-
 
 /*
 ** FICL_ROBUST enables bounds checking of stacks and the dictionary.

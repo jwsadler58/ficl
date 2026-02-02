@@ -757,26 +757,26 @@ static void ficlSprintf(FICL_VM *pVM)
 
             leadingZeroes = (*format == '0');
             if (leadingZeroes)
-                {
+            {
                 format++;
                 if (format == formatStop)
                     break;
-                }
+            }
 
             desiredLength = isdigit(*format);
             if (desiredLength)
-                {
+            {
                 desiredLength = strtoul(format, &format, 10);
                 if (format == formatStop)
                     break;
-                }
+            }
             else if (*format == '*')
-                {
+            {
                 desiredLength = stackPopINT(pVM->pStack);
                 format++;
                 if (format == formatStop)
                     break;
-                }
+            }
 
 
             switch (*format)
@@ -809,8 +809,10 @@ static void ficlSprintf(FICL_VM *pVM)
                     break;
                 }
                 case '%':
+                /*
                     source = format;
                     actualLength = 1;
+                */
                 default:
                     continue;
             }
@@ -5051,7 +5053,9 @@ static void ficlSeedRandom(FICL_VM *pVM)
 void ficlCompileCore(FICL_SYSTEM *pSys)
 {
     FICL_DICT *dp = pSys->dp;
+    FICL_VM   *pVM = pSys->vmList;
     assert (dp);
+    assert (pVM);
 
 
     /*
@@ -5236,8 +5240,8 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     ficlSetEnv(pSys, "max-n",             0x7fffffff);
     ficlSetEnv(pSys, "max-u",             0xffffffff);
     ficlSetEnvD(pSys,"max-ud",            0xffffffff, 0xffffffff);
-    ficlSetEnv(pSys, "return-stack-cells",FICL_DEFAULT_STACK);
-    ficlSetEnv(pSys, "stack-cells",       FICL_DEFAULT_STACK);
+    ficlSetEnv(pSys, "return-stack-cells",pVM->rStack->nCells);
+    ficlSetEnv(pSys, "stack-cells",       pVM->pStack->nCells);
 
     /*
     ** DOUBLE word set (partial)
@@ -5338,12 +5342,12 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "-roll",     minusRoll,      FW_DEFAULT, FICL_OP_MINUS_ROLL);
     dictAppendWord(  dp, ">name",     toName,         FW_DEFAULT);
     dictAppendWord(  dp, "add-parse-step",
-                                    addParseStep,   FW_DEFAULT);
+                                      addParseStep,   FW_DEFAULT);
     dictAppendWord(  dp, "body>",     fromBody,       FW_DEFAULT);
     dictAppendWord(  dp, "compare",   compareString,  FW_DEFAULT);   /* STRING */
     dictAppendWord(  dp, "compare-insensitive",   compareStringInsensitive,  FW_DEFAULT);   /* STRING */
     dictAppendWord(  dp, "compile-only",
-                                    compileOnly,    FW_DEFAULT);
+                                      compileOnly,    FW_DEFAULT);
     dictAppendWord(  dp, "endif",     endifCoIm,      FW_COMPIMMED);
     dictAppendWord(  dp, "last-word", getLastWord,    FW_DEFAULT);
     dictAppendWord(  dp, "hash",      hash,           FW_DEFAULT);
@@ -5370,24 +5374,32 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     ** internal support words
     */
     dictAppendWord(  dp, "(create)",  createParen,    FW_COMPILE);
-    pSys->pExitParen = dictAppendOpWord(dp, "(exit)",    exitParen,      FW_COMPILE, FICL_OP_EXIT);
-    pSys->pSemiParen =
+    pSys->pExitParen =
+    dictAppendOpWord(dp, "(exit)",    exitParen,      FW_COMPILE, FICL_OP_EXIT);
     pSys->pSemiParen =
     dictAppendOpWord(dp, "(;)",       semiParen,      FW_COMPILE, FICL_OP_SEMI);
-    pSys->pLitParen = dictAppendOpWord(dp, "(literal)", literalParen,   FW_COMPILE, FICL_OP_LIT);
-    pSys->pTwoLitParen = dictAppendOpWord(dp, "(2literal)",twoLitParen,    FW_COMPILE, FICL_OP_2LIT);
+    pSys->pLitParen =
+    dictAppendOpWord(dp, "(literal)", literalParen,   FW_COMPILE, FICL_OP_LIT);
+    pSys->pTwoLitParen =
+    dictAppendOpWord(dp, "(2literal)",twoLitParen,    FW_COMPILE, FICL_OP_2LIT);
     pSys->pStringLit =
     dictAppendWord(  dp, "(.\")",     stringLit,      FW_COMPILE);
     pSys->pCStringLit =
     dictAppendWord(  dp, "(c\")",     cstringLit,     FW_COMPILE);
-    pSys->pBranch0 = dictAppendOpWord(dp, "(branch0)",      branch0,        FW_COMPILE, FICL_OP_BRANCH0);
-    pSys->pBranchParen = dictAppendOpWord(dp, "(branch)",  branchParen,    FW_COMPILE, FICL_OP_BRANCH);
-    pSys->pDoParen = dictAppendOpWord(dp, "(do)",      doParen,        FW_COMPILE, FICL_OP_DO);
+    pSys->pBranch0 =
+    dictAppendOpWord(dp, "(branch0)", branch0,        FW_COMPILE, FICL_OP_BRANCH0);
+    pSys->pBranchParen =
+    dictAppendOpWord(dp, "(branch)",  branchParen,    FW_COMPILE, FICL_OP_BRANCH);
+    pSys->pDoParen =
+    dictAppendOpWord(dp, "(do)",      doParen,        FW_COMPILE, FICL_OP_DO);
     pSys->pDoesParen =
     dictAppendWord(  dp, "(does>)",   doesParen,      FW_COMPILE);
-    pSys->pQDoParen = dictAppendOpWord(dp, "(?do)",     qDoParen,       FW_COMPILE, FICL_OP_QDO);
-    pSys->pLoopParen = dictAppendOpWord(dp, "(loop)",    loopParen,      FW_COMPILE, FICL_OP_LOOP);
-    pSys->pPLoopParen = dictAppendOpWord(dp, "(+loop)",   plusLoopParen,  FW_COMPILE, FICL_OP_PLOOP);
+    pSys->pQDoParen =
+    dictAppendOpWord(dp, "(?do)",     qDoParen,       FW_COMPILE, FICL_OP_QDO);
+    pSys->pLoopParen =
+    dictAppendOpWord(dp, "(loop)",    loopParen,      FW_COMPILE, FICL_OP_LOOP);
+    pSys->pPLoopParen =
+    dictAppendOpWord(dp, "(+loop)",   plusLoopParen,  FW_COMPILE, FICL_OP_PLOOP);
     pSys->pInterpret =
     dictAppendWord(  dp, "interpret", interpret,      FW_DEFAULT);
     dictAppendWord(  dp, "lookup",    lookup,         FW_DEFAULT);
@@ -5395,8 +5407,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "(of)",      ofParen,        FW_DEFAULT);
     dictAppendWord(  dp, "(variable)",variableParen,  FW_COMPILE);
     dictAppendWord(  dp, "(constant)",constantParen,  FW_COMPILE);
-    dictAppendWord(  dp, "(parse-step)",
-                                    parseStepParen, FW_DEFAULT);
+    dictAppendWord(  dp, "(parse-step)",parseStepParen, FW_DEFAULT);
 	pSys->pExitInner =
     dictAppendWord(  dp, "exit-inner",ficlExitInner,  FW_DEFAULT);
 

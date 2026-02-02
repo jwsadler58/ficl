@@ -624,11 +624,14 @@ void        vmPopIP        (FICL_VM *pVM);
 void        vmPushIP       (FICL_VM *pVM, IPTYPE newIP);
 void        vmQuit         (FICL_VM *pVM);
 void        vmReset        (FICL_VM *pVM);
+void        vmStep         (FICL_VM *pVM);
 void        vmSetTextOut   (FICL_VM *pVM, OUTFUNC textOut);
 void        vmTextOut      (FICL_VM *pVM, char *text, int fNewline);
 void        vmTextOut      (FICL_VM *pVM, char *text, int fNewline);
 void        vmThrow        (FICL_VM *pVM, int except);
 void        vmThrowErr     (FICL_VM *pVM, char *fmt, ...);
+void        vmThrowUnderflow(FICL_VM *pVM);
+void        vmThrowOverflow (FICL_VM *pVM);
 int         isPowerOfTwo   (FICL_UNS u);
 
 #define vmGetRunningWord(pVM) ((pVM)->runningWord)
@@ -871,8 +874,8 @@ typedef struct FICL_BREAKPOINT
 /*
 ** F I C L _ S Y S T E M
 ** The top level data structure of the system - ficl_system ties a list of
-** virtual machines with their corresponding dictionaries. Ficl 3.0 will
-** support multiple Ficl systems, allowing multiple concurrent sessions
+** virtual machines with their corresponding dictionaries. Ficl 3.0
+** supports multiple Ficl systems, allowing multiple concurrent sessions
 ** to separate dictionaries with some constraints.
 ** Notes:
 ** 1. pExtend - user defined to provide context for applications. It is copied

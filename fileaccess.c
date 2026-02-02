@@ -257,7 +257,6 @@ static void ficlIncludeFile(FICL_VM *pVM) /* ( i*x fileid -- j*x ) */
 {
     ficlFILE *ff = (ficlFILE *)stackPopPtr(pVM->pStack);
     CELL id = pVM->sourceID;
-    int     result = VM_OUTOFTEXT;
     long currentPosition, totalSize;
     long size;
     pVM->sourceID.p = (void *)ff;
@@ -273,7 +272,7 @@ static void ficlIncludeFile(FICL_VM *pVM) /* ( i*x fileid -- j*x ) */
             {
             long got = fread(buffer, 1, size, ff->f);
             if (got == size)
-                result = ficlExecC(pVM, buffer, size);
+                (void)ficlExecC(pVM, buffer, size);
             ficlFree(buffer);
             }
         }

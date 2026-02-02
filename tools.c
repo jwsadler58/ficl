@@ -413,7 +413,7 @@ void stepIn(FICL_VM *pVM)
     ** Do one step of the inner loop
     */
     {
-        M_VM_STEP(pVM)
+        vmStep(pVM);
     }
 
     /*
@@ -892,4 +892,3 @@ void ficlCompileTools(FICL_SYSTEM *pSys)
 
     return;
 }
-
