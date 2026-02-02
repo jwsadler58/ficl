@@ -17,7 +17,11 @@
 hide
 
 0 constant zero
+\ #if FICL_WANT_FLOAT
 0E fconstant fzero
+\ #else
+0 constant fzero
+\ #endif
 
 
 : ?--   ( c-addr u -- c-addr u flag )
@@ -42,6 +46,7 @@ hide
     endif
 ;
 
+\ #if FICL_WANT_FLOAT
 : ?floc ( c-addr u -- c-addr u flag )
     over dup c@ dup [char] f = swap [char] F = or
 	swap 1+  c@ [char] : = and
@@ -52,6 +57,10 @@ hide
 	    false
     endif
 ;
+\ #else
+: ?floc ( c-addr u -- c-addr u false )  false ;
+: (flocal) ;
+\ #endif
 
 : ?delim   ( c-addr u -- state | c-addr u 0 )
     ?|  if  2drop 1 exit endif

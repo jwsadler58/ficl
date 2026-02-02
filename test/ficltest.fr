@@ -103,40 +103,44 @@ testing number builder
 { 3. -> 0 3 }
 { -1 -> -1 }
 
-testing floating point
-{ fdepth -> 0 }
-{ 1e0 2e0 f+ 3e0 f- f0= -> true }
-{ 6e0 2e0 f/ 3e0 f- f0= -> true }
-{ 2e0 3e0 f* 6e0 f- f0= -> true }
-{ 1e0 fnegate f0< -> true }
-{ 1e0 fdup f- f0= -> true }
-{ 1e0 2e0 fover fswap f- f+ f0= -> true }
-{ 1e0 2e0 f2dup fdepth f2drop f2drop -> 4 }
-{ 1e0 2e0 f2drop fdepth -> 0 }
-{ 1e0 2e0 f< -> true }
-{ 2e0 1e0 f> -> true }
+s" floating" environment?
+[if] drop
+    testing floating point
+    { fdepth -> 0 }
+    { 1e0 2e0 f+ 3e0 f- f0= -> true }
+    { 6e0 2e0 f/ 3e0 f- f0= -> true }
+    { 2e0 3e0 f* 6e0 f- f0= -> true }
+    { 1e0 fnegate f0< -> true }
+    { 1e0 fdup f- f0= -> true }
+    { 1e0 2e0 fover fswap f- f+ f0= -> true }
+    { 1e0 2e0 f2dup fdepth f2drop f2drop -> 4 }
+    { 1e0 2e0 f2drop fdepth -> 0 }
+    { 1e0 2e0 f< -> true }
+    { 2e0 1e0 f> -> true }
 
-2e0  : flit1 fliteral ;
-3e-1 : flit2 fliteral ;
-{ flit1 2e0 f- f0= -> true }
-{ flit1 fconstant fconst2 -> }
-{ flit2 fconstant fconst3 -> }
-{ fconst2 -> flit1 }
-{ fconst3 to fconst2 fconst2 fconst3 f~= -> true }
+    2e0  : flit1 fliteral ;
+    3e-1 : flit2 fliteral ;
+    { flit1 2e0 f- f0= -> true }
+    { flit1 fconstant fconst2 -> }
+    { flit2 fconstant fconst3 -> }
+    { fconst2 -> flit1 }
+    { fconst3 to fconst2 fconst2 fconst3 f~= -> true }
 
-testing compiled float literals
-fvariable vflit
-: t-flit-store  100e vflit f! ;
-{ t-flit-store vflit f@ 100e f- f0= -> true }
+    testing compiled float literals
+    fvariable vflit
+    : t-flit-store  100e vflit f! ;
+    { t-flit-store vflit f@ 100e f- f0= -> true }
 
-: t-flit-two  1e 2e f+ ;
-{ t-flit-two 3e f- f0= -> true }
+    : t-flit-two  1e 2e f+ ;
+    { t-flit-two 3e f- f0= -> true }
 
-1.25e fconstant fc-lit
-{ fc-lit 1.25e f- f0= -> true }
+    1.25e fconstant fc-lit
+    { fc-lit 1.25e f- f0= -> true }
 
-: t-fplusstore  0e vflit f!  1e vflit f+!  vflit f@ 1e f- f0= ;
-{ t-fplusstore -> true }
-
+    : t-fplusstore  0e vflit f!  1e vflit f+!  vflit f@ 1e f- f0= ;
+    { t-fplusstore -> true }
+[else]
+    .( skipping float tests) cr
+[endif]
 
 ficltest-marker        \ dictionary cleanup
