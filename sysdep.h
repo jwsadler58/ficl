@@ -313,14 +313,6 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
-** FICL_SUBR_THREADING causes the inner interpreter to use subroutine threading at all times.
-** If this is 0 (default), we will use hybrid token threading instead for speed.
-*/
-#if !defined FICL_SUBR_THREADING
-#define FICL_SUBR_THREADING 0
-#endif
-
-/*
 ** FICL_ROBUST enables bounds checking of stacks and the dictionary.
 ** This will detect stack over and underflows and dictionary overflows.
 ** Any exceptional condition will result in an assertion failure.

@@ -5063,59 +5063,59 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     ** see softcore.c for definitions of: abs bl space spaces abort"
     */
     pSys->pStore =
-    dictAppendOpWord(dp, "!",         store,          FW_DEFAULT, FICL_OP_STORE);
+    dictAppendOpWord(dp, "!",         FICL_OP_STORE,  FW_DEFAULT);
     dictAppendWord  (dp, "#",         numberSign,     FW_DEFAULT);
     dictAppendWord  (dp, "#>",        numberSignGreater,FW_DEFAULT);
     dictAppendWord  (dp, "#s",        numberSignS,    FW_DEFAULT);
     dictAppendWord  (dp, "\'",        ficlTick,       FW_DEFAULT);
     dictAppendWord  (dp, "(",         commentHang,    FW_IMMEDIATE);
-    dictAppendOpWord(dp, "*",         mul,            FW_DEFAULT, FICL_OP_STAR);
-    dictAppendOpWord(dp, "*/",        mulDiv,         FW_DEFAULT, FICL_OP_STAR_SLASH);
-    dictAppendOpWord(dp, "*/mod",     mulDivRem,      FW_DEFAULT, FICL_OP_STAR_SLASH_MOD);
-    dictAppendOpWord(dp, "+",         add,            FW_DEFAULT, FICL_OP_PLUS);
-    dictAppendOpWord(dp, "+!",        plusStore,      FW_DEFAULT, FICL_OP_PLUS_STORE);
+    dictAppendOpWord(dp, "*",         FICL_OP_STAR,   FW_DEFAULT);
+    dictAppendOpWord(dp, "*/",        FICL_OP_STAR_SLASH,  FW_DEFAULT);
+    dictAppendOpWord(dp, "*/mod",     FICL_OP_STAR_SLASH_MOD,  FW_DEFAULT);
+    dictAppendOpWord(dp, "+",         FICL_OP_PLUS,   FW_DEFAULT);
+    dictAppendOpWord(dp, "+!",        FICL_OP_PLUS_STORE,  FW_DEFAULT);
     dictAppendWord  (dp, "+loop",     plusLoopCoIm,   FW_COMPIMMED);
     dictAppendWord  (dp, ",",         comma,          FW_DEFAULT);
-    dictAppendOpWord(dp, "-",         sub,            FW_DEFAULT, FICL_OP_MINUS);
+    dictAppendOpWord(dp, "-",         FICL_OP_MINUS,  FW_DEFAULT);
     dictAppendWord  (dp, ".",         displayCell,    FW_DEFAULT);
     dictAppendWord  (dp, ".\"",       dotQuoteCoIm,   FW_COMPIMMED);
-    dictAppendOpWord(dp, "/",         ficlDiv,        FW_DEFAULT, FICL_OP_SLASH);
-    dictAppendOpWord(dp, "/mod",      slashMod,       FW_DEFAULT, FICL_OP_SLASH_MOD);
-    dictAppendOpWord(dp, "0<",        zeroLess,       FW_DEFAULT, FICL_OP_ZERO_LESS);
-    dictAppendOpWord(dp, "0=",        zeroEquals,     FW_DEFAULT, FICL_OP_ZERO_EQUALS);
-    dictAppendOpWord(dp, "1+",        onePlus,        FW_DEFAULT, FICL_OP_ONE_PLUS);
-    dictAppendOpWord(dp, "1-",        oneMinus,       FW_DEFAULT, FICL_OP_ONE_MINUS);
-    dictAppendOpWord(dp, "2!",        twoStore,       FW_DEFAULT, FICL_OP_2STORE);
-    dictAppendOpWord(dp, "2*",        twoMul,         FW_DEFAULT, FICL_OP_TWO_STAR);
-    dictAppendOpWord(dp, "2/",        twoDiv,         FW_DEFAULT, FICL_OP_TWO_SLASH);
-    dictAppendOpWord(dp, "2@",        twoFetch,       FW_DEFAULT, FICL_OP_2FETCH);
-    dictAppendOpWord(dp, "2drop",     twoDrop,        FW_DEFAULT, FICL_OP_2DROP);
-    dictAppendOpWord(dp, "2dup",      twoDup,         FW_DEFAULT, FICL_OP_2DUP);
-    dictAppendOpWord(dp, "2over",     twoOver,        FW_DEFAULT, FICL_OP_2OVER);
-    dictAppendOpWord(dp, "2swap",     twoSwap,        FW_DEFAULT, FICL_OP_2SWAP);
+    dictAppendOpWord(dp, "/",         FICL_OP_SLASH,  FW_DEFAULT);
+    dictAppendOpWord(dp, "/mod",      FICL_OP_SLASH_MOD,  FW_DEFAULT);
+    dictAppendOpWord(dp, "0<",        FICL_OP_ZERO_LESS,  FW_DEFAULT);
+    dictAppendOpWord(dp, "0=",        FICL_OP_ZERO_EQUALS,  FW_DEFAULT);
+    dictAppendOpWord(dp, "1+",        FICL_OP_ONE_PLUS,  FW_DEFAULT);
+    dictAppendOpWord(dp, "1-",        FICL_OP_ONE_MINUS,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2!",        FICL_OP_2STORE,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2*",        FICL_OP_TWO_STAR,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2/",        FICL_OP_TWO_SLASH,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2@",        FICL_OP_2FETCH,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2drop",     FICL_OP_2DROP,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2dup",      FICL_OP_2DUP,   FW_DEFAULT);
+    dictAppendOpWord(dp, "2over",     FICL_OP_2OVER,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2swap",     FICL_OP_2SWAP,  FW_DEFAULT);
     dictAppendWord(  dp, ":",         colon,          FW_DEFAULT);
     dictAppendWord(  dp, ";",         semicolonCoIm,  FW_COMPIMMED);
-    dictAppendOpWord(dp, "<",         isLess,         FW_DEFAULT, FICL_OP_LESS);
+    dictAppendOpWord(dp, "<",         FICL_OP_LESS,   FW_DEFAULT);
     dictAppendWord(  dp, "<#",        lessNumberSign, FW_DEFAULT);
-    dictAppendOpWord(dp, "=",         isEqual,        FW_DEFAULT, FICL_OP_EQUALS);
-    dictAppendOpWord(dp, ">",         isGreater,      FW_DEFAULT, FICL_OP_GREATER);
+    dictAppendOpWord(dp, "=",         FICL_OP_EQUALS,  FW_DEFAULT);
+    dictAppendOpWord(dp, ">",         FICL_OP_GREATER,  FW_DEFAULT);
     dictAppendWord(  dp, ">body",     toBody,         FW_DEFAULT);
     dictAppendWord(  dp, ">in",       toIn,           FW_DEFAULT);
     dictAppendWord(  dp, ">number",   toNumber,       FW_DEFAULT);
-    dictAppendOpWord(dp, ">r",        toRStack,       FW_COMPILE, FICL_OP_TO_R);
-    dictAppendOpWord(dp, "?dup",      questionDup,    FW_DEFAULT, FICL_OP_QUESTION_DUP);
-    dictAppendOpWord(dp, "@",         fetch,          FW_DEFAULT, FICL_OP_FETCH);
+    dictAppendOpWord(dp, ">r",        FICL_OP_TO_R,   FW_COMPILE);
+    dictAppendOpWord(dp, "?dup",      FICL_OP_QUESTION_DUP,  FW_DEFAULT);
+    dictAppendOpWord(dp, "@",         FICL_OP_FETCH,  FW_DEFAULT);
     dictAppendWord(  dp, "abort",     ficlAbort,      FW_DEFAULT);
     dictAppendWord(  dp, "accept",    accept,         FW_DEFAULT);
     dictAppendWord(  dp, "align",     align,          FW_DEFAULT);
     dictAppendWord(  dp, "aligned",   aligned,        FW_DEFAULT);
     dictAppendWord(  dp, "allot",     allot,          FW_DEFAULT);
-    dictAppendOpWord(dp, "and",       bitwiseAnd,     FW_DEFAULT, FICL_OP_AND);
+    dictAppendOpWord(dp, "and",       FICL_OP_AND,    FW_DEFAULT);
     dictAppendWord(  dp, "base",      base,           FW_DEFAULT);
     dictAppendWord(  dp, "begin",     beginCoIm,      FW_COMPIMMED);
-    dictAppendOpWord(dp, "c!",        cStore,         FW_DEFAULT, FICL_OP_C_STORE);
+    dictAppendOpWord(dp, "c!",        FICL_OP_C_STORE,  FW_DEFAULT);
     dictAppendWord(  dp, "c,",        cComma,         FW_DEFAULT);
-    dictAppendOpWord(dp, "c@",        cFetch,         FW_DEFAULT, FICL_OP_C_FETCH);
+    dictAppendOpWord(dp, "c@",        FICL_OP_C_FETCH,  FW_DEFAULT);
     dictAppendWord(  dp, "case",      caseCoIm,       FW_COMPIMMED);
     dictAppendWord(  dp, "cell+",     cellPlus,       FW_DEFAULT);
     dictAppendWord(  dp, "cells",     cells,          FW_DEFAULT);
@@ -5127,12 +5127,12 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "cr",        cr,             FW_DEFAULT);
     dictAppendWord(  dp, "create",    create,         FW_DEFAULT);
     dictAppendWord(  dp, "decimal",   decimal,        FW_DEFAULT);
-    dictAppendOpWord(dp, "depth",     depth,          FW_DEFAULT, FICL_OP_DEPTH);
+    dictAppendOpWord(dp, "depth",     FICL_OP_DEPTH,  FW_DEFAULT);
     dictAppendWord(  dp, "do",        doCoIm,         FW_COMPIMMED);
     dictAppendWord(  dp, "does>",     doesCoIm,       FW_COMPIMMED);
     pSys->pDrop =
-    dictAppendOpWord(dp, "drop",      drop,           FW_DEFAULT, FICL_OP_DROP);
-    dictAppendOpWord(dp, "dup",       dup,            FW_DEFAULT, FICL_OP_DUP);
+    dictAppendOpWord(dp, "drop",      FICL_OP_DROP,   FW_DEFAULT);
+    dictAppendOpWord(dp, "dup",       FICL_OP_DUP,    FW_DEFAULT);
     dictAppendWord(  dp, "else",      elseCoIm,       FW_COMPIMMED);
     dictAppendWord(  dp, "emit",      emit,           FW_DEFAULT);
     dictAppendWord(  dp, "endcase",   endcaseCoIm,    FW_COMPIMMED);
@@ -5150,41 +5150,41 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "i",         loopICo,        FW_COMPILE);
     dictAppendWord(  dp, "if",        ifCoIm,         FW_COMPIMMED);
     dictAppendWord(  dp, "immediate", immediate,      FW_DEFAULT);
-    dictAppendOpWord(dp, "invert",    bitwiseNot,     FW_DEFAULT, FICL_OP_INVERT);
+    dictAppendOpWord(dp, "invert",    FICL_OP_INVERT,  FW_DEFAULT);
     dictAppendWord(  dp, "j",         loopJCo,        FW_COMPILE);
     dictAppendWord(  dp, "k",         loopKCo,        FW_COMPILE);
     dictAppendWord(  dp, "leave",     leaveCo,        FW_COMPILE);
     dictAppendWord(  dp, "literal",   literalIm,      FW_IMMEDIATE);
     dictAppendWord(  dp, "loop",      loopCoIm,       FW_COMPIMMED);
-    dictAppendOpWord(dp, "lshift",    lshift,         FW_DEFAULT, FICL_OP_LSHIFT);
+    dictAppendOpWord(dp, "lshift",    FICL_OP_LSHIFT,  FW_DEFAULT);
     dictAppendWord(  dp, "m*",        mStar,          FW_DEFAULT);
-    dictAppendOpWord(dp, "max",       ficlMax,        FW_DEFAULT, FICL_OP_MAX);
-    dictAppendOpWord(dp, "min",       ficlMin,        FW_DEFAULT, FICL_OP_MIN);
-    dictAppendOpWord(dp, "mod",       ficlMod,        FW_DEFAULT, FICL_OP_MOD);
+    dictAppendOpWord(dp, "max",       FICL_OP_MAX,    FW_DEFAULT);
+    dictAppendOpWord(dp, "min",       FICL_OP_MIN,    FW_DEFAULT);
+    dictAppendOpWord(dp, "mod",       FICL_OP_MOD,    FW_DEFAULT);
     dictAppendWord(  dp, "move",      move,           FW_DEFAULT);
-    dictAppendOpWord(dp, "negate",    negate,         FW_DEFAULT, FICL_OP_NEGATE);
+    dictAppendOpWord(dp, "negate",    FICL_OP_NEGATE,  FW_DEFAULT);
     dictAppendWord(  dp, "of",        ofCoIm,         FW_COMPIMMED);
-    dictAppendOpWord(dp, "or",        bitwiseOr,      FW_DEFAULT, FICL_OP_OR);
-    dictAppendOpWord(dp, "over",      over,           FW_DEFAULT, FICL_OP_OVER);
+    dictAppendOpWord(dp, "or",        FICL_OP_OR,     FW_DEFAULT);
+    dictAppendOpWord(dp, "over",      FICL_OP_OVER,   FW_DEFAULT);
     dictAppendWord(  dp, "postpone",  postponeCoIm,   FW_COMPIMMED);
     dictAppendWord(  dp, "quit",      quit,           FW_DEFAULT);
-    dictAppendOpWord(dp, "r>",        fromRStack,     FW_COMPILE, FICL_OP_R_FROM);
-    dictAppendOpWord(dp, "r@",        fetchRStack,    FW_COMPILE, FICL_OP_R_FETCH);
+    dictAppendOpWord(dp, "r>",        FICL_OP_R_FROM,  FW_COMPILE);
+    dictAppendOpWord(dp, "r@",        FICL_OP_R_FETCH,  FW_COMPILE);
     dictAppendWord(  dp, "recurse",   recurseCoIm,    FW_COMPIMMED);
     dictAppendWord(  dp, "repeat",    repeatCoIm,     FW_COMPIMMED);
-    dictAppendOpWord(dp, "rot",       rot,            FW_DEFAULT, FICL_OP_ROT);
-    dictAppendOpWord(dp, "rshift",    rshift,         FW_DEFAULT, FICL_OP_RSHIFT);
+    dictAppendOpWord(dp, "rot",       FICL_OP_ROT,    FW_DEFAULT);
+    dictAppendOpWord(dp, "rshift",    FICL_OP_RSHIFT,  FW_DEFAULT);
     dictAppendWord(  dp, "s\"",       stringQuoteIm,  FW_IMMEDIATE);
     dictAppendWord(  dp, "s>d",       sToD,           FW_DEFAULT);
     dictAppendWord(  dp, "sign",      sign,           FW_DEFAULT);
     dictAppendWord(  dp, "sm/rem",    smSlashRem,     FW_DEFAULT);
     dictAppendWord(  dp, "source",    source,         FW_DEFAULT);
     dictAppendWord(  dp, "state",     state,          FW_DEFAULT);
-    dictAppendOpWord(dp, "swap",      swap,           FW_DEFAULT, FICL_OP_SWAP);
+    dictAppendOpWord(dp, "swap",      FICL_OP_SWAP,   FW_DEFAULT);
     dictAppendWord(  dp, "then",      endifCoIm,      FW_COMPIMMED);
     dictAppendWord(  dp, "type",      type,           FW_DEFAULT);
     dictAppendWord(  dp, "u.",        uDot,           FW_DEFAULT);
-    dictAppendOpWord(dp, "u<",        uIsLess,        FW_DEFAULT, FICL_OP_U_LESS);
+    dictAppendOpWord(dp, "u<",        FICL_OP_U_LESS,  FW_DEFAULT);
     dictAppendWord(  dp, "um*",       umStar,         FW_DEFAULT);
     dictAppendWord(  dp, "um/mod",    umSlashMod,     FW_DEFAULT);
     dictAppendWord(  dp, "unloop",    unloopCo,       FW_COMPILE);
@@ -5192,7 +5192,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "variable",  variable,       FW_DEFAULT);
     dictAppendWord(  dp, "while",     whileCoIm,      FW_COMPIMMED);
     dictAppendWord(  dp, "word",      ficlWord,       FW_DEFAULT);
-    dictAppendOpWord(dp, "xor",       bitwiseXor,     FW_DEFAULT, FICL_OP_XOR);
+    dictAppendOpWord(dp, "xor",       FICL_OP_XOR,    FW_DEFAULT);
     dictAppendWord(  dp, "[",         lbracketCoIm,   FW_COMPIMMED);
     dictAppendWord(  dp, "[\']",      bracketTickCoIm,FW_COMPIMMED);
     dictAppendWord(  dp, "[char]",    charCoIm,       FW_COMPIMMED);
@@ -5204,10 +5204,10 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     /* "#tib" */
     dictAppendWord(  dp, ".(",        dotParen,       FW_IMMEDIATE);
     /* ".r" */
-    dictAppendOpWord(dp, "0>",        zeroGreater,    FW_DEFAULT, FICL_OP_ZERO_GREATER);
-    dictAppendOpWord(dp, "2>r",       twoToR,         FW_COMPILE, FICL_OP_2TO_R);
-    dictAppendOpWord(dp, "2r>",       twoRFrom,       FW_COMPILE, FICL_OP_2R_FROM);
-    dictAppendOpWord(dp, "2r@",       twoRFetch,      FW_COMPILE, FICL_OP_2R_FETCH);
+    dictAppendOpWord(dp, "0>",        FICL_OP_ZERO_GREATER,  FW_DEFAULT);
+    dictAppendOpWord(dp, "2>r",       FICL_OP_2TO_R,  FW_COMPILE);
+    dictAppendOpWord(dp, "2r>",       FICL_OP_2R_FROM, FW_COMPILE);
+    dictAppendOpWord(dp, "2r@",       FICL_OP_2R_FETCH, FW_COMPILE);
     dictAppendWord(  dp, ":noname",   colonNoName,    FW_DEFAULT);
     dictAppendWord(  dp, "?do",       qDoCoIm,        FW_COMPIMMED);
     dictAppendWord(  dp, "again",     againCoIm,      FW_COMPIMMED);
@@ -5215,9 +5215,9 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "hex",       hex,            FW_DEFAULT);
     dictAppendWord(  dp, "pad",       pad,            FW_DEFAULT);
     dictAppendWord(  dp, "parse",     parse,          FW_DEFAULT);
-    dictAppendOpWord(dp, "pick",      pick,           FW_DEFAULT, FICL_OP_PICK);
+    dictAppendOpWord(dp, "pick",      FICL_OP_PICK,   FW_DEFAULT);
     /* query restore-input save-input tib u.r u> unused [compile] */
-    dictAppendOpWord(dp, "roll",      roll,           FW_DEFAULT, FICL_OP_ROLL);
+    dictAppendOpWord(dp, "roll",      FICL_OP_ROLL,   FW_DEFAULT);
     dictAppendWord(  dp, "refill",    refill,         FW_DEFAULT);
     dictAppendWord(  dp, "source-id", sourceid,       FW_DEFAULT);
     dictAppendWord(  dp, "to",        toValue,        FW_IMMEDIATE);
@@ -5339,7 +5339,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
 #endif
     dictAppendWord(  dp, ".dict",     dictSummary,    FW_DEFAULT);
     dictAppendWord(  dp, ".ver",      ficlVersion,    FW_DEFAULT);
-    dictAppendOpWord(dp, "-roll",     minusRoll,      FW_DEFAULT, FICL_OP_MINUS_ROLL);
+    dictAppendOpWord(dp, "-roll",     FICL_OP_MINUS_ROLL,  FW_DEFAULT);
     dictAppendWord(  dp, ">name",     toName,         FW_DEFAULT);
     dictAppendWord(  dp, "add-parse-step",
                                       addParseStep,   FW_DEFAULT);
@@ -5360,8 +5360,8 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "strlen",    ficlStrlen,     FW_DEFAULT);
     dictAppendWord(  dp, "q@",        quadFetch,      FW_DEFAULT);
     dictAppendWord(  dp, "q!",        quadStore,      FW_DEFAULT);
-    dictAppendOpWord(dp, "w@",        wFetch,         FW_DEFAULT, FICL_OP_W_FETCH);
-    dictAppendOpWord(dp, "w!",        wStore,         FW_DEFAULT, FICL_OP_W_STORE);
+    dictAppendOpWord(dp, "w@",        FICL_OP_W_FETCH,  FW_DEFAULT);
+    dictAppendOpWord(dp, "w!",        FICL_OP_W_STORE,  FW_DEFAULT);
     dictAppendWord(  dp, "x.",        hexDot,         FW_DEFAULT);
 #if FICL_WANT_USER
     dictAppendWord(  dp, "(user)",    userParen,      FW_DEFAULT);
@@ -5375,31 +5375,31 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     */
     dictAppendWord(  dp, "(create)",  createParen,    FW_COMPILE);
     pSys->pExitParen =
-    dictAppendOpWord(dp, "(exit)",    exitParen,      FW_COMPILE, FICL_OP_EXIT);
+    dictAppendOpWord(dp, "(exit)",    FICL_OP_EXIT,   FW_COMPILE);
     pSys->pSemiParen =
-    dictAppendOpWord(dp, "(;)",       semiParen,      FW_COMPILE, FICL_OP_SEMI);
+    dictAppendOpWord(dp, "(;)",       FICL_OP_SEMI,   FW_COMPILE);
     pSys->pLitParen =
-    dictAppendOpWord(dp, "(literal)", literalParen,   FW_COMPILE, FICL_OP_LIT);
+    dictAppendOpWord(dp, "(literal)",  FICL_OP_LIT,   FW_COMPILE);
     pSys->pTwoLitParen =
-    dictAppendOpWord(dp, "(2literal)",twoLitParen,    FW_COMPILE, FICL_OP_2LIT);
+    dictAppendOpWord(dp, "(2literal)",  FICL_OP_2LIT,  FW_COMPILE);
     pSys->pStringLit =
     dictAppendWord(  dp, "(.\")",     stringLit,      FW_COMPILE);
     pSys->pCStringLit =
     dictAppendWord(  dp, "(c\")",     cstringLit,     FW_COMPILE);
     pSys->pBranch0 =
-    dictAppendOpWord(dp, "(branch0)", branch0,        FW_COMPILE, FICL_OP_BRANCH0);
+    dictAppendOpWord(dp, "(branch0)",  FICL_OP_BRANCH0,  FW_COMPILE);
     pSys->pBranchParen =
-    dictAppendOpWord(dp, "(branch)",  branchParen,    FW_COMPILE, FICL_OP_BRANCH);
+    dictAppendOpWord(dp, "(branch)",  FICL_OP_BRANCH,  FW_COMPILE);
     pSys->pDoParen =
-    dictAppendOpWord(dp, "(do)",      doParen,        FW_COMPILE, FICL_OP_DO);
+    dictAppendOpWord(dp, "(do)",      FICL_OP_DO,     FW_COMPILE);
     pSys->pDoesParen =
     dictAppendWord(  dp, "(does>)",   doesParen,      FW_COMPILE);
     pSys->pQDoParen =
-    dictAppendOpWord(dp, "(?do)",     qDoParen,       FW_COMPILE, FICL_OP_QDO);
+    dictAppendOpWord(dp, "(?do)",     FICL_OP_QDO,    FW_COMPILE);
     pSys->pLoopParen =
-    dictAppendOpWord(dp, "(loop)",    loopParen,      FW_COMPILE, FICL_OP_LOOP);
+    dictAppendOpWord(dp, "(loop)",    FICL_OP_LOOP,   FW_COMPILE);
     pSys->pPLoopParen =
-    dictAppendOpWord(dp, "(+loop)",   plusLoopParen,  FW_COMPILE, FICL_OP_PLOOP);
+    dictAppendOpWord(dp, "(+loop)",   FICL_OP_PLOOP,  FW_COMPILE);
     pSys->pInterpret =
     dictAppendWord(  dp, "interpret", interpret,      FW_DEFAULT);
     dictAppendWord(  dp, "lookup",    lookup,         FW_DEFAULT);

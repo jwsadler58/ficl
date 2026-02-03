@@ -257,14 +257,13 @@ FICL_WORD *dictAppendWord(FICL_DICT *pDict,
 **************************************************************************/
 FICL_WORD *dictAppendOpWord(FICL_DICT *pDict,
                             char *name,
-                            FICL_CODE pCode,
-                            UNS8 flags,
-                            FICL_OPCODE opcode)
+                            FICL_OPCODE opcode,
+                            UNS8 flags)
 {
     STRINGINFO si;
     SI_SETLEN(si, strlen(name));
     SI_SETPTR(si, name);
-    FICL_WORD *pFW = dictAppendWord2(pDict, si, pCode, flags);
+    FICL_WORD *pFW = dictAppendWord2(pDict, si, NULL, flags);
     pFW->opcode = opcode;
     return pFW;
 }

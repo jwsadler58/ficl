@@ -963,17 +963,6 @@ CALL_FALLBACK:
     pWord->code(pVM);
 }
 
-#if FICL_SUBR_THREADING != 0
-/**************************************************************************
-                        v m S t e p
-** Execute a single instruction.
-**************************************************************************/
-void vmStep(FICL_VM *pVM)
-{
-    M_VM_STEP(pVM)
-    return;
-}
-#else
 /**************************************************************************
                         v m S t e p
 ** Execute a single instruction.
@@ -1022,9 +1011,7 @@ OP_DONE:
     pVM->ip = ip;
     return;
 }
-#endif
 
-#if FICL_SUBR_THREADING == 0
 void vmInnerLoop(FICL_VM *pVM)
 {
     FICL_WORD *pWord;
@@ -1072,9 +1059,6 @@ OP_CONTINUE:
         continue;
     }
 }
-#endif
-
-
 
 /**************************************************************************
                         v m G e t D i c t

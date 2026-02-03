@@ -645,14 +645,7 @@ int         isPowerOfTwo   (FICL_UNS u);
         (pVM)->runningWord = tempFW; \
         tempFW->code(pVM);
 
-#if FICL_SUBR_THREADING != 0
-    #define M_INNER_LOOP(pVM) \
-        for (;;)  { M_VM_STEP(pVM) }
-
-    #define     vmInnerLoop(pVM) M_INNER_LOOP(pVM)
-#else
-    void        vmInnerLoop(FICL_VM *pVM);
-#endif
+void vmInnerLoop(FICL_VM *pVM);
 
 /*
 ** vmCheckStack needs a vm pointer because it might have to say
@@ -791,9 +784,8 @@ FICL_WORD  *dictAppendWord (FICL_DICT *pDict,
                            UNS8 flags);
 FICL_WORD  *dictAppendOpWord(FICL_DICT *pDict,
                              char *name,
-                             FICL_CODE pCode,
-                             UNS8 flags,
-                             FICL_OPCODE opcode);
+                             FICL_OPCODE opcode,
+                             UNS8 flags);
 FICL_WORD  *dictAppendWord2(FICL_DICT *pDict,
                            STRINGINFO si,
                            FICL_CODE pCode,

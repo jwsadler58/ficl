@@ -11,7 +11,6 @@ RANLIB   = ranlib
 OBJDIR          = obj
 FICL_OBJDIR     = $(OBJDIR)/ficl
 FICLMIN_OBJDIR  = $(OBJDIR)/ficlmin
-FICLSUBR_OBJDIR = $(OBJDIR)/ficlsubr
 
 FICL_SRCS = dict.c ficl.c fileaccess.c float.c dpmath.c \
             prefix.c search.c softcore.c stack.c \
@@ -20,18 +19,15 @@ FICL_OBJS = $(FICL_SRCS:.c=.o)
 
 CFLAGS_FICL     =
 CFLAGS_FICLMIN  = -DFICL_MINIMAL=1
-CFLAGS_FICLSUBR = -DFICL_SUBR_THREADING=1
 
 LIBFICL_OBJS     = $(addprefix $(FICL_OBJDIR)/,$(FICL_OBJS))
 LIBFICLMIN_OBJS  = $(addprefix $(FICLMIN_OBJDIR)/,$(FICL_OBJS))
-LIBFICLSUBR_OBJS = $(addprefix $(FICLSUBR_OBJDIR)/,$(FICL_OBJS))
 
 FICL_TEST_OBJ     = $(FICL_OBJDIR)/testmain.o
 FICLMIN_TEST_OBJ  = $(FICLMIN_OBJDIR)/testmain.o
-FICLSUBR_TEST_OBJ = $(FICLSUBR_OBJDIR)/testmain.o
 
-DEPS = $(LIBFICL_OBJS:.o=.d) $(LIBFICLMIN_OBJS:.o=.d) $(LIBFICLSUBR_OBJS:.o=.d) \
-       $(FICL_TEST_OBJ:.o=.d) $(FICLMIN_TEST_OBJ:.o=.d) $(FICLSUBR_TEST_OBJ:.o=.d)
+DEPS = $(LIBFICL_OBJS:.o=.d) $(LIBFICLMIN_OBJS:.o=.d) \
+       $(FICL_TEST_OBJ:.o=.d) $(FICLMIN_TEST_OBJ:.o=.d)
 
 # === Softcore.c is generated from softwords folder ===
 softcore.c:
@@ -51,16 +47,8 @@ libficlmin.a: $(LIBFICLMIN_OBJS)
 	$(LIB) $@ $(LIBFICLMIN_OBJS)
 	$(RANLIB) $@
 
-libficlsubr.a: $(LIBFICLSUBR_OBJS)
-	$(LIB) $@ $(LIBFICLSUBR_OBJS)
-	$(RANLIB) $@
-
 ficlmin: $(FICLMIN_TEST_OBJ) libficlmin.a
 	$(CC) $(FICLMIN_TEST_OBJ) -o ficlmin -L. -lficlmin -lm
-
-ficlsubr: $(FICLSUBR_TEST_OBJ) libficlsubr.a
-	$(CC) $(FICLSUBR_TEST_OBJ) -o ficlsubr -L. -lficlsubr -lm
-
 
 # === Compile rules ===
 .SUFFIXES: .c .o
@@ -71,18 +59,11 @@ $(FICL_OBJDIR)/%.o: %.c | $(FICL_OBJDIR) softcore.c
 $(FICLMIN_OBJDIR)/%.o: %.c | $(FICLMIN_OBJDIR) softcore.c
 	$(CC) $(CFLAGS) $(CFLAGS_FICLMIN) $(DEPFLAGS) -MF $(@:.o=.d) -c $< -o $@
 
-$(FICLSUBR_OBJDIR)/%.o: %.c | $(FICLSUBR_OBJDIR) softcore.c
-	$(CC) $(CFLAGS) $(CFLAGS_FICLSUBR) $(DEPFLAGS) -MF $(@:.o=.d) -c $< -o $@
-
 $(FICL_OBJDIR):
 	@mkdir -p $(FICL_OBJDIR)
 
 $(FICLMIN_OBJDIR):
 	@mkdir -p $(FICLMIN_OBJDIR)
-
-$(FICLSUBR_OBJDIR):
-	@mkdir -p $(FICLSUBR_OBJDIR)
-
 
 -include $(DEPS)
 
