@@ -40,6 +40,9 @@
 *.exe
 *.out
 *.app
+
+# Ficl Stuff
+.ficl_history
 ficl
 ficl_wasm.js
 ficl_wasm.wasm
