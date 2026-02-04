@@ -998,7 +998,7 @@ int main(int argc, char **argv)
 
     /* Main REPL with line editing */
     char *line;
-    while (ret != VM_USEREXIT && (line = editLine("ficl> ")) != NULL)
+    while (ret != VM_USEREXIT && (line = editLine("")) != NULL)
     {
         if (line[0] != '\0') {
             ret = ficlExec(pVM, line);
