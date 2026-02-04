@@ -797,18 +797,32 @@ static void listEnv(FICL_VM *pVM)
     FICL_WORD *wp;
     unsigned i;
     int nWords = 0;
+    char pad[80];
 
     for (i = 0; i < pHash->size; i++)
     {
         for (wp = pHash->table[i]; wp != NULL; wp = wp->link, nWords++)
         {
-            vmTextOut(pVM, wp->name, 1);
+            if (wp->code == constantParen)
+            {
+                snprintf(pad, sizeof(pad), "%s = %i", wp->name, (int)(wp->param[0].i));
+                vmTextOut(pVM, pad, 1);
+            }
+            else if (wp->code == twoConstParen)
+            {
+                snprintf(pad, sizeof(pad), "%s = %i %i", wp->name, (int)(wp->param[1].i), (int)(wp->param[0].i));
+                vmTextOut(pVM, pad, 1);
+            }
+            else
+            {
+                vmTextOut(pVM, wp->name, 1);
+            }
         }
     }
 
-    sprintf(pVM->pad, "Environment: %d words, %ld cells used of %u total",
+    snprintf(pad, sizeof(pad), "Environment: %d words, %ld cells used of %u total",
         nWords, (long) (dp->here - dp->dict), dp->size);
-    vmTextOut(pVM, pVM->pad, 1);
+    vmTextOut(pVM, pad, 1);
     return;
 }
 

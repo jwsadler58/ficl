@@ -67,7 +67,7 @@ static char destTag[]  = "target";
 static char origTag[]  = "origin";
 
 static char caseTag[]  = "case";
-static char ofTag[]  = "of";
+static char ofTag[]    = "of";
 static char fallthroughTag[]  = "fallthrough";
 
 #if FICL_WANT_LOCALS
@@ -266,186 +266,6 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
         literalIm(pVM);
 
     return TRUE;
-}
-
-
-/**************************************************************************
-                        a d d   &   f r i e n d s
-**
-**************************************************************************/
-
-static void add(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    i = stackPopINT(pVM->pStack);
-    i += stackGetTop(pVM->pStack).i;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void sub(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    i = stackPopINT(pVM->pStack);
-    i = stackGetTop(pVM->pStack).i - i;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void mul(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    i = stackPopINT(pVM->pStack);
-    i *= stackGetTop(pVM->pStack).i;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void negate(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    i = -stackPopINT(pVM->pStack);
-    PUSHINT(i);
-    return;
-}
-
-static void ficlDiv(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    i = stackPopINT(pVM->pStack);
-    i = stackGetTop(pVM->pStack).i / i;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-/*
-** slash-mod        CORE ( n1 n2 -- n3 n4 )
-** Divide n1 by n2, giving the single-cell remainder n3 and the single-cell
-** quotient n4. An ambiguous condition exists if n2 is zero. If n1 and n2
-** differ in sign, the implementation-defined result returned will be the
-** same as that returned by either the phrase
-** >R S>D R> FM/MOD or the phrase >R S>D R> SM/REM .
-** NOTE: Ficl complies with the second phrase (symmetric division)
-*/
-static void slashMod(FICL_VM *pVM)
-{
-    DPINT n1;
-    FICL_INT n2;
-    INTQR qr;
-
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 2);
-#endif
-    n2    = stackPopINT(pVM->pStack);
-    n1.lo = stackPopINT(pVM->pStack);
-    dpmExtendI(n1);
-
-    qr = dpmSymmetricDivI(n1, n2);
-    PUSHINT(qr.rem);
-    PUSHINT(qr.quot);
-    return;
-}
-
-static void onePlus(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    i = stackGetTop(pVM->pStack).i;
-    i += 1;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void oneMinus(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    i = stackGetTop(pVM->pStack).i;
-    i -= 1;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void twoMul(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    i = stackGetTop(pVM->pStack).i;
-    i *= 2;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void twoDiv(FICL_VM *pVM)
-{
-    FICL_INT i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    i = stackGetTop(pVM->pStack).i;
-    i >>= 1;
-    stackSetTop(pVM->pStack, LVALUEtoCELL(i));
-    return;
-}
-
-static void mulDiv(FICL_VM *pVM)
-{
-    FICL_INT x, y, z;
-    DPINT prod;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 3, 1);
-#endif
-    z = stackPopINT(pVM->pStack);
-    y = stackPopINT(pVM->pStack);
-    x = stackPopINT(pVM->pStack);
-
-    prod = dpmMulI(x,y);
-    x    = dpmSymmetricDivI(prod, z).quot;
-
-    PUSHINT(x);
-    return;
-}
-
-
-static void mulDivRem(FICL_VM *pVM)
-{
-    FICL_INT x, y, z;
-    DPINT prod;
-    INTQR qr;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 3, 2);
-#endif
-    z = stackPopINT(pVM->pStack);
-    y = stackPopINT(pVM->pStack);
-    x = stackPopINT(pVM->pStack);
-
-    prod = dpmMulI(x,y);
-    qr   = dpmSymmetricDivI(prod, z);
-
-    PUSHINT(qr.rem);
-    PUSHINT(qr.quot);
-    return;
 }
 
 
@@ -682,9 +502,7 @@ static void hexDot(FICL_VM *pVM)
 /**************************************************************************
                         s t r l e n
 ** FICL   ( c-string -- length )
-**
 ** Returns the length of a C-style (zero-terminated) string.
-**
 ** --lch
 **/
 static void ficlStrlen(FICL_VM *ficlVM)
@@ -864,152 +682,9 @@ static void ficlSprintf(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        d u p   &   f r i e n d s
+                        2 s w a p
 **
 **************************************************************************/
-
-static void depth(FICL_VM *pVM)
-{
-    int i;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-    i = stackDepth(pVM->pStack);
-    PUSHINT(i);
-    return;
-}
-
-
-static void drop(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 0);
-#endif
-    stackDrop(pVM->pStack, 1);
-    return;
-}
-
-
-static void twoDrop(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    stackDrop(pVM->pStack, 2);
-    return;
-}
-
-
-static void dup(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 2);
-#endif
-    stackPick(pVM->pStack, 0);
-    return;
-}
-
-
-static void twoDup(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 4);
-#endif
-    stackPick(pVM->pStack, 1);
-    stackPick(pVM->pStack, 1);
-    return;
-}
-
-
-static void over(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 3);
-#endif
-    stackPick(pVM->pStack, 1);
-    return;
-}
-
-static void twoOver(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 4, 6);
-#endif
-    stackPick(pVM->pStack, 3);
-    stackPick(pVM->pStack, 3);
-    return;
-}
-
-
-static void pick(FICL_VM *pVM)
-{
-    CELL c = stackPop(pVM->pStack);
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, c.i+1, c.i+2);
-#endif
-    stackPick(pVM->pStack, c.i);
-    return;
-}
-
-
-static void questionDup(FICL_VM *pVM)
-{
-    CELL c;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 2);
-#endif
-    c = stackGetTop(pVM->pStack);
-
-    if (c.i != 0)
-        stackPick(pVM->pStack, 0);
-
-    return;
-}
-
-
-static void roll(FICL_VM *pVM)
-{
-    int i = stackPop(pVM->pStack).i;
-    i = (i > 0) ? i : 0;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, i+1, i+1);
-#endif
-    stackRoll(pVM->pStack, i);
-    return;
-}
-
-
-static void minusRoll(FICL_VM *pVM)
-{
-    int i = stackPop(pVM->pStack).i;
-    i = (i > 0) ? i : 0;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, i+1, i+1);
-#endif
-    stackRoll(pVM->pStack, -i);
-    return;
-}
-
-
-static void rot(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 3, 3);
-#endif
-    stackRoll(pVM->pStack, 2);
-    return;
-}
-
-
-static void swap(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 2);
-#endif
-    stackRoll(pVM->pStack, 1);
-    return;
-}
-
 
 static void twoSwap(FICL_VM *pVM)
 {
@@ -1101,78 +776,6 @@ static void commentHang(FICL_VM *pVM)
 **
 **************************************************************************/
 
-static void fetch(FICL_VM *pVM)
-{
-    CELL *pCell;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    pCell = (CELL *)stackPopPtr(pVM->pStack);
-    stackPush(pVM->pStack, *pCell);
-    return;
-}
-
-/*
-** two-fetch    CORE ( a-addr -- x1 x2 )
-** Fetch the cell pair x1 x2 stored at a-addr. x2 is stored at a-addr and
-** x1 at the next consecutive cell. It is equivalent to the sequence
-** DUP CELL+ @ SWAP @ .
-*/
-static void twoFetch(FICL_VM *pVM)
-{
-    CELL *pCell;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 2);
-#endif
-    pCell = (CELL *)stackPopPtr(pVM->pStack);
-    stackPush(pVM->pStack, *pCell++);
-    stackPush(pVM->pStack, *pCell);
-    swap(pVM);
-    return;
-}
-
-/*
-** store        CORE ( x a-addr -- )
-** Store x at a-addr.
-*/
-static void store(FICL_VM *pVM)
-{
-    CELL *pCell;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    pCell = (CELL *)stackPopPtr(pVM->pStack);
-    *pCell = stackPop(pVM->pStack);
-}
-
-/*
-** two-store    CORE ( x1 x2 a-addr -- )
-** Store the cell pair x1 x2 at a-addr, with x2 at a-addr and x1 at the
-** next consecutive cell. It is equivalent to the sequence
-** SWAP OVER ! CELL+ ! .
-*/
-static void twoStore(FICL_VM *pVM)
-{
-    CELL *pCell;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 3, 0);
-#endif
-    pCell = (CELL *)stackPopPtr(pVM->pStack);
-    *pCell++    = stackPop(pVM->pStack);
-    *pCell      = stackPop(pVM->pStack);
-}
-
-static void plusStore(FICL_VM *pVM)
-{
-    CELL *pCell;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    pCell = (CELL *)stackPopPtr(pVM->pStack);
-    pCell->i += stackPop(pVM->pStack).i;
-}
-
-
 static void quadFetch(FICL_VM *pVM)
 {
     UNS32 *pw;
@@ -1192,48 +795,6 @@ static void quadStore(FICL_VM *pVM)
 #endif
     pw = (UNS32 *)stackPopPtr(pVM->pStack);
     *pw = (UNS32)(stackPop(pVM->pStack).u);
-}
-
-static void wFetch(FICL_VM *pVM)
-{
-    UNS16 *pw;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    pw = (UNS16 *)stackPopPtr(pVM->pStack);
-    PUSHUNS((FICL_UNS)*pw);
-    return;
-}
-
-static void wStore(FICL_VM *pVM)
-{
-    UNS16 *pw;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    pw = (UNS16 *)stackPopPtr(pVM->pStack);
-    *pw = (UNS16)(stackPop(pVM->pStack).u);
-}
-
-static void cFetch(FICL_VM *pVM)
-{
-    UNS8 *pc;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    pc = (UNS8 *)stackPopPtr(pVM->pStack);
-    PUSHUNS((FICL_UNS)*pc);
-    return;
-}
-
-static void cStore(FICL_VM *pVM)
-{
-    UNS8 *pc;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    pc = (UNS8 *)stackPopPtr(pVM->pStack);
-    *pc = (UNS8)(stackPop(pVM->pStack).u);
 }
 
 
@@ -1373,7 +934,7 @@ static void caseCoIm(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        e n d c a s eC o I m
+                        e n d c a s e C o I m
 ** IMMEDIATE COMPILE-ONLY
 **************************************************************************/
 
@@ -1861,137 +1422,19 @@ static void twoLiteralIm(FICL_VM *pVM)
 
 /**************************************************************************
                         l o g i c   a n d   c o m p a r i s o n s
-**
+** Tokenized
 **************************************************************************/
 
-static void zeroEquals(FICL_VM *pVM)
-{
-    CELL c;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    c.i = FICL_BOOL(stackPopINT(pVM->pStack) == 0);
-    stackPush(pVM->pStack, c);
-    return;
-}
 
-static void zeroLess(FICL_VM *pVM)
-{
-    CELL c;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    c.i = FICL_BOOL(stackPopINT(pVM->pStack) < 0);
-    stackPush(pVM->pStack, c);
-    return;
-}
 
-static void zeroGreater(FICL_VM *pVM)
-{
-    CELL c;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    c.i = FICL_BOOL(stackPopINT(pVM->pStack) > 0);
-    stackPush(pVM->pStack, c);
-    return;
-}
 
-static void isEqual(FICL_VM *pVM)
-{
-    CELL x, y;
 
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    x = stackPop(pVM->pStack);
-    y = stackPop(pVM->pStack);
-    PUSHINT(FICL_BOOL(x.i == y.i));
-    return;
-}
 
-static void isLess(FICL_VM *pVM)
-{
-    CELL x, y;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    y = stackPop(pVM->pStack);
-    x = stackPop(pVM->pStack);
-    PUSHINT(FICL_BOOL(x.i < y.i));
-    return;
-}
 
-static void uIsLess(FICL_VM *pVM)
-{
-    FICL_UNS u1, u2;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    u2 = stackPopUNS(pVM->pStack);
-    u1 = stackPopUNS(pVM->pStack);
-    PUSHINT(FICL_BOOL(u1 < u2));
-    return;
-}
 
-static void isGreater(FICL_VM *pVM)
-{
-    CELL x, y;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    y = stackPop(pVM->pStack);
-    x = stackPop(pVM->pStack);
-    PUSHINT(FICL_BOOL(x.i > y.i));
-    return;
-}
 
-static void bitwiseAnd(FICL_VM *pVM)
-{
-    CELL x, y;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    x = stackPop(pVM->pStack);
-    y = stackPop(pVM->pStack);
-    PUSHINT(x.i & y.i);
-    return;
-}
 
-static void bitwiseOr(FICL_VM *pVM)
-{
-    CELL x, y;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    x = stackPop(pVM->pStack);
-    y = stackPop(pVM->pStack);
-    PUSHINT(x.i | y.i);
-    return;
-}
 
-static void bitwiseXor(FICL_VM *pVM)
-{
-    CELL x, y;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-    x = stackPop(pVM->pStack);
-    y = stackPop(pVM->pStack);
-    PUSHINT(x.i ^ y.i);
-    return;
-}
-
-static void bitwiseNot(FICL_VM *pVM)
-{
-    CELL x;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 1);
-#endif
-    x = stackPop(pVM->pStack);
-    PUSHINT(~x.i);
-    return;
-}
 
 
 /**************************************************************************
@@ -2239,69 +1682,6 @@ static void loopKCo(FICL_VM *pVM)
 }
 
 
-/**************************************************************************
-                        r e t u r n   s t a c k
-**
-**************************************************************************/
-static void toRStack(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 0);
-#endif
-
-    stackPush(pVM->rStack, POP());
-}
-
-static void fromRStack(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-
-    PUSH(stackPop(pVM->rStack));
-}
-
-static void fetchRStack(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-
-    PUSH(stackGetTop(pVM->rStack));
-}
-
-static void twoToR(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    stackRoll(pVM->pStack, 1);
-    stackPush(pVM->rStack, stackPop(pVM->pStack));
-    stackPush(pVM->rStack, stackPop(pVM->pStack));
-    return;
-}
-
-static void twoRFrom(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 2);
-#endif
-    stackPush(pVM->pStack, stackPop(pVM->rStack));
-    stackPush(pVM->pStack, stackPop(pVM->rStack));
-    stackRoll(pVM->pStack, 1);
-    return;
-}
-
-static void twoRFetch(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 2);
-#endif
-    stackPush(pVM->pStack, stackFetch(pVM->rStack, 1));
-    stackPush(pVM->pStack, stackFetch(pVM->rStack, 0));
-    return;
-}
-
 
 /**************************************************************************
                         v a r i a b l e
@@ -2470,7 +1850,7 @@ static void cellPlus(FICL_VM *pVM)
 ** tick         CORE ( "<spaces>name" -- xt )
 ** Skip leading space delimiters. Parse name delimited by a space. Find
 ** name and return xt, the execution token for name. An ambiguous condition
-** exists if name is not found.
+** exists if name is not found. Spoon!
 **************************************************************************/
 void ficlTick(FICL_VM *pVM)
 {
@@ -3340,9 +2720,6 @@ static void charPlus(FICL_VM *pVM)
 ** For most processors, this function can be a no-op. To guarantee
 ** portability, we'll multiply by sizeof (char).
 **************************************************************************/
-#if defined (_M_IX86)
-#pragma warning(disable: 4127)
-#endif
 static void ficlChars(FICL_VM *pVM)
 {
     if (sizeof (char) > 1)
@@ -3357,9 +2734,6 @@ static void ficlChars(FICL_VM *pVM)
     /* otherwise no-op! */
     return;
 }
-#if defined (_M_IX86)
-#pragma warning(default: 4127)
-#endif
 
 
 /**************************************************************************
@@ -3766,22 +3140,6 @@ static void smSlashRem(FICL_VM *pVM)
 }
 
 
-static void ficlMod(FICL_VM *pVM)
-{
-    DPINT d1;
-    FICL_INT n1;
-    INTQR qr;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM,2,1);
-#endif
-
-    n1 = POPINT();
-    d1.lo = POPINT();
-    dpmExtendI(d1);
-    qr = dpmSymmetricDivI(d1, n1);
-    PUSHINT(qr.rem);
-    return;
-}
 
 
 /**************************************************************************
@@ -3820,36 +3178,10 @@ static void umSlashMod(FICL_VM *pVM)
 ** Put zeroes into the most significant bits vacated by the shift. An
 ** ambiguous condition exists if u is greater than or equal to the
 ** number of bits in a cell.
+** -- Tokenized --
 **************************************************************************/
-static void lshift(FICL_VM *pVM)
-{
-    FICL_UNS nBits;
-    FICL_UNS x1;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM,2,1);
-#endif
-
-    nBits = POPUNS();
-    x1 = POPUNS();
-    PUSHUNS(x1 << nBits);
-    return;
-}
 
 
-static void rshift(FICL_VM *pVM)
-{
-    FICL_UNS nBits;
-    FICL_UNS x1;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM,2,1);
-#endif
-
-    nBits = POPUNS();
-    x1 = POPUNS();
-
-    PUSHUNS(x1 >> nBits);
-    return;
-}
 
 
 /**************************************************************************
@@ -3895,37 +3227,9 @@ static void umStar(FICL_VM *pVM)
 
 /**************************************************************************
                         m a x   &   m i n
-**
+** Tokenized
 **************************************************************************/
-static void ficlMax(FICL_VM *pVM)
-{
-    FICL_INT n2;
-    FICL_INT n1;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM,2,1);
-#endif
 
-    n2 = POPINT();
-    n1 = POPINT();
-
-    PUSHINT((n1 > n2) ? n1 : n2);
-    return;
-}
-
-static void ficlMin(FICL_VM *pVM)
-{
-    FICL_INT n2;
-    FICL_INT n1;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM,2,1);
-#endif
-
-    n2 = POPINT();
-    n1 = POPINT();
-
-    PUSHINT((n1 < n2) ? n1 : n2);
-    return;
-}
 
 
 /**************************************************************************
@@ -4932,24 +4236,11 @@ static void dnegate(FICL_VM *pVM)
 }
 
 
-#if 0
-/**************************************************************************
-
-**
-**************************************************************************/
-static void funcname(FICL_VM *pVM)
-{
-    IGNORE(pVM);
-    return;
-}
-
-
-#endif
 /**************************************************************************
                         f i c l W o r d C l a s s i f y
 ** This public function helps to classify word types for SEE
 ** and the deugger in tools.c. Given an pointer to a word, it returns
-** a member of WOR
+** a WORDKIND
 **************************************************************************/
 WORDKIND ficlWordClassify(FICL_WORD *pFW)
 {
