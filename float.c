@@ -166,7 +166,7 @@ static void FDot(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    sprintf(pVM->pad,"%#f ", (double)f);
+    snprintf(pVM->pad, sizeof(pVM->pad),"%#f ", (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
 #endif
@@ -184,7 +184,7 @@ static void EDot(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    sprintf(pVM->pad,"%#e ", (double)f);
+    snprintf(pVM->pad, sizeof(pVM->pad),"%#e ", (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
 
@@ -215,7 +215,7 @@ static void displayFStack(FICL_VM *pVM)
         pFloat = pVM->fStack->sp - d;
         for (i = 0; i < d; i++)
         {
-            sprintf(pVM->pad, "%.5e ", (double)(*pFloat++));
+            snprintf(pVM->pad, sizeof(pVM->pad), "%.5e ", (double)(*pFloat++));
             vmTextOut(pVM,pVM->pad, 1);
         }
     }
@@ -324,7 +324,7 @@ static void FSdot(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    sprintf(pVM->pad, "%.*e ", (int)pVM->fPrecision, (double)f);
+    snprintf(pVM->pad, sizeof(pVM->pad), "%.*e ", (int)pVM->fPrecision, (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
 
@@ -937,7 +937,7 @@ static void FDotWithPrecision(FICL_VM *pVM)
 
     f = POPFLOAT();
     sprintf(format, "%%.%dg ", (int)pVM->fPrecision);
-    sprintf(pVM->pad, format, (double)f);
+    snprintf(pVM->pad, sizeof(pVM->pad), format, (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
 

@@ -1385,7 +1385,7 @@ void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
-    vsprintf(pVM->pad, fmt, va);
+    vsnprintf(pVM->pad, sizeof(pVM->pad), fmt, va);
     vmTextOut(pVM, pVM->pad, 1);
     va_end(va);
     longjmp(*(pVM->pState), VM_ERREXIT);

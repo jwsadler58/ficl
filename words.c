@@ -3339,7 +3339,7 @@ static void ficlVersion(FICL_VM *pVM)
 {
     int nBits = sizeof(CELL) * CHAR_BIT;
     vmTextOut(pVM, "ficl Version " FICL_VER, 0);
-    sprintf(pVM->pad, " (%d bits)", nBits);
+    snprintf(pVM->pad, sizeof(pVM->pad), " (%d bits)", nBits);
     vmTextOut(pVM, pVM->pad, 0);
 return;
 }

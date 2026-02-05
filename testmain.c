@@ -269,7 +269,6 @@ static int readKey(void)
 */
 static void refreshLine(const char *prompt, const char *buf, int len, int cursor)
 {
-    char seq[64];
     int plen = strlen(prompt);
 
 #if defined(_WIN32)
@@ -296,14 +295,24 @@ static void refreshLine(const char *prompt, const char *buf, int len, int cursor
         fflush(stdout);
     }
 #else
-    /* Move cursor to start of line, clear line, print prompt and buffer */
-    sprintf(seq, "\r\x1b[K%s%.*s", prompt, len, buf);
-    write(STDOUT_FILENO, seq, strlen(seq));
+    /* Move cursor to start of line and clear line */
+    write(STDOUT_FILENO, "\r\x1b[K", 4);
 
-    /* Move cursor to correct position */
+    /* Write prompt */
+    if (plen > 0) {
+        write(STDOUT_FILENO, prompt, plen);
+    }
+
+    /* Write buffer */
+    if (len > 0) {
+        write(STDOUT_FILENO, buf, len);
+    }
+
+    /* Move cursor to correct position if not at end */
     if (cursor != len) {
-        sprintf(seq, "\x1b[%dG", plen + cursor + 1);  /* +1 because terminals are 1-indexed */
-        write(STDOUT_FILENO, seq, strlen(seq));
+        char cursorSeq[16];
+        int seqLen = snprintf(cursorSeq, sizeof(cursorSeq), "\x1b[%dG", plen + cursor + 1);
+        write(STDOUT_FILENO, cursorSeq, seqLen);
     }
 #endif
 }
@@ -623,8 +632,7 @@ static void ficlChDir(FICL_VM *pVM)
 ** Gets a newline (or NULL) delimited string from the input
 ** and feeds it to the Posix system function...
 ** Example:
-**    system del *.*
-**    \ ouch!
+**    system ls -l
 */
 static void ficlSystem(FICL_VM *pVM)
 {
@@ -636,7 +644,7 @@ static void ficlSystem(FICL_VM *pVM)
         int err = system(pFS->text);
         if (err)
         {
-            sprintf(pVM->pad, "System call returned %d", err);
+            snprintf(pVM->pad, sizeof(pVM->pad), "System call returned %d", err);
             vmTextOut(pVM, pVM->pad, 1);
             vmThrow(pVM, VM_QUIT);
         }

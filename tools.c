@@ -304,7 +304,7 @@ static void seeXT(FICL_VM *pVM)
     switch (kind)
     {
     case COLON:
-        sprintf(pVM->pad, ": %.*s", pFW->nName, pFW->name);
+        snprintf(pVM->pad, sizeof(pVM->pad), ": %.*s", pFW->nName, pFW->name);
         vmTextOut(pVM, pVM->pad, 1);
         seeColon(pVM, pFW->param);
         break;
@@ -319,26 +319,26 @@ static void seeXT(FICL_VM *pVM)
         break;
 
     case VARIABLE:
-        sprintf(pVM->pad, "variable = " PCT_LD " (" PCT_IX ")",
+        snprintf(pVM->pad, sizeof(pVM->pad), "variable = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
         break;
 
 #if FICL_WANT_USER
     case USER:
-        sprintf(pVM->pad, "user variable " PCT_LD " (" PCT_IX ")",
+        snprintf(pVM->pad, sizeof(pVM->pad), "user variable " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
         break;
 #endif
 
     case CONSTANT:
-        sprintf(pVM->pad, "constant = " PCT_LD " (" PCT_IX ")",
+        snprintf(pVM->pad, sizeof(pVM->pad), "constant = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
 
     default:
-        sprintf(pVM->pad, "%.*s is a primitive", pFW->nName, pFW->name);
+        snprintf(pVM->pad, sizeof(pVM->pad), "%.*s is a primitive", pFW->nName, pFW->name);
         vmTextOut(pVM, pVM->pad, 1);
         break;
     }
@@ -509,7 +509,7 @@ void stepBreak(FICL_VM *pVM)
         ** Print the name of the next instruction
         */
         pFW = pVM->pSys->bpStep.origXT;
-        sprintf(pVM->pad, "next: %.*s", pFW->nName, pFW->name);
+        snprintf(pVM->pad, sizeof(pVM->pad), "next: %.*s", pFW->nName, pFW->name);
 #if 0
         if (isPrimitive(pFW))
         {
@@ -668,7 +668,7 @@ static void displayRStack(FICL_VM *pVM)
                 if (pFW)
                 {
                     int offset = (CELL *)c.p - &pFW->param[0];
-                    sprintf(pVM->pad, "%s+%d ", pFW->name, offset);
+                    snprintf(pVM->pad, sizeof(pVM->pad), "%s+%d ", pFW->name, offset);
                     vmTextOut(pVM, pVM->pad, 0);
                     continue;  /* no need to print the numeric value */
                 }
@@ -780,7 +780,7 @@ static void listWords(FICL_VM *pVM)
         vmTextOut(pVM, pPad, 1);
     }
 
-    sprintf(pVM->pad, "%s definitions: %d words", pHash->name, nWords);
+    snprintf(pVM->pad, sizeof(pVM->pad), "%s definitions: %d words", pHash->name, nWords);
     vmTextOut(pVM, pVM->pad, 1);
     return;
 }
