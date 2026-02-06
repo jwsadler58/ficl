@@ -191,7 +191,8 @@ static void enableRawMode(void)
     raw.c_cc[VMIN] = 1;   /* Read at least 1 character */
     raw.c_cc[VTIME] = 0;  /* No timeout */
 
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
+    /* Use TCSADRAIN to preserve any pending input when entering raw mode */
+    if (tcsetattr(STDIN_FILENO, TCSADRAIN, &raw) == -1) {
         return;
     }
 
@@ -201,7 +202,8 @@ static void enableRawMode(void)
 static void disableRawMode(void)
 {
     if (raw_mode_enabled) {
-        tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+        /* Use TCSADRAIN instead of TCSAFLUSH to preserve pending input (for paste) */
+        tcsetattr(STDIN_FILENO, TCSADRAIN, &orig_termios);
         raw_mode_enabled = 0;
     }
 }
@@ -379,13 +381,40 @@ static void saveHistoryLine(const char *line)
 
     fp = fopen(HISTORY_FILE, "a");
     if (fp) {
-        fprintf(fp, "%s\n", line);
+        fputs(line, fp);
+        fputc('\n', fp);
         fclose(fp);
     }
 }
 
 /*
-** Simple line reading fallback for non-TTY input (pipes, redirects)
+** Check if there's input available without blocking (for paste detection)
+*/
+static int inputAvailable(void)
+{
+#if defined(_WIN32)
+    DWORD numEvents = 0;
+    if (GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &numEvents)) {
+        return numEvents > 1;  /* More than just our current read */
+    }
+    return 0;
+#else
+    /* Use select() with zero timeout to check for pending input */
+    struct timeval tv;
+    fd_set readfds;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    FD_ZERO(&readfds);
+    FD_SET(STDIN_FILENO, &readfds);
+
+    return select(STDIN_FILENO + 1, &readfds, NULL, NULL, &tv) > 0;
+#endif
+}
+
+/*
+** Simple line reading fallback for non-TTY input (pipes, redirects, pastes)
 */
 static char* readLineSimple(const char *prompt)
 {
@@ -453,6 +482,7 @@ static char* editLine(const char *prompt)
         if (key == KEY_NULL) {
             free(buf);
             if (saved_line) free(saved_line);
+            disableRawMode();
             return NULL;
         }
 
@@ -461,6 +491,7 @@ static char* editLine(const char *prompt)
             printf("\n");
             free(buf);
             if (saved_line) free(saved_line);
+            disableRawMode();
             return NULL;
         }
 
@@ -468,6 +499,8 @@ static char* editLine(const char *prompt)
             /* Submit line */
             printf("\n");
             if (saved_line) free(saved_line);
+            /* Disable raw mode before returning so inputAvailable() works correctly */
+            disableRawMode();
             return buf;
         }
 
@@ -658,7 +691,7 @@ static void ficlSystem(FICL_VM *pVM)
 
 /*
 ** Load a text file and execute it
-** TODO: add correct behavior for nested loads
+** #todo: add correct behavior for nested loads
 ** Line oriented... filename is newline (or NULL) delimited.
 ** Example:
 **    load test.ficl
@@ -776,11 +809,16 @@ static void spewHash(FICL_VM *pVM)
     }
 
     /* header line */
-    fprintf(pOut, "Row\tnEntries\tNames\n");
+    if (fputs("Row\tnEntries\tNames\n", pOut) < 0) {
+        fclose(pOut);
+        return;
+    }
 
     for (i=0; i < nHash; i++)
     {
         int n = 0;
+        char buf[512];
+        int len;
 
         pFW = pHash->table[i];
         while (pFW)
@@ -789,16 +827,30 @@ static void spewHash(FICL_VM *pVM)
             pFW = pFW->link;
         }
 
-        fprintf(pOut, "%d\t%d", i, n);
+        len = snprintf(buf, sizeof(buf), "%d\t%d", i, n);
+        if (len < 0 || len >= (int)sizeof(buf) || fputs(buf, pOut) < 0)
+        {
+            fclose(pOut);
+            return;
+        }
 
         pFW = pHash->table[i];
         while (pFW)
         {
-            fprintf(pOut, "\t%s", pFW->name);
+            len = snprintf(buf, sizeof(buf), "\t%.32s", pFW->name);
+            if (len < 0 || len >= (int)sizeof(buf) || fputs(buf, pOut) < 0)
+            {
+                fclose(pOut);
+                return;
+            }
             pFW = pFW->link;
         }
 
-        fprintf(pOut, "\n");
+        if (fputc('\n', pOut) < 0)
+        {
+            fclose(pOut);
+            return;
+        }
     }
 
     fclose(pOut);
@@ -1006,14 +1058,31 @@ int main(int argc, char **argv)
 
     /* Main REPL with line editing */
     char *line;
-    while (ret != VM_USEREXIT && (line = editLine("")) != NULL)
-    {
+    int use_simple_mode = 0;  /* Use simple mode when pasting */
+
+    while (ret != VM_USEREXIT) {
+        /* Check if we should use simple mode (for pasted content) */
+        if (use_simple_mode || inputAvailable()) {
+            line = readLineSimple("");
+            use_simple_mode = 1;  /* Keep using simple mode while input is available */
+        } else {
+            line = editLine("");
+            use_simple_mode = 0;
+        }
+
+        if (!line) break;
+
         if (line[0] != '\0') {
             ret = ficlExec(pVM, line);
             addHistory(line);
             saveHistoryLine(line);
         }
         free(line);
+
+        /* If no more input available, go back to interactive mode */
+        if (use_simple_mode && !inputAvailable()) {
+            use_simple_mode = 0;
+        }
     }
 
     /* Restore terminal mode before exit */

@@ -13,7 +13,7 @@
 \           4 = end of line
 \
 \ revised 2 June 2000 - { | a -- } now works correctly
-.( loading Johns-Hopkins locals ) cr
+.( loading Johns-Hopkins locals )
 hide
 
 0 constant zero
@@ -124,4 +124,21 @@ set-current
 ; immediate compile-only
 
 previous
+
+\ #if FICL_WANT_FLOAT
+.( ...and float softwords ) cr
+: fempty fdepth ?dup if 0 do fdrop loop endif ;
+
+: f~  { f:r1 f:r2 f:r3 -- flag }
+  r3 f0= if
+    r1 r2 f=
+  else r3 f0<
+    if
+      r1 r2 f- fabs  r1 fabs r2 fabs f+  r3 f*  f<
+    else
+      r1 r2 f- fabs r3 f<
+    endif
+  endif
+;
 \ #endif
+\ #endif  /* FICL_WANT_LOCALS */

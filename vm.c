@@ -1134,13 +1134,12 @@ STRINGINFO vmGetWord0(FICL_VM *pVM)
     pSrc = skipSpace(pSrc, pEnd);
     SI_SETPTR(si, pSrc);
 
-/*
+#if 0
     for (ch = *pSrc; (pEnd != pSrc) && !isspace(ch); ch = *++pSrc)
     {
         count++;
     }
-*/
-
+#else
     /* Changed to make Purify happier.  --lch */
     for (;;)
     {
@@ -1152,6 +1151,7 @@ STRINGINFO vmGetWord0(FICL_VM *pVM)
         count++;
         pSrc++;
     }
+#endif
 
     SI_SETLEN(si, count);
 
