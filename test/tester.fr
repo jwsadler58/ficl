@@ -23,11 +23,10 @@ VARIABLE VERBOSE
 \ initialize to a positive sentinel value in case something aborts mid-test
 \ then subtract 1 when reporting
 
-c" test-error" find 0<>
-[if] drop
-   : another-error    ['] test-error execute ;
-[else] drop
-   : another-error    42 emit ;
+c" test-error" find swap drop 0=
+[if]
+   .( stubbing test-error )
+   : test-error    42 emit ;
 [endif]
 
 
@@ -35,7 +34,7 @@ c" test-error" find 0<>
 	                           \ THE LINE THAT HAD THE ERROR.
    TYPE SOURCE TYPE CR		   \ DISPLAY LINE CORRESPONDING TO ERROR
    EMPTY-STACK				      \ THROW AWAY EVERYTHING ELSE
-   another-error              \ accumulate total fails for reporting
+   test-error              \ accumulate total fails for reporting
    break	\ jws
 ;
 

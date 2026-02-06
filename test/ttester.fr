@@ -85,6 +85,13 @@ VARIABLE START-DEPTH
 VARIABLE XCURSOR      \ for ...}T
 VARIABLE ERROR-XT
 
+\ define test-error if testmain is not there to define it
+c" test-error" find swap drop 0=
+[if]
+   .( stubbing test-error )
+   : test-error    42 emit ;
+[endif]
+
 : ERROR ERROR-XT @ EXECUTE ;   \ for vectoring of error reporting
 
 : "FLOATING" S" FLOATING" ;    \ only compiled S" in CORE
@@ -244,6 +251,7 @@ HAS-FLOATING-STACK [IF]
 		\ followed by the line that had the error.
    TYPE SOURCE TYPE CR			\ display line corresponding to error
    EMPTY-STACK				\ throw away everything else
+   test-error
 ;
 
 ' ERROR1 ERROR-XT !
