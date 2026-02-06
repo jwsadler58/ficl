@@ -411,7 +411,14 @@ static_assert(sizeof(FICL_UNS) == sizeof(void *), "FICL_UNS must match pointer s
     ** FICL_FLOAT is auto-sized to match pointer size by default.
     ** FICL_FLOAT_BITS may be set to 32 or 64 to override auto float size selection.
     ** FICL_FLOATs have their own stack, and need not be the same size as CELLs.
+    ** FICL_WANT_FLOAT turns on FICL_WANT_LOCALS
     */
+    #if !defined (FICL_WANT_LOCALS)
+        #define FICL_WANT_LOCALS 1
+    #else
+        #undef FICL_WANT_LOCALS
+        #define FICL_WANT_LOCALS 1
+    #endif
     #if defined FICL_FLOAT_BITS
         #if (FICL_FLOAT_BITS == 32)
             #define FICL_FLOAT float
