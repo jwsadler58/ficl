@@ -305,8 +305,8 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
-** PORTABLE_LONGMULDIV causes ficlLongMul and ficlLongDiv to be defined in C in sysdep.c.
-** If set to 0, you will need to implement them.
+** PORTABLE_LONGMULDIV causes ficlLongMul and ficlLongDiv to be defined in C in dpmath.c.
+** If set to 0, you will need to implement them in sysdep.c.
 */
 #if !defined (PORTABLE_LONGMULDIV)
 #define PORTABLE_LONGMULDIV 1
