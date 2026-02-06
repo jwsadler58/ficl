@@ -235,7 +235,7 @@ typedef struct
 */
 typedef struct
 {
-    FICL_INT index;
+    FICL_INT index;  /* this is >in */
     char *end;
     char *cp;
 } TIB;
