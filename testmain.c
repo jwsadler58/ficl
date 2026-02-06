@@ -472,6 +472,9 @@ static char* editLine(const char *prompt)
     }
     buf[0] = '\0';
 
+    /* Start on a new line to avoid clearing previous output */
+    printf("\n");
+
     /* Print initial prompt */
     printf("%s", prompt);
     fflush(stdout);
