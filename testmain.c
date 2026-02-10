@@ -694,7 +694,6 @@ static void ficlSystem(FICL_VM *pVM)
 
 /*
 ** Load a text file and execute it
-** #todo: add correct behavior for nested loads
 ** Line oriented... filename is newline (or NULL) delimited.
 ** Example:
 **    load test.ficl

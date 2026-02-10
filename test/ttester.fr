@@ -120,7 +120,7 @@ HAS-FLOATING [IF]
     \ want for approximate float equality, to be used with F~ in
     \ FNEARLY=.  Keep the signs, because F~ needs them.
     FVARIABLE REL-NEAR 1E-12 REL-NEAR F!
-    FVARIABLE ABS-NEAR 0E    ABS-NEAR F!
+    FVARIABLE ABS-NEAR 5E-16 ABS-NEAR F!
 
     \ When EXACT? is TRUE, }F uses FEXACTLY=, otherwise FNEARLY=.
 
@@ -333,7 +333,7 @@ HAS-FLOATING [IF]
 \ Set the following flag to TRUE for more verbose output; this may
 \ allow you to tell which test caused your system to hang.
 VARIABLE VERBOSE
-   FALSE VERBOSE !
+   TRUE VERBOSE !
 
 : TESTING	\ ( -- ) TALKING COMMENT.
    SOURCE VERBOSE @
