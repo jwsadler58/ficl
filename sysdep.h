@@ -236,18 +236,15 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 #if (FICL_WANT_OOP)
-    #if !defined (FICL_WANT_LOCALS)
-        #define FICL_WANT_LOCALS 1
-    #else
+    #if defined (FICL_WANT_LOCALS)
         #undef FICL_WANT_LOCALS
-        #define FICL_WANT_LOCALS 1
     #endif
-    #if !defined (FICL_WANT_USER)
-        #define FICL_WANT_USER 1
-    #else
+    #define FICL_WANT_LOCALS 1
+
+    #if defined (FICL_WANT_USER)
         #undef FICL_WANT_USER
-        #define FICL_WANT_USER 1
     #endif
+    #define FICL_WANT_USER 1
 #endif
 
 /*
