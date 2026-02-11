@@ -392,36 +392,22 @@ static void saveHistoryLine(const char *line)
 
 /*
 ** Initialize the absolute path to the history file.
-** This must be called at startup before any cd commands can change
-** the working directory.
+** Places history in the user's home directory (~/.ficl_history).
 */
 static void initHistoryPath(void)
 {
-    char *cwd;
-    size_t len;
+    const char *home;
 
-    /* Get current working directory */
-    cwd = getcwd(NULL, 0);
-    if (!cwd) {
-        /* If getcwd fails, fall back to using relative path */
+    home = getenv("HOME");
+    if (!home)
+        home = getenv("USERPROFILE");  /* Windows fallback */
+
+    if (home && strlen(home) + 1 + strlen(HISTORY_FILE) + 1 <= sizeof(history_file_path)) {
+        snprintf(history_file_path, sizeof(history_file_path), "%s/%s", home, HISTORY_FILE);
+    } else {
         strncpy(history_file_path, HISTORY_FILE, sizeof(history_file_path) - 1);
         history_file_path[sizeof(history_file_path) - 1] = '\0';
-        return;
     }
-
-    /* Build absolute path: cwd + "/" + HISTORY_FILE */
-    len = strlen(cwd);
-    if (len + 1 + strlen(HISTORY_FILE) + 1 > sizeof(history_file_path)) {
-        /* Path too long - fall back to relative path */
-        free(cwd);
-        strncpy(history_file_path, HISTORY_FILE, sizeof(history_file_path) - 1);
-        history_file_path[sizeof(history_file_path) - 1] = '\0';
-        return;
-    }
-
-    /* Construct absolute path */
-    snprintf(history_file_path, sizeof(history_file_path), "%s/%s", cwd, HISTORY_FILE);
-    free(cwd);
 }
 
 /*
@@ -941,6 +927,12 @@ static void testError(FICL_VM *pVM)
     return;
 }
 
+static void nTestErrors(FICL_VM *pVM)
+{
+    stackPushINT(pVM->pStack, nTestFails);
+    return;
+}
+
 
 void buildTestInterface(FICL_SYSTEM *pSys)
 {
@@ -951,7 +943,8 @@ void buildTestInterface(FICL_SYSTEM *pSys)
     ficlBuild(pSys, "pwd",      ficlGetCWD,   FW_DEFAULT);
     ficlBuild(pSys, "system",   ficlSystem,   FW_DEFAULT);
     ficlBuild(pSys, "spewhash", spewHash,     FW_DEFAULT);
-    ficlBuild(pSys, "test-error", testError,  FW_DEFAULT); /* signaling from ficltest.fr */
+    ficlBuild(pSys, "test-error", testError,  FW_DEFAULT); /* ficltest.fr signaling */
+    ficlBuild(pSys, "#errors",  nTestErrors,  FW_DEFAULT);
     ficlBuild(pSys, "clocks/sec",
                                 clocksPerSec, FW_DEFAULT);
 
