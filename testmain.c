@@ -79,6 +79,9 @@
 #define INITIAL_LINE_SIZE 256
 #define HISTORY_FILE ".ficl_history"
 
+/* Absolute path to history file, set at startup */
+static char history_file_path[4096] = "";
+
 /* Key codes for special keys */
 #define KEY_NULL 0
 #define KEY_CTRL_C 3
@@ -355,7 +358,7 @@ static void loadHistory(void)
     FILE *fp;
     char buf[4096];
 
-    fp = fopen(HISTORY_FILE, "r");
+    fp = fopen(history_file_path, "r");
     if (!fp) {
         return;  /* File doesn't exist yet, that's OK */
     }
@@ -379,12 +382,46 @@ static void saveHistoryLine(const char *line)
         return;
     }
 
-    fp = fopen(HISTORY_FILE, "a");
+    fp = fopen(history_file_path, "a");
     if (fp) {
         fputs(line, fp);
         fputc('\n', fp);
         fclose(fp);
     }
+}
+
+/*
+** Initialize the absolute path to the history file.
+** This must be called at startup before any cd commands can change
+** the working directory.
+*/
+static void initHistoryPath(void)
+{
+    char *cwd;
+    size_t len;
+
+    /* Get current working directory */
+    cwd = getcwd(NULL, 0);
+    if (!cwd) {
+        /* If getcwd fails, fall back to using relative path */
+        strncpy(history_file_path, HISTORY_FILE, sizeof(history_file_path) - 1);
+        history_file_path[sizeof(history_file_path) - 1] = '\0';
+        return;
+    }
+
+    /* Build absolute path: cwd + "/" + HISTORY_FILE */
+    len = strlen(cwd);
+    if (len + 1 + strlen(HISTORY_FILE) + 1 > sizeof(history_file_path)) {
+        /* Path too long - fall back to relative path */
+        free(cwd);
+        strncpy(history_file_path, HISTORY_FILE, sizeof(history_file_path) - 1);
+        history_file_path[sizeof(history_file_path) - 1] = '\0';
+        return;
+    }
+
+    /* Construct absolute path */
+    snprintf(history_file_path, sizeof(history_file_path), "%s/%s", cwd, HISTORY_FILE);
+    free(cwd);
 }
 
 /*
@@ -1054,6 +1091,9 @@ int main(int argc, char **argv)
 
         return nTestFails;
     }
+
+    /* Initialize absolute path to history file */
+    initHistoryPath();
 
     /* Load command history from file */
     loadHistory();
