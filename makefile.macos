@@ -70,15 +70,20 @@ $(FICLMIN_OBJDIR):
 #
 #  === utility targets ===
 #
-.PHONY: clean clean-objects tags wasm
+.PHONY: clean cleanobj cleanocd tags wasm
 
 clean:
 	rm -rf $(OBJDIR)
 	rm -f *.a tags softcore.c
 
-clean-objects:
+cleanobj:
 	rm -rf $(OBJDIR)
 	rm -f *.a
+
+cleanocd:
+	rm -rf $(OBJDIR)
+	rm -f *.a tags softcore.c ficl ficl_wasm.* ficlmin
+
 
 tags:
 	ctags -w *
