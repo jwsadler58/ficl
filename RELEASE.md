@@ -1,8 +1,8 @@
-# Ficl 3.6 Release Notes
+# Ficl 3.06 Release Notes
 
 **Release Date:** February 2026
 
-Ficl 3.6 represents a major evolution of Ficl, featuring significant performance improvements, enhanced floating-point support, robustness enhancements, and enhancements to testmain.
+Ficl 3.06 represents a major evolution of Ficl, featuring significant performance improvements, enhanced floating-point support, robustness enhancements, and enhancements to testmain.
 
 ---
 
@@ -76,7 +76,7 @@ Comprehensive improvements to floating-point support:
 
 ---
 
-## Upgrading from 3.5
+## Upgrading from 3.05
 
 This release maintains backward compatibility for most use cases. Notable changes that may affect existing code:
 
