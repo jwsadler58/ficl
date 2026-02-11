@@ -76,6 +76,11 @@
 \ The file defines some 70 words in all, but in most cases only the
 \ ones mentioned above will be needed for successful testing.
 
+\ *** JWS notes for ficl:
+\ Replaced multiline ( comments with \ comments
+\ Added code to define test-error in case it is not otherwise defined
+\ Inserted test-error into error1 definition to count errors
+
 BASE @
 DECIMAL
 
@@ -86,6 +91,7 @@ VARIABLE XCURSOR      \ for ...}T
 VARIABLE ERROR-XT
 
 \ define test-error if testmain is not there to define it
+\ error1 now includes a call to test-error
 c" test-error" find swap drop 0=
 [if]
    .( stubbing test-error )
@@ -342,4 +348,4 @@ VARIABLE VERBOSE
    THEN ;
 
 BASE !
-\ end of ttester.fs
+\ end of ttester.fr
