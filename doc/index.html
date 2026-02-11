@@ -32,12 +32,19 @@
       <section class="hero">
         <div class="wrap hero-grid">
           <div>
-            <p class="eyebrow">Embedded scripting for real systems</p>
-            <h1>Compact and quick Rapid Development scripting for systems.</h1>
+            <p class="eyebrow">Embedded scripting</p>
+            <h1>Rapid development scripting for systems</h1>
             <p>
-              Ficl is a compact, embeddable interpreter that integrates easily with C/C++ systems. It
-              has a small memory footprint, ports quickly, and exposes host APIs without the baggage of a
-              heavyweight runtime. Ficl's OO extensions make it easy to wrap host data structures.
+              Ficl is a compact, embeddable interpreter designed to be incorporated into other programs, including memory constrained embedded systems.
+              It has a small memory footprint, ports quickly, and exposes system functions easily for scripting.
+              Ficl's OO extensions enable host data structures to be exposed as objects.
+            </p>
+            <p>
+              Unlike Lua or Python, Ficl acts as a component of your system.
+              You feed it stuff to do, it does the stuff, and comes back to you for more.
+              You can export compiled code to Ficl, execute Ficl code from your compiled code,
+              or interact with a read-execute-print loop. Your choice.
+              Ficl includes a simple but capable object model that can wrap existing data structures.
             </p>
             <div class="actions">
               <a class="button" href="ficl.html#whatis">Read the docs</a>
@@ -48,12 +55,12 @@
           <div class="hero-card">
             <ul class="stat-grid">
               <li>
-                <span class="stat">Under 100K</span>
-                <span class="stat-label">Full console build footprint</span>
+                <span class="stat">Compact</span>
+                <span class="stat-label">Under 100K footprint on 32 bit targets</span>
               </li>
               <li>
                 <span class="stat">Fast porting</span>
-                <span class="stat-label">Typically under two hours for new targets</span>
+                <span class="stat-label">Written in C11 with no special compiler features</span>
               </li>
               <li>
                 <span class="stat">Interactive</span>
@@ -66,19 +73,19 @@
 
       <section class="section">
         <div class="wrap">
-          <h2 class="section-title">Why Ficl</h2>
+          <h2 class="section-title">Why Ficl?</h2>
           <div class="card-grid">
             <div class="card">
-              <h3>Minimal footprint</h3>
-              <p>Keep your embedded images lean while still shipping a full scripting language.</p>
+              <h3>Compact and embeddable</h3>
+              <p>Keep your embedded images lean while including a full scripting language.</p>
             </div>
             <div class="card">
-              <h3>Host friendly</h3>
-              <p>Expose C functions to Ficl and call back into C with simple interfaces.</p>
+              <h3>Extend and automate</h3>
+              <p>Expose system functions to Ficl and build on them simply</p>
             </div>
             <div class="card">
               <h3>Threaded VM</h3>
-              <p>Fast enough to stay interactive, with JIT compilation for key paths.</p>
+              <p>Fast execution, JIT compilation, concurrent VM support</p>
             </div>
             <div class="card">
               <h3>OO extensions</h3>
