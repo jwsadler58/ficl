@@ -96,8 +96,6 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
     #if TARGET_OS_OSX
-        #define FICL_INT long
-        #define FICL_UNS unsigned long
         #define FICL_HAVE_FTRUNCATE 1
 
         #define MACOS
@@ -413,12 +411,11 @@ static_assert(sizeof(FICL_UNS) == sizeof(void *), "FICL_UNS must match pointer s
     ** FICL_FLOATs have their own stack, and need not be the same size as CELLs.
     ** FICL_WANT_FLOAT turns on FICL_WANT_LOCALS
     */
-    #if !defined (FICL_WANT_LOCALS)
-        #define FICL_WANT_LOCALS 1
-    #else
+    #if defined (FICL_WANT_LOCALS)
         #undef FICL_WANT_LOCALS
-        #define FICL_WANT_LOCALS 1
     #endif
+    #define FICL_WANT_LOCALS 1
+
     #if defined FICL_FLOAT_BITS
         #if (FICL_FLOAT_BITS == 32)
             #define FICL_FLOAT float
