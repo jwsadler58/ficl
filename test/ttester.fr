@@ -273,7 +273,7 @@ HAS-FLOATING-STACK [IF]
    F-> ;
 
 : }T		\ ( ... -- ) COMPARE STACK (EXPECTED) CONTENTS WITH SAVED
-		\ (ACTUAL) CONTENTS.
+		    \ (ACTUAL) CONTENTS.
    DEPTH ACTUAL-DEPTH @ = IF		\ if depths match
       DEPTH START-DEPTH @ > IF		\ if there is something on the stack
          DEPTH START-DEPTH @ - 0 DO	\ for each stack item
