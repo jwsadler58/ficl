@@ -83,7 +83,7 @@ static void vmSetBreak(FICL_VM *pVM, FICL_BREAKPOINT *pBP)
 **************************************************************************/
 static void debugPrompt(FICL_VM *pVM)
 {
-        vmTextOut(pVM, "dbg> ", 0);
+    vmTextOut(pVM, "dbg> ", 0);
 }
 
 
@@ -99,7 +99,7 @@ int isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW)
 {
 
     if (!dictIncludes(pd, pFW))
-       return 0;
+        return 0;
 
     if (!dictIncludes(pd, pFW->name))
         return 0;

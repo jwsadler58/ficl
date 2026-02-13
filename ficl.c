@@ -121,12 +121,12 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     pSys->localp = dictCreate((unsigned)FICL_MAX_LOCALS * CELLS_PER_WORD);
 #endif
 
-   /*
-    ** Create a temporary VM to compile any softwords.
-    ** Since all VMs are linked into the vmList of FICL_SYSTEM,
-    ** we don't have to pass the VM to ficlCompileSoftCore:
-    ** it uses the first VM in the VM list.
-    */
+    /*
+     ** Create a temporary VM to compile any softwords.
+     ** Since all VMs are linked into the vmList of FICL_SYSTEM,
+     ** we don't have to pass the VM to ficlCompileSoftCore:
+     ** it uses the first VM in the VM list.
+     */
     ficlNewVM(pSys);
 
     /*
@@ -446,7 +446,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
         dictResetSearchOrder(dp);
         vmReset(pVM);
         break;
-   }
+    }
 
     pVM->pState    = oldState;
     vmPopTib(pVM, &saveTib);

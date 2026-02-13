@@ -2967,7 +2967,7 @@ static void ficlVersion(FICL_VM *pVM)
     vmTextOut(pVM, "ficl Version " FICL_VER, 0);
     snprintf(pVM->pad, sizeof(pVM->pad), " (%d bits)", nBits);
     vmTextOut(pVM, pVM->pad, 0);
-return;
+    return;
 }
 
 
