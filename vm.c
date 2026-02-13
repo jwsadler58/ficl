@@ -1120,6 +1120,13 @@ OP_DONE:
     return;
 }
 
+
+/**************************************************************************
+                        v m I n n e r L o o p
+** The heart of the VM, this is the loop that executes instructions for colon
+** definitions.
+**************************************************************************/
+FICL_VM_OPTIMIZE
 void vmInnerLoop(FICL_VM *pVM)
 {
     FICL_WORD *pWord;
@@ -1588,23 +1595,16 @@ int isPowerOfTwo(FICL_UNS u)
 
 
 /**************************************************************************
-                        l t o a
+                        l t o a   &   u l t o a
 **
 **************************************************************************/
-char *ficlLtoa( FICL_INT value, char *string, int radix )
-{                               /* convert long to string, any base */
+static char *ltoaFactor( FICL_INT value, char *string, int radix )
+{
     char *cp = string;
-    int isNeg = (value < 0);
-    int pwr;
-
+    int pwr = isPowerOfTwo((FICL_UNS)radix);
     assert(radix > 1);
     assert(radix < 37);
     assert(string);
-
-    pwr = isPowerOfTwo((FICL_UNS)radix);
-
-    if (isNeg)
-        value = -value;
 
     if (value == 0)
         *cp++ = '0';
@@ -1632,6 +1632,16 @@ char *ficlLtoa( FICL_INT value, char *string, int radix )
         }
     }
 
+    *cp = '\0';
+    return cp;
+}
+
+
+char *ficlLtoa( FICL_INT value, char *string, int radix )
+{                               /* convert long to string, any base */
+    int isNeg = (value < 0);
+    char *cp = ltoaFactor( value, string, radix );
+
     if (isNeg)
         *cp++ = '-';
 
@@ -1641,38 +1651,10 @@ char *ficlLtoa( FICL_INT value, char *string, int radix )
 }
 
 
-/**************************************************************************
-                        u l t o a
-**
-**************************************************************************/
 char *ficlUltoa(FICL_UNS value, char *string, int radix )
 {                               /* convert long to string, any base */
-    char *cp = string;
-    DPUNS ud;
-    UNSQR result;
-
-    assert(radix > 1);
-    assert(radix < 37);
-    assert(string);
-
-    if (value == 0)
-        *cp++ = '0';
-    else
-    {
-        ud.hi = 0;
-        ud.lo = value;
-        result.quot = value;
-
-        while (ud.lo)
-        {
-            result = ficlLongDiv(ud, (FICL_UNS)radix);
-            ud.lo = result.quot;
-            *cp++ = digits[result.rem];
-        }
-    }
-
+    char *cp = ltoaFactor( value, string, radix );
     *cp++ = '\0';
-
     return ficlStrrev(string);
 }
 

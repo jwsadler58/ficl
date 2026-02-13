@@ -133,6 +133,13 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
     #define PCT_IX      "%#lx"
 #endif
 
+#if !defined FICL_VM_OPTIMIZE
+    #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 4
+        #define FICL_VM_OPTIMIZE __attribute__((optimize("O1")))
+    #else
+        #define FICL_VM_OPTIMIZE
+    #endif
+#endif
 
 
 /************************************************************************************
