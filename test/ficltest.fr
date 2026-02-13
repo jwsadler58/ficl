@@ -6,6 +6,7 @@ marker ficltest-marker
 
 load ttester.fr
 load core.fr
+load coreplus.fr
 
 \ verify initial conditions
 t{ -> }t
