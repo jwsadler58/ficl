@@ -661,7 +661,7 @@ FICL_WORD *dictLookup(FICL_DICT *pDict, STRINGINFO si)
 FICL_WORD *ficlLookupLoc(FICL_SYSTEM *pSys, STRINGINFO si)
 {
     FICL_WORD *pFW = NULL;
-	FICL_DICT *pDict = pSys->dp;
+    FICL_DICT *pDict = pSys->dp;
     FICL_HASH *pHash = ficlGetLoc(pSys)->pForthWords;
     int i;
     UNS16 hashCode   = hashHashCode(si);

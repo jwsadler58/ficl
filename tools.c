@@ -104,16 +104,16 @@ int isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW)
     if (!dictIncludes(pd, pFW->name))
         return 0;
 
-	if ((pFW->link != NULL) && !dictIncludes(pd, pFW->link))
-		return 0;
+    if ((pFW->link != NULL) && !dictIncludes(pd, pFW->link))
+        return 0;
 
     if ((pFW->nName <= 0) || (pFW->name[pFW->nName] != '\0'))
-		return 0;
+        return 0;
 
-	if (strlen(pFW->name) != pFW->nName)
-		return 0;
+    if (strlen(pFW->name) != pFW->nName)
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 
@@ -171,10 +171,10 @@ static FICL_WORD *findEnclosingWord(FICL_VM *pVM, CELL *cp)
 */
 static void seeColon(FICL_VM *pVM, CELL *pc)
 {
-	char *cp;
+    char *cp;
     CELL *param0 = pc;
     FICL_DICT *pd = vmGetDict(pVM);
-	FICL_WORD *pSemiParen = ficlLookup(pVM->pSys, "(;)");
+    FICL_WORD *pSemiParen = ficlLookup(pVM->pSys, "(;)");
     assert(pSemiParen);
 
     #define SNLIMIT (sizeof(pVM->pad) - (cp - pVM->pad))    /* abbrev for snprintf */
@@ -184,10 +184,10 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
         FICL_WORD *pFW = (FICL_WORD *)(pc->p);
 
         cp = pVM->pad;
-		if ((void *)pc == (void *)pVM->ip)
-			*cp++ = '>';
-		else
-			*cp++ = ' ';
+        if ((void *)pc == (void *)pVM->ip)
+            *cp++ = '>';
+        else
+            *cp++ = ' ';
         cp += snprintf(cp, SNLIMIT, "%3d   ", (int)(pc-param0));
 
         if (isAFiclWord(pd, pFW))
@@ -235,7 +235,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
                     snprintf(cp, SNLIMIT, "repeat (branch %d)",     (int)(pc+c.i-param0));
                 else if (c.i == 1)
                     snprintf(cp, SNLIMIT, "else (branch %d)",       (int)(pc+c.i-param0));
-				else
+                else
                     snprintf(cp, SNLIMIT, "endif (branch %d)",      (int)(pc+c.i-param0));
                 break;
 
@@ -271,7 +271,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
             snprintf(cp, SNLIMIT, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
         }
 
-		vmTextOut(pVM, pVM->pad, 1);
+        vmTextOut(pVM, pVM->pad, 1);
     }
 
     vmTextOut(pVM, ";", 1);

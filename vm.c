@@ -1190,8 +1190,8 @@ OP_CONTINUE:
 **************************************************************************/
 FICL_DICT  *vmGetDict(FICL_VM *pVM)
 {
-	assert(pVM);
-	return pVM->pSys->dp;
+    assert(pVM);
+    return pVM->pSys->dp;
 }
 
 
