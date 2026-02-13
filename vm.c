@@ -1640,6 +1640,9 @@ static char *ltoaFactor( FICL_INT value, char *string, int radix )
 char *ficlLtoa( FICL_INT value, char *string, int radix )
 {                               /* convert long to string, any base */
     int isNeg = (value < 0);
+    if (isNeg)
+        value = -value;
+
     char *cp = ltoaFactor( value, string, radix );
 
     if (isNeg)
