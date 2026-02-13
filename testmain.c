@@ -712,7 +712,7 @@ static void ficlChDir(FICL_VM *pVM)
         {
             vmTextOut(pVM, "Error: path not found", 0);
             vmTextOut(pVM, pFS->text, 1);
-            vmThrow(pVM, VM_QUIT);
+            vmThrow(pVM, VM_ERREXIT);
         }
     }
     else
@@ -786,7 +786,7 @@ static void ficlLoad(FICL_VM *pVM)
     {
         vmTextOut(pVM, "Unable to stat file: ", 0);
         vmTextOut(pVM, pFilename->text, 1);
-        vmThrow(pVM, VM_QUIT);
+        vmThrow(pVM, VM_ERREXIT);
     }
 
     fp = fopen(pFilename->text, "r");
@@ -794,7 +794,7 @@ static void ficlLoad(FICL_VM *pVM)
     {
         vmTextOut(pVM, "Unable to open file ", 0);
         vmTextOut(pVM, pFilename->text, 1);
-        vmThrow(pVM, VM_QUIT);
+        vmThrow(pVM, VM_ERREXIT);
     }
 
     vmTextOut(pVM, "Loading: ", 0);
