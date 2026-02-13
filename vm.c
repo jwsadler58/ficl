@@ -808,7 +808,7 @@
         { \
             FICL_INT oldOffset = index - limit; \
             FICL_INT newOffset = oldOffset + increment; \
-            flag = (oldOffset ^ newOffset) < 0; \
+            flag = ((oldOffset ^ newOffset) & (increment ^ oldOffset)) < 0; \
         } \
         index += increment; \
         if (flag) { \
