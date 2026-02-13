@@ -45,19 +45,19 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
 
     char *filename = (char *)ficlMalloc(length + 1);
     if (filename == NULL)
-        {
+    {
         stackPushPtr(pVM->pStack, NULL);
         errno = ENOMEM;
         pushIor(pVM, 0);
         return;
-        }
+    }
     memcpy(filename, address, length);
     filename[length] = 0;
 
     *mode = 0;
 
     switch (FICL_FAM_OPEN_MODE(fam))
-        {
+    {
         case 0:
             stackPushPtr(pVM->pStack, NULL);
             stackPushINT(pVM->pStack, EINVAL);
@@ -72,7 +72,7 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
             strcat(mode, writeMode);
             strcat(mode, "+");
             break;
-        }
+    }
 
     strcat(mode, (fam & FICL_FAM_BINARY) ? "b" : "t");
 
@@ -80,23 +80,23 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
     if (f == NULL)
         stackPushPtr(pVM->pStack, NULL);
     else
-        {
+    {
         ficlFILE *ff = (ficlFILE *)ficlMalloc(sizeof(ficlFILE));
         if (ff == NULL)
-            {
+        {
             fclose(f);
             stackPushPtr(pVM->pStack, NULL);
             errno = ENOMEM;
             pushIor(pVM, 0);
             ficlFree(filename);
             return;
-            }
+        }
         strcpy(ff->filename, filename);
         ff->f = f;
         stackPushPtr(pVM->pStack, ff);
 
         fseek(f, 0, SEEK_SET);
-        }
+    }
     ficlFree(filename);
     pushIor(pVM, f != NULL);
 }
@@ -135,11 +135,11 @@ static void ficlDeleteFile(FICL_VM *pVM) /* ( c-addr u -- ior ) */
 
     char *filename = (char *)ficlMalloc(length + 1);
     if (filename == NULL)
-        {
+    {
         errno = ENOMEM;
         pushIor(pVM, 0);
         return;
-        }
+    }
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -158,11 +158,11 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
     address = (void *)stackPopPtr(pVM->pStack);
     to = (char *)ficlMalloc(length + 1);
     if (to == NULL)
-        {
+    {
         errno = ENOMEM;
         pushIor(pVM, 0);
         return;
-        }
+    }
     memcpy(to, address, length);
     to[length] = 0;
 
@@ -171,12 +171,12 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
 
     from = (char *)ficlMalloc(length + 1);
     if (from == NULL)
-        {
+    {
         ficlFree(to);
         errno = ENOMEM;
         pushIor(pVM, 0);
         return;
-        }
+    }
     memcpy(from, address, length);
     from[length] = 0;
 
@@ -194,11 +194,11 @@ static void ficlFileStatus(FICL_VM *pVM) /* ( c-addr u -- x ior ) */
 
     char *filename = (char *)ficlMalloc(length + 1);
     if (filename == NULL)
-        {
+    {
         stackPushINT(pVM->pStack, -1);
         stackPushINT(pVM->pStack, ENOMEM);
         return;
-        }
+    }
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -266,16 +266,16 @@ static void ficlIncludeFile(FICL_VM *pVM) /* ( i*x fileid -- j*x ) */
     size = totalSize - currentPosition;
 
     if ((totalSize != -1) && (currentPosition != -1) && (size > 0))
-        {
+    {
         char *buffer = (char *)ficlMalloc(size);
         if (buffer != NULL)
-            {
+        {
             long got = fread(buffer, 1, size, ff->f);
             if (got == size)
                 (void)ficlExecC(pVM, buffer, size);
             ficlFree(buffer);
-            }
         }
+    }
 
     /*
     ** Pass an empty line with SOURCE-ID == -1 to flush
@@ -317,22 +317,22 @@ static void ficlReadLine(FICL_VM *pVM) /* ( c-addr u1 fileid -- u2 flag ior ) */
     clearerr(ff->f);
     *address = 0;
     if (fgets(address, length, ff->f) == NULL)
-        {
+    {
         error = ferror(ff->f);
         stackPushINT(pVM->pStack, -1);
         stackPushINT(pVM->pStack, 0);
         stackPushINT(pVM->pStack, error);
         return;
-        }
+    }
 
     error = ferror(ff->f);
     if (error != 0)
-        {
+    {
         stackPushINT(pVM->pStack, -1);
         stackPushINT(pVM->pStack, 0);
         stackPushINT(pVM->pStack, error);
         return;
-        }
+    }
 
     length = strlen(address);
     flag = (length > 0);

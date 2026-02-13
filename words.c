@@ -432,10 +432,10 @@ static void hexDot(FICL_VM *pVM)
 ** --lch
 **/
 static void ficlStrlen(FICL_VM *ficlVM)
-    {
+{
     char *address = (char *)stackPopPtr(ficlVM->pStack);
     stackPushINT(ficlVM->pStack, strlen(address));
-    }
+}
 
 
 /**************************************************************************
