@@ -1139,7 +1139,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
                 {
                     break;
                 }
-            } /* Note!  Drop through to FPS_ININT */
+            } /* fallthrough */
             /*
             **Converting integer part of number.
             ** Only allow digits, decimal and 'E'.
@@ -1201,7 +1201,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
                 {
                     break;
                 }
-            }       /* Note!  Drop through to FPS_INEXP */
+            }       /* fallthrough */
             /*
             ** Processing the exponent part of number.
             ** Only allow digits.
