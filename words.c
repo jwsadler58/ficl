@@ -558,9 +558,11 @@ static void ficlSprintf(FICL_VM *pVM)
                 case 'x':
                 case 'X':
                     base = 16;
+                    /* fallthrough */
                 case 'u':
                 case 'U':
                     unsignedInteger = TRUE;
+                    /* fallthrough */
                 case 'd':
                 case 'D':
                 {
