@@ -50,7 +50,6 @@
 #include "ficl.h"
 #include "dpmath.h"
 
-static void colonParen(FICL_VM *pVM);
 static void literalIm(FICL_VM *pVM);
 static int  ficlParseWord(FICL_VM *pVM, STRINGINFO si);
 
@@ -284,31 +283,10 @@ static void colon(FICL_VM *pVM)
 
     pVM->state = COMPILE;
     markControlTag(pVM, colonTag);
-    dictAppendWord2(dp, si, colonParen, FW_DEFAULT | FW_SMUDGE);
+    dictAppendOpWord2(dp, si, FICL_OP_COLON, FW_DEFAULT | FW_SMUDGE);
 #if FICL_WANT_LOCALS
     pVM->pSys->nLocals = 0;
 #endif
-    return;
-}
-
-
-/**************************************************************************
-                        c o l o n P a r e n
-** This is the code that executes a colon definition. It assumes that the
-** virtual machine is running a "next" loop (See the vm.c
-** for its implementation of member function vmExecute()). The colon
-** code simply copies the address of the first word in the list of words
-** to interpret into IP after saving its old value. When we return to the
-** "next" loop, the virtual machine will call the code for each word in
-** turn.
-**
-**************************************************************************/
-
-static void colonParen(FICL_VM *pVM)
-{
-    IPTYPE tempIP = (IPTYPE) (pVM->runningWord->param);
-    vmPushIP(pVM, tempIP);
-
     return;
 }
 
@@ -386,35 +364,6 @@ static void exitCoIm(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        c o n s t a n t P a r e n
-** This is the run-time code for "constant". It simply returns the
-** contents of its word's first data cell.
-**
-**************************************************************************/
-
-void constantParen(FICL_VM *pVM)
-{
-    FICL_WORD *pFW = pVM->runningWord;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-    stackPush(pVM->pStack, pFW->param[0]);
-    return;
-}
-
-void twoConstParen(FICL_VM *pVM)
-{
-    FICL_WORD *pFW = pVM->runningWord;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 2);
-#endif
-    stackPush(pVM->pStack, pFW->param[0]); /* lo */
-    stackPush(pVM->pStack, pFW->param[1]); /* hi */
-    return;
-}
-
-
-/**************************************************************************
                         c o n s t a n t
 ** IMMEDIATE
 ** Compiles a constant into the dictionary. Constants return their
@@ -429,7 +378,7 @@ static void constant(FICL_VM *pVM)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
-    dictAppendWord2(dp, si, constantParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_CONSTANT, FW_DEFAULT);
     dictAppendCell(dp, stackPop(pVM->pStack));
     return;
 }
@@ -445,7 +394,7 @@ static void twoConstant(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 0);
 #endif
     c = stackPop(pVM->pStack);
-    dictAppendWord2(dp, si, twoConstParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_2CONSTANT, FW_DEFAULT);
     dictAppendCell(dp, stackPop(pVM->pStack));
     dictAppendCell(dp, c);
     return;
@@ -799,48 +748,6 @@ static void quadStore(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        b r a n c h P a r e n
-**
-** Runtime for "(branch)" -- expects a literal offset in the next
-** compilation address, and branches to that location.
-**************************************************************************/
-
-static void branchParen(FICL_VM *pVM)
-{
-    vmBranchRelative(pVM, *(int *)(pVM->ip));
-    return;
-}
-
-
-/**************************************************************************
-                        b r a n c h 0
-** Runtime code for "(branch0)"; pop a flag from the stack,
-** branch if 0. fall through otherwise.  The heart of "if" and "until".
-**************************************************************************/
-
-static void branch0(FICL_VM *pVM)
-{
-    FICL_UNS flag;
-
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 0);
-#endif
-    flag = stackPopUNS(pVM->pStack);
-
-    if (flag)
-    {                           /* fall through */
-        vmBranchRelative(pVM, 1);
-    }
-    else
-    {                           /* take branch (to else/endif/begin) */
-        vmBranchRelative(pVM, *(int *)(pVM->ip));
-    }
-
-    return;
-}
-
-
-/**************************************************************************
                         i f C o I m
 ** IMMEDIATE COMPILE-ONLY
 ** Compiles code for a conditional branch into the dictionary
@@ -983,31 +890,6 @@ static void endcaseCoIm(FICL_VM *pVM)
 		offset = dp->here - patchAddr;
 		*patchAddr = LVALUEtoCELL(offset);
 	}
-    return;
-}
-
-
-static void ofParen(FICL_VM *pVM)
-{
-	FICL_UNS a, b;
-
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 1);
-#endif
-
-	a = POPUNS();
-	b = stackGetTop(pVM->pStack).u;
-
-    if (a == b)
-    {                           /* fall through */
-		stackDrop(pVM->pStack, 1);
-        vmBranchRelative(pVM, 1);
-    }
-    else
-    {                           /* take branch to next of or endswitch */
-        vmBranchRelative(pVM, *(int *)(pVM->ip));
-    }
-
     return;
 }
 
@@ -1358,37 +1240,6 @@ static void addParseStep(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        l i t e r a l P a r e n
-**
-** This is the runtime for (literal). It assumes that it is part of a colon
-** definition, and that the next CELL contains a value to be pushed on the
-** parameter stack at runtime. This code is compiled by "literal".
-**
-**************************************************************************/
-
-static void literalParen(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-    PUSHINT(*(FICL_INT *)(pVM->ip));
-    vmBranchRelative(pVM, 1);
-    return;
-}
-
-static void twoLitParen(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 2);
-#endif
-    PUSHINT(*((FICL_INT *)(pVM->ip)+1));
-    PUSHINT(*(FICL_INT *)(pVM->ip));
-    vmBranchRelative(pVM, 2);
-    return;
-}
-
-
-/**************************************************************************
                         l i t e r a l I m
 **
 ** IMMEDIATE code for "literal". This function gets a value from the stack
@@ -1484,24 +1335,6 @@ static void doCoIm(FICL_VM *pVM)
 }
 
 
-static void doParen(FICL_VM *pVM)
-{
-    CELL index, limit;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    index = stackPop(pVM->pStack);
-    limit = stackPop(pVM->pStack);
-
-    /* copy "leave" target addr to stack */
-    stackPushPtr(pVM->rStack, *(pVM->ip++));
-    stackPush(pVM->rStack, limit);
-    stackPush(pVM->rStack, index);
-
-    return;
-}
-
-
 static void qDoCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
@@ -1520,54 +1353,6 @@ static void qDoCoIm(FICL_VM *pVM)
     */
     markBranch(dp, pVM, doTag);
 
-    return;
-}
-
-
-static void qDoParen(FICL_VM *pVM)
-{
-    CELL index, limit;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 2, 0);
-#endif
-    index = stackPop(pVM->pStack);
-    limit = stackPop(pVM->pStack);
-
-    /* copy "leave" target addr to stack */
-    stackPushPtr(pVM->rStack, *(pVM->ip++));
-
-    if (limit.u == index.u)
-    {
-        vmPopIP(pVM);
-    }
-    else
-    {
-        stackPush(pVM->rStack, limit);
-        stackPush(pVM->rStack, index);
-    }
-
-    return;
-}
-
-
-/*
-** Runtime code to break out of a do..loop construct
-** Drop the loop control variables; the branch address
-** past "loop" is next on the return stack.
-*/
-static void leaveCo(FICL_VM *pVM)
-{
-    /* almost unloop */
-    stackDrop(pVM->rStack, 2);
-    /* exit */
-    vmPopIP(pVM);
-    return;
-}
-
-
-static void unloopCo(FICL_VM *pVM)
-{
-    stackDrop(pVM->rStack, 3);
     return;
 }
 
@@ -1594,63 +1379,6 @@ static void plusLoopCoIm(FICL_VM *pVM)
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pPLoopParen));
     resolveBackBranch(dp, pVM, doTag);
     resolveAbsBranch(dp, pVM, leaveTag);
-    return;
-}
-
-
-static void loopParen(FICL_VM *pVM)
-{
-    FICL_INT index = stackGetTop(pVM->rStack).i;
-    FICL_INT limit = stackFetch(pVM->rStack, 1).i;
-
-    index++;
-
-    if (index >= limit)
-    {
-        stackDrop(pVM->rStack, 3); /* nuke the loop indices & "leave" addr */
-        vmBranchRelative(pVM, 1);  /* fall through the loop */
-    }
-    else
-    {                       /* update index, branch to loop head */
-        stackSetTop(pVM->rStack, LVALUEtoCELL(index));
-        vmBranchRelative(pVM, *(int *)(pVM->ip));
-    }
-
-    return;
-}
-
-
-static void plusLoopParen(FICL_VM *pVM)
-{
-    FICL_INT index,limit,increment;
-    int flag;
-
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 1, 0);
-#endif
-
-    index = stackGetTop(pVM->rStack).i;
-    limit = stackFetch(pVM->rStack, 1).i;
-    increment = POP().i;
-
-    index += increment;
-
-    if (increment < 0)
-        flag = (index < limit);
-    else
-        flag = (index >= limit);
-
-    if (flag)
-    {
-        stackDrop(pVM->rStack, 3); /* nuke the loop indices & "leave" addr */
-        vmBranchRelative(pVM, 1);  /* fall through the loop */
-    }
-    else
-    {                       /* update index, branch to loop head */
-        stackSetTop(pVM->rStack, LVALUEtoCELL(index));
-        vmBranchRelative(pVM, *(int *)(pVM->ip));
-    }
-
     return;
 }
 
@@ -1688,24 +1416,12 @@ static void loopKCo(FICL_VM *pVM)
 **
 **************************************************************************/
 
-static void variableParen(FICL_VM *pVM)
-{
-    FICL_WORD *fw;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-
-    fw = pVM->runningWord;
-    PUSHPTR(fw->param);
-}
-
-
 static void variable(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
     STRINGINFO si = vmGetWord(pVM);
 
-    dictAppendWord2(dp, si, variableParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_VARIABLE, FW_DEFAULT);
     dictAllotCells(dp, 1);
     return;
 }
@@ -1716,7 +1432,7 @@ static void twoVariable(FICL_VM *pVM)
     FICL_DICT *dp = vmGetDict(pVM);
     STRINGINFO si = vmGetWord(pVM);
 
-    dictAppendWord2(dp, si, variableParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_VARIABLE, FW_DEFAULT);
     dictAllotCells(dp, 2);
     return;
 }
@@ -1971,20 +1687,6 @@ static void isObject(FICL_VM *pVM)
     return;
 }
 
-static void cstringLit(FICL_VM *pVM)
-{
-    FICL_STRING *sp = (FICL_STRING *)(pVM->ip);
-
-    char *cp = sp->text;
-    cp += sp->count + 1;
-    cp = alignPtr(cp);
-    pVM->ip = (IPTYPE)(void *)cp;
-
-    stackPushPtr(pVM->pStack, sp);
-    return;
-}
-
-
 static void cstringQuoteIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
@@ -2017,25 +1719,6 @@ static void cstringQuoteIm(FICL_VM *pVM)
 ** and count on the stack. Finally, update ip to point to the first
 ** aligned address after the string text.
 **************************************************************************/
-
-static void stringLit(FICL_VM *pVM)
-{
-    FICL_STRING *sp;
-    FICL_COUNT count;
-    char *cp;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 2);
-#endif
-
-    sp = (FICL_STRING *)(pVM->ip);
-    count = sp->count;
-    cp = sp->text;
-    PUSHPTR(cp);
-    PUSHUNS(count);
-    cp += count + 1;
-    cp = alignPtr(cp);
-    pVM->ip = (IPTYPE)(void *)cp;
-}
 
 static void dotQuoteCoIm(FICL_VM *pVM)
 {
@@ -2136,43 +1819,13 @@ static void state(FICL_VM *pVM)
 ** for use by does> .
 **************************************************************************/
 
-static void createParen(FICL_VM *pVM)
-{
-    CELL *pCell;
-
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-
-    pCell = pVM->runningWord->param;
-    PUSHPTR(pCell+1);
-    return;
-}
-
-
 static void create(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
     STRINGINFO si = vmGetWord(pVM);
 
-    dictAppendWord2(dp, si, createParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_CREATE, FW_DEFAULT);
     dictAllotCells(dp, 1);
-    return;
-}
-
-
-static void doDoes(FICL_VM *pVM)
-{
-    CELL *pCell;
-    IPTYPE tempIP;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM, 0, 1);
-#endif
-
-    pCell = pVM->runningWord->param;
-    tempIP = (IPTYPE)((*pCell).p);
-    PUSHPTR(pCell+1);
-    vmPushIP(pVM, tempIP);
     return;
 }
 
@@ -2180,7 +1833,8 @@ static void doDoes(FICL_VM *pVM)
 static void doesParen(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-    dp->smudge->code = doDoes;
+    dp->smudge->code = NULL;
+    dp->smudge->opcode = FICL_OP_DOES;
     dp->smudge->param[0] = LVALUEtoCELL(pVM->ip);
     vmPopIP(pVM);
     return;
@@ -3375,7 +3029,7 @@ static void colonNoName(FICL_VM *pVM)
     SI_SETPTR(si, NULL);
 
     pVM->state = COMPILE;
-    pFW = dictAppendWord2(dp, si, colonParen, FW_DEFAULT | FW_SMUDGE);
+    pFW = dictAppendOpWord2(dp, si, FICL_OP_COLON, FW_DEFAULT | FW_SMUDGE);
     PUSHPTR(pFW);
     markControlTag(pVM, colonTag);
     return;
@@ -3399,14 +3053,6 @@ static void colonNoName(FICL_VM *pVM)
 ** nUser.
 **************************************************************************/
 #if FICL_WANT_USER
-static void userParen(FICL_VM *pVM)
-{
-    FICL_INT i = pVM->runningWord->param[0].i;
-    PUSHPTR(&pVM->user[i]);
-    return;
-}
-
-
 static void userVariable(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
@@ -3419,7 +3065,7 @@ static void userVariable(FICL_VM *pVM)
         vmThrowErr(pVM, "Error - out of user space");
     }
 
-    dictAppendWord2(dp, si, userParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_USER, FW_DEFAULT);
     dictAppendCell(dp, c);
     return;
 }
@@ -3438,7 +3084,7 @@ typedef void (*TO_VALUE_INTERPRET)(FICL_VM *pVM, FICL_WORD *pFW);
 
 typedef struct
 {
-    FICL_CODE code;
+    FICL_OPCODE opcode;
     TO_VALUE_INTERPRET interpret;
     const char *storeName;
 } TO_VALUE_DISPATCH;
@@ -3465,21 +3111,21 @@ static void toValueInterpretFConst(FICL_VM *pVM, FICL_WORD *pFW)
 }
 #endif
 
-static const TO_VALUE_DISPATCH *toValueFindDispatch(FICL_CODE code)
+static const TO_VALUE_DISPATCH *toValueFindDispatch(FICL_OPCODE opcode)
 {
     static const TO_VALUE_DISPATCH dispatchTable[] =
     {
-        {constantParen,  toValueInterpretConstant, "!"},
-        {twoConstParen,  toValueInterpretTwoConst, "2!"},
+        {FICL_OP_CONSTANT,  toValueInterpretConstant, "!"},
+        {FICL_OP_2CONSTANT, toValueInterpretTwoConst, "2!"},
     #if FICL_WANT_FLOAT
-        {fConstantParen, toValueInterpretFConst,   "f!"},
+        {FICL_OP_FCONSTANT, toValueInterpretFConst,   "f!"},
     #endif
     };
     int i;
 
     for (i = 0; i < (int)(sizeof(dispatchTable) / sizeof(dispatchTable[0])); ++i)
     {
-        if (dispatchTable[i].code == code)
+        if (dispatchTable[i].opcode == opcode)
         {
             return &dispatchTable[i];
         }
@@ -3555,7 +3201,7 @@ static void toValue(FICL_VM *pVM)
         vmThrowErr(pVM, "%.*s not found", i, SI_PTR(si));
     }
 
-    dispatch = toValueFindDispatch(pFW->code);
+    dispatch = toValueFindDispatch(pFW->opcode);
     if (!dispatch)
     {
         vmThrowErr(pVM, "Error: %.*s not a VALUE", SI_COUNT(si), SI_PTR(si));
@@ -4244,46 +3890,29 @@ static void dnegate(FICL_VM *pVM)
 **************************************************************************/
 WORDKIND ficlWordClassify(FICL_WORD *pFW)
 {
-    typedef struct
+    switch (pFW->opcode)
     {
-        WORDKIND kind;
-        FICL_CODE code;
-    } CODEtoKIND;
-
-    static CODEtoKIND codeMap[] =
-    {
-        {BRANCH,     branchParen},
-        {COLON,       colonParen},
-        {CONSTANT, constantParen},
-        {CREATE,     createParen},
-        {DO,             doParen},
-        {DOES,            doDoes},
-        {IF,             branch0},
-        {LITERAL,   literalParen},
-        {LOOP,         loopParen},
-        {OF,             ofParen},
-        {PLOOP,    plusLoopParen},
-        {QDO,           qDoParen},
-        {CSTRINGLIT,  cstringLit},
-        {STRINGLIT,    stringLit},
+    case FICL_OP_BRANCH:     return BRANCH;
+    case FICL_OP_BRANCH0:    return IF;
+    case FICL_OP_DO:         return DO;
+    case FICL_OP_QDO:        return QDO;
+    case FICL_OP_LOOP:       return LOOP;
+    case FICL_OP_PLOOP:      return PLOOP;
+    case FICL_OP_LIT:        return LITERAL;
+    case FICL_OP_OF:         return OF;
+    case FICL_OP_COLON:      return COLON;
+    case FICL_OP_CONSTANT:   return CONSTANT;
+    case FICL_OP_2CONSTANT:  return CONSTANT;
+    case FICL_OP_CREATE:     return CREATE;
+    case FICL_OP_DOES:       return DOES;
+    case FICL_OP_VARIABLE:   return VARIABLE;
+    case FICL_OP_STRINGLIT:  return STRINGLIT;
+    case FICL_OP_CSTRINGLIT: return CSTRINGLIT;
 #if FICL_WANT_USER
-        {USER,         userParen},
+    case FICL_OP_USER:       return USER;
 #endif
-        {VARIABLE, variableParen},
-    };
-
-#define nMAP (sizeof(codeMap) / sizeof(CODEtoKIND))
-
-    FICL_CODE code = pFW->code;
-    int i;
-
-    for (i=0; i < nMAP; i++)
-    {
-        if (codeMap[i].code == code)
-            return codeMap[i].kind;
+    default:                 return PRIMITIVE;
     }
-
-    return PRIMITIVE;
 }
 
 
@@ -4444,7 +4073,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "invert",    FICL_OP_INVERT,  FW_DEFAULT);
     dictAppendWord(  dp, "j",         loopJCo,        FW_COMPILE);
     dictAppendWord(  dp, "k",         loopKCo,        FW_COMPILE);
-    dictAppendWord(  dp, "leave",     leaveCo,        FW_COMPILE);
+    dictAppendOpWord(dp, "leave",     FICL_OP_LEAVE,  FW_COMPILE);
     dictAppendWord(  dp, "literal",   literalIm,      FW_IMMEDIATE);
     dictAppendWord(  dp, "loop",      loopCoIm,       FW_COMPIMMED);
     dictAppendOpWord(dp, "lshift",    FICL_OP_LSHIFT,  FW_DEFAULT);
@@ -4478,7 +4107,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "u<",        FICL_OP_U_LESS,  FW_DEFAULT);
     dictAppendWord(  dp, "um*",       umStar,         FW_DEFAULT);
     dictAppendWord(  dp, "um/mod",    umSlashMod,     FW_DEFAULT);
-    dictAppendWord(  dp, "unloop",    unloopCo,       FW_COMPILE);
+    dictAppendOpWord(dp, "unloop",    FICL_OP_UNLOOP, FW_COMPILE);
     dictAppendWord(  dp, "until",     untilCoIm,      FW_COMPIMMED);
     dictAppendWord(  dp, "variable",  variable,       FW_DEFAULT);
     dictAppendWord(  dp, "while",     whileCoIm,      FW_COMPIMMED);
@@ -4655,7 +4284,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "w!",        FICL_OP_W_STORE,  FW_DEFAULT);
     dictAppendWord(  dp, "x.",        hexDot,         FW_DEFAULT);
 #if FICL_WANT_USER
-    dictAppendWord(  dp, "(user)",    userParen,      FW_DEFAULT);
+    dictAppendOpWord(dp, "(user)",    FICL_OP_USER,   FW_DEFAULT);
     dictAppendWord(  dp, "user",      userVariable,   FW_DEFAULT);
 #endif
     dictAppendWord(  dp, "random",    ficlRandom,     FW_DEFAULT);
@@ -4664,7 +4293,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     /*
     ** internal support words
     */
-    dictAppendWord(  dp, "(create)",  createParen,    FW_COMPILE);
+    dictAppendOpWord(dp, "(create)",  FICL_OP_CREATE, FW_COMPILE);
     pSys->pExitParen =
     dictAppendOpWord(dp, "(exit)",    FICL_OP_EXIT,   FW_COMPILE);
     pSys->pSemiParen =
@@ -4674,9 +4303,9 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     pSys->pTwoLitParen =
     dictAppendOpWord(dp, "(2literal)",  FICL_OP_2LIT,  FW_COMPILE);
     pSys->pStringLit =
-    dictAppendWord(  dp, "(.\")",     stringLit,      FW_COMPILE);
+    dictAppendOpWord(dp, "(.\")",     FICL_OP_STRINGLIT,  FW_COMPILE);
     pSys->pCStringLit =
-    dictAppendWord(  dp, "(c\")",     cstringLit,     FW_COMPILE);
+    dictAppendOpWord(dp, "(c\")",     FICL_OP_CSTRINGLIT, FW_COMPILE);
     pSys->pBranch0 =
     dictAppendOpWord(dp, "(branch0)",  FICL_OP_BRANCH0,  FW_COMPILE);
     pSys->pBranchParen =
@@ -4695,9 +4324,9 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "interpret", interpret,      FW_DEFAULT);
     dictAppendWord(  dp, "lookup",    lookup,         FW_DEFAULT);
     pSys->pOfParen =
-    dictAppendWord(  dp, "(of)",      ofParen,        FW_DEFAULT);
-    dictAppendWord(  dp, "(variable)",variableParen,  FW_COMPILE);
-    dictAppendWord(  dp, "(constant)",constantParen,  FW_COMPILE);
+    dictAppendOpWord(dp, "(of)",      FICL_OP_OF,     FW_DEFAULT);
+    dictAppendOpWord(dp, "(variable)",FICL_OP_VARIABLE, FW_COMPILE);
+    dictAppendOpWord(dp, "(constant)",FICL_OP_CONSTANT, FW_COMPILE);
     dictAppendWord(  dp, "(parse-step)",parseStepParen, FW_DEFAULT);
 	pSys->pExitInner =
     dictAppendWord(  dp, "exit-inner",ficlExitInner,  FW_DEFAULT);

@@ -7,10 +7,10 @@
 	case
 		0 of
 			." zero"
-			endof
+		endof
 		1 of
 			." one"
-			endof
+		endof
 		." something else"
 	endcase
 	cr

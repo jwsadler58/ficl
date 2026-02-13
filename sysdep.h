@@ -123,7 +123,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 /*
-**         Windows - Sprintf format tags to silence MSVC warnings
+**         Windows - Snprintf format tags to silence MSVC warnings
 */
 #if defined(_WIN32)
     #define PCT_LD     "%Id"

@@ -141,6 +141,16 @@ testing compiled float literals
 
     : t-fplusstore  0e vflit f!  1e vflit f+!  vflit f@ 1e f- f0= ;
     t{ t-fplusstore -> true }t
+
+testing f. precision
+    : f.pad  f. pad dup strlen ;
+    t{ 6 set-precision 3.14159265e0 f.pad s" 3.14159 " compare -> 0 }t
+    t{ 3 set-precision 3.14159265e0 f.pad s" 3.14 " compare -> 0 }t
+    t{ 1 set-precision 3.14159265e0 f.pad s" 3 " compare -> 0 }t
+    t{ 10 set-precision 1e0 f.pad s" 1 " compare -> 0 }t
+    t{ 6 set-precision 0e0 f.pad s" 0 " compare -> 0 }t
+    t{ 6 set-precision -2.5e0 f.pad s" -2.5 " compare -> 0 }t
+    6 set-precision cr
 [else]
     .( skipping float tests) cr
 [endif]

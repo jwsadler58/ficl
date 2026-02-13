@@ -63,6 +63,7 @@
     #include <windows.h>
 #else
     #include <termios.h>
+    #include <sys/ioctl.h>
 #endif
 
 #include "ficl.h"
@@ -269,33 +270,68 @@ static int readKey(void)
 #endif
 
 /*
+** Get the terminal width in columns
+*/
+static int getTerminalWidth(void)
+{
+#if defined(_WIN32)
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+        return csbi.dwSize.X;
+    }
+#else
+    struct winsize ws;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0) {
+        return ws.ws_col;
+    }
+#endif
+    return 80;  /* default fallback */
+}
+
+/*
 ** Refresh the current line on screen
+** Uses horizontal scrolling when the line exceeds the terminal width
 ** Cursor positioning: prompt + cursor position
 */
 static void refreshLine(const char *prompt, const char *buf, int len, int cursor)
 {
     int plen = strlen(prompt);
+    int cols = getTerminalWidth();
+    int available = cols - plen;  /* space for buffer text after prompt */
+    int scroll_offset = 0;
+    int visible_len;
+    int cursor_col;
+
+    if (available < 1) available = 1;
+
+    /* Calculate scroll offset to keep cursor visible */
+    if (cursor >= available) {
+        scroll_offset = cursor - available + 1;
+    }
+
+    visible_len = len - scroll_offset;
+    if (visible_len > available) {
+        visible_len = available;
+    }
+    if (visible_len < 0) visible_len = 0;
+
+    cursor_col = plen + (cursor - scroll_offset);
 
 #if defined(_WIN32)
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     COORD coord;
 
-    /* Get current console info */
     if (GetConsoleScreenBufferInfo(h_stdout, &csbi)) {
-        /* Move to start of line */
         coord.X = 0;
         coord.Y = csbi.dwCursorPosition.Y;
         SetConsoleCursorPosition(h_stdout, coord);
 
-        /* Clear line */
         DWORD written;
         FillConsoleOutputCharacter(h_stdout, ' ', csbi.dwSize.X, coord, &written);
 
-        /* Print prompt and buffer */
-        printf("%s%.*s", prompt, len, buf);
+        printf("%s%.*s", prompt, visible_len, buf + scroll_offset);
 
-        /* Move cursor to correct position */
-        coord.X = plen + cursor;
+        coord.X = cursor_col;
         SetConsoleCursorPosition(h_stdout, coord);
         fflush(stdout);
     }
@@ -308,15 +344,15 @@ static void refreshLine(const char *prompt, const char *buf, int len, int cursor
         write(STDOUT_FILENO, prompt, plen);
     }
 
-    /* Write buffer */
-    if (len > 0) {
-        write(STDOUT_FILENO, buf, len);
+    /* Write visible portion of buffer */
+    if (visible_len > 0) {
+        write(STDOUT_FILENO, buf + scroll_offset, visible_len);
     }
 
-    /* Move cursor to correct position if not at end */
-    if (cursor != len) {
+    /* Move cursor to correct position */
+    {
         char cursorSeq[16];
-        int seqLen = snprintf(cursorSeq, sizeof(cursorSeq), "\x1b[%dG", plen + cursor + 1);
+        int seqLen = snprintf(cursorSeq, sizeof(cursorSeq), "\x1b[%dG", cursor_col + 1);
         write(STDOUT_FILENO, cursorSeq, seqLen);
     }
 #endif

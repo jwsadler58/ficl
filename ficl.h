@@ -503,7 +503,20 @@ typedef enum
     FICL_OP_2LIT,
     FICL_OP_EXIT,
     FICL_OP_SEMI,
+    FICL_OP_OF,
+    FICL_OP_LEAVE,
+    FICL_OP_UNLOOP,
+    FICL_OP_COLON,
+    FICL_OP_CONSTANT,
+    FICL_OP_2CONSTANT,
+    FICL_OP_CREATE,
+    FICL_OP_DOES,
+    FICL_OP_VARIABLE,
+    FICL_OP_USER,
+    FICL_OP_STRINGLIT,
+    FICL_OP_CSTRINGLIT,
 #if FICL_WANT_FLOAT
+    FICL_OP_FCONSTANT,
     FICL_OP_FDUP,
     FICL_OP_FDROP,
     FICL_OP_FSWAP,
@@ -790,6 +803,10 @@ FICL_WORD  *dictAppendWord2(FICL_DICT *pDict,
                            STRINGINFO si,
                            FICL_CODE pCode,
                            UNS8 flags);
+FICL_WORD  *dictAppendOpWord2(FICL_DICT *pDict,
+                              STRINGINFO si,
+                              FICL_OPCODE opcode,
+                              UNS8 flags);
 void        dictAppendUNS  (FICL_DICT *pDict, FICL_UNS u);
 int         dictCellsAvail (FICL_DICT *pDict);
 int         dictCellsUsed  (FICL_DICT *pDict);
@@ -1098,11 +1115,6 @@ int        ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
 /*
 ** from words.c...
 */
-void       constantParen(FICL_VM *pVM);
-void       twoConstParen(FICL_VM *pVM);
-#if FICL_WANT_FLOAT
-void       fConstantParen(FICL_VM *pVM);
-#endif
 int        ficlParseNumber(FICL_VM *pVM, STRINGINFO si);
 void       ficlTick(FICL_VM *pVM);
 void       parseStepParen(FICL_VM *pVM);

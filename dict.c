@@ -54,7 +54,7 @@
 */
 
 #include <stdlib.h>
-#include <stdio.h>          /* sprintf */
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include "ficl.h"
@@ -263,6 +263,14 @@ FICL_WORD *dictAppendOpWord(FICL_DICT *pDict,
     STRINGINFO si;
     SI_SETLEN(si, strlen(name));
     SI_SETPTR(si, name);
+    return dictAppendOpWord2(pDict, si, opcode, flags);
+}
+
+FICL_WORD *dictAppendOpWord2(FICL_DICT *pDict,
+                             STRINGINFO si,
+                             FICL_OPCODE opcode,
+                             UNS8 flags)
+{
     FICL_WORD *pFW = dictAppendWord2(pDict, si, NULL, flags);
     pFW->opcode = opcode;
     return pFW;

@@ -729,6 +729,13 @@
             VM_CHECK_FSTACK_LOCAL(1, 1); \
             FSTACK_TOP[-1] = (FICL_FLOAT)(--dataTop)->i / FSTACK_TOP[-1]; \
             goto OP_DONE; \
+        } \
+        case FICL_OP_FCONSTANT: { \
+            FICL_FLOAT _f; \
+            VM_CHECK_FSTACK_LOCAL(0, 1); \
+            memcpy(&_f, pWord->param, sizeof(_f)); \
+            *FSTACK_TOP++ = _f; \
+            goto OP_DONE; \
         }
 #else
     #define VM_OP_CASES_FLOAT(OP_DONE)
@@ -798,11 +805,12 @@
         index = pVM->rStack->sp[-1].i; \
         limit = pVM->rStack->sp[-2].i; \
         increment = (--dataTop)->i; \
+        { \
+            FICL_INT oldOffset = index - limit; \
+            FICL_INT newOffset = oldOffset + increment; \
+            flag = (oldOffset ^ newOffset) < 0; \
+        } \
         index += increment; \
-        if (increment < 0) \
-            flag = (index < limit); \
-        else \
-            flag = (index >= limit); \
         if (flag) { \
             pVM->rStack->sp -= 3; \
             ip += 1; \
@@ -834,12 +842,95 @@
     case FICL_OP_SEMI: { \
         ip = (IPTYPE)(--pVM->rStack->sp)->p; \
         goto OP_DONE; \
+    } \
+    case FICL_OP_OF: { \
+        FICL_UNS a, b; \
+        VM_CHECK_STACK_LOCAL(2, 1); \
+        a = (--dataTop)->u; \
+        b = (dataTop - 1)->u; \
+        if (a == b) { \
+            dataTop--; \
+            ip += 1; \
+        } else { \
+            ip += *(int *)ip; \
+        } \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_LEAVE: { \
+        pVM->rStack->sp -= 2; \
+        ip = (IPTYPE)(--pVM->rStack->sp)->p; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_UNLOOP: { \
+        pVM->rStack->sp -= 3; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_COLON: { \
+        *pVM->rStack->sp++ = (CELL){.p = ip}; \
+        ip = (IPTYPE)(pWord->param); \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_DOES: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        (dataTop++)->p = pWord->param + 1; \
+        *pVM->rStack->sp++ = (CELL){.p = ip}; \
+        ip = (IPTYPE)(pWord->param[0].p); \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_STRINGLIT: { \
+        FICL_STRING *_sp = (FICL_STRING *)(ip); \
+        char *_cp; \
+        VM_CHECK_STACK_LOCAL(0, 2); \
+        _cp = _sp->text; \
+        (dataTop++)->p = _cp; \
+        (dataTop++)->u = _sp->count; \
+        _cp += _sp->count + 1; \
+        ip = (IPTYPE)(void *)alignPtr(_cp); \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_CSTRINGLIT: { \
+        FICL_STRING *_sp = (FICL_STRING *)(ip); \
+        char *_cp = _sp->text; \
+        _cp += _sp->count + 1; \
+        ip = (IPTYPE)(void *)alignPtr(_cp); \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        (dataTop++)->p = _sp; \
+        goto OP_DONE; \
+    }
+
+#define VM_OP_CASES_WORD(OP_DONE) \
+    case FICL_OP_CONSTANT: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        *dataTop++ = pWord->param[0]; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_2CONSTANT: { \
+        VM_CHECK_STACK_LOCAL(0, 2); \
+        *dataTop++ = pWord->param[0]; \
+        *dataTop++ = pWord->param[1]; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_VARIABLE: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        (dataTop++)->p = pWord->param; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_CREATE: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        (dataTop++)->p = pWord->param + 1; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_USER: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        (dataTop++)->p = &pVM->user[pWord->param[0].i]; \
+        goto OP_DONE; \
     }
 
 #define VM_OP_SWITCH_BASE(OP_DONE) \
     switch (opcode) { \
         VM_OP_CASES_BASE(OP_DONE) \
         VM_OP_CASES_FLOAT(OP_DONE) \
+        VM_OP_CASES_WORD(OP_DONE) \
         default: \
             break; \
     }
@@ -848,6 +939,7 @@
     switch (opcode) { \
         VM_OP_CASES_BASE(OP_DONE) \
         VM_OP_CASES_FLOAT(OP_DONE) \
+        VM_OP_CASES_WORD(OP_DONE) \
         VM_OP_CASES_IP(OP_DONE) \
         default: \
             break; \
@@ -947,8 +1039,24 @@ void vmExecute(FICL_VM *pVM, FICL_WORD *pWord)
         CELL c, c2;
         FICL_OPCODE opcode = pWord->opcode;
 
-        VM_OP_SWITCH_BASE(OP_DONE);
-        goto CALL_FALLBACK;
+        switch (opcode) {
+            VM_OP_CASES_BASE(OP_DONE)
+            VM_OP_CASES_FLOAT(OP_DONE)
+            VM_OP_CASES_WORD(OP_DONE)
+            case FICL_OP_COLON: {
+                (returnTop++)->p = pVM->ip;
+                pVM->ip = (IPTYPE)(pWord->param);
+                goto OP_DONE;
+            }
+            case FICL_OP_DOES: {
+                (dataTop++)->p = pWord->param + 1;
+                (returnTop++)->p = pVM->ip;
+                pVM->ip = (IPTYPE)(pWord->param[0].p);
+                goto OP_DONE;
+            }
+            default:
+                goto CALL_FALLBACK;
+        }
 
 OP_DONE:
         pVM->pStack->sp = dataTop;
@@ -1486,7 +1594,7 @@ int isPowerOfTwo(FICL_UNS u)
 char *ficlLtoa( FICL_INT value, char *string, int radix )
 {                               /* convert long to string, any base */
     char *cp = string;
-    int sign = ((radix == 10) && (value < 0));
+    int isNeg = (value < 0);
     int pwr;
 
     assert(radix > 1);
@@ -1495,7 +1603,7 @@ char *ficlLtoa( FICL_INT value, char *string, int radix )
 
     pwr = isPowerOfTwo((FICL_UNS)radix);
 
-    if (sign)
+    if (isNeg)
         value = -value;
 
     if (value == 0)
@@ -1524,7 +1632,7 @@ char *ficlLtoa( FICL_INT value, char *string, int radix )
         }
     }
 
-    if (sign)
+    if (isNeg)
         *cp++ = '-';
 
     *cp++ = '\0';

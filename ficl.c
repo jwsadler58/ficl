@@ -578,7 +578,7 @@ void ficlSetEnv(FICL_SYSTEM *pSys, char *name, FICL_UNS value)
 
     if (pFW == NULL)
     {
-        dictAppendWord(envp, name, constantParen, FW_DEFAULT);
+        dictAppendOpWord(envp, name, FICL_OP_CONSTANT, FW_DEFAULT);
         dictAppendCell(envp, LVALUEtoCELL(value));
     }
     else
@@ -599,7 +599,7 @@ void ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo)
 
     if (pFW == NULL)
     {
-        dictAppendWord(envp, name, twoConstParen, FW_DEFAULT);
+        dictAppendOpWord(envp, name, FICL_OP_2CONSTANT, FW_DEFAULT);
         dictAppendCell(envp, LVALUEtoCELL(lo));
         dictAppendCell(envp, LVALUEtoCELL(hi));
     }
@@ -623,7 +623,7 @@ void ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f)
 
     if (pFW == NULL)
     {
-        dictAppendWord(envp, name, fConstantParen, FW_DEFAULT);
+        dictAppendOpWord(envp, name, FICL_OP_FCONSTANT, FW_DEFAULT);
         dictAppendFloat(envp, f);
     }
     else

@@ -118,22 +118,6 @@
 *******************************************************************/
 
 /*******************************************************************
-** Floating point constant execution word.
-*******************************************************************/
-void fConstantParen(FICL_VM *pVM)
-{
-    FICL_WORD *pFW = pVM->runningWord;
-    FICL_FLOAT f;
-
-#if FICL_ROBUST > 1
-    vmCheckFStack(pVM, 0, 1);
-#endif
-
-    memcpy(&f, pFW->param, sizeof(f));
-    PUSHFLOAT(f);
-}
-
-/*******************************************************************
 ** Create a floating point constant.
 ** fConstant ( r -"name"- )
 *******************************************************************/
@@ -148,28 +132,10 @@ static void fConstant(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    dictAppendWord2(dp, si, fConstantParen, FW_DEFAULT);
+    dictAppendOpWord2(dp, si, FICL_OP_FCONSTANT, FW_DEFAULT);
     dictAppendFloat(dp, f);
 }
 
-#if 0 /* superseded by fDitWithPrecision */
-/*******************************************************************
-** Display a float in decimal format.
-** f. ( r -- )
-*******************************************************************/
-static void FDot(FICL_VM *pVM)
-{
-    FICL_FLOAT f;
-
-#if FICL_ROBUST > 1
-    vmCheckFStack(pVM, 1, 0);
-#endif
-
-    f = POPFLOAT();
-    snprintf(pVM->pad, sizeof(pVM->pad),"%#f ", (double)f);
-    vmTextOut(pVM, pVM->pad, 0);
-}
-#endif
 
 /*******************************************************************
 ** Display a float in engineering format.
@@ -918,6 +884,7 @@ static void FsetPrecision(FICL_VM *pVM)
     prec = POPINT();
     if (prec < 1)
         prec = 1;
+        
     if (prec > 17)
         prec = 17;
     pVM->fPrecision = prec;
@@ -929,15 +896,13 @@ static void FsetPrecision(FICL_VM *pVM)
 static void FDotWithPrecision(FICL_VM *pVM)
 {
     FICL_FLOAT f;
-    char format[32];
 
 #if FICL_ROBUST > 1
     vmCheckFStack(pVM, 1, 0);
 #endif
 
     f = POPFLOAT();
-    sprintf(format, "%%.%dg ", (int)pVM->fPrecision);
-    snprintf(pVM->pad, sizeof(pVM->pad), format, (double)f);
+    snprintf(pVM->pad, sizeof(pVM->pad), "%.*g ", (int)pVM->fPrecision, (double)f);
     vmTextOut(pVM, pVM->pad, 0);
 }
 

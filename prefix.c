@@ -170,7 +170,7 @@ void ficlCompilePrefix(FICL_SYSTEM *pSys)
     */
     pHash = dictCreateWordlist(dp, 1);
     pHash->name = list_name;
-    dictAppendWord(dp, list_name, constantParen, FW_DEFAULT);
+    dictAppendOpWord(dp, list_name, FICL_OP_CONSTANT, FW_DEFAULT);
     dictAppendCell(dp, LVALUEtoCELL(pHash));
 
 	/*

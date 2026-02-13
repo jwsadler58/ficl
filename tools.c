@@ -45,9 +45,8 @@
 ** NOTES:
 ** SEE needs information about the addresses of functions that
 ** are the CFAs of colon definitions, constants, variables, DOES>
-** words, and so on. It gets this information from a table and supporting
-** functions in words.c.
-** colonParen doDoes createParen variableParen userParen constantParen
+** words, and so on. It gets this information from ficlWordClassify()
+** in words.c, which classifies words by their opcode field.
 **
 ** Step and break debugger for Ficl
 ** debug  ( xt -- )   Start debugging an xt
@@ -56,20 +55,11 @@
 */
 
 #include <stdlib.h>
-#include <stdio.h>          /* sprintf */
+#include <stdio.h>          /* snprintf */
 #include <string.h>
 #include <ctype.h>
 #include "ficl.h"
 
-
-#if 0
-/*
-** nBREAKPOINTS sizes the breakpoint array. One breakpoint (bp 0) is reserved
-** for the STEP command. The rest are user programmable.
-*/
-#define nBREAKPOINTS 32
-
-#endif
 
 
 /**************************************************************************
@@ -187,6 +177,8 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
 	FICL_WORD *pSemiParen = ficlLookup(pVM->pSys, "(;)");
     assert(pSemiParen);
 
+    #define SNLIMIT (sizeof(pVM->pad) - (cp - pVM->pad))    /* abbrev for snprintf */
+
     for (; pc->p != pSemiParen; pc++)
     {
         FICL_WORD *pFW = (FICL_WORD *)(pc->p);
@@ -196,7 +188,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
 			*cp++ = '>';
 		else
 			*cp++ = ' ';
-        cp += sprintf(cp, "%3d   ", (int)(pc-param0));
+        cp += snprintf(cp, SNLIMIT, "%3d   ", (int)(pc-param0));
 
         if (isAFiclWord(pd, pFW))
         {
@@ -210,73 +202,73 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
                 if (isAFiclWord(pd, c.p))
                 {
                     FICL_WORD *pLit = (FICL_WORD *)c.p;
-                    sprintf(cp, "%.*s ( " PCT_IX " literal )",
+                    snprintf(cp, SNLIMIT, "%.*s ( " PCT_IX " literal )",
                         pLit->nName, pLit->name, c.u);
                 }
                 else
-                    sprintf(cp, "literal " PCT_LD " (" PCT_IX ")", c.i, c.u);
+                    snprintf(cp, SNLIMIT, "literal " PCT_LD " (" PCT_IX ")", c.i, c.u);
                 break;
             case STRINGLIT:
                 {
                     FICL_STRING *sp = (FICL_STRING *)(void *)++pc;
                     pc = (CELL *)alignPtr(sp->text + sp->count + 1) - 1;
-                    sprintf(cp, "s\" %.*s\"", sp->count, sp->text);
+                    snprintf(cp, SNLIMIT, "s\" %.*s\"", sp->count, sp->text);
                 }
                 break;
             case CSTRINGLIT:
                 {
                     FICL_STRING *sp = (FICL_STRING *)(void *)++pc;
                     pc = (CELL *)alignPtr(sp->text + sp->count + 1) - 1;
-                    sprintf(cp, "c\" %.*s\"", sp->count, sp->text);
+                    snprintf(cp, SNLIMIT, "c\" %.*s\"", sp->count, sp->text);
                 }
                 break;
             case IF:
                 c = *++pc;
                 if (c.i > 0)
-                    sprintf(cp, "if / while (branch %d)", (int)(pc+c.i-param0));
+                    snprintf(cp, SNLIMIT, "if / while (branch %d)", (int)(pc+c.i-param0));
                 else
-                    sprintf(cp, "until (branch %d)",      (int)(pc+c.i-param0));
+                    snprintf(cp, SNLIMIT, "until (branch %d)",      (int)(pc+c.i-param0));
                 break;
             case BRANCH:
                 c = *++pc;
                 if (c.i == 0)
-                    sprintf(cp, "repeat (branch %d)",     (int)(pc+c.i-param0));
+                    snprintf(cp, SNLIMIT, "repeat (branch %d)",     (int)(pc+c.i-param0));
                 else if (c.i == 1)
-                    sprintf(cp, "else (branch %d)",       (int)(pc+c.i-param0));
+                    snprintf(cp, SNLIMIT, "else (branch %d)",       (int)(pc+c.i-param0));
 				else
-                    sprintf(cp, "endif (branch %d)",      (int)(pc+c.i-param0));
+                    snprintf(cp, SNLIMIT, "endif (branch %d)",      (int)(pc+c.i-param0));
                 break;
 
             case OF:
                 c = *++pc;
-                sprintf(cp, "of (branch %d)",       (int)(pc+c.i-param0));
+                snprintf(cp, SNLIMIT, "of (branch %d)",       (int)(pc+c.i-param0));
                 break;
 
             case QDO:
                 c = *++pc;
-                sprintf(cp, "?do (leave %d)",  (int)((CELL *)c.p-param0));
+                snprintf(cp, SNLIMIT, "?do (leave %d)",  (int)((CELL *)c.p-param0));
                 break;
             case DO:
                 c = *++pc;
-                sprintf(cp, "do (leave %d)", (int)((CELL *)c.p-param0));
+                snprintf(cp, SNLIMIT, "do (leave %d)", (int)((CELL *)c.p-param0));
                 break;
             case LOOP:
                 c = *++pc;
-                sprintf(cp, "loop (branch %d)", (int)(pc+c.i-param0));
+                snprintf(cp, SNLIMIT, "loop (branch %d)", (int)(pc+c.i-param0));
                 break;
             case PLOOP:
                 c = *++pc;
-                sprintf(cp, "+loop (branch %d)", (int)(pc+c.i-param0));
+                snprintf(cp, SNLIMIT, "+loop (branch %d)", (int)(pc+c.i-param0));
                 break;
             default:
-                sprintf(cp, "%.*s", pFW->nName, pFW->name);
+                snprintf(cp, SNLIMIT, "%.*s", pFW->nName, pFW->name);
                 break;
             }
 
         }
         else /* probably not a word - punt and print value */
         {
-            sprintf(cp, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
+            snprintf(cp, SNLIMIT, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
         }
 
 		vmTextOut(pVM, pVM->pad, 1);
@@ -336,6 +328,7 @@ static void seeXT(FICL_VM *pVM)
         snprintf(pVM->pad, sizeof(pVM->pad), "constant = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
         vmTextOut(pVM, pVM->pad, 1);
+        break;
 
     default:
         snprintf(pVM->pad, sizeof(pVM->pad), "%.*s is a primitive", pFW->nName, pFW->name);
@@ -750,7 +743,7 @@ static void listWords(FICL_VM *pVM)
                 continue;
 
             cp = wp->name;
-            nChars += sprintf(pPad + nChars, "%s", cp);
+            nChars += snprintf(pPad + nChars, sizeof(pVM->pad) - nChars, "%s", cp);
 
             if (nChars > 70)
             {
@@ -803,12 +796,12 @@ static void listEnv(FICL_VM *pVM)
     {
         for (wp = pHash->table[i]; wp != NULL; wp = wp->link, nWords++)
         {
-            if (wp->code == constantParen)
+            if (wp->opcode == FICL_OP_CONSTANT)
             {
                 snprintf(pad, sizeof(pad), "%s = %i", wp->name, (int)(wp->param[0].i));
                 vmTextOut(pVM, pad, 1);
             }
-            else if (wp->code == twoConstParen)
+            else if (wp->opcode == FICL_OP_2CONSTANT)
             {
                 snprintf(pad, sizeof(pad), "%s = %i %i", wp->name, (int)(wp->param[1].i), (int)(wp->param[0].i));
                 vmTextOut(pVM, pad, 1);
