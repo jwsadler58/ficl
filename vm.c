@@ -1493,7 +1493,7 @@ void vmTextOut(FICL_VM *pVM, char *text, int fNewline)
 void vmThrow(FICL_VM *pVM, int except)
 {
     if (pVM->pState)
-        longjmp(*(pVM->pState), except);
+        FICL_LONGJMP(*(pVM->pState), except);
 }
 
 void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
@@ -1503,19 +1503,33 @@ void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
     vsnprintf(pVM->pad, sizeof(pVM->pad), fmt, va);
     vmTextOut(pVM, pVM->pad, 1);
     va_end(va);
-    longjmp(*(pVM->pState), VM_ERREXIT);
+    FICL_LONGJMP(*(pVM->pState), VM_ERREXIT);
 }
 
 void vmThrowOverflow(FICL_VM *pVM)
 {
     vmTextOut(pVM, "Error: Stack overflow", 1);
-    longjmp(*(pVM->pState), VM_ERREXIT);
+    FICL_LONGJMP(*(pVM->pState), VM_ERREXIT);
 }
 
 void vmThrowUnderflow(FICL_VM *pVM)
 {
     vmTextOut(pVM, "Error: Stack underflow", 1);
-    longjmp(*(pVM->pState), VM_ERREXIT);
+    FICL_LONGJMP(*(pVM->pState), VM_ERREXIT);
+}
+
+
+/**************************************************************************
+                        v m I n t e r r u p t
+** Interrupt the VM's inner loop from an external context (signal handler,
+** hardware interrupt, timer ISR, etc.). Causes the VM to longjmp back to
+** the nearest exception recovery point with VM_INTERRUPT.
+** Safe to call from POSIX signal handlers on targets that use siglongjmp.
+**************************************************************************/
+void vmInterrupt(FICL_VM *pVM)
+{
+    if (pVM->pState)
+        FICL_LONGJMP(*(pVM->pState), VM_INTERRUPT);
 }
 
 /**************************************************************************

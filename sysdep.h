@@ -142,6 +142,22 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #endif
 
 
+/*
+** Portability macros for setjmp/longjmp.
+** POSIX targets use sigsetjmp/siglongjmp to properly save and restore
+** the signal mask, making longjmp from signal handlers safe.
+** Non-POSIX embedded targets fall back to standard C setjmp/longjmp.
+*/
+#if !defined(__EMSCRIPTEN__) && (defined(__unix__) || defined(__APPLE__) || defined(__linux__) || defined(_WIN32))
+#define FICL_SETJMP(buf)       sigsetjmp(buf, 1)
+#define FICL_LONGJMP(buf, val) siglongjmp(buf, val)
+typedef sigjmp_buf FICL_JMP_BUF;
+#else
+#define FICL_SETJMP(buf)       setjmp(buf)
+#define FICL_LONGJMP(buf, val) longjmp(buf, val)
+typedef jmp_buf FICL_JMP_BUF;
+#endif
+
 /************************************************************************************
 **         E N D  P L A T F O R M - S P E C I F I C   D E F I N I T I O N S
 *************************************************************************************/

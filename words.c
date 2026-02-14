@@ -3692,9 +3692,9 @@ static void refill(FICL_VM *pVM)
 
 static void ficlCatch(FICL_VM *pVM)
 {
-    int         except;
-    jmp_buf     vmState;
-    FICL_VM     VM;
+    int           except;
+    FICL_JMP_BUF  vmState;
+    FICL_VM       VM;
     FICL_STACK  pStack;
     FICL_STACK  rStack;
     FICL_WORD   *pFW;
@@ -3737,7 +3737,7 @@ static void ficlCatch(FICL_VM *pVM)
     /*
     ** Safety net
     */
-    except = setjmp(vmState);
+    except = FICL_SETJMP(vmState);
 
     switch (except)
     {

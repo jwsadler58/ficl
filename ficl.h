@@ -391,7 +391,7 @@ struct vm
 {
     FICL_SYSTEM    *pSys;       /* Which system this VM belongs to  */
     FICL_VM        *link;       /* Ficl keeps a VM list for simple teardown */
-    jmp_buf        *pState;     /* crude exception mechanism...     */
+    FICL_JMP_BUF   *pState;     /* crude exception mechanism...     */
     OUTFUNC         textOut;    /* Output callback - see sysdep.c   */
     void *          pExtend;    /* vm extension pointer for app use - initialized from FICL_SYSTEM */
     short           fRestart;   /* Set TRUE to restart runningWord - debugger support */
@@ -615,6 +615,7 @@ int wordIsCompileOnly(FICL_WORD *pFW);
 #define VM_USEREXIT  -259   /* user wants to quit */
 #define VM_ERREXIT   -260   /* interp found an error */
 #define VM_BREAK     -261   /* debugger breakpoint */
+#define VM_INTERRUPT -262   /* external interrupt (e.g. Ctrl+C, timer) */
 #define VM_ABORT       -1   /* like errexit -- abort */
 #define VM_ABORTQ      -2   /* like errexit -- abort" */
 #define VM_QUIT       -56   /* like errexit, but leave pStack & base alone */
@@ -645,6 +646,7 @@ void        vmThrow        (FICL_VM *pVM, int except);
 void        vmThrowErr     (FICL_VM *pVM, char *fmt, ...);
 void        vmThrowUnderflow(FICL_VM *pVM);
 void        vmThrowOverflow (FICL_VM *pVM);
+void        vmInterrupt    (FICL_VM *pVM);
 int         isPowerOfTwo   (FICL_UNS u);
 
 #define vmGetRunningWord(pVM) ((pVM)->runningWord)

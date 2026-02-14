@@ -64,6 +64,7 @@
 #else
     #include <termios.h>
     #include <sys/ioctl.h>
+    #include <signal.h>
 #endif
 
 #include "ficl.h"
@@ -110,6 +111,48 @@ static HANDLE h_stdout = NULL;
 #else
 static struct termios orig_termios;
 static int raw_mode_enabled = 0;
+#endif
+
+/*
+** Interrupt support: SIGINT handler calls vmInterrupt() to break
+** out of the inner loop without polling.
+*/
+#if !defined(_WIN32)
+static FICL_VM *g_activeVM = NULL;
+
+static void handleSIGINT(int sig)
+{
+    (void)sig;
+    if (g_activeVM && g_activeVM->pState)
+        vmInterrupt(g_activeVM);
+}
+
+static void enableISIG(FICL_VM *pVM)
+{
+    g_activeVM = pVM;
+    if (raw_mode_enabled)
+    {
+        struct termios t;
+        tcgetattr(STDIN_FILENO, &t);
+        t.c_lflag |= ISIG;
+        tcsetattr(STDIN_FILENO, TCSANOW, &t);
+    }
+}
+
+static void disableISIG(void)
+{
+    g_activeVM = NULL;
+    if (raw_mode_enabled)
+    {
+        struct termios t;
+        tcgetattr(STDIN_FILENO, &t);
+        t.c_lflag &= ~ISIG;
+        tcsetattr(STDIN_FILENO, TCSANOW, &t);
+    }
+}
+#else
+    #define enableISIG(pVM) ((void)(pVM))
+    #define disableISIG() ((void)0)
 #endif
 
 /*
@@ -1121,6 +1164,17 @@ int main(int argc, char **argv)
         return nTestFails;
     }
 
+    /* Install SIGINT handler for Ctrl+C interrupt support */
+#if !defined(_WIN32)
+    {
+        struct sigaction sa;
+        sa.sa_handler = handleSIGINT;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;  /* no SA_RESTART — allow reads to be interrupted */
+        sigaction(SIGINT, &sa, NULL);
+    }
+#endif
+
     /* Initialize absolute path to history file */
     initHistoryPath();
 
@@ -1131,27 +1185,34 @@ int main(int argc, char **argv)
     char *line;
     int use_simple_mode = 0;  /* Use simple mode when pasting */
 
-    while (ret != VM_USEREXIT) {
+    while (ret != VM_USEREXIT)
+    {
         /* Check if we should use simple mode (for pasted content) */
-        if (use_simple_mode || inputAvailable()) {
+        if (use_simple_mode || inputAvailable())
+        {
             line = readLineSimple("");
             use_simple_mode = 1;  /* Keep using simple mode while input is available */
-        } else {
+        } else
+        {
             line = editLine("");
             use_simple_mode = 0;
         }
 
         if (!line) break;
 
-        if (line[0] != '\0') {
+        if (line[0] != '\0')
+        {
+            enableISIG(pVM);
             ret = ficlExec(pVM, line);
+            disableISIG();
             addHistory(line);
             saveHistoryLine(line);
         }
         free(line);
 
         /* If no more input available, go back to interactive mode */
-        if (use_simple_mode && !inputAvailable()) {
+        if (use_simple_mode && !inputAvailable())
+        {
             use_simple_mode = 0;
         }
     }

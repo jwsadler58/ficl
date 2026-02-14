@@ -366,10 +366,10 @@ int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
     FICL_SYSTEM *pSys = pVM->pSys;
     FICL_DICT   *dp   = pSys->dp;
 
-    int        except;
-    jmp_buf    vmState;
-    jmp_buf   *oldState;
-    TIB        saveTib;
+    int           except;
+    FICL_JMP_BUF  vmState;
+    FICL_JMP_BUF *oldState;
+    TIB           saveTib;
 
     assert(pVM);
     assert(pSys->pInterp[0]);
@@ -384,7 +384,7 @@ int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
     */
     oldState = pVM->pState;
     pVM->pState = &vmState; /* This has to come before the setjmp! */
-    except = setjmp(vmState);
+    except = FICL_SETJMP(vmState);
 
     switch (except)
     {
@@ -429,6 +429,9 @@ int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
         vmQuit(pVM);
         break;
 
+    case VM_INTERRUPT:
+        vmTextOut(pVM, "Interrupt", 1);
+        /* fall through */
     case VM_ERREXIT:
     case VM_ABORT:
     case VM_ABORTQ:
@@ -470,9 +473,9 @@ int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
 **************************************************************************/
 int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
 {
-    int        except;
-    jmp_buf    vmState;
-    jmp_buf   *oldState;
+    int           except;
+    FICL_JMP_BUF  vmState;
+    FICL_JMP_BUF *oldState;
     FICL_WORD *oldRunningWord;
 
     assert(pVM);
@@ -488,7 +491,7 @@ int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
     */
     oldState = pVM->pState;
     pVM->pState = &vmState; /* This has to come before the setjmp! */
-    except = setjmp(vmState);
+    except = FICL_SETJMP(vmState);
 
     if (except)
         vmPopIP(pVM);
@@ -513,6 +516,7 @@ int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
     case VM_ERREXIT:
     case VM_ABORT:
     case VM_ABORTQ:
+    case VM_INTERRUPT:
     default:    /* user defined exit code?? */
         if (oldState)
         {
