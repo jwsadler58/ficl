@@ -58,6 +58,7 @@ decimal 32 constant bl
 false invert constant true
 : <>   = 0= ;
 : 0<>  0= 0= ;
+: u>   2dup u< -rot - 0= or 0= ;
 : compile,  , ;
 : convert   char+ 65535 >number drop ;  \ cribbed from DPANS A.6.2.0970
 : erase   ( addr u -- )    0 fill ;
