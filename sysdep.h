@@ -148,7 +148,7 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 ** the signal mask, making longjmp from signal handlers safe.
 ** Non-POSIX embedded targets fall back to standard C setjmp/longjmp.
 */
-#if !defined(__EMSCRIPTEN__) && (defined(__unix__) || defined(__APPLE__) || defined(__linux__) || defined(_WIN32))
+#if !defined(__EMSCRIPTEN__) && !defined(_WIN32) && (defined(__unix__) || defined(__APPLE__) || defined(__linux__))
 #define FICL_SETJMP(buf)       sigsetjmp(buf, 1)
 #define FICL_LONGJMP(buf, val) siglongjmp(buf, val)
 typedef sigjmp_buf FICL_JMP_BUF;
