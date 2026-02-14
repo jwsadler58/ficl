@@ -93,8 +93,9 @@ t{ s" 1 refill 2 " evaluate -> 1 0 2 }t
 testing prefixes
 t{ 0x10 -> decimal 16 }t
 t{ hex 0d10 -> decimal 10 }t
-t{ hex 100
--> decimal 256 }t
+t{ hex 100 -> decimal 256 }t
+\ prefix should not affect state of BASE
+t{ decimal 0x0f base @ 10 = -> 15 true }t
 
 testing 2constant
 2 3 2constant 2c23
@@ -106,8 +107,7 @@ t{ 1 -> 1 }t
 t{ 3. -> 0 3 }t
 t{ -1 -> -1 }t
 
-s" floating" environment?
-[if] drop
+has-floating [if]              \ defined in ttester.fr
 testing floating point
     t{ fdepth -> 0 }t
     t{ 1e0 2e0 f+ 3e0 f- f0= -> true }t
@@ -153,7 +153,7 @@ testing f. precision
     t{ 6 set-precision -2.5e0 f.pad s" -2.5 " compare -> 0 }t
     6 set-precision cr
 [else]
-    .( skipping float tests) cr
+    .( skipping float tests ) cr
 [endif]
 
 ficltest-marker        \ dictionary cleanup
