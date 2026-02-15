@@ -919,18 +919,25 @@
         VM_CHECK_STACK_LOCAL(0, 1); \
         (dataTop++)->p = pWord->param + 1; \
         goto OP_DONE; \
-    } \
+    }
+
+#if FICL_WANT_USER
+#define VM_OP_CASES_USER(OP_DONE) \
     case FICL_OP_USER: { \
         VM_CHECK_STACK_LOCAL(0, 1); \
         (dataTop++)->p = &pVM->user[pWord->param[0].i]; \
         goto OP_DONE; \
     }
+#else
+#define VM_OP_CASES_USER(OP_DONE)
+#endif
 
 #define VM_OP_SWITCH_BASE(OP_DONE) \
     switch (opcode) { \
         VM_OP_CASES_BASE(OP_DONE) \
         VM_OP_CASES_FLOAT(OP_DONE) \
         VM_OP_CASES_WORD(OP_DONE) \
+        VM_OP_CASES_USER(OP_DONE) \
         default: \
             break; \
     }
@@ -940,6 +947,7 @@
         VM_OP_CASES_BASE(OP_DONE) \
         VM_OP_CASES_FLOAT(OP_DONE) \
         VM_OP_CASES_WORD(OP_DONE) \
+        VM_OP_CASES_USER(OP_DONE) \
         VM_OP_CASES_IP(OP_DONE) \
         default: \
             break; \
@@ -1043,6 +1051,7 @@ void vmExecute(FICL_VM *pVM, FICL_WORD *pWord)
             VM_OP_CASES_BASE(OP_DONE)
             VM_OP_CASES_FLOAT(OP_DONE)
             VM_OP_CASES_WORD(OP_DONE)
+            VM_OP_CASES_USER(OP_DONE)
             case FICL_OP_COLON: {
                 (returnTop++)->p = pVM->ip;
                 pVM->ip = (IPTYPE)(pWord->param);
