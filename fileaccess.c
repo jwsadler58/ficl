@@ -406,10 +406,9 @@ static void ficlResizeFile(FICL_VM *pVM) /* ( ud fileid -- ior ) */
 #endif /* FICL_WANT_FILE */
 
 
-
+#if FICL_WANT_FILE
 void ficlCompileFile(FICL_SYSTEM *pSys)
 {
-#if FICL_WANT_FILE
     FICL_DICT *dp = pSys->dp;
     assert(dp);
 
@@ -436,7 +435,7 @@ void ficlCompileFile(FICL_SYSTEM *pSys)
     ficlSetEnv(pSys, "file", FICL_TRUE);
     ficlSetEnv(pSys, "file-ext", FICL_TRUE);
 #endif /* FICL_HAVE_FTRUNCATE */
-#else
-    &pSys;
-#endif /* FICL_WANT_FILE */
 }
+#else
+#define ficlCompileFile(pSys) ((void)(pSys))
+#endif /* FICL_WANT_FILE */

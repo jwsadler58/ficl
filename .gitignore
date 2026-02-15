@@ -44,6 +44,7 @@
 # Ficl Stuff
 .ficl_history
 ficl
+ficlmin
 ficl_wasm.js
 ficl_wasm.wasm
 
