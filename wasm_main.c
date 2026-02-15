@@ -254,8 +254,8 @@ int ficlWasmStackHex(char *out, int out_len, int max_cells)
     for (i = 0; i < count; ++i)
     {
         CELL cell = stackFetch(pVm->pStack, i);
-        FICL_UNS value = cell.u;
-        ficlUltoa(value, numbuf, radix);
+        FICL_UNS value = cell.i;
+        ficlLtoa(value, numbuf, radix);
         written = snprintf(cursor, (size_t)remaining, "\n%s", numbuf);
         if (written < 0 || written >= remaining)
             break;

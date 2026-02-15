@@ -340,7 +340,7 @@ typedef jmp_buf FICL_JMP_BUF;
 */
 
 #if !defined FICL_ROBUST
-#define FICL_ROBUST 1
+#define FICL_ROBUST 2
 #endif
 
 /*

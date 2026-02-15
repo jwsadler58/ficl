@@ -61,6 +61,13 @@
           </div>
         </section>
         <div class="demo-notes">
+          <h3>Getting started</h3>
+          <p>This is a full Ficl system running in your browser.
+            At the top right you will see the state of the parameter stack.
+            Bottom right are some simulated LEDS.
+            If you are new to Forth, please open a split window and follow along with <a href="https://www.taygeta.com/forth_intro/stackflo.html">this tutorial</a>.
+            You can find more information on Ficl <a href="ficl.html">here</a>.
+          </p>
           <h3>Demo words</h3>
           <dl>
             <dt><code>!led  ( n -- ) </code></dt>
@@ -70,6 +77,14 @@
             <dt><code>yield  ( -- ) </code></dt>
             <dd>Give the browser a chance to refresh the display</dd>
           </dl>
+          <pre class="demo-code">
+\ Try these examples - this is a comment
+( this is also a comment )
+1 value led
+: step led 1 lshift 0x80 over < if drop 1 endif dup to led !led ;
+: steps 0 do step 100 ms loop ;
+16 steps
+          </pre>
         </div>
       </div>
     </main>
