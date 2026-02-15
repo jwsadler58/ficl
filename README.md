@@ -9,7 +9,7 @@ Unlike Lua or Python, Ficl acts as a component of your system - you feed it stuf
 
 ____________
 ## More information
-### Current release: Ficl305, January 2026
+### Current release: Ficl306, February 2026
 ### The [official Ficl website](https://ficl.sourceforge.net/)
 ### Get the [latest Ficl release](https://sourceforge.net/projects/ficl/)
 ### Ficl [Github Repo](https://github.com/jwsadler58/ficl)
