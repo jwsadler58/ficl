@@ -90,7 +90,7 @@ This release maintains backward compatibility for most use cases. Notable change
 
 Special thanks to:
 - **Giuseppe Stanghellini** for contributing hybrid token threading and enhanced float support.
-- **Periklis Akriditis** for bug fixes and helpful suggestions.
+- **Periklis Akritidis** for bug fixes and helpful suggestions.
 
 ---
 
