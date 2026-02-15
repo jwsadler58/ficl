@@ -55,9 +55,6 @@
     #include "unity.h"
 #endif
 
-static  void dpmUModTest();
-
-
 /**************************************************************************
                         d p m A b s
 ** Returns the absolute value of an DPINT
