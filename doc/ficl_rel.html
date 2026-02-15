@@ -42,10 +42,30 @@
 <tr>
 <td>
 
-<h2><a NAME="whatsnew">Version 3.05</a> <span class="stat-label">(Jan 2026)</span></h2>
+<h2><a NAME="whatsnew">Version 3.06</a> <span class="stat-label">(Feb 2026)</span></h2>
 <ul>
 <li>
-  Windows and Linux console makefiles fully tested and debugged in Github CI workflow</li>
+  This is a big release. See RELEASE.md for detailed notes.
+</li>
+<li>
+  Ficl is now hybrid token threaded, for a 2x-3x speedup in the inner loop. (Contributed by Giuseppe Stanghellini)
+</li>
+<li>
+  Revised and updated the website. There is now a Web REPL demo
+</li>
+<li>
+  Greatly enhanced floating point support. Separate float stack supports 64 bit floats on 32 bit targets.
+</li>
+<li>
+  Console interface supports line editing, history, and SIGINT handling on POSIX systems (Linux, MacOS).
+</li>
+</ul>
+
+<h2>Version 3.05 <span class="stat-label">(Jan 2026)</span></h2>
+<ul>
+<li>
+  Windows and Linux console makefiles fully tested and debugged in Github CI workflow
+</li>
 <li>
   Revised and updated the website. There is now a Web REPL demo
 </li>
@@ -56,7 +76,6 @@
   C11 and portability improvements
 </li>
 </ul>
-
 
 <h2>Version 3.04 <span class="stat-label">(Dec 2025)</span></h2>
 <ul>

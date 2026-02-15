@@ -34,7 +34,7 @@ Comprehensive improvements to floating-point support:
 
 - **Line Editing**: Added simple line editing capabilities to testmain
 - **Test Framework**: Updated standard test file `ttester.fr` adapted for Ficl
-- **REPL Improvements**: Exit REPL cleanly on EOF (Ctrl-D) (Periklis Akritidis)
+- **REPL Improvements**: Exit REPL cleanly on EOF (Ctrl-D) (Periklis Akritidis), SIGINT handling on POSIX systems. vmInterrupt() can connect a watchdog timer on embedded targets.
 
 ---
 
