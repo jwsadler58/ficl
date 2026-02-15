@@ -4,5 +4,5 @@ softcore.c: softcore.py  $(SOURCES)
 	python3 softcore.py $(SOURCES) >./softcore.c
 
 clean: 
-	rm *.c
+	rm -f *.c
 
