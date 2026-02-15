@@ -2,6 +2,8 @@
 - Follow the style of the existing codebase
 
 ## Ficl .c and .h file conventions
+- Indentation
+  - Allman style - curly braces on their own lines at same indent as the contol structure keyword
 - Function Naming:
   - camelCase
   - first three letters reference the module name. Example: dpmath.c function names begin with dpm.
