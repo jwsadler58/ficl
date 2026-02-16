@@ -177,6 +177,7 @@ set-current   \ stop hiding words
 : on-step   ." S: " .s cr ;
 
 
+\ #if FICL_WANT_LOCALS
 \ Submitted by lch.
 : strdup ( c-addr length -- c-addr2 length2 ior )
 	0 locals| addr2 length c-addr | end-locals
@@ -202,6 +203,7 @@ set-current   \ stop hiding words
 	a-addr 0  b-addr b-u  strcat
 	;
 
+\ #endif
 
 previous   \ lose hidden words from search order
 
