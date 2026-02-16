@@ -15,7 +15,7 @@ DEPS    = $(OBJECTS:.o=.d) testmain.d
 
 # === Softcore.c is generated from softwords folder ===
 softcore.c:
-	make -C softwords softcore.c
+	$(MAKE) -C softwords softcore.c
 	cp softwords/softcore.c .
 
 # === Static library ===

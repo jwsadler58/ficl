@@ -31,7 +31,7 @@ DEPS = $(LIBFICL_OBJS:.o=.d) $(LIBFICLMIN_OBJS:.o=.d) \
 
 # === Softcore.c is generated from softwords folder ===
 softcore.c:
-	make -C softwords softcore.c
+	$(MAKE) -C softwords softcore.c
 	cp softwords/softcore.c .
 
 # === Default target ===

@@ -16,5 +16,5 @@ ficl: testmain.o ficl.h sysdep.h o.libficl
 
 # static library build
 o.libficl: $(OBJECTS)
-        $(LIB) o.libficl $(OBJECTS)
+	$(LIB) o.libficl $(OBJECTS)
 
