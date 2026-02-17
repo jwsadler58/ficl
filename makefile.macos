@@ -70,7 +70,10 @@ $(FICLMIN_OBJDIR):
 #
 #  === utility targets ===
 #
-.PHONY: clean cleanobj cleanocd tags wasm
+.PHONY: all clean cleanobj cleanocd tags wasm
+
+all: cleanocd ficl ficlmin wasm
+	./ficl --test
 
 clean:
 	rm -rf $(OBJDIR)
