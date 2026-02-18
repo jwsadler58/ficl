@@ -678,8 +678,8 @@ static void cr(FICL_VM *pVM)
 
 static void commentLine(FICL_VM *pVM)
 {
-    char *cp        = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *cp   = vmGetInBuf(pVM);
+    const char *pEnd = vmGetInBufEnd(pVM);
     char ch = *cp;
 
     while ((cp != pEnd) && (ch != '\r') && (ch != '\n'))
@@ -1737,8 +1737,8 @@ static void dotQuoteCoIm(FICL_VM *pVM)
 
 static void dotParen(FICL_VM *pVM)
 {
-    char *pSrc      = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *pSrc = vmGetInBuf(pVM);
+    const char *pEnd = vmGetInBufEnd(pVM);
     char *pDest     = pVM->pad;
     char ch;
 
@@ -2191,7 +2191,7 @@ static void accept(FICL_VM *pVM)
 {
     FICL_UNS count, len;
     char *cp;
-    char *pBuf, *pEnd;
+    const char *pBuf, *pEnd;
 
 #if FICL_ROBUST > 1
     vmCheckStack(pVM,2,1);

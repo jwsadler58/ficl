@@ -364,7 +364,7 @@ void stackPush(FICL_STACK *pStack, CELL c)
     *pStack->sp++ = c;
 }
 
-void stackPushPtr(FICL_STACK *pStack, void *ptr)
+void stackPushPtr(FICL_STACK *pStack, const void *ptr)
 {
     *pStack->sp++ = LVALUEtoCELL(ptr);
 }

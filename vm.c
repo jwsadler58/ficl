@@ -1249,8 +1249,8 @@ STRINGINFO vmGetWord(FICL_VM *pVM)
 **************************************************************************/
 STRINGINFO vmGetWord0(FICL_VM *pVM)
 {
-    char *pSrc      = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *pSrc = vmGetInBuf(pVM);
+    const char *pEnd = vmGetInBufEnd(pVM);
     STRINGINFO si;
     FICL_UNS count = 0;
     char ch = 0;
@@ -1327,8 +1327,8 @@ STRINGINFO vmParseString(FICL_VM *pVM, char delim)
 STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, char fSkipLeading)
 {
     STRINGINFO si;
-    char *pSrc      = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *pSrc = vmGetInBuf(pVM);
+    const char *pEnd = vmGetInBufEnd(pVM);
     char ch;
 
     if (fSkipLeading)
@@ -1406,7 +1406,7 @@ void vmPushIP(FICL_VM *pVM, IPTYPE newIP)
                         v m P u s h T i b
 ** Binds the specified input string to the VM and clears >IN (the index)
 **************************************************************************/
-void vmPushTib(FICL_VM *pVM, char *text, FICL_INT nChars, TIB *pSaveTib)
+void vmPushTib(FICL_VM *pVM, const char *text, FICL_INT nChars, TIB *pSaveTib)
 {
     if (pSaveTib)
     {
@@ -1711,7 +1711,7 @@ int strincmp(char *cp1, char *cp2, FICL_UNS count)
 ** If the pointer reaches "end" first, stop there. Pass NULL to
 ** suppress this behavior.
 **************************************************************************/
-char *skipSpace(char *cp, char *end)
+const char *skipSpace(const char *cp, const char *end)
 {
     assert(cp);
 

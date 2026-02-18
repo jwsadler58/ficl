@@ -327,7 +327,7 @@ int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)
                     f i c l E v a l u a t e
 ** Wrapper for ficlExec() which sets SOURCE-ID to -1.
 **************************************************************************/
-int ficlEvaluate(FICL_VM *pVM, char *pText)
+int ficlEvaluate(FICL_VM *pVM, const char *pText)
 {
     int returnValue;
     CELL id = pVM->sourceID;
@@ -356,12 +356,12 @@ int ficlEvaluate(FICL_VM *pVM, char *pText)
 **      time to delete the vm, etc -- or you can ignore this
 **      signal.
 **************************************************************************/
-int ficlExec(FICL_VM *pVM, char *pText)
+int ficlExec(FICL_VM *pVM, const char *pText)
 {
     return ficlExecC(pVM, pText, -1);
 }
 
-int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
+int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
 {
     FICL_SYSTEM *pSys = pVM->pSys;
     FICL_DICT   *dp   = pSys->dp;

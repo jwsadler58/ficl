@@ -236,8 +236,8 @@ typedef struct
 typedef struct
 {
     FICL_INT index;  /* this is >in */
-    char *end;
-    char *cp;
+    const char *end;
+    const char *cp;
 } TIB;
 
 
@@ -286,7 +286,7 @@ void       *stackPopPtr   (FICL_STACK *pStack);
 FICL_UNS    stackPopUNS   (FICL_STACK *pStack);
 FICL_INT    stackPopINT   (FICL_STACK *pStack);
 void        stackPush     (FICL_STACK *pStack, CELL c);
-void        stackPushPtr  (FICL_STACK *pStack, void *ptr);
+void        stackPushPtr  (FICL_STACK *pStack, const void *ptr);
 void        stackPushUNS  (FICL_STACK *pStack, FICL_UNS u);
 void        stackPushINT  (FICL_STACK *pStack, FICL_INT i);
 void        stackReset    (FICL_STACK *pStack);
@@ -684,7 +684,7 @@ void        vmCheckFStack(FICL_VM *pVM, int popCells, int pushCells);
 ** PopTib restores the TIB state given a saved TIB from PushTib
 ** GetInBuf returns a pointer to the next unused char of the TIB
 */
-void        vmPushTib  (FICL_VM *pVM, char *text, FICL_INT nChars, TIB *pSaveTib);
+void        vmPushTib  (FICL_VM *pVM, const char *text, FICL_INT nChars, TIB *pSaveTib);
 void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 #define     vmGetInBuf(pVM)      ((pVM)->tib.cp + (pVM)->tib.index)
 #define     vmGetInBufLen(pVM)   ((pVM)->tib.end - (pVM)->tib.cp)
@@ -701,7 +701,7 @@ char       *ficlLtoa( FICL_INT value, char *string, int radix );
 char       *ficlUltoa(FICL_UNS value, char *string, int radix );
 char        digit_to_char(int value);
 char       *ficlStrrev(char *string );
-char       *skipSpace(char *cp, char *end);
+const char *skipSpace(const char *cp, const char *end);
 int         strincmp(char *cp1, char *cp2, FICL_UNS count);
 
 
@@ -998,7 +998,7 @@ void       ficlTermSystem(FICL_SYSTEM *pSys);
 ** PLEASE USE THIS FUNCTION when throwing a hard-coded
 ** string to the FICL interpreter.
 */
-int        ficlEvaluate(FICL_VM *pVM, char *pText);
+int        ficlEvaluate(FICL_VM *pVM, const char *pText);
 
 /*
 ** f i c l E x e c
@@ -1026,8 +1026,8 @@ int        ficlEvaluate(FICL_VM *pVM, char *pText);
 ** ensure pVM->sourceID was set to a sensible value.
 ** ficlExec() explicitly DOES NOT manage SOURCE-ID for you.
 */
-int        ficlExec (FICL_VM *pVM, char *pText);
-int        ficlExecC(FICL_VM *pVM, char *pText, FICL_INT nChars);
+int        ficlExec (FICL_VM *pVM, const char *pText);
+int        ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT nChars);
 int        ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord);
 
 /*

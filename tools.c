@@ -558,7 +558,7 @@ void stepBreak(FICL_VM *pVM)
         ** Take whatever's left in the TIB and feed it to a subordinate ficlExec
         */
         int ret;
-        char *cp = pVM->tib.cp + pVM->tib.index;
+        const char *cp = pVM->tib.cp + pVM->tib.index;
         int count = pVM->tib.end - cp;
         FICL_WORD *oldRun = pVM->runningWord;
 
