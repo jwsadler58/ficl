@@ -703,7 +703,6 @@ char       *ficlUltoa(FICL_UNS value, char *string, int radix );
 char        digit_to_char(int value);
 char       *ficlStrrev(char *string );
 char       *skipSpace(char *cp, char *end);
-char       *caseFold(char *cp);
 int         strincmp(char *cp1, char *cp2, FICL_UNS count);
 
 
