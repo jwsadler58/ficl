@@ -66,7 +66,7 @@ void ficlFree(void *p)
 /*
 **         F i c l T e x t O u t
 */
-void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
+void ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
     IGNORE(pVM);
 

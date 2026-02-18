@@ -65,7 +65,7 @@ static_assert(sizeof(FICL_UNS) == sizeof(void *),   "FICL_UNS must be pointer si
 #if defined(MACOS)
 #include <unistd.h>
 
-void  ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
+void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
     IGNORE(pVM);
 
@@ -155,7 +155,7 @@ void  ficlFree   (void *p)
     }
 #endif
 
-void  ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
+void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
     IGNORE(pVM);
 
@@ -222,7 +222,7 @@ void  ficlFree   (void *p)
 #endif
 
 #if !defined (_WINDOWS)
-    void ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
+    void ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
     {
         IGNORE(pVM);
 
@@ -295,7 +295,7 @@ void *ficlRealloc(void *p, size_t size)
     }
 #endif
 
-void  ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
+void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
    return;
 }
@@ -363,7 +363,7 @@ void *ficlRealloc(void *p, size_t size)
 
 #endif
 
-void  ficlTextOut(FICL_VM *pVM, char *msg, int fNewline)
+void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
     IGNORE(pVM);
 

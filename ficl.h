@@ -356,7 +356,7 @@ typedef FICL_WORD ** IPTYPE; /* the VM's instruction pointer */
 ** through a different device. If you specify no
 ** OUTFUNC, it defaults to ficlTextOut.
 */
-typedef void (*OUTFUNC)(FICL_VM *pVM, char *text, int fNewline);
+typedef void (*OUTFUNC)(FICL_VM *pVM, const char *text, int fNewline);
 
 /*
 ** Each VM operates in one of two non-error states: interpreting
@@ -642,10 +642,9 @@ void        vmQuit         (FICL_VM *pVM);
 void        vmReset        (FICL_VM *pVM);
 void        vmStep         (FICL_VM *pVM);
 void        vmSetTextOut   (FICL_VM *pVM, OUTFUNC textOut);
-void        vmTextOut      (FICL_VM *pVM, char *text, int fNewline);
-void        vmTextOut      (FICL_VM *pVM, char *text, int fNewline);
+void        vmTextOut      (FICL_VM *pVM, const char *text, int fNewline);
 void        vmThrow        (FICL_VM *pVM, int except);
-void        vmThrowErr     (FICL_VM *pVM, char *fmt, ...);
+void        vmThrowErr     (FICL_VM *pVM, const char *fmt, ...);
 void        vmThrowUnderflow(FICL_VM *pVM);
 void        vmThrowOverflow (FICL_VM *pVM);
 void        vmInterrupt    (FICL_VM *pVM);

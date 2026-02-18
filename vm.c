@@ -1485,7 +1485,7 @@ void vmSetTextOut(FICL_VM *pVM, OUTFUNC textOut)
                         v m T e x t O u t
 ** Feeds text to the vm's output callback
 **************************************************************************/
-void vmTextOut(FICL_VM *pVM, char *text, int fNewline)
+void vmTextOut(FICL_VM *pVM, const char *text, int fNewline)
 {
     assert(pVM);
     assert(pVM->textOut);
@@ -1505,7 +1505,7 @@ void vmThrow(FICL_VM *pVM, int except)
         FICL_LONGJMP(*(pVM->pState), except);
 }
 
-void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
+void vmThrowErr(FICL_VM *pVM, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
