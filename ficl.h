@@ -201,7 +201,7 @@ typedef struct _ficl_string
 typedef struct
 {
     FICL_UNS count;
-    char *cp;
+    const char *cp;
 } STRINGINFO;
 
 #define SI_COUNT(si) (si.count)
@@ -702,7 +702,7 @@ char       *ficlUltoa(FICL_UNS value, char *string, int radix );
 char        digit_to_char(int value);
 char       *ficlStrrev(char *string );
 const char *skipSpace(const char *cp, const char *end);
-int         strincmp(char *cp1, char *cp2, FICL_UNS count);
+int         strincmp(const char *cp1, const char *cp2, FICL_UNS count);
 
 
 /*
@@ -730,7 +730,7 @@ typedef struct ficl_hash
 } FICL_HASH;
 #define FICL_HASH_BYTES(nBuckets) (offsetof(FICL_HASH, table) + (nBuckets) * sizeof(FICL_WORD *))
 
-void        hashForget    (FICL_HASH *pHash, void *where);
+void        hashForget    (FICL_HASH *pHash, const void *where);
 UNS16       hashHashCode  (STRINGINFO si);
 void        hashInsertWord(FICL_HASH *pHash, FICL_WORD *pFW);
 FICL_WORD  *hashLookup    (FICL_HASH *pHash, STRINGINFO si, UNS16 hashCode);
@@ -794,11 +794,11 @@ void        dictAppendFloat(FICL_DICT *pDict, FICL_FLOAT f);
 #endif
 
 FICL_WORD  *dictAppendWord (FICL_DICT *pDict,
-                           char *name,
+                           const char *name,
                            FICL_CODE pCode,
                            UNS8 flags);
 FICL_WORD  *dictAppendOpWord(FICL_DICT *pDict,
-                             char *name,
+                             const char *name,
                              FICL_OPCODE opcode,
                              UNS8 flags);
 FICL_WORD  *dictAppendWord2(FICL_DICT *pDict,
@@ -820,7 +820,7 @@ void        dictDelete     (FICL_DICT *pDict);
 void        dictEmpty      (FICL_DICT *pDict, unsigned nHash);
 void        dictHashSummary(FICL_VM *pVM);
 void        dictSummary    (FICL_VM *pVM);
-int         dictIncludes   (FICL_DICT *pDict, void *p);
+int         dictIncludes   (FICL_DICT *pDict, const void *p);
 FICL_WORD  *dictLookup     (FICL_DICT *pDict, STRINGINFO si);
 #if FICL_WANT_LOCALS
 FICL_WORD  *ficlLookupLoc  (FICL_SYSTEM *pSys, STRINGINFO si);
@@ -862,7 +862,7 @@ typedef int (*FICL_PARSE_STEP)(FICL_VM *pVM, STRINGINFO si);
 ** CFA - see parenParseStep in words.c.
 */
 int  ficlAddParseStep(FICL_SYSTEM *pSys, FICL_WORD *pFW); /* ficl.c */
-void ficlAddPrecompiledParseStep(FICL_SYSTEM *pSys, char *name, FICL_PARSE_STEP pStep);
+void ficlAddPrecompiledParseStep(FICL_SYSTEM *pSys, const char *name, FICL_PARSE_STEP pStep);
 void ficlListParseSteps(FICL_VM *pVM);
 
 /*
@@ -1059,7 +1059,7 @@ int ficlSetStackSize(int nStackCells);
 ** dictionary with the given name, or NULL if no match.
 ** Precondition: successful execution of ficlInitSystem
 */
-FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, char *name);
+FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, const char *name);
 
 /*
 ** f i c l G e t D i c t
@@ -1068,10 +1068,10 @@ FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, char *name);
 */
 FICL_DICT *ficlGetDict(FICL_SYSTEM *pSys);
 FICL_DICT *ficlGetEnv (FICL_SYSTEM *pSys);
-void       ficlSetEnv (FICL_SYSTEM *pSys, char *name, FICL_UNS value);
-void       ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo);
+void       ficlSetEnv (FICL_SYSTEM *pSys, const char *name, FICL_UNS value);
+void       ficlSetEnvD(FICL_SYSTEM *pSys, const char *name, FICL_UNS hi, FICL_UNS lo);
 #if FICL_WANT_FLOAT
-void       ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f);
+void       ficlSetEnvF(FICL_SYSTEM *pSys, const char *name, FICL_FLOAT f);
 #endif
 #if FICL_WANT_LOCALS
 FICL_DICT *ficlGetLoc (FICL_SYSTEM *pSys);
@@ -1092,7 +1092,7 @@ FICL_DICT *ficlGetLoc (FICL_SYSTEM *pSys);
 **          Most words can use FW_DEFAULT.
 ** nAllot - number of extra cells to allocate in the parameter area (usually zero)
 */
-int        ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags);
+int        ficlBuild(FICL_SYSTEM *pSys, const char *name, FICL_CODE code, char flags);
 
 /*
 ** f i c l C o m p i l e C o r e

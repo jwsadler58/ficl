@@ -1689,7 +1689,7 @@ char *ficlUltoa(FICL_UNS value, char *string, int radix )
                         s t r i n c m p
 ** (jws) simplified the code a bit in hopes of appeasing Purify
 **************************************************************************/
-int strincmp(char *cp1, char *cp2, FICL_UNS count)
+int strincmp(const char *cp1, const char *cp2, FICL_UNS count)
 {
     int i = 0;
 

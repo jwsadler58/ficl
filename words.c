@@ -205,7 +205,7 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
     char isNeg      = FALSE;
 	char hasDP      = FALSE;
     unsigned base   = pVM->base;
-    char *cp        = SI_PTR(si);
+    const char *cp  = SI_PTR(si);
     FICL_COUNT count= (FICL_COUNT)SI_COUNT(si);
     unsigned ch;
     unsigned digit;
