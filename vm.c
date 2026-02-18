@@ -1686,26 +1686,6 @@ char *ficlUltoa(FICL_UNS value, char *string, int radix )
 
 
 /**************************************************************************
-                        c a s e F o l d
-** Case folds a NULL terminated string in place. All characters
-** get converted to lower case.
-**************************************************************************/
-char *caseFold(char *cp)
-{
-    char *oldCp = cp;
-
-    while (*cp)
-    {
-        if (isupper(*cp))
-            *cp = (char)tolower(*cp);
-        cp++;
-    }
-
-    return oldCp;
-}
-
-
-/**************************************************************************
                         s t r i n c m p
 ** (jws) simplified the code a bit in hopes of appeasing Purify
 **************************************************************************/
