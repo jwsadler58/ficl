@@ -1249,8 +1249,8 @@ STRINGINFO vmGetWord(FICL_VM *pVM)
 **************************************************************************/
 STRINGINFO vmGetWord0(FICL_VM *pVM)
 {
-    char *pSrc      = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *pSrc = vmGetInBuf(pVM);
+    const char *pEnd = vmGetInBufEnd(pVM);
     STRINGINFO si;
     FICL_UNS count = 0;
     char ch = 0;
@@ -1327,8 +1327,8 @@ STRINGINFO vmParseString(FICL_VM *pVM, char delim)
 STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, char fSkipLeading)
 {
     STRINGINFO si;
-    char *pSrc      = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *pSrc = vmGetInBuf(pVM);
+    const char *pEnd = vmGetInBufEnd(pVM);
     char ch;
 
     if (fSkipLeading)
@@ -1406,7 +1406,7 @@ void vmPushIP(FICL_VM *pVM, IPTYPE newIP)
                         v m P u s h T i b
 ** Binds the specified input string to the VM and clears >IN (the index)
 **************************************************************************/
-void vmPushTib(FICL_VM *pVM, char *text, FICL_INT nChars, TIB *pSaveTib)
+void vmPushTib(FICL_VM *pVM, const char *text, FICL_INT nChars, TIB *pSaveTib)
 {
     if (pSaveTib)
     {
@@ -1485,7 +1485,7 @@ void vmSetTextOut(FICL_VM *pVM, OUTFUNC textOut)
                         v m T e x t O u t
 ** Feeds text to the vm's output callback
 **************************************************************************/
-void vmTextOut(FICL_VM *pVM, char *text, int fNewline)
+void vmTextOut(FICL_VM *pVM, const char *text, int fNewline)
 {
     assert(pVM);
     assert(pVM->textOut);
@@ -1505,7 +1505,7 @@ void vmThrow(FICL_VM *pVM, int except)
         FICL_LONGJMP(*(pVM->pState), except);
 }
 
-void vmThrowErr(FICL_VM *pVM, char *fmt, ...)
+void vmThrowErr(FICL_VM *pVM, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -1686,30 +1686,10 @@ char *ficlUltoa(FICL_UNS value, char *string, int radix )
 
 
 /**************************************************************************
-                        c a s e F o l d
-** Case folds a NULL terminated string in place. All characters
-** get converted to lower case.
-**************************************************************************/
-char *caseFold(char *cp)
-{
-    char *oldCp = cp;
-
-    while (*cp)
-    {
-        if (isupper(*cp))
-            *cp = (char)tolower(*cp);
-        cp++;
-    }
-
-    return oldCp;
-}
-
-
-/**************************************************************************
                         s t r i n c m p
 ** (jws) simplified the code a bit in hopes of appeasing Purify
 **************************************************************************/
-int strincmp(char *cp1, char *cp2, FICL_UNS count)
+int strincmp(const char *cp1, const char *cp2, FICL_UNS count)
 {
     int i = 0;
 
@@ -1731,7 +1711,7 @@ int strincmp(char *cp1, char *cp2, FICL_UNS count)
 ** If the pointer reaches "end" first, stop there. Pass NULL to
 ** suppress this behavior.
 **************************************************************************/
-char *skipSpace(char *cp, char *end)
+const char *skipSpace(const char *cp, const char *end)
 {
     assert(cp);
 

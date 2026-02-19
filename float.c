@@ -1098,7 +1098,7 @@ typedef enum _floatParseState
 int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
 {
     unsigned char ch, digit;
-    char *cp;
+    const char *cp;
     FICL_COUNT count;
     FICL_FLOAT power;
     FICL_FLOAT accum = 0.0;

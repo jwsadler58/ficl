@@ -240,7 +240,7 @@ void dictAppendChar(FICL_DICT *pDict, char c)
 ** name, code, and flags. Name must be NULL-terminated.
 **************************************************************************/
 FICL_WORD *dictAppendWord(FICL_DICT *pDict,
-                          char *name,
+                          const char *name,
                           FICL_CODE pCode,
                           UNS8 flags)
 {
@@ -256,7 +256,7 @@ FICL_WORD *dictAppendWord(FICL_DICT *pDict,
 ** name, code, flags, and opcode. Name must be NULL-terminated.
 **************************************************************************/
 FICL_WORD *dictAppendOpWord(FICL_DICT *pDict,
-                            char *name,
+                            const char *name,
                             FICL_OPCODE opcode,
                             UNS8 flags)
 {
@@ -398,10 +398,10 @@ void dictCheck(FICL_DICT *pDict, FICL_VM *pVM, int n)
 **************************************************************************/
 static char *dictCopyName(FICL_DICT *pDict, STRINGINFO si)
 {
-    char *oldCP    = (char *)pDict->here;
-    char *cp       = oldCP;
-    char *name     = SI_PTR(si);
-    int   i        = SI_COUNT(si);
+    char *oldCP      = (char *)pDict->here;
+    char *cp         = oldCP;
+    const char *name = SI_PTR(si);
+    int   i          = SI_COUNT(si);
 
     if (i == 0)
     {
@@ -615,7 +615,7 @@ void dictHashSummary(FICL_VM *pVM)
 ** Returns TRUE iff the given pointer is within the address range of
 ** the dictionary.
 **************************************************************************/
-int dictIncludes(FICL_DICT *pDict, void *p)
+int dictIncludes(FICL_DICT *pDict, const void *p)
 {
     CELL *start = pDict->dict;               // decays to CELL *
     CELL *end   = pDict->dict + pDict->size; // one past last CELL
@@ -772,7 +772,7 @@ CELL *dictWhere(FICL_DICT *pDict)
 ** equal to the address supplied. Implementation factor for FORGET
 ** and MARKER.
 **************************************************************************/
-void hashForget(FICL_HASH *pHash, void *where)
+void hashForget(FICL_HASH *pHash, const void *where)
 {
     FICL_WORD *pWord;
     unsigned i;

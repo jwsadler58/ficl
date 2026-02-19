@@ -506,7 +506,7 @@ typedef struct
 **   and remainder
 */
 struct vm;
-void  ficlTextOut(struct vm *pVM, char *msg, int fNewline);
+void  ficlTextOut(struct vm *pVM, const char *msg, int fNewline);
 void *ficlMalloc (size_t size);
 void  ficlFree   (void *p);
 void *ficlRealloc(void *p, size_t size);

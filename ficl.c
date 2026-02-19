@@ -207,7 +207,7 @@ int ficlAddParseStep(FICL_SYSTEM *pSys, FICL_WORD *pFW)
 ** preconditions are valid (there needs to be a counted string on top of the stack)
 ** before using the resulting word.
 */
-void ficlAddPrecompiledParseStep(FICL_SYSTEM *pSys, char *name, FICL_PARSE_STEP pStep)
+void ficlAddPrecompiledParseStep(FICL_SYSTEM *pSys, const char *name, FICL_PARSE_STEP pStep)
 {
     FICL_DICT *dp = pSys->dp;
     FICL_WORD *pFW = dictAppendWord(dp, name, parseStepParen, FW_DEFAULT);
@@ -306,7 +306,7 @@ void ficlFreeVM(FICL_VM *pVM)
 ** flags -- 0 or more of F_IMMEDIATE, F_COMPILE, use bitwise OR!
 **
 **************************************************************************/
-int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)
+int ficlBuild(FICL_SYSTEM *pSys, const char *name, FICL_CODE code, char flags)
 {
 #if FICL_MULTISESSION
     int err = ficlLockDictionary(TRUE);
@@ -327,7 +327,7 @@ int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)
                     f i c l E v a l u a t e
 ** Wrapper for ficlExec() which sets SOURCE-ID to -1.
 **************************************************************************/
-int ficlEvaluate(FICL_VM *pVM, char *pText)
+int ficlEvaluate(FICL_VM *pVM, const char *pText)
 {
     int returnValue;
     CELL id = pVM->sourceID;
@@ -356,12 +356,12 @@ int ficlEvaluate(FICL_VM *pVM, char *pText)
 **      time to delete the vm, etc -- or you can ignore this
 **      signal.
 **************************************************************************/
-int ficlExec(FICL_VM *pVM, char *pText)
+int ficlExec(FICL_VM *pVM, const char *pText)
 {
     return ficlExecC(pVM, pText, -1);
 }
 
-int ficlExecC(FICL_VM *pVM, char *pText, FICL_INT size)
+int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
 {
     FICL_SYSTEM *pSys = pVM->pSys;
     FICL_DICT   *dp   = pSys->dp;
@@ -538,7 +538,7 @@ int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
 ** found, return the address of the corresponding FICL_WORD. Otherwise
 ** return NULL.
 **************************************************************************/
-FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, char *name)
+FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, const char *name)
 {
     STRINGINFO si;
     SI_PSZ(si, name);
@@ -571,7 +571,7 @@ FICL_DICT *ficlGetEnv(FICL_SYSTEM *pSys)
 ** Create an environment variable with a one-CELL payload. ficlSetEnvD
 ** makes one with a two-CELL payload.
 **************************************************************************/
-void ficlSetEnv(FICL_SYSTEM *pSys, char *name, FICL_UNS value)
+void ficlSetEnv(FICL_SYSTEM *pSys, const char *name, FICL_UNS value)
 {
     STRINGINFO si;
     FICL_WORD *pFW;
@@ -593,7 +593,7 @@ void ficlSetEnv(FICL_SYSTEM *pSys, char *name, FICL_UNS value)
     return;
 }
 
-void ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo)
+void ficlSetEnvD(FICL_SYSTEM *pSys, const char *name, FICL_UNS hi, FICL_UNS lo)
 {
     FICL_WORD *pFW;
     STRINGINFO si;
@@ -617,7 +617,7 @@ void ficlSetEnvD(FICL_SYSTEM *pSys, char *name, FICL_UNS hi, FICL_UNS lo)
 }
 
 #if FICL_WANT_FLOAT
-void ficlSetEnvF(FICL_SYSTEM *pSys, char *name, FICL_FLOAT f)
+void ficlSetEnvF(FICL_SYSTEM *pSys, const char *name, FICL_FLOAT f)
 {
     FICL_WORD *pFW;
     STRINGINFO si;
