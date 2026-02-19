@@ -529,7 +529,7 @@ void *ficlRealloc(void *p, size_t size);
 #if FICL_MULTISESSION
 int ficlLockDictionary(short fLock);
 #else
-#define ficlLockDictionary(x) 0 /* ignore */
+#define ficlLockDictionary(x) /* ignore */
 #endif
 
 /*
