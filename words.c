@@ -3388,7 +3388,6 @@ static void localsAdd(FICL_VM *pVM, STRINGINFO si, FICL_CODE pCode,
 **************************************************************************/
 static void localParen(FICL_VM *pVM)
 {
-    FICL_DICT *pDict;
     STRINGINFO si;
 #if FICL_ROBUST > 1
     vmCheckStack(pVM,2,0);

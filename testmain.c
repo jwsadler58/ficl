@@ -101,7 +101,6 @@ static char history_file_path[4096] = "";
 /* History management */
 static char *history[MAX_HISTORY];
 static int history_count = 0;
-static int history_pos = 0;
 
 /* Terminal state */
 #if defined(_WIN32)
@@ -1100,12 +1099,9 @@ void buildTestInterface(FICL_SYSTEM *pSys)
 
 #endif
 
-#define nINBUF 256
-
 int main(int argc, char **argv)
 {
     int ret = 0;
-    char in[nINBUF];
     FICL_VM *pVM;
     FICL_SYSTEM *pSys;
     int i;
