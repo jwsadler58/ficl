@@ -1512,6 +1512,20 @@ static void here(FICL_VM *pVM)
     return;
 }
 
+static void unused(FICL_VM *pVM)
+{
+    FICL_DICT *dp = vmGetDict(pVM);
+    FICL_INT i;
+#if FICL_ROBUST > 1
+    assert(dp);
+    vmCheckStack(pVM, 0, 1);
+#endif
+
+    i = (FICL_INT)(dp->dict + dp->size - dp->here)  * (FICL_INT)sizeof (CELL);
+    PUSHINT(i);
+    return;
+}
+
 static void comma(FICL_VM *pVM)
 {
     FICL_DICT *dp;
@@ -1959,7 +1973,7 @@ static void rbracket(FICL_VM *pVM)
 ** Initialize the pictured numeric output conversion process.
 ** (clear the pad)
 **************************************************************************/
-static void sedlessNumberSign(FICL_VM *pVM)
+static void lessNumberSign(FICL_VM *pVM)
 {
     FICL_STRING *sp = PTRtoSTRING pVM->pad;
     sp->count = 0;
@@ -4146,6 +4160,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "refill",    refill,         FW_DEFAULT);
     dictAppendWord(  dp, "source-id", sourceid,       FW_DEFAULT);
     dictAppendWord(  dp, "to",        toValue,        FW_IMMEDIATE);
+    dictAppendWord(  dp, "unused",    unused,         FW_DEFAULT);
     dictAppendWord(  dp, "value",     constant,       FW_DEFAULT);
     dictAppendWord(  dp, "\\",        commentLine,    FW_IMMEDIATE);
 
