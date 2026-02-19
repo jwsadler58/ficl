@@ -194,7 +194,6 @@ typedef jmp_buf FICL_JMP_BUF;
 #define FICL_WANT_FLOAT      0
 #define FICL_WANT_USER       0
 #define FICL_WANT_LOCALS     0
-#define FICL_WANT_DEBUGGER   0
 #define FICL_WANT_OOP        0
 #define FICL_PLATFORM_EXTEND 0
 #define FICL_MULTISESSION    0
@@ -232,14 +231,6 @@ typedef jmp_buf FICL_JMP_BUF;
 #define FICL_WANT_FLOAT 1
 #endif
 
-
-/*
-** FICL_WANT_DEBUGGER
-** Inludes a simple source level debugger
-*/
-#if !defined (FICL_WANT_DEBUGGER)
-#define FICL_WANT_DEBUGGER 1
-#endif
 
 /*
 ** FICL_EXTENDED_PREFIX enables a bunch of extra prefixes in prefix.c and prefix.fr (if
