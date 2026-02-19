@@ -162,7 +162,7 @@ static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
 
 /*
 ** Match the tag to the top of the stack. If success,
-** sopy "here" address into the cell whose address is next
+** copy "here" address into the cell whose address is next
 ** on the stack. Used by do..leave..loop.
 */
 static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
@@ -475,7 +475,7 @@ static void ficlStrlen(FICL_VM *ficlVM)
 **        signed), and copy it to the buffer
 **    x - same as d, except in base-16
 **    u - same as d, but unsigned
-**    % - output a literal percent-sign to the buffer
+**    % - output a literal perpad"cent-sign to the buffer
 ** SPRINTF pushes the c-addr-buffer argument unchanged, the number of bytes
 ** written, and a flag indicating whether it succeeded
 ** (FALSE it ran out of space while writing to the output buffer).
@@ -488,6 +488,9 @@ static void ficlStrlen(FICL_VM *ficlVM)
 **************************************************************************/
 static void ficlSprintf(FICL_VM *pVM)
 {
+    #if FICL_ROBUST > 1
+        vmCheckStack(pVM, 4, 3);
+    #endif
     int bufferLength = stackPopINT(pVM->pStack);
     char *buffer = (char *)stackPopPtr(pVM->pStack);
     char *bufferStart = buffer;
@@ -1956,7 +1959,7 @@ static void rbracket(FICL_VM *pVM)
 ** Initialize the pictured numeric output conversion process.
 ** (clear the pad)
 **************************************************************************/
-static void lessNumberSign(FICL_VM *pVM)
+static void sedlessNumberSign(FICL_VM *pVM)
 {
     FICL_STRING *sp = PTRtoSTRING pVM->pad;
     sp->count = 0;
