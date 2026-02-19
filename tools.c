@@ -172,18 +172,19 @@ static FICL_WORD *findEnclosingWord(FICL_VM *pVM, CELL *cp)
 static void seeColon(FICL_VM *pVM, CELL *pc)
 {
 	char *cp;
+    char outbuf[nPAD];
     CELL *param0 = pc;
     FICL_DICT *pd = vmGetDict(pVM);
 	FICL_WORD *pSemiParen = ficlLookup(pVM->pSys, "(;)");
     assert(pSemiParen);
 
-    #define SNLIMIT (sizeof(pVM->pad) - (cp - pVM->pad))    /* abbrev for snprintf */
+    #define SNLIMIT (sizeof(outbuf) - (cp - outbuf))    /* abbrev for snprintf */
 
     for (; pc->p != pSemiParen; pc++)
     {
         FICL_WORD *pFW = (FICL_WORD *)(pc->p);
 
-        cp = pVM->pad;
+        cp = outbuf;
 		if ((void *)pc == (void *)pVM->ip)
 			*cp++ = '>';
 		else
@@ -271,7 +272,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
             snprintf(cp, SNLIMIT, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
         }
 
-		vmTextOut(pVM, pVM->pad, 1);
+		vmTextOut(pVM, outbuf, 1);
     }
 
     vmTextOut(pVM, ";", 1);
@@ -289,6 +290,7 @@ static void seeXT(FICL_VM *pVM)
 {
     FICL_WORD *pFW;
     WORDKIND kind;
+    char outbuf[nPAD];
 
     pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
     kind = ficlWordClassify(pFW);
@@ -296,8 +298,8 @@ static void seeXT(FICL_VM *pVM)
     switch (kind)
     {
     case COLON:
-        snprintf(pVM->pad, sizeof(pVM->pad), ": %.*s", pFW->nName, pFW->name);
-        vmTextOut(pVM, pVM->pad, 1);
+        snprintf(outbuf, sizeof(outbuf), ": %.*s", pFW->nName, pFW->name);
+        vmTextOut(pVM, outbuf, 1);
         seeColon(pVM, pFW->param);
         break;
 
@@ -311,28 +313,28 @@ static void seeXT(FICL_VM *pVM)
         break;
 
     case VARIABLE:
-        snprintf(pVM->pad, sizeof(pVM->pad), "variable = " PCT_LD " (" PCT_IX ")",
+        snprintf(outbuf, sizeof(outbuf), "variable = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
-        vmTextOut(pVM, pVM->pad, 1);
+        vmTextOut(pVM, outbuf, 1);
         break;
 
 #if FICL_WANT_USER
     case USER:
-        snprintf(pVM->pad, sizeof(pVM->pad), "user variable " PCT_LD " (" PCT_IX ")",
+        snprintf(outbuf, sizeof(outbuf), "user variable " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
-        vmTextOut(pVM, pVM->pad, 1);
+        vmTextOut(pVM, outbuf, 1);
         break;
 #endif
 
     case CONSTANT:
-        snprintf(pVM->pad, sizeof(pVM->pad), "constant = " PCT_LD " (" PCT_IX ")",
+        snprintf(outbuf, sizeof(outbuf), "constant = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
-        vmTextOut(pVM, pVM->pad, 1);
+        vmTextOut(pVM, outbuf, 1);
         break;
 
     default:
-        snprintf(pVM->pad, sizeof(pVM->pad), "%.*s is a primitive", pFW->nName, pFW->name);
-        vmTextOut(pVM, pVM->pad, 1);
+        snprintf(outbuf, sizeof(outbuf), "%.*s is a primitive", pFW->nName, pFW->name);
+        vmTextOut(pVM, outbuf, 1);
         break;
     }
 
@@ -478,6 +480,7 @@ void stepBreak(FICL_VM *pVM)
     STRINGINFO si;
     FICL_WORD *pFW;
     FICL_WORD *pOnStep;
+    char outbuf[nPAD];
 
     if (!pVM->fRestart)
     {
@@ -502,15 +505,15 @@ void stepBreak(FICL_VM *pVM)
         ** Print the name of the next instruction
         */
         pFW = pVM->pSys->bpStep.origXT;
-        snprintf(pVM->pad, sizeof(pVM->pad), "next: %.*s", pFW->nName, pFW->name);
+        snprintf(outbuf, sizeof(outbuf), "next: %.*s", pFW->nName, pFW->name);
 #if 0
         if (isPrimitive(pFW))
         {
-            strcat(pVM->pad, " ( primitive )");
+            strcat(outbuf, " ( primitive )");
         }
 #endif
 
-        vmTextOut(pVM, pVM->pad, 1);
+        vmTextOut(pVM, outbuf, 1);
         debugPrompt(pVM);
     }
     else
@@ -613,6 +616,7 @@ static void displayPStack(FICL_VM *pVM)
     int d = stackDepth(pStk);
     int i;
     CELL *pCell;
+    char outbuf[nPAD];
 
     vmCheckStack(pVM, 0, 0);
 
@@ -623,7 +627,7 @@ static void displayPStack(FICL_VM *pVM)
         pCell = pStk->base;
         for (i = 0; i < d; i++)
         {
-            vmTextOut(pVM, ficlLtoa((*pCell++).i, pVM->pad, pVM->base), 0);
+            vmTextOut(pVM, ficlLtoa((*pCell++).i, outbuf, pVM->base), 0);
             vmTextOut(pVM, " ", 0);
         }
     }
@@ -638,6 +642,7 @@ static void displayRStack(FICL_VM *pVM)
     int i;
     CELL *pCell;
     FICL_DICT *dp = vmGetDict(pVM);
+    char outbuf[nPAD];
 
     vmCheckStack(pVM, 0, 0);
 
@@ -661,12 +666,12 @@ static void displayRStack(FICL_VM *pVM)
                 if (pFW)
                 {
                     int offset = (CELL *)c.p - &pFW->param[0];
-                    snprintf(pVM->pad, sizeof(pVM->pad), "%s+%d ", pFW->name, offset);
-                    vmTextOut(pVM, pVM->pad, 0);
+                    snprintf(outbuf, sizeof(outbuf), "%s+%d ", pFW->name, offset);
+                    vmTextOut(pVM, outbuf, 0);
                     continue;  /* no need to print the numeric value */
                 }
             }
-            vmTextOut(pVM, ficlLtoa(c.i, pVM->pad, pVM->base), 0);
+            vmTextOut(pVM, ficlLtoa(c.i, outbuf, pVM->base), 0);
             vmTextOut(pVM, " ", 0);
         }
     }
