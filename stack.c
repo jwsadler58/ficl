@@ -429,7 +429,7 @@ void stackRoll(FICL_STACK *pStack, int n)
         pCell = pStack->sp - n - 1;
         c = *pCell;
 
-        for (;n > 0; --n, pCell++)
+        for (; n > 0; --n, pCell++)
         {
             *pCell = pCell[1];
         }
@@ -471,7 +471,7 @@ void stackRollFloat(FICL_FSTACK *pStack, int n)
         pFloat = pStack->sp - n - 1;
         f = *pFloat;
 
-        for (;n > 0; --n, pFloat++)
+        for (; n > 0; --n, pFloat++)
         {
             *pFloat = pFloat[1];
         }

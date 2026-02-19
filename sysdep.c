@@ -70,11 +70,11 @@ void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
     IGNORE(pVM);
 
     while(*msg != 0)
-    putchar(*(msg++));
+        putchar(*(msg++));
     if (fNewline)
-    putchar('\n');
+        putchar('\n');
 
-   return;
+    return;
 }
 
 void *ficlMalloc (size_t size)
@@ -160,11 +160,11 @@ void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
     IGNORE(pVM);
 
     while(*msg != 0)
-    putchar(*(msg++));
+        putchar(*(msg++));
     if (fNewline)
-    putchar('\n');
+        putchar('\n');
 
-   return;
+    return;
 }
 
 void *ficlMalloc (size_t size)
@@ -297,7 +297,7 @@ void *ficlRealloc(void *p, size_t size)
 
 void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
-   return;
+    return;
 }
 
 void *ficlMalloc (size_t size)
@@ -372,7 +372,7 @@ void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
     else
         fputs(msg, stdout);
 
-   return;
+    return;
 }
 
 void *ficlMalloc (size_t size)

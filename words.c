@@ -203,7 +203,7 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
 {
     FICL_INT accum  = 0;
     char isNeg      = FALSE;
-	char hasDP      = FALSE;
+    char hasDP      = FALSE;
     unsigned base   = pVM->base;
     const char *cp  = SI_PTR(si);
     FICL_COUNT count= (FICL_COUNT)SI_COUNT(si);
@@ -254,8 +254,8 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
         accum = accum * base + digit;
     }
 
-	if (hasDP)		/* simple (required) DOUBLE support */
-		PUSHINT(0);
+    if (hasDP)        /* simple (required) DOUBLE support */
+        PUSHINT(0);
 
     if (isNeg)
         accum = -accum;
@@ -432,10 +432,10 @@ static void hexDot(FICL_VM *pVM)
 ** --lch
 **/
 static void ficlStrlen(FICL_VM *ficlVM)
-	{
-	char *address = (char *)stackPopPtr(ficlVM->pStack);
-	stackPushINT(ficlVM->pStack, strlen(address));
-	}
+{
+    char *address = (char *)stackPopPtr(ficlVM->pStack);
+    stackPushINT(ficlVM->pStack, strlen(address));
+}
 
 
 /**************************************************************************
@@ -800,9 +800,9 @@ static void endifCoIm(FICL_VM *pVM)
 **
 **
 ** At compile-time, a CASE-SYS (see DPANS94 6.2.0873) looks like this:
-**			i*addr i caseTag
+**            i*addr i caseTag
 ** and an OF-SYS (see DPANS94 6.2.1950) looks like this:
-**			i*addr i caseTag addr ofTag
+**            i*addr i caseTag addr ofTag
 ** The integer under caseTag is the count of fixup addresses that branch
 ** to ENDCASE.
 **************************************************************************/
@@ -813,8 +813,8 @@ static void caseCoIm(FICL_VM *pVM)
     vmCheckStack(pVM, 0, 2);
 #endif
 
-	PUSHUNS(0);
-	markControlTag(pVM, caseTag);
+    PUSHUNS(0);
+    markControlTag(pVM, caseTag);
     return;
 }
 
@@ -826,35 +826,35 @@ static void caseCoIm(FICL_VM *pVM)
 
 static void endcaseCoIm(FICL_VM *pVM)
 {
-	FICL_UNS fixupCount;
+    FICL_UNS fixupCount;
     FICL_DICT *dp;
     CELL *patchAddr;
     FICL_INT offset;
 
     assert(pVM->pSys->pDrop);
 
-	/*
-	** if the last OF ended with FALLTHROUGH,
-	** just add the FALLTHROUGH fixup to the
-	** ENDOF fixups
-	*/
-	if (stackGetTop(pVM->pStack).p == fallthroughTag)
-	{
-		matchControlTag(pVM, fallthroughTag);
-		patchAddr = POPPTR();
-	    matchControlTag(pVM, caseTag);
-		fixupCount = POPUNS();
-		PUSHPTR(patchAddr);
-		PUSHUNS(fixupCount + 1);
-		markControlTag(pVM, caseTag);
-	}
+    /*
+    ** if the last OF ended with FALLTHROUGH,
+    ** just add the FALLTHROUGH fixup to the
+    ** ENDOF fixups
+    */
+    if (stackGetTop(pVM->pStack).p == fallthroughTag)
+    {
+        matchControlTag(pVM, fallthroughTag);
+        patchAddr = POPPTR();
+        matchControlTag(pVM, caseTag);
+        fixupCount = POPUNS();
+        PUSHPTR(patchAddr);
+        PUSHUNS(fixupCount + 1);
+        markControlTag(pVM, caseTag);
+    }
 
     matchControlTag(pVM, caseTag);
 
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
-	fixupCount = POPUNS();
+    fixupCount = POPUNS();
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, fixupCount, 0);
 #endif
@@ -863,12 +863,12 @@ static void endcaseCoIm(FICL_VM *pVM)
 
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pDrop));
 
-	while (fixupCount--)
-	{
-		patchAddr = (CELL *)stackPopPtr(pVM->pStack);
-		offset = dp->here - patchAddr;
-		*patchAddr = LVALUEtoCELL(offset);
-	}
+    while (fixupCount--)
+    {
+        patchAddr = (CELL *)stackPopPtr(pVM->pStack);
+        offset = dp->here - patchAddr;
+        *patchAddr = LVALUEtoCELL(offset);
+    }
     return;
 }
 
@@ -881,7 +881,7 @@ static void endcaseCoIm(FICL_VM *pVM)
 static void ofCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-	CELL *fallthroughFixup = NULL;
+    CELL *fallthroughFixup = NULL;
 
     assert(pVM->pSys->pBranch0);
 
@@ -889,25 +889,25 @@ static void ofCoIm(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 3);
 #endif
 
-	if (stackGetTop(pVM->pStack).p == fallthroughTag)
-	{
-		matchControlTag(pVM, fallthroughTag);
-		fallthroughFixup = POPPTR();
-	}
+    if (stackGetTop(pVM->pStack).p == fallthroughTag)
+    {
+        matchControlTag(pVM, fallthroughTag);
+        fallthroughFixup = POPPTR();
+    }
 
-	matchControlTag(pVM, caseTag);
+    matchControlTag(pVM, caseTag);
 
-	markControlTag(pVM, caseTag);
+    markControlTag(pVM, caseTag);
 
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pOfParen));
     markBranch(dp, pVM, ofTag);
     dictAppendUNS(dp, 2);
 
-	if (fallthroughFixup != NULL)
-	{
-		FICL_INT offset = dp->here - fallthroughFixup;
-		*fallthroughFixup = LVALUEtoCELL(offset);
-	}
+    if (fallthroughFixup != NULL)
+    {
+        FICL_INT offset = dp->here - fallthroughFixup;
+        *fallthroughFixup = LVALUEtoCELL(offset);
+    }
 
     return;
 }
@@ -931,27 +931,27 @@ static void endofCoIm(FICL_VM *pVM)
 
     assert(pVM->pSys->pBranchParen);
 
-	/* ensure we're in an OF, */
+    /* ensure we're in an OF, */
     matchControlTag(pVM, ofTag);
-	/* grab the address of the branch location after the OF */
+    /* grab the address of the branch location after the OF */
     patchAddr = (CELL *)stackPopPtr(pVM->pStack);
-	/* ensure we're also in a "case" */
+    /* ensure we're also in a "case" */
     matchControlTag(pVM, caseTag);
-	/* grab the current number of ENDOF fixups */
-	fixupCount = POPUNS();
+    /* grab the current number of ENDOF fixups */
+    fixupCount = POPUNS();
 
     /* compile branch runtime */
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
 
-	/* push a new ENDOF fixup, the updated count of ENDOF fixups, and the caseTag */
+    /* push a new ENDOF fixup, the updated count of ENDOF fixups, and the caseTag */
     PUSHPTR(dp->here);
     PUSHUNS(fixupCount + 1);
-	markControlTag(pVM, caseTag);
+    markControlTag(pVM, caseTag);
 
-	/* reserve space for the ENDOF fixup */
+    /* reserve space for the ENDOF fixup */
     dictAppendUNS(dp, 2);
 
-	/* and patch the original OF */
+    /* and patch the original OF */
     offset = dp->here - patchAddr;
     *patchAddr = LVALUEtoCELL(offset);
 }
@@ -972,27 +972,27 @@ static void fallthroughCoIm(FICL_VM *pVM)
     vmCheckStack(pVM, 4, 3);
 #endif
 
-	/* ensure we're in an OF, */
+    /* ensure we're in an OF, */
     matchControlTag(pVM, ofTag);
-	/* grab the address of the branch location after the OF */
+    /* grab the address of the branch location after the OF */
     patchAddr = (CELL *)stackPopPtr(pVM->pStack);
-	/* ensure we're also in a "case" */
+    /* ensure we're also in a "case" */
     matchControlTag(pVM, caseTag);
 
-	/* okay, here we go.  put the case tag back. */
-	markControlTag(pVM, caseTag);
+    /* okay, here we go.  put the case tag back. */
+    markControlTag(pVM, caseTag);
 
     /* compile branch runtime */
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
 
-	/* push a new FALLTHROUGH fixup and the fallthroughTag */
+    /* push a new FALLTHROUGH fixup and the fallthroughTag */
     PUSHPTR(dp->here);
-	markControlTag(pVM, fallthroughTag);
+    markControlTag(pVM, fallthroughTag);
 
-	/* reserve space for the FALLTHROUGH fixup */
+    /* reserve space for the FALLTHROUGH fixup */
     dictAppendUNS(dp, 2);
 
-	/* and patch the original OF */
+    /* and patch the original OF */
     offset = dp->here - patchAddr;
     *patchAddr = LVALUEtoCELL(offset);
 }
@@ -1672,8 +1672,8 @@ static void cstringQuoteIm(FICL_VM *pVM)
         FICL_STRING *sp = (FICL_STRING *) dp->here;
         vmGetString(pVM, sp, '\"');
         stackPushPtr(pVM->pStack, sp);
-		/* move HERE past string so it doesn't get overwritten.  --lch */
-		dictAllot(dp, sp->count + sizeof(FICL_COUNT));
+        /* move HERE past string so it doesn't get overwritten.  --lch */
+        dictAllot(dp, sp->count + sizeof(FICL_COUNT));
     }
     else    /* COMPILE state */
     {
@@ -2967,7 +2967,7 @@ static void ficlVersion(FICL_VM *pVM)
     vmTextOut(pVM, "ficl Version " FICL_VER, 0);
     snprintf(pVM->pad, sizeof(pVM->pad), " (%d bits)", nBits);
     vmTextOut(pVM, pVM->pad, 0);
-return;
+    return;
 }
 
 
@@ -3551,13 +3551,13 @@ static void compareInternal(FICL_VM *pVM, int caseInsensitive)
     uMin = (u1 < u2)? u1 : u2;
     for ( ; (uMin > 0) && (n == 0); uMin--)
     {
-		char c1 = *cp1++;
-		char c2 = *cp2++;
-		if (caseInsensitive)
-		{
-			c1 = (char)tolower(c1);
-			c2 = (char)tolower(c2);
-		}
+        char c1 = *cp1++;
+        char c2 = *cp2++;
+        if (caseInsensitive)
+        {
+            c1 = (char)tolower(c1);
+            c2 = (char)tolower(c2);
+        }
         n = (int)(c1 - c2);
     }
 
@@ -3576,13 +3576,13 @@ static void compareInternal(FICL_VM *pVM, int caseInsensitive)
 
 static void compareString(FICL_VM *pVM)
 {
-	compareInternal(pVM, FALSE);
+    compareInternal(pVM, FALSE);
 }
 
 
 static void compareStringInsensitive(FICL_VM *pVM)
 {
-	compareInternal(pVM, TRUE);
+    compareInternal(pVM, TRUE);
 }
 
 
@@ -4299,7 +4299,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "(variable)",FICL_OP_VARIABLE, FW_COMPILE);
     dictAppendOpWord(dp, "(constant)",FICL_OP_CONSTANT, FW_COMPILE);
     dictAppendWord(  dp, "(parse-step)",parseStepParen, FW_DEFAULT);
-	pSys->pExitInner =
+    pSys->pExitInner =
     dictAppendWord(  dp, "exit-inner",ficlExitInner,  FW_DEFAULT);
 
     assert(dictCellsAvail(dp) > 0);

@@ -98,7 +98,7 @@ int ficlParsePrefix(FICL_VM *pVM, STRINGINFO si)
             if (!strincmp(SI_PTR(si), pFW->name, (FICL_UNS)n))
             {
                 /* (sadler) fixed off-by-one error when the token has no trailing space in the TIB */
-				vmSetTibIndex(pVM, si.cp + n - pVM->tib.cp );
+                vmSetTibIndex(pVM, si.cp + n - pVM->tib.cp );
                 vmExecute(pVM, pFW);
 
                 return (int)FICL_TRUE;
@@ -173,9 +173,9 @@ void ficlCompilePrefix(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, list_name, FICL_OP_CONSTANT, FW_DEFAULT);
     dictAppendCell(dp, LVALUEtoCELL(pHash));
 
-	/*
-	** Put __tempbase in the forth-wordlist
-	*/
+    /*
+    ** Put __tempbase in the forth-wordlist
+    */
     dictAppendWord(dp, "__tempbase", fTempBase, FW_DEFAULT);
 
     /*

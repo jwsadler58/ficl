@@ -905,59 +905,59 @@ struct ficl_system
 #endif
     FICL_WORD *pInterp[3]; /* outer interpreter - see ficlCompileCore*/
     FICL_WORD *parseList[FICL_MAX_PARSE_STEPS];
-	OUTFUNC    textOut;
+    OUTFUNC    textOut;
 
     /*
     ** Cached addresses of IMMEDIATE compilation factors
     ** Initialized in ficlCompileCore
     ** Could be found with ficlLookup instead
     */
-	FICL_WORD *pBranchParen;
-	FICL_WORD *pDoParen;
-	FICL_WORD *pDoesParen;
-	FICL_WORD *pExitInner;
-	FICL_WORD *pExitParen;
-	FICL_WORD *pBranch0;
-	FICL_WORD *pInterpret;
-	FICL_WORD *pLitParen;
-	FICL_WORD *pTwoLitParen;
-	FICL_WORD *pLoopParen;
-	FICL_WORD *pPLoopParen;
-	FICL_WORD *pQDoParen;
-	FICL_WORD *pSemiParen;
-	FICL_WORD *pOfParen;
-	FICL_WORD *pStore;
-	FICL_WORD *pDrop;
-	FICL_WORD *pCStringLit;
-	FICL_WORD *pStringLit;
+    FICL_WORD *pBranchParen;
+    FICL_WORD *pDoParen;
+    FICL_WORD *pDoesParen;
+    FICL_WORD *pExitInner;
+    FICL_WORD *pExitParen;
+    FICL_WORD *pBranch0;
+    FICL_WORD *pInterpret;
+    FICL_WORD *pLitParen;
+    FICL_WORD *pTwoLitParen;
+    FICL_WORD *pLoopParen;
+    FICL_WORD *pPLoopParen;
+    FICL_WORD *pQDoParen;
+    FICL_WORD *pSemiParen;
+    FICL_WORD *pOfParen;
+    FICL_WORD *pStore;
+    FICL_WORD *pDrop;
+    FICL_WORD *pCStringLit;
+    FICL_WORD *pStringLit;
 #if FICL_WANT_LOCALS
-	FICL_WORD *pGetLocalParen;
-	FICL_WORD *pGet2LocalParen;
-	FICL_WORD *pGetLocal0;
-	FICL_WORD *pGetLocal1;
-	FICL_WORD *pToLocalParen;
-	FICL_WORD *pTo2LocalParen;
-	FICL_WORD *pToLocal0;
-	FICL_WORD *pToLocal1;
+    FICL_WORD *pGetLocalParen;
+    FICL_WORD *pGet2LocalParen;
+    FICL_WORD *pGetLocal0;
+    FICL_WORD *pGetLocal1;
+    FICL_WORD *pToLocalParen;
+    FICL_WORD *pTo2LocalParen;
+    FICL_WORD *pToLocal0;
+    FICL_WORD *pToLocal1;
 #if FICL_WANT_FLOAT
-	FICL_WORD *pGetFLocalParen;
-	FICL_WORD *pToFLocalParen;
+    FICL_WORD *pGetFLocalParen;
+    FICL_WORD *pToFLocalParen;
 #endif
-	FICL_WORD *pLinkParen;
-	FICL_WORD *pUnLinkParen;
-	FICL_INT   nLocals;
-	CELL *pMarkLocals;
+    FICL_WORD *pLinkParen;
+    FICL_WORD *pUnLinkParen;
+    FICL_INT   nLocals;
+    CELL *pMarkLocals;
 #endif
 
-	FICL_BREAKPOINT bpStep; /* debugger support - see tools.c */
+    FICL_BREAKPOINT bpStep; /* debugger support - see tools.c */
 };
 
 struct ficl_system_info
 {
-	int size;           /* structure size tag for versioning */
-	int nDictCells;     /* Size of system's Dictionary */
-	OUTFUNC textOut;    /* default textOut function */
-	void *pExtend;      /* Initializes VM's pExtend pointer - for application use */
+    int size;           /* structure size tag for versioning */
+    int nDictCells;     /* Size of system's Dictionary */
+    OUTFUNC textOut;    /* default textOut function */
+    void *pExtend;      /* Initializes VM's pExtend pointer - for application use */
     int nEnvCells;      /* Size of Environment dictionary */
 };
 
@@ -1159,18 +1159,18 @@ WORDKIND   ficlWordClassify(FICL_WORD *pFW);
 /*
 ** Used with File-Access wordset.
 */
-#define FICL_FAM_READ	1
-#define FICL_FAM_WRITE	2
-#define FICL_FAM_APPEND	4
-#define FICL_FAM_BINARY	8
+#define FICL_FAM_READ   1
+#define FICL_FAM_WRITE  2
+#define FICL_FAM_APPEND 4
+#define FICL_FAM_BINARY 8
 
-#define FICL_FAM_OPEN_MODE(fam)	((fam) & (FICL_FAM_READ | FICL_FAM_WRITE | FICL_FAM_APPEND))
+#define FICL_FAM_OPEN_MODE(fam) ((fam) & (FICL_FAM_READ | FICL_FAM_WRITE | FICL_FAM_APPEND))
 
 
 typedef struct ficlFILE
 {
-	FILE *f;
-	char filename[256];
+    FILE *f;
+    char filename[256];
 } ficlFILE;
 
 #ifdef __cplusplus

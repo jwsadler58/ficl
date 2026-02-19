@@ -730,7 +730,7 @@ static void ficlGetCWD(FICL_VM *pVM)
 {
     char *cp;
 
-   cp = getcwd(NULL, 80);
+    cp = getcwd(NULL, 80);
     vmTextOut(pVM, cp, 1);
     free(cp);
     return;
@@ -749,8 +749,8 @@ static void ficlChDir(FICL_VM *pVM)
     vmGetString(pVM, pFS, '\n');
     if (pFS->count > 0)
     {
-       int err = chdir(pFS->text);
-       if (err)
+        int err = chdir(pFS->text);
+        if (err)
         {
             vmTextOut(pVM, "Error: path not found", 0);
             vmTextOut(pVM, pFS->text, 1);
@@ -816,7 +816,7 @@ static void ficlLoad(FICL_VM *pVM)
     if (pFilename->count <= 0)
     {
         vmTextOut(pVM, "Warning (load): empty filename", 1);
-         return;
+        return;
     }
 
     /*
