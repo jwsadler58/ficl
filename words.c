@@ -410,40 +410,42 @@ static void twoConstant(FICL_VM *pVM)
 static void displayCell(FICL_VM *pVM)
 {
     CELL c;
+    char outbuf[nPAD];
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
     c = stackPop(pVM->pStack);
-    ficlLtoa((c).i, pVM->pad, pVM->base);
-    strcat(pVM->pad, " ");
-    vmTextOut(pVM, pVM->pad, 0);
+    ficlLtoa((c).i, outbuf, pVM->base);
+    strcat(outbuf, " ");
+    vmTextOut(pVM, outbuf, 0);
     return;
 }
 
 static void uDot(FICL_VM *pVM)
 {
     FICL_UNS u;
+    char outbuf[nPAD];
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
     u = stackPopUNS(pVM->pStack);
-    ficlUltoa(u, pVM->pad, pVM->base);
-    strcat(pVM->pad, " ");
-    vmTextOut(pVM, pVM->pad, 0);
+    ficlUltoa(u, outbuf, pVM->base);
+    strcat(outbuf, " ");
+    vmTextOut(pVM, outbuf, 0);
     return;
 }
-
 
 static void hexDot(FICL_VM *pVM)
 {
     FICL_UNS u;
+    char outbuf[nPAD];
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
     u = stackPopUNS(pVM->pStack);
-    ficlUltoa(u, pVM->pad, 16);
-    strcat(pVM->pad, " ");
-    vmTextOut(pVM, pVM->pad, 0);
+    ficlUltoa(u, outbuf, 16);
+    strcat(outbuf, " ");
+    vmTextOut(pVM, outbuf, 0);
     return;
 }
 
@@ -475,7 +477,7 @@ static void ficlStrlen(FICL_VM *ficlVM)
 **        signed), and copy it to the buffer
 **    x - same as d, except in base-16
 **    u - same as d, but unsigned
-**    % - output a literal perpad"cent-sign to the buffer
+**    % - output a literal percent-sign to the buffer
 ** SPRINTF pushes the c-addr-buffer argument unchanged, the number of bytes
 ** written, and a flag indicating whether it succeeded
 ** (FALSE it ran out of space while writing to the output buffer).
@@ -658,7 +660,7 @@ static void twoSwap(FICL_VM *pVM)
 
 static void emit(FICL_VM *pVM)
 {
-    char *cp = pVM->pad;
+    char cp[2];
     int i;
 
 #if FICL_ROBUST > 1
@@ -1756,7 +1758,8 @@ static void dotParen(FICL_VM *pVM)
 {
     char *pSrc      = vmGetInBuf(pVM);
     char *pEnd      = vmGetInBufEnd(pVM);
-    char *pDest     = pVM->pad;
+    char outbuf[nPAD];
+    char *pDest     = outbuf;
     char ch;
 
     /*
@@ -1769,7 +1772,7 @@ static void dotParen(FICL_VM *pVM)
     if ((pEnd != pSrc) && (ch == ')'))
         pSrc++;
 
-    vmTextOut(pVM, pVM->pad, 0);
+    vmTextOut(pVM, outbuf, 0);
     vmUpdateTib(pVM, pSrc);
 
     return;
@@ -1971,11 +1974,11 @@ static void rbracket(FICL_VM *pVM)
 **
 ** less-number-sign CORE ( -- )
 ** Initialize the pictured numeric output conversion process.
-** (clear the pad)
+** (clear the VM scratch area)
 **************************************************************************/
 static void lessNumberSign(FICL_VM *pVM)
 {
-    FICL_STRING *sp = PTRtoSTRING pVM->pad;
+    FICL_STRING *sp = PTRtoSTRING pVM->scratch;
     sp->count = 0;
     return;
 }
@@ -1997,7 +2000,7 @@ static void numberSign(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 2);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     u = dpmPopU(pVM->pStack);
     rem = dpmUMod(&u, (UNS16)(pVM->base));
     sp->text[sp->count++] = digit_to_char(rem);
@@ -2018,7 +2021,7 @@ static void numberSignGreater(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 2);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     sp->text[sp->count] = 0;
     ficlStrrev(sp->text);
     DROP(2);
@@ -2042,7 +2045,7 @@ static void numberSignS(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 2);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     u = dpmPopU(pVM->pStack);
 
     do
@@ -2069,7 +2072,7 @@ static void hold(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     i = POPINT();
     sp->text[sp->count++] = (char) i;
     return;
@@ -2089,7 +2092,7 @@ static void sign(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     i = POPINT();
     if (i < 0)
         sp->text[sp->count++] = '-';
@@ -2592,12 +2595,12 @@ static void ficlWord(FICL_VM *pVM)
     vmCheckStack(pVM,1,1);
 #endif
 
-    sp = (FICL_STRING *)pVM->pad;
+    sp = (FICL_STRING *)pVM->scratch;
     delim = (char)POPINT();
     si = vmParseStringEx(pVM, delim, 1);
 
-    if (SI_COUNT(si) > nPAD-1)
-        SI_SETLEN(si, nPAD-1);
+    if (SI_COUNT(si) > nSCRATCH-1)
+        SI_SETLEN(si, nSCRATCH-1);
 
     sp->count = (FICL_COUNT)SI_COUNT(si);
     strncpy(sp->text, SI_PTR(si), SI_COUNT(si));
@@ -3012,8 +3015,8 @@ static void ficlVersion(FICL_VM *pVM)
 {
     int nBits = sizeof(CELL) * CHAR_BIT;
     vmTextOut(pVM, "ficl Version " FICL_VER, 0);
-    snprintf(pVM->pad, sizeof(pVM->pad), " (%d bits)", nBits);
-    vmTextOut(pVM, pVM->pad, 0);
+    snprintf(pVM->scratch, sizeof(pVM->scratch), " (%d bits)", nBits);
+    vmTextOut(pVM, pVM->scratch, 0);
 return;
 }
 

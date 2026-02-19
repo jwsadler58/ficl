@@ -377,6 +377,10 @@ typedef void (*OUTFUNC)(FICL_VM *pVM, char *text, int fNewline);
 #define nPAD 256
 #endif
 
+#if !defined nSCRATCH
+#define nSCRATCH 256
+#endif
+
 /*
 ** ANS Forth requires that a word's name contain {1..31} characters.
 */
@@ -410,6 +414,7 @@ struct vm
 #if FICL_WANT_USER
     CELL            user[FICL_USER_CELLS];
 #endif
+    char            scratch[nSCRATCH]; /* for pictured numeric output */
     char            pad[nPAD];  /* the scratch area (see above)     */
 };
 
