@@ -641,17 +641,6 @@ static void Fhypot(FICL_VM *pVM)
 /*******************************************************************
 ** fabs ( r1 -- r2 )
 *******************************************************************/
-static void Fabs(FICL_VM *pVM)
-{
-    FICL_FLOAT f;
-
-#if FICL_ROBUST > 1
-    vmCheckFStack(pVM, 1, 1);
-#endif
-
-    f = POPFLOAT();
-    PUSHFLOAT(fabs(f));
-}
 
 /*******************************************************************
 ** ffloor ( r1 -- r2 )
@@ -971,14 +960,6 @@ static void FDotWithPrecision(FICL_VM *pVM)
 ** Do float stack -rot.
 ** f-rot ( r1 r2 r3  -- r3 r1 r2 )
 *******************************************************************/
-static void Fminusrot(FICL_VM *pVM)
-{
-#if FICL_ROBUST > 1
-    vmCheckFStack(pVM, 3, 3);
-#endif
-
-    ROLLF(-2);
-}
 
 /*******************************************************************
 ** Do float stack swap.
