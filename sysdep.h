@@ -166,7 +166,7 @@ typedef jmp_buf FICL_JMP_BUF;
 ** IGNORE Macro to silence "unused parameter" warnings
 */
 #if !defined IGNORE
-    #define IGNORE(x) &x
+    #define IGNORE(x) (void)(x)
 #endif
 
 /*
@@ -529,7 +529,7 @@ void *ficlRealloc(void *p, size_t size);
 #if FICL_MULTISESSION
 int ficlLockDictionary(short fLock);
 #else
-#define ficlLockDictionary(x) 0 /* ignore */
+#define ficlLockDictionary(x) /* ignore */
 #endif
 
 /*

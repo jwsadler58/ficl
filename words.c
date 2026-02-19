@@ -350,7 +350,6 @@ static void exitCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
     assert(pVM->pSys->pExitParen);
-    IGNORE(pVM);
 
 #if FICL_WANT_LOCALS
     if (pVM->pSys->nLocals > 0)
@@ -1658,7 +1657,6 @@ static void execute(FICL_VM *pVM)
 
 static void immediate(FICL_VM *pVM)
 {
-    IGNORE(pVM);
     dictSetImmediate(vmGetDict(pVM));
     return;
 }
@@ -1666,7 +1664,6 @@ static void immediate(FICL_VM *pVM)
 
 static void compileOnly(FICL_VM *pVM)
 {
-    IGNORE(pVM);
     dictSetFlags(vmGetDict(pVM), FW_COMPILE, 0);
     return;
 }
@@ -1674,7 +1671,6 @@ static void compileOnly(FICL_VM *pVM)
 
 static void setObjectFlag(FICL_VM *pVM)
 {
-    IGNORE(pVM);
     dictSetFlags(vmGetDict(pVM), FW_ISOBJECT, 0);
     return;
 }
@@ -1857,7 +1853,6 @@ static void doesCoIm(FICL_VM *pVM)
 
     pVM->pSys->nLocals = 0;
 #endif
-    IGNORE(pVM);
 
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pDoesParen));
     return;
@@ -2228,7 +2223,6 @@ static void accept(FICL_VM *pVM)
 static void align(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-    IGNORE(pVM);
     dictAlign(dp);
     return;
 }
@@ -2476,7 +2470,6 @@ static void evaluate(FICL_VM *pVM)
     count = POPUNS();
     cp = POPPTR();
 
-    IGNORE(count);
     id = pVM->sourceID;
     pVM->sourceID.i = -1;
     result = ficlExecC(pVM, cp, count);
@@ -2942,7 +2935,6 @@ static void recurseCoIm(FICL_VM *pVM)
 {
     FICL_DICT *pDict = vmGetDict(pVM);
 
-    IGNORE(pVM);
     dictAppendCell(pDict, LVALUEtoCELL(pDict->smudge));
     return;
 }
