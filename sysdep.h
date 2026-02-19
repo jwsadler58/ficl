@@ -55,6 +55,7 @@
 #include <assert.h>
 #include <limits.h> /* CHAR_BIT, UCHAR_MAX */
 #include <stdint.h> /* int32_t, uint32_t, uint16_t, uint8_t */
+#include <inttypes.h> /* PRIdPTR, PRIxPTR */
 #include <stdalign.h>
 
 /*
@@ -128,9 +129,12 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 #if defined(_WIN32)
     #define PCT_LD     "%Id"
     #define PCT_IX      "%#Ix"
-#else
+#elif defined (FREEBSD_ALPHA)
     #define PCT_LD     "%ld"
     #define PCT_IX      "%#lx"
+#else
+    #define PCT_LD      "%" PRIdPTR
+    #define PCT_IX      "%#" PRIxPTR
 #endif
 
 #if !defined FICL_VM_OPTIMIZE
