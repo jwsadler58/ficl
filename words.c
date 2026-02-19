@@ -299,12 +299,6 @@ static void colon(FICL_VM *pVM)
 ** the definition. TO DO: checks for leftover branch target tags on the
 ** return stack and complains if any are found.
 **************************************************************************/
-static void semiParen(FICL_VM *pVM)
-{
-    vmPopIP(pVM);
-    return;
-}
-
 
 static void semicolonCoIm(FICL_VM *pVM)
 {
@@ -327,22 +321,6 @@ static void semicolonCoIm(FICL_VM *pVM)
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pSemiParen));
     pVM->state = INTERPRET;
     dictUnsmudge(dp);
-    return;
-}
-
-
-/**************************************************************************
-                        e x i t
-** CORE
-** This function simply pops the previous instruction
-** pointer and returns to the "next" loop. Used for exiting from within
-** a definition. Note that exitParen is identical to semiParen - they
-** are in two different functions so that "see" can correctly identify
-** the end of a colon definition, even if it uses "exit".
-**************************************************************************/
-static void exitParen(FICL_VM *pVM)
-{
-    vmPopIP(pVM);
     return;
 }
 
