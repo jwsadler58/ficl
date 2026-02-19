@@ -166,7 +166,7 @@ typedef jmp_buf FICL_JMP_BUF;
 ** IGNORE Macro to silence "unused parameter" warnings
 */
 #if !defined IGNORE
-    #define IGNORE(x) &x
+    #define IGNORE(x) (void)(x)
 #endif
 
 /*
