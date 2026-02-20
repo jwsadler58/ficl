@@ -884,7 +884,7 @@ static void FsetPrecision(FICL_VM *pVM)
     prec = POPINT();
     if (prec < 1)
         prec = 1;
-        
+
     if (prec > 17)
         prec = 17;
     pVM->fPrecision = prec;

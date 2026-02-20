@@ -782,7 +782,7 @@ static void ficlSystem(FICL_VM *pVM)
         int err = system(pFS->text);
         if (err)
         {
-            snprintf(pVM->pad, sizeof(pVM->pad), "System call returned %d", err);
+            snprintf(pVM->scratch, sizeof(pVM->scratch), "System call returned %d", err);
             vmTextOut(pVM, pVM->pad, 1);
             vmThrow(pVM, VM_QUIT);
         }

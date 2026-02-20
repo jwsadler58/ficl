@@ -778,7 +778,7 @@ static void listWords(FICL_VM *pVM)
         vmTextOut(pVM, pPad, 1);
     }
 
-    snprintf(pVM->pad, sizeof(pVM->pad), "%s definitions: %d words", pHash->name, nWords);
+    snprintf(pVM->scratch, sizeof(pVM->scratch), "%s definitions: %d words", pHash->name, nWords);
     vmTextOut(pVM, pVM->pad, 1);
     return;
 }
@@ -861,6 +861,61 @@ static void env2Constant(FICL_VM *pVM)
 
 
 /**************************************************************************
+                        b u f T e x t O u t
+** Replacement OUTFUNC used by >buf.
+** Appends text (and optionally a newline) to the null-terminated buffer
+** at pVM->pExtend. The caller is responsible for ensuring the buffer
+** is large enough.
+**************************************************************************/
+static void bufTextOut(FICL_VM *pVM, char *text, int fNewline)
+{
+    char *buf = (char *)pVM->pExtend;
+    if (!buf)
+        return;
+
+    char *end = buf + strlen(buf);
+    if (text)
+    {
+        size_t len = strlen(text);
+        memcpy(end, text, len);
+        end += len;
+    }
+    if (fNewline)
+        *end++ = '\n';
+    *end = '\0';
+}
+
+
+/**************************************************************************
+                        t o B u f
+** Ficl extra
+** >buf ( xt c-addr -- )
+** Redirect textOut to the buffer at c-addr, execute xt to completion,
+** then restore the previous textOut and pExtend.
+** c-addr must point to a writable buffer large enough to hold all output
+** produced by xt. The buffer is initialised to empty before xt runs.
+**************************************************************************/
+static void toBuf(FICL_VM *pVM)
+{
+    OUTFUNC    savedTextOut = pVM->textOut;
+    void      *savedExtend  = pVM->pExtend;
+    char      *buf          = (char *)POPPTR();      /* c-addr -- top of stack */
+    FICL_WORD *xt           = (FICL_WORD *)POPPTR(); /* xt -- below c-addr */
+
+    if (buf)
+        buf[0] = '\0';   /* initialise buffer to empty string */
+
+    pVM->pExtend = buf;
+    pVM->textOut = bufTextOut;
+
+    ficlExecXT(pVM, xt);
+
+    pVM->textOut = savedTextOut;
+    pVM->pExtend = savedExtend;
+}
+
+
+/**************************************************************************
                         f i c l C o m p i l e T o o l s
 ** Builds wordset for debugger and TOOLS optional word set
 **************************************************************************/
@@ -901,6 +956,7 @@ void ficlCompileTools(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "step-break",stepBreak,      FW_DEFAULT);
     dictAppendWord(dp, "forget-wid",forgetWid,      FW_DEFAULT);
     dictAppendWord(dp, "see-xt",    seeXT,          FW_DEFAULT);
+    dictAppendWord(dp, ">buf",      toBuf,          FW_DEFAULT);
 
     return;
 }
