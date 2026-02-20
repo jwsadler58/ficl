@@ -144,7 +144,6 @@ testing compiled float literals
     t{ t-fplusstore -> true }t
 
 testing f. precision
-    s" /pad" environment? drop constant /pad
     create fbuf /pad allot   \ private buffer for f. output capture
     : f.buf  ( F: f -- ) ( -- c-addr u )   ['] f.  fbuf >buf  fbuf dup strlen ;
     t{ 6 set-precision 3.14159265e0 f.buf s" 3.14159 " compare -> 0 }t

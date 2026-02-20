@@ -888,10 +888,10 @@ static void bufTextOut(FICL_VM *pVM, char *text, int fNewline)
 
 /**************************************************************************
                         t o B u f
-** Ficl extra
 ** >buf ( xt c-addr -- )
-** Redirect textOut to the buffer at c-addr, execute xt to completion,
-** then restore the previous textOut and pExtend.
+** Ficl extra -- Scripted test helper word
+** Redirects textOut to the buffer at c-addr, execute xt to completion,
+** then restores the previous textOut and pExtend.
 ** c-addr must point to a writable buffer large enough to hold all output
 ** produced by xt. The buffer is initialised to empty before xt runs.
 **************************************************************************/

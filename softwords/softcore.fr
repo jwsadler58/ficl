@@ -78,6 +78,9 @@ variable span
   rot over - spaces type
 ;
 
+\ ** Ficl extra convenience constant
+s" /pad" environment? drop constant /pad
+
 \ ** LOCAL EXT word set
 \ #if FICL_WANT_LOCALS
 : locals|  ( name...name | -- )
