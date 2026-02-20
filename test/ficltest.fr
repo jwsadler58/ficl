@@ -157,4 +157,5 @@ testing f. precision
     .( skipping float tests ) cr
 [endif]
 
+.dict                  \ report high water mark
 ficltest-marker        \ dictionary cleanup

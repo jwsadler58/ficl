@@ -971,64 +971,54 @@ create out-buf /pad allot
 : graphic-row2  61 41 DO I EMIT LOOP ;       \ 0x41–0x60: ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
 : graphic-row3  7F 61 DO I EMIT LOOP ;       \ 0x61–0x7E: abcdefghijklmnopqrstuvwxyz{|}~
 
-S" YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:" TYPE CR
-graphic-row1 CR
-graphic-row2 CR
-graphic-row3 CR
+\ S" YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:" TYPE CR
+\ graphic-row1 CR
+\ graphic-row2 CR
+\ graphic-row3 CR
 
-\ Row 1: 0x20–0x40 = [sp]!"#$%&'()*+,-./0123456789:;<=>?@  (33 chars)
+\ ** Row 1: 0x20–0x40 = [sp]!"#$%&'()*+,-./0123456789:;<=>?@  (33 chars)
 \ PARSE skips the whitespace following "parse", so the leading BL is tested separately.
 : row1-body  [ char | parse !"#$%&'()*+,-./0123456789:;<=>?@| ] sliteral ;
 ' graphic-row1 .buf 2drop
 T{ out-buf c@           -> 20 }T              \ first char is BL (0x20 = space)
 T{ out-buf 1+  20  row1-body  compare -> 0 }T \ remaining 32 chars (!"#...@)
-
-\ Row 2: 0x41–0x60 = ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`  (32 chars)
+\ ** Row 2: 0x41–0x60 = ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`  (32 chars)
 T{ ' graphic-row2 .buf  S" ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"                   compare -> 0 }T
-
-\ Row 3: 0x61–0x7E = abcdefghijklmnopqrstuvwxyz{|}~  (30 chars)
+\ ** Row 3: 0x61–0x7E = abcdefghijklmnopqrstuvwxyz{|}~  (30 chars)
 T{ ' graphic-row3 .buf  S" abcdefghijklmnopqrstuvwxyz{|}~"                     compare -> 0 }T
 
 \ --- 0-9 SEPARATED BY A SPACE: tests . ---
 : dot-0-to-9  9 1+ 0 DO I . LOOP ;
-
-S" YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:" TYPE CR
-dot-0-to-9 CR
-
+\ S" YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:" TYPE CR
+\ dot-0-to-9 CR
 T{ ' dot-0-to-9 .buf  S" 0 1 2 3 4 5 6 7 8 9 "                                compare -> 0 }T
 
 \ --- 0-9 WITH NO SPACES: tests EMIT and 0 SPACES ---
 : emit-0-to-9  [CHAR] 9 1+ [CHAR] 0 DO I 0 SPACES EMIT LOOP ;
 
-S" YOU SHOULD SEE 0-9 (WITH NO SPACES):" TYPE CR
-emit-0-to-9 CR
-
+\ S" YOU SHOULD SEE 0-9 (WITH NO SPACES):" TYPE CR
+\ emit-0-to-9 CR
 T{ ' emit-0-to-9 .buf  S" 0123456789"                                          compare -> 0 }T
 
 \ --- A-G SEPARATED BY A SPACE: tests EMIT and SPACE ---
 : emit-a-to-g  [CHAR] G 1+ [CHAR] A DO I EMIT SPACE LOOP ;
 
-S" YOU SHOULD SEE A-G SEPARATED BY A SPACE:" TYPE CR
-emit-a-to-g CR
-
+\ S" YOU SHOULD SEE A-G SEPARATED BY A SPACE:" TYPE CR
+\ emit-a-to-g CR
 T{ ' emit-a-to-g .buf  S" A B C D E F G "                                      compare -> 0 }T
 
 \ --- 0-5 SEPARATED BY TWO SPACES: tests EMIT and 2 SPACES ---
 : emit-0-to-5  5 1+ 0 DO I [CHAR] 0 + EMIT 2 SPACES LOOP ;
-
-S" YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:" TYPE CR
-emit-0-to-5 CR
-
+\ S" YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:" TYPE CR
+\ emit-0-to-5 CR
 T{ ' emit-0-to-5 .buf  S" 0  1  2  3  4  5  "                                  compare -> 0 }T
 
 \ --- TWO SEPARATE LINES: tests TYPE ---
 : type-line1  S" LINE 1" TYPE ;
 : type-line2  S" LINE 2" TYPE ;
-
-S" YOU SHOULD SEE TWO SEPARATE LINES:" TYPE CR
-type-line1 CR
-type-line2 CR
-
+\ S" YOU SHOULD SEE TWO SEPARATE LINES:" TYPE CR
+\ type-line1 CR
+\ type-line2 CR
 T{ ' type-line1 .buf  S" LINE 1"                                               compare -> 0 }T
 T{ ' type-line2 .buf  S" LINE 2"                                               compare -> 0 }T
 
@@ -1045,7 +1035,6 @@ create exp-unsigned /pad allot
 S" YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:" TYPE CR
 show-signed CR
 show-unsigned CR
-
 T{ ' show-signed   .buf  exp-signed   dup strlen  compare -> 0 }T
 T{ ' show-unsigned .buf  exp-unsigned dup strlen  compare -> 0 }T
 

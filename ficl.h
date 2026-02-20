@@ -636,7 +636,7 @@ FICL_DICT  *vmGetDict      (FICL_VM *pVM);
 char *      vmGetString    (FICL_VM *pVM, FICL_STRING *spDest, char delimiter);
 STRINGINFO  vmGetWord      (FICL_VM *pVM);
 STRINGINFO  vmGetWord0     (FICL_VM *pVM);
-int         vmGetWordToPad (FICL_VM *pVM);
+int         vmGetWordToScr (FICL_VM *pVM);      /* renamed from vmGetWordToPad */
 STRINGINFO  vmParseString  (FICL_VM *pVM, char delimiter);
 STRINGINFO  vmParseStringEx(FICL_VM *pVM, char delimiter, char fSkipLeading);
 CELL        vmPop          (FICL_VM *pVM);

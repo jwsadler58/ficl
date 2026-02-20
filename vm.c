@@ -1289,19 +1289,19 @@ STRINGINFO vmGetWord0(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        v m G e t W o r d T o P a d
-** Does vmGetWord and copies the result to the pad as a NULL terminated
+                        v m G e t W o r d T o S c r
+** Does vmGetWord and copies the result to the scratch buffer as a NULL terminated
 ** string. Returns the length of the string. If the string is too long
-** to fit in the pad, it is truncated.
+** to fit in the scratch buffer, it is truncated.
 **************************************************************************/
-int vmGetWordToPad(FICL_VM *pVM)
+int vmGetWordToScr(FICL_VM *pVM)
 {
     STRINGINFO si;
-    char *cp = (char *)pVM->pad;
+    char *cp = (char *)pVM->scratch;
     si = vmGetWord(pVM);
 
-    if (SI_COUNT(si) > nPAD-1)
-        SI_SETLEN(si, nPAD-1);
+    if (SI_COUNT(si) > nSCRATCH-1)
+        SI_SETLEN(si, nSCRATCH-1);
 
     strncpy(cp, SI_PTR(si), SI_COUNT(si));
     cp[SI_COUNT(si)] = '\0';

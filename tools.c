@@ -738,7 +738,7 @@ static void listWords(FICL_VM *pVM)
     unsigned i;
     int nWords = 0;
     char *cp;
-    char *pPad = pVM->pad;
+    char *pScr = pVM->scratch;
 
     for (i = 0; i < pHash->size; i++)
     {
@@ -748,38 +748,38 @@ static void listWords(FICL_VM *pVM)
                 continue;
 
             cp = wp->name;
-            nChars += snprintf(pPad + nChars, sizeof(pVM->pad) - nChars, "%s", cp);
+            nChars += snprintf(pScr + nChars, sizeof(pVM->scratch) - nChars, "%s", cp);
 
             if (nChars > 70)
             {
-                pPad[nChars] = '\0';
+                pScr[nChars] = '\0';
                 nChars = 0;
-                vmTextOut(pVM, pPad, 1);
+                vmTextOut(pVM, pScr, 1);
             }
             else
             {
                 len = nCOLWIDTH - nChars % nCOLWIDTH;
                 while (len-- > 0)
-                    pPad[nChars++] = ' ';
+                    pScr[nChars++] = ' ';
             }
 
             if (nChars > 70)
             {
-                pPad[nChars] = '\0';
+                pScr[nChars] = '\0';
                 nChars = 0;
-                vmTextOut(pVM, pPad, 1);
+                vmTextOut(pVM, pScr, 1);
             }
         }
     }
 
     if (nChars > 0)
     {
-        pPad[nChars] = '\0';
-        vmTextOut(pVM, pPad, 1);
+        pScr[nChars] = '\0';
+        vmTextOut(pVM, pScr, 1);
     }
 
     snprintf(pVM->scratch, sizeof(pVM->scratch), "%s definitions: %d words", pHash->name, nWords);
-    vmTextOut(pVM, pVM->pad, 1);
+    vmTextOut(pVM, pVM->scratch, 1);
     return;
 }
 
@@ -838,9 +838,9 @@ static void envConstant(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    vmGetWordToPad(pVM);
+    vmGetWordToScr(pVM);
     value = POPUNS();
-    ficlSetEnv(pVM->pSys, pVM->pad, (FICL_UNS)value);
+    ficlSetEnv(pVM->pSys, pVM->scratch, (FICL_UNS)value);
     return;
 }
 
@@ -852,10 +852,10 @@ static void env2Constant(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 0);
 #endif
 
-    vmGetWordToPad(pVM);
+    vmGetWordToScr(pVM);
     v2 = POPUNS();
     v1 = POPUNS();
-    ficlSetEnvD(pVM->pSys, pVM->pad, v1, v2);
+    ficlSetEnvD(pVM->pSys, pVM->scratch, v1, v2);
     return;
 }
 

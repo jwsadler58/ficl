@@ -518,7 +518,7 @@ void dictSummary(FICL_VM *pVM)
     snprintf(pVM->scratch, sizeof(pVM->scratch),
         "Dictionary: %ld cells used of %u total",
         (long)(dp->here - dp->dict), dp->size);
-    vmTextOut(pVM, pVM->pad, 1);
+    vmTextOut(pVM, pVM->scratch, 1);
     return;
 }
 
@@ -594,13 +594,13 @@ void dictHashSummary(FICL_VM *pVM)
         "%d bins, %d filled, Depth: Max=%d, Avg=%2.1f, Best Possible=%2.1f, Collisions: %d",
         nBuckets, nFilled, nMax, avg, best, nCollisions);
 
-    ficlTextOut(pVM, pVM->pad, 1);
+    ficlTextOut(pVM, pVM->scratch, 1);
 
     snprintf(pVM->scratch, sizeof(pVM->scratch),
         "Dictionary: %ld cells used of %u total",
         (long)(dp->here - dp->dict), dp->size);
 
-    ficlTextOut(pVM, pVM->pad, 1);
+    ficlTextOut(pVM, pVM->scratch, 1);
     return;
 }
 #else
