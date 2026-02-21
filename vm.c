@@ -1634,7 +1634,7 @@ static char *ltoaFactor( FICL_INT value, char *string, int radix )
     else if (pwr != 0)
     {
         FICL_UNS v = (FICL_UNS) value;
-        FICL_UNS mask = (FICL_UNS) ~(-1 << pwr);
+        FICL_UNS mask = ~(~0u << pwr);
         while (v)
         {
             *cp++ = digits[v & mask];
