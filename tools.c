@@ -906,7 +906,7 @@ static void toBuf(FICL_VM *pVM)
         buf[0] = '\0';   /* initialise buffer to empty string */
 
     pVM->pExtend = buf;
-    pVM->textOut = bufTextOut;
+    pVM->textOut = (OUTFUNC) bufTextOut;
 
     ficlExecXT(pVM, xt);
 

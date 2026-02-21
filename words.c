@@ -1730,8 +1730,8 @@ static void dotQuoteCoIm(FICL_VM *pVM)
 
 static void dotParen(FICL_VM *pVM)
 {
-    char *pSrc      = vmGetInBuf(pVM);
-    char *pEnd      = vmGetInBufEnd(pVM);
+    const char *pSrc      = vmGetInBuf(pVM);
+    const char *pEnd      = vmGetInBufEnd(pVM);
     char outbuf[nPAD];
     char *pDest     = outbuf;
     char ch;
@@ -3192,20 +3192,22 @@ static void toValue(FICL_VM *pVM)
         int i = SI_COUNT(si);
         vmThrowErr(pVM, "%.*s not found", i, SI_PTR(si));
     }
+    else
+    {
+        dispatch = toValueFindDispatch(pFW->opcode);
+        if (!dispatch)
+        {
+            vmThrowErr(pVM, "Error: %.*s not a VALUE", SI_COUNT(si), SI_PTR(si));
+        }
 
-    dispatch = toValueFindDispatch(pFW->opcode);
-    if (!dispatch)
-    {
-        vmThrowErr(pVM, "Error: %.*s not a VALUE", SI_COUNT(si), SI_PTR(si));
-    }
-
-    if (pVM->state == INTERPRET)
-    {
-        dispatch->interpret(pVM, pFW);
-    }
-    else        /* COMPILING: compile code to store to word's param */
-    {
-        toValueCompileStore(pVM, pFW, dispatch->storeName);
+        if (pVM->state == INTERPRET)
+        {
+            dispatch->interpret(pVM, pFW);
+        }
+        else        /* COMPILING: compile code to store to word's param */
+        {
+            toValueCompileStore(pVM, pFW, dispatch->storeName);
+        }
     }
     return;
 }
