@@ -377,6 +377,10 @@ typedef void (*OUTFUNC)(FICL_VM *pVM, const char *text, int fNewline);
 #define nPAD 256
 #endif
 
+#if !defined nSCRATCH
+#define nSCRATCH 256
+#endif
+
 /*
 ** ANS Forth requires that a word's name contain {1..31} characters.
 */
@@ -410,6 +414,7 @@ struct vm
 #if FICL_WANT_USER
     CELL            user[FICL_USER_CELLS];
 #endif
+    char            scratch[nSCRATCH]; /* for pictured numeric output */
     char            pad[nPAD];  /* the scratch area (see above)     */
 };
 
@@ -631,7 +636,7 @@ FICL_DICT  *vmGetDict      (FICL_VM *pVM);
 char *      vmGetString    (FICL_VM *pVM, FICL_STRING *spDest, char delimiter);
 STRINGINFO  vmGetWord      (FICL_VM *pVM);
 STRINGINFO  vmGetWord0     (FICL_VM *pVM);
-int         vmGetWordToPad (FICL_VM *pVM);
+int         vmGetWordToScr (FICL_VM *pVM);      /* renamed from vmGetWordToPad */
 STRINGINFO  vmParseString  (FICL_VM *pVM, char delimiter);
 STRINGINFO  vmParseStringEx(FICL_VM *pVM, char delimiter, char fSkipLeading);
 CELL        vmPop          (FICL_VM *pVM);

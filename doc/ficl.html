@@ -845,6 +845,24 @@ FORTH-WORDLIST 1 SET-ORDER
           Display ficl version ID
         </DD>
         <DT>
+          <A name="tobuf"></A><code>&gt;buf&nbsp;&nbsp; ( xt c-addr -- )</code>
+        </DT>
+        <DD>
+          Redirect VM text output to the null-terminated buffer at <code>c-addr</code>, execute
+          <code>xt</code> to completion, then restore the previous output handler and
+          <code>pExtend</code> pointer. The buffer is cleared to an empty string before
+          <code>xt</code> runs. The caller is responsible for ensuring the buffer is large enough
+          to hold all text produced by <code>xt</code>. Example:
+        </DD>
+        <DD>
+<PRE>
+: greet ." Hello, World!" ;
+create mybuf 256 allot
+' greet mybuf &gt;buf   ( capture greet's output into mybuf )
+mybuf type cr         ( prints: Hello, World! )
+</PRE>
+        </DD>
+        <DT>
           <code>&gt;name&nbsp;&nbsp; ( xt -- c-addr u )</code>
         </DT>
         <DD>
@@ -936,7 +954,7 @@ FORTH-WORDLIST 1 SET-ORDER
           <code>cd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( "directory-name&lt;newline&gt;" -- )</code>
         </DT>
         <DD>
-          Executes the Win32 chdir() function, changing the program's logged directory.
+          Changes the working directory using the platform <code>chdir()</code> function (POSIX or Win32).
         </DD>
         <DT>
           <A name="clock"></A><code>clock&nbsp;&nbsp; ( -- now )</code>
@@ -966,7 +984,7 @@ FORTH-WORDLIST 1 SET-ORDER
           <code>system&nbsp; ( "command&lt;newline&gt;" -- )</code>
         </DT>
         <DD>
-          Issues a command to a shell; implemented with the Win32 system() call.
+          Issues a command to the platform shell using the standard C <code>system()</code> call.
         </DD>
         <DT>
           <code>spewhash&nbsp;&nbsp; ( "filename&lt;newline&gt;" -- )</code>
@@ -974,6 +992,20 @@ FORTH-WORDLIST 1 SET-ORDER
         <DD>
           Dumps all threads of the current compilation wordlist to the specified text file. This was useful when I thought there might be some point in attempting to optimize the hash function. I no
           longer harbor those illusions.
+        </DD>
+        <DT>
+          <code>test-error&nbsp;&nbsp; ( -- )</code>
+        </DT>
+        <DD>
+          Increments the internal test-failure counter. Called by <code>ficltest.fr</code> whenever a
+          test assertion fails. Not intended for interactive use.
+        </DD>
+        <DT>
+          <code>#errors&nbsp;&nbsp; ( -- n )</code>
+        </DT>
+        <DD>
+          Pushes the cumulative test-failure count (as incremented by <code>test-error</code>) onto
+          the stack. Used by the test harness to report the total number of failures after a test run.
         </DD>
       </DL>
       <HR>

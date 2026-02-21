@@ -745,7 +745,7 @@ static void ficlGetCWD(FICL_VM *pVM)
 */
 static void ficlChDir(FICL_VM *pVM)
 {
-    FICL_STRING *pFS = (FICL_STRING *)pVM->pad;
+    FICL_STRING *pFS = (FICL_STRING *)pVM->scratch;
     vmGetString(pVM, pFS, '\n');
     if (pFS->count > 0)
     {
@@ -773,7 +773,7 @@ static void ficlChDir(FICL_VM *pVM)
 */
 static void ficlSystem(FICL_VM *pVM)
 {
-    FICL_STRING *pFS = (FICL_STRING *)pVM->pad;
+    FICL_STRING *pFS = (FICL_STRING *)pVM->scratch;
 
     vmGetString(pVM, pFS, '\n');
     if (pFS->count > 0)
@@ -781,8 +781,8 @@ static void ficlSystem(FICL_VM *pVM)
         int err = system(pFS->text);
         if (err)
         {
-            snprintf(pVM->pad, sizeof(pVM->pad), "System call returned %d", err);
-            vmTextOut(pVM, pVM->pad, 1);
+            snprintf(pVM->scratch, sizeof(pVM->scratch), "System call returned %d", err);
+            vmTextOut(pVM, pVM->scratch, 1);
             vmThrow(pVM, VM_QUIT);
         }
     }
@@ -839,7 +839,7 @@ static void ficlLoad(FICL_VM *pVM)
         vmThrow(pVM, VM_ERREXIT);
     }
 
-    vmTextOut(pVM, "Loading: ", 0);
+    vmTextOut(pVM, "loading ", 0);
     vmTextOut(pVM, pFilename->text, 1);
 
     /* save any prior file in process*/
@@ -901,10 +901,10 @@ static void spewHash(FICL_VM *pVM)
     unsigned i;
     unsigned nHash = pHash->size;
 
-    if (!vmGetWordToPad(pVM))
+    if (!vmGetWordToScr(pVM))
         vmThrow(pVM, VM_OUTOFTEXT);
 
-    pOut = fopen(pVM->pad, "w");
+    pOut = fopen(pVM->scratch, "w");
     if (!pOut)
     {
         vmTextOut(pVM, "unable to open file", 1);
@@ -1144,7 +1144,7 @@ int main(int argc, char **argv)
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
-    ret = ficlEvaluate(pVM, ".ver 2 spaces .( " __DATE__ " ) cr");
+    ret = ficlEvaluate(pVM, "cr .ver 2 spaces .( " __DATE__ " ) cr");
     if (fUnit)                 /* run tests and return rather than going interactive */
     {
         ret = ficlEvaluate(pVM, "cd test\n load ficltest.fr");

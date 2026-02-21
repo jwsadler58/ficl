@@ -68,7 +68,18 @@ variable span
 : nip     ( y x -- x )     swap drop ;
 : tuck    ( y x -- x y x)  swap over ;
 : within  ( test low high -- flag )   over - >r - r>  u<  ;
+: .r ( n width -- ) \ "dot-r"
+  swap dup >r abs 0 <# #s r> sign #> ( n2 c-addr u )
+  rot over - spaces type
+;
 
+: u.r ( u width -- )
+  swap 0 <# #s #>              ( width c-addr u )
+  rot over - spaces type
+;
+
+\ ** Ficl extra convenience constant
+s" /pad" environment? drop constant /pad
 
 \ ** LOCAL EXT word set
 \ #if FICL_WANT_LOCALS

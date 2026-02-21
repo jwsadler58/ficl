@@ -162,7 +162,7 @@ static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
 
 /*
 ** Match the tag to the top of the stack. If success,
-** sopy "here" address into the cell whose address is next
+** copy "here" address into the cell whose address is next
 ** on the stack. Used by do..leave..loop.
 */
 static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
@@ -387,40 +387,42 @@ static void twoConstant(FICL_VM *pVM)
 static void displayCell(FICL_VM *pVM)
 {
     CELL c;
+    char outbuf[nPAD];
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
     c = stackPop(pVM->pStack);
-    ficlLtoa((c).i, pVM->pad, pVM->base);
-    strcat(pVM->pad, " ");
-    vmTextOut(pVM, pVM->pad, 0);
+    ficlLtoa((c).i, outbuf, pVM->base);
+    strcat(outbuf, " ");
+    vmTextOut(pVM, outbuf, 0);
     return;
 }
 
 static void uDot(FICL_VM *pVM)
 {
     FICL_UNS u;
+    char outbuf[nPAD];
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
     u = stackPopUNS(pVM->pStack);
-    ficlUltoa(u, pVM->pad, pVM->base);
-    strcat(pVM->pad, " ");
-    vmTextOut(pVM, pVM->pad, 0);
+    ficlUltoa(u, outbuf, pVM->base);
+    strcat(outbuf, " ");
+    vmTextOut(pVM, outbuf, 0);
     return;
 }
-
 
 static void hexDot(FICL_VM *pVM)
 {
     FICL_UNS u;
+    char outbuf[nPAD];
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
     u = stackPopUNS(pVM->pStack);
-    ficlUltoa(u, pVM->pad, 16);
-    strcat(pVM->pad, " ");
-    vmTextOut(pVM, pVM->pad, 0);
+    ficlUltoa(u, outbuf, 16);
+    strcat(outbuf, " ");
+    vmTextOut(pVM, outbuf, 0);
     return;
 }
 
@@ -465,6 +467,9 @@ static void ficlStrlen(FICL_VM *ficlVM)
 **************************************************************************/
 static void ficlSprintf(FICL_VM *pVM)
 {
+    #if FICL_ROBUST > 1
+        vmCheckStack(pVM, 4, 3);
+    #endif
     int bufferLength = stackPopINT(pVM->pStack);
     char *buffer = (char *)stackPopPtr(pVM->pStack);
     char *bufferStart = buffer;
@@ -632,7 +637,7 @@ static void twoSwap(FICL_VM *pVM)
 
 static void emit(FICL_VM *pVM)
 {
-    char *cp = pVM->pad;
+    char cp[2];
     int i;
 
 #if FICL_ROBUST > 1
@@ -1486,6 +1491,20 @@ static void here(FICL_VM *pVM)
     return;
 }
 
+static void unused(FICL_VM *pVM)
+{
+    FICL_DICT *dp = vmGetDict(pVM);
+    FICL_INT i;
+#if FICL_ROBUST > 1
+    assert(dp);
+    vmCheckStack(pVM, 0, 1);
+#endif
+
+    i = (FICL_INT)(dp->dict + dp->size - dp->here)  * (FICL_INT)sizeof (CELL);
+    PUSHINT(i);
+    return;
+}
+
 static void comma(FICL_VM *pVM)
 {
     FICL_DICT *dp;
@@ -1711,9 +1730,10 @@ static void dotQuoteCoIm(FICL_VM *pVM)
 
 static void dotParen(FICL_VM *pVM)
 {
-    const char *pSrc = vmGetInBuf(pVM);
-    const char *pEnd = vmGetInBufEnd(pVM);
-    char *pDest     = pVM->pad;
+    char *pSrc      = vmGetInBuf(pVM);
+    char *pEnd      = vmGetInBufEnd(pVM);
+    char outbuf[nPAD];
+    char *pDest     = outbuf;
     char ch;
 
     /*
@@ -1726,7 +1746,7 @@ static void dotParen(FICL_VM *pVM)
     if ((pEnd != pSrc) && (ch == ')'))
         pSrc++;
 
-    vmTextOut(pVM, pVM->pad, 0);
+    vmTextOut(pVM, outbuf, 0);
     vmUpdateTib(pVM, pSrc);
 
     return;
@@ -1927,11 +1947,11 @@ static void rbracket(FICL_VM *pVM)
 **
 ** less-number-sign CORE ( -- )
 ** Initialize the pictured numeric output conversion process.
-** (clear the pad)
+** (clear the VM scratch area)
 **************************************************************************/
 static void lessNumberSign(FICL_VM *pVM)
 {
-    FICL_STRING *sp = PTRtoSTRING pVM->pad;
+    FICL_STRING *sp = PTRtoSTRING pVM->scratch;
     sp->count = 0;
     return;
 }
@@ -1953,7 +1973,7 @@ static void numberSign(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 2);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     u = dpmPopU(pVM->pStack);
     rem = dpmUMod(&u, (UNS16)(pVM->base));
     sp->text[sp->count++] = digit_to_char(rem);
@@ -1974,7 +1994,7 @@ static void numberSignGreater(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 2);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     sp->text[sp->count] = 0;
     ficlStrrev(sp->text);
     DROP(2);
@@ -1998,7 +2018,7 @@ static void numberSignS(FICL_VM *pVM)
     vmCheckStack(pVM, 2, 2);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     u = dpmPopU(pVM->pStack);
 
     do
@@ -2025,7 +2045,7 @@ static void hold(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     i = POPINT();
     sp->text[sp->count++] = (char) i;
     return;
@@ -2045,7 +2065,7 @@ static void sign(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    sp = PTRtoSTRING pVM->pad;
+    sp = PTRtoSTRING pVM->scratch;
     i = POPINT();
     if (i < 0)
         sp->text[sp->count++] = '-';
@@ -2546,12 +2566,12 @@ static void ficlWord(FICL_VM *pVM)
     vmCheckStack(pVM,1,1);
 #endif
 
-    sp = (FICL_STRING *)pVM->pad;
+    sp = (FICL_STRING *)pVM->scratch;
     delim = (char)POPINT();
     si = vmParseStringEx(pVM, delim, 1);
 
-    if (SI_COUNT(si) > nPAD-1)
-        SI_SETLEN(si, nPAD-1);
+    if (SI_COUNT(si) > nSCRATCH-1)
+        SI_SETLEN(si, nSCRATCH-1);
 
     sp->count = (FICL_COUNT)SI_COUNT(si);
     strncpy(sp->text, SI_PTR(si), SI_COUNT(si));
@@ -2965,9 +2985,9 @@ static void ficlVersion(FICL_VM *pVM)
 {
     int nBits = sizeof(CELL) * CHAR_BIT;
     vmTextOut(pVM, "ficl Version " FICL_VER, 0);
-    snprintf(pVM->pad, sizeof(pVM->pad), " (%d bits)", nBits);
-    vmTextOut(pVM, pVM->pad, 0);
-    return;
+    snprintf(pVM->scratch, sizeof(pVM->scratch), " (%d bits)", nBits);
+    vmTextOut(pVM, pVM->scratch, 0);
+return;
 }
 
 
@@ -4112,6 +4132,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "refill",    refill,         FW_DEFAULT);
     dictAppendWord(  dp, "source-id", sourceid,       FW_DEFAULT);
     dictAppendWord(  dp, "to",        toValue,        FW_IMMEDIATE);
+    dictAppendWord(  dp, "unused",    unused,         FW_DEFAULT);
     dictAppendWord(  dp, "value",     constant,       FW_DEFAULT);
     dictAppendWord(  dp, "\\",        commentLine,    FW_IMMEDIATE);
 
