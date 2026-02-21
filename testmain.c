@@ -38,6 +38,7 @@
 ** SUCH DAMAGE.
 */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -847,6 +848,7 @@ static void ficlLoad(FICL_VM *pVM)
     pVM->sourceID.p = (void *)fp;
 
     /* feed each line to ficlExec */
+    assert(fp != NULL);  /* vmThrow above ensures we never reach here with fp == NULL */
     while (fgets(cp, nLINEBUF, fp))
     {
         int len = strlen(cp) - 1;
