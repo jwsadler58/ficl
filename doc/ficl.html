@@ -51,20 +51,20 @@
         <LI><A href="#extras">Ficl extras</A></LI>
         <LI><A href="#ansinfo">ANS Required Information</A></LI>
       </UL>
-       
+
       <H1>
         <A name="whatis"></A>What is ficl?
       </H1>
       <P>
-        Ficl is a lightweight, embeddable scripting language designed to be incorporated 
-        into other programs, including memory constrained embedded systems. 
-        Ficl conforms to the 1994 ANSI Standard for Forth, and provides several useful 
+        Ficl is a lightweight, embeddable scripting language designed to be incorporated
+        into other programs, including memory constrained embedded systems.
+        Ficl conforms to the 1994 ANSI Standard for Forth, and provides several useful
         extensions including OOP that can wrap compiled code and hardware interfaces.&nbsp;
       </P>
       <P>
-        Unlike Lua or Python, Ficl acts as a <I>component</I> of your system: you feed it stuff to do, it does the stuff, and comes back to you for more. 
-        You can export compiled code to Ficl, execute Ficl code from your compiled code, or interact with a read-execute-print loop. 
-        Your choice. 
+        Unlike Lua or Python, Ficl acts as a <I>component</I> of your system: you feed it stuff to do, it does the stuff, and comes back to you for more.
+        You can export compiled code to Ficl, execute Ficl code from your compiled code, or interact with a read-execute-print loop.
+        Your choice.
         Ficl includes a simple but capable object model that can wrap existing data structures.&nbsp;
       </P>
       <H3>
@@ -73,7 +73,7 @@
       Where language interpreters usually view themselves as the center of the system, Ficl acts as a component of the system. It is easy to export compiled code
       to Ficl in the style of TCL, or to invoke Ficl code from a compiled module. This allows you to do incremental development in a way that combines the best features of
       threaded languages (rapid development, quick code/test/debug cycle, reasonably fast) with the best features of C (everyone knows it, easier to support large blocks of code, efficient, type
-      checking). In addition, Ficl provides a simple and powerful object model that can act as an object oriented <I>adapter</I> for code written in C/C++.&nbsp; 
+      checking). In addition, Ficl provides a simple and powerful object model that can act as an object oriented <I>adapter</I> for code written in C/C++.&nbsp;
       <H3>
         Ficl Design goals
       </H3>
@@ -177,7 +177,7 @@ are met:
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 3. Neither the name of the copyright holder nor the names of its contributors
-   may be used to endorse or promote products derived from this software 
+   may be used to endorse or promote products derived from this software
    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
@@ -192,20 +192,20 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 </PRE>
-      &nbsp; 
+      &nbsp;
       <HR>
       <H2>
         <A name="porting"></A>Getting Started: Porting Ficl to your system
       </H2>
-      To install ficl on your target system, you need an ANSI C compiler (C11 or newer) and its runtime library. 
+      To install ficl on your target system, you need an ANSI C compiler (C11 or newer) and its runtime library.
       System dependent code is isolated to a few functions that you need to implement for your system. See sysdep.h for build controls.&nbsp;
       <P>
-        Edit the definitions (in sysdep.c) of <code>ficlMalloc, ficlFree, ficlRealloc</code>, and <code>ficlTextOut</code> for your application and target. 
+        Edit the definitions (in sysdep.c) of <code>ficlMalloc, ficlFree, ficlRealloc</code>, and <code>ficlTextOut</code> for your application and target.
         Use <code>testmain.c</code> as a guide to installing the ficl system and one or more virtual machines into your code.&nbsp;
-      </P> 
+      </P>
       <P>
-        Ficl includes portable double precision math routines that work for 32 and 64 bit machines. 
-        You may replace them with machine-dependent versions by #defining PORTABLE_LONGMULDIV to 0 in sysdep.h and 
+        Ficl includes portable double precision math routines that work for 32 and 64 bit machines.
+        You may replace them with machine-dependent versions by #defining PORTABLE_LONGMULDIV to 0 in sysdep.h and
         implementing your versions of ficlLongMul and ficlLongDiv in sysdep.c.
         &nbsp;
       </P>
@@ -213,57 +213,88 @@ SUCH DAMAGE.
         Build controls
       </H3>
       The file sysdep.h contains default values for build controls. Most of these are written such that if you define them on the compiler command line, the defaults are overridden. I suggest you
-      take the defaults on everything below the "build controls" section until you're confident of your port. Beware of declaring too small a dictionary, for example. You need about 3200 cells for a
-      full system, about 2000 if you strip out the softwords.&nbsp; 
+      take the defaults on everything below the "build controls" section until you're confident of your port. Beware of declaring too small a dictionary.
+      You can use <code>unused</code> and <code>.dict</code> to see how much space is left with a given configuration.&nbsp;
       <H3>
         Softwords
       </H3>
       Many words from the supported wordsets are written in Forth and stored as a big string that Ficl compiles when it starts. The sources for all of these words are in directory
       ficl/softwords. There is a Python 3 script (softcore.py) that converts the .fr files into softcore.c.
-      See the makefile in ficl/softwords.&nbsp; 
+      See the makefile in ficl/softwords.&nbsp;
       <HR>
       <H2>
         <A name="api"></A>Application Programming Interface
       </H2>
-      The following is a partial listing of functions that interface your system or program to ficl. 
-      <I>See the comments in ficl.c and ficl.h for additional information, and the example in file testmain.c.</I> 
+      The following is a partial listing of functions that interface your system or program to ficl.
+      <I>See the comments in ficl.c and ficl.h for additional information, and the example in file testmain.c.</I>
       <DL>
+        <DT>
+          <B>FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)</B>
+        </DT>
+        <DD>
+          Binds a global dictionary to the interpreter system and initializes
+          the dict to contain the ANSI CORE wordset.
+          You can specify the dictionary size, text output function, and an extension pointer
+          via the FICL_SYSTEM_INFO structure.
+          After initialization, ficl manages the dictionary.
+          The dictionary needs to be at least large enough to hold the
+          precompiled part. Try 5K cells to start. Use <code>.dict</code>to find
+          out how much of the dictionary is used at any time.
+        </DD>
         <DT>
           <B>FICL_SYSTEM *ficlInitSystem(int nDictCells)</B>
         </DT>
         <DD>
-          Initializes Ficl's shared system data structures, and creates the dictionary allocating the specified number of CELLs from the heap (by a call to ficlMalloc)
+          Deprecated. Initializes Ficl's shared system data structures, and creates the dictionary allocating the specified number of CELLs from the heap (by a call to ficlMalloc). Use ficlInitSystemEx for new code.
         </DD>
         <DT>
           <B>void ficlTermSystem(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Reclaims memory allocated for the ficl system including all dictionaries and all virtual machines created by vmCreate. Any uses of the memory allocation words (allocate and resize) are your
-          problem.
+          Deletes the system dictionary and all virtual machines that
+          were created with ficlNewVM.
+          Call this function to reclaim all memory used by the dictionary and VMs.
+          Any uses of the memory allocation words (allocate and resize) are your problem.
         </DD>
         <DT>
-          <B>int ficlBuild(FICL_SYSTEM *pSys, char *name, FICL_CODE code, char flags)</B>
+          <B>int ficlEvaluate(FICL_VM *pVM, const char *pText)</B>
         </DT>
         <DD>
-          Create a primitive word in ficl's main dictionary with the given name, code pointer, and properties (immediate, compile only, etc) as described by the flags (see ficl.h for flag
-          descriptions of the form FW_XXXX)
+          Evaluates a block of input text in the context of the
+          specified interpreter. Also sets SOURCE-ID properly.
+          Use this function when passing a hard-coded
+          string to the Ficl interpreter.
         </DD>
         <DT>
-          <B>int ficlExec(FICL_VM *pVM, char *text)</B>
+          <B>int ficlExec(FICL_VM *pVM, const char *pText)</B>
         </DT>
         <DD>
-          Feed the specified C string ('\0' terminated) to the given virtual machine for evaluation. Returns various exception codes (VM_XXXX in ficl.h) to indicate the reason for returning. Normal
-          exit condition is VM_OUTOFTEXT, indicating that the VM consumed the string successfully and is back for more. ficlExec calls can be nested, and the function itself is re-entrant, but note
+          Evaluates a block of input text in the context of the
+          specified interpreter. Emits any requested output to the
+          interpreter's output function. If the input string is NULL
+          terminated, you can pass -1 as nChars rather than count it.
+          Execution returns when the text block has been executed,
+          or an error occurs.
+          Returns one of the VM_XXXX codes defined in ficl.h:
+          VM_OUTOFTEXT is the normal exit condition.
+          VM_ERREXIT means the interpreter encountered a syntax error
+          and the VM has been reset to recover.
+          VM_USEREXIT means the user executed the "bye" command.
+          VM_ABORT and VM_ABORTQ are generated by 'abort' and 'abort"'.
+          ficlExec calls can be nested, and the function itself is re-entrant, but note
           that a VM is static, so you have to take reasonable precautions (for example, use one VM per thread in a multithreaded system if you want multiple threads to be able to execute commands).
+          If you call ficlExec() or one of its brothers, you MUST
+          ensure pVM-&gt;sourceID was set to a sensible value.
+          ficlExec() explicitly DOES NOT manage SOURCE-ID for you.
         </DD>
         <DT>
-          <B>int ficlExecC(FICL_VM *pVM, char *text, int nChars)</B>
+          <B>int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT nChars)</B>
         </DT>
         <DD>
           Same as ficlExec, but takes a count indicating the length of the supplied string. Setting nChars to -1 is equivalent to ficlExec (expects '\0' termination).
         </DD>
         <DT>
-          <B>int ficlExecXT(FICL_VM *pVM, FICL_WORD *pFW)</B>
+          <B>int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)</B>
         </DT>
         <DD>
           Same as ficlExec, but takes a pointer to a FICL_WORD instead of a string. Executes the word and returns after it has finished. If executing the word results in an exception, this function
@@ -271,23 +302,53 @@ SUCH DAMAGE.
           word repeatedly - you save the dictionary search and outer interpreter overhead.
         </DD>
         <DT>
-          <B>void ficlFreeVM(FICL_VM *pVM)</B>
-        </DT>
-        <DD>
-          Removes the VM in question from the system VM list and deletes the&nbsp; memory allocated to it. This is an optional call, since ficlTermSystem will do this cleanup for you. This function
-          is handy if you're going to do a lot of dynamic creation of VMs.
-        </DD>
-        <DT>
           <B>FICL_VM *ficlNewVM(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Create, initialize, and return a VM from the heap using ficlMalloc. Links the VM into the system VM list for later reclamation by ficlTermSystem.
+          Create a new VM from the heap, and link it into the system VM list.
+          Initializes the VM and binds default sized stacks to it. Returns the
+          address of the VM, or NULL if an error occurs.
         </DD>
         <DT>
-          <B>FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, char *name)</B>
+          <B>void ficlFreeVM(FICL_VM *pVM)</B>
         </DT>
         <DD>
-          Returns the address (also known as an XT in this case) of the specified word in the main dictionary. If not found, returns NULL. The address can be used in a call to ficlExecXT.
+          Force deletion of a VM. You do not need to do this
+          unless you're creating and discarding a lot of VMs.
+          For systems that use a constant pool of VMs for the life
+          of the system, ficlTermSystem takes care of VM cleanup
+          automatically.
+        </DD>
+        <DT>
+          <B>void vmInterrupt(FICL_VM *pVM)</B>
+        </DT>
+        <DD>
+          Interrupt a running VM from an external context such as a signal handler,
+          hardware interrupt, watchdog timer ISR, or another thread.
+          Causes the VM to longjmp back to the nearest exception recovery point
+          with VM_INTERRUPT, which the caller of ficlExec (or ficlExecXT) will
+          receive as a return code.
+          This is how the console application in testmain.c handles Ctrl-C, for example.
+          This is also the recommended way to break out of infinite loops or
+          long-running computations (assuming they are coded in Ficl) in embedded systems:
+          configure a watchdog orperiodic timer to call vmInterrupt on the active VM,
+          and handle the VM_INTERRUPT return code in your outer loop.
+          Safe to call from POSIX signal handlers on targets that use siglongjmp.
+        </DD>
+        <DT>
+          <B>int ficlSetStackSize(int nStackCells)</B>
+        </DT>
+        <DD>
+          Set the stack sizes (return and parameter) to be used for all
+          subsequently created VMs. Returns actual stack size to be used.
+        </DD>
+        <DT>
+          <B>FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, const char *name)</B>
+        </DT>
+        <DD>
+          Returns the address of the most recently defined word in the system
+          dictionary with the given name, or NULL if no match.
+          The address is also known as an XT and can be used in a call to ficlExecXT.
         </DD>
         <DT>
           <B>FICL_DICT *ficlGetDict(FICL_SYSTEM *pSys)</B>
@@ -302,36 +363,90 @@ SUCH DAMAGE.
           Returns a pointer to the environment dictionary. This dictionary stores information that describes this implementation as required by the Standard.
         </DD>
         <DT>
-          <B>void ficlSetEnv(FICL_SYSTEM *pSys, char *name, UNS32 value)</B>
+          <B>void ficlSetEnv(FICL_SYSTEM *pSys, const char *name, FICL_UNS value)</B>
         </DT>
         <DD>
           Enters a new constant into the environment dictionary, with the specified name and value.
         </DD>
         <DT>
-          <B>void ficlSetEnvD(FICL_SYSTEM *pSys, char *name, UNS32 hi, UNS32 lo)</B>
+          <B>void ficlSetEnvD(FICL_SYSTEM *pSys, const char *name, FICL_UNS hi, FICL_UNS lo)</B>
         </DT>
         <DD>
           Enters a new double-cell constant into the environment dictionary with the specified name and value.
         </DD>
         <DT>
+          <B>void ficlSetEnvF(FICL_SYSTEM *pSys, const char *name, FICL_FLOAT f)</B>
+        </DT>
+        <DD>
+          Enters a new floating-point constant into the environment dictionary with the specified name and value. Only available when FICL_WANT_FLOAT is enabled.
+        </DD>
+        <DT>
           <B>FICL_DICT *ficlGetLoc(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Returns a pointer to the locals dictionary. This function is defined only if FICL_WANT_LOCALS is #defined as non-zero (see sysdep.h). The locals dictionary is the symbol table for <A href= 
+          Returns a pointer to the locals dictionary. This function is defined only if FICL_WANT_LOCALS is #defined as non-zero (see sysdep.h). The locals dictionary is the symbol table for <A href=
           "ficl_loc.html">local variables</A>.
+        </DD>
+        <DT>
+          <B>int ficlBuild(FICL_SYSTEM *pSys, const char *name, FICL_CODE code, char flags)</B>
+        </DT>
+        <DD>
+          Builds a word into the system default dictionary in a thread-safe way.
+          Parameters:
+          name -- the name of the word to be built;
+          code -- code to execute when the word is invoked (must take a single pointer to a FICL_VM);
+          flags -- 0 or more of FW_IMMEDIATE, FW_COMPILE, use bitwise OR
+          (most words can use FW_DEFAULT).
         </DD>
         <DT>
           <B>void ficlCompileCore(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Defined in words.c, this function builds ficl's primitives.&nbsp;
+          Builds the ANS CORE wordset into the dictionary - called by
+          ficlInitSystem. No need to call it again.
+        </DD>
+        <DT>
+          <B>void ficlCompilePrefix(FICL_SYSTEM *pSys)</B>
+        </DT>
+        <DD>
+          Builds the prefix parse step words into the dictionary.
+        </DD>
+        <DT>
+          <B>void ficlCompileSearch(FICL_SYSTEM *pSys)</B>
+        </DT>
+        <DD>
+          Builds the SEARCH-ORDER wordset into the dictionary.
         </DD>
         <DT>
           <B>void ficlCompileSoftCore(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Defined in softcore.c, this function builds ANS required words and ficl extras by evaluating a text string. Python3 script softcore.py 
-          generates the string in softcore.c from .fr files in ficl/softcore. &nbsp;
+          Defined in softcore.c, this function builds ANS required words and ficl extras by evaluating a text string. Python3 script softcore.py
+          generates the string in softcore.c from .fr files in ficl/softcore.
+        </DD>
+        <DT>
+          <B>void ficlCompileTools(FICL_SYSTEM *pSys)</B>
+        </DT>
+        <DD>
+          Builds the TOOLS and TOOLS EXT wordsets into the dictionary.
+        </DD>
+        <DT>
+          <B>void ficlCompileFile(FICL_SYSTEM *pSys)</B>
+        </DT>
+        <DD>
+          Builds the File-Access wordset into the dictionary.
+        </DD>
+        <DT>
+          <B>void ficlCompileFloat(FICL_SYSTEM *pSys)</B>
+        </DT>
+        <DD>
+          Builds the optional FLOAT wordset into the dictionary. Only available when FICL_WANT_FLOAT is enabled.
+        </DD>
+        <DT>
+          <B>void ficlCompilePlatform(FICL_SYSTEM *pSys)</B>
+        </DT>
+        <DD>
+          Builds platform-specific extension words into the dictionary. Only available when FICL_PLATFORM_EXTEND is enabled.
         </DD>
       </DL>
       <HR>
@@ -364,7 +479,7 @@ SUCH DAMAGE.
             <B>dpmath.h</B>
           </TD>
           <TD>
-            Declares functions for double precision integer math. 
+            Declares functions for double precision integer math.
             Sizes automatically to 128 bits on a 64 bit machine or 64 bits on a 32 bit machine
           </TD>
         </TR>
@@ -455,7 +570,7 @@ SUCH DAMAGE.
             <B>testmain.c</B>
           </TD>
           <TD>
-            The main() function for console applications - use this as an example to integrate ficl into your system. 
+            The main() function for console applications - use this as an example to integrate ficl into your system.
             Also runs unit tests and adds a few handy OS interface words.
           </TD>
         </TR>
@@ -499,12 +614,12 @@ SUCH DAMAGE.
       <!-- BEGIN FICL_GUTS -->
 <h2>Major Data Structures</h2>
 <p>
-A running memory image of Ficl consists of one or more FICL_SYSTEMs, 
-each of which owns exactly one dictionary (FICL_DICT), 
+A running memory image of Ficl consists of one or more FICL_SYSTEMs,
+each of which owns exactly one dictionary (FICL_DICT),
 and one or more virtual machines (FICL_VM). Each VM owns two stacks
-(FICL_STACK) - one for parameters (the parameter stack) 
-and one for return addresses (the return stack). 
-Ficl is a permissive, untyped language by nature, 
+(FICL_STACK) - one for parameters (the parameter stack)
+and one for return addresses (the return stack).
+Ficl is a permissive, untyped language by nature,
 so its fundamental unit of storage is a CELL: a chunk of memory
 large enough to hold an address or a scalar type.
 </p>
@@ -567,18 +682,18 @@ it. Each system has at least one virtual machine. In a typical implementation, t
 machine per native OS thread, and there may be several VMs sharing a single FICL_SYSTEM, or one
 FICL_SYSTEM per VM if the implementation needs to support multiple user sessions in a robust way.
 
-A FICL_SYSTEM also includes a special dictionary for local variable support (if enabled 
-by FICL_WANT_LOCALS) and another for environment variable support. Environment variables 
-describe the configuration of the system in conformance with American National Standard Forth 
+A FICL_SYSTEM also includes a special dictionary for local variable support (if enabled
+by FICL_WANT_LOCALS) and another for environment variable support. Environment variables
+describe the configuration of the system in conformance with American National Standard Forth
 (ANS Forth).
 <h3>FICL_DICT</h3>
-A dictionary manages a fixed-size block of contiguous memory. It serves two roles: to keep track 
+A dictionary manages a fixed-size block of contiguous memory. It serves two roles: to keep track
 of allocated memory, and to collect symbol tables called wordlists. Each dictionary contains at
 least one wordlist. The dictionary organized memory (perhaps this is too kind) as an array of
-CELLs that grows from low memory to high memory within fixed limits determined by the 
-FICL_DEFAULT_DICT parameter in sysdep.h. 
+CELLs that grows from low memory to high memory within fixed limits determined by the
+FICL_DEFAULT_DICT parameter in sysdep.h.
 
-A wordlist is the controlling structure of a Ficl symbol table. Each wordlist is a hash table 
+A wordlist is the controlling structure of a Ficl symbol table. Each wordlist is a hash table
 containing pointers to FICL_WORDs. Each FICL_WORD associates a pointer to code with one or more
 CELLs of the dictionay. Each word usually has a name as well, but this is not required. It is
 possible to create anonymous words using :NONAME.
@@ -592,9 +707,9 @@ words push the address of their payload area onto the parameter stack.
 The virtual machine collects state related to execution of Ficl words. Each VM includes
 registers used by the inner interpreter, some state variables (AKA user variables) such as
 the current numeric base, and a jmpbuf.
-A VM has a pointer to the FICL_SYSTEM of which it is a part. It also has a pointer to an incoming 
+A VM has a pointer to the FICL_SYSTEM of which it is a part. It also has a pointer to an incoming
 text string that it is interpreting. There are VM methods that excute a word given its address
-(xt), and ones that interpret a text string. 
+(xt), and ones that interpret a text string.
 <h3>FICL_STACK</h3>
 Each VM owns a parameter stack, a return stack, and if float support is enabled, a float parameter
 stack. Parameters, return addresses, and floats are all CELL sized, and values may be
@@ -663,7 +778,7 @@ own payload, and returns to the caller when <code>(;)</code> pops the saved IP.
         <A name="exnumber"></A>Number syntax
       </H3>
       You can precede a number with "0x", as in C, and it will be interpreted as a hex value regardless of the value of <CODE>BASE</CODE>. Likewise, numbers prefixed with "0d" will be interpreted as
-      decimal values. Example: 
+      decimal values. Example:
 <PRE>
 ok&gt; decimal 123 . cr
 123
@@ -673,7 +788,7 @@ ok&gt; 0x123 x. cr
 123
 </PRE>
       Note: ficl2.05 and later - this behavior is controlled by the <A href="ficl_parse.html">prefix parser</A> defined in <CODE>prefix.c</CODE>. You can add other prefixes by defining handlers for
-      them in ficl or C. 
+      them in ficl or C.
       <H3>
         <A name="exsearch"></A> The <CODE>SEARCH</CODE> wordset and Ficl extensions
       </H3>
@@ -1051,7 +1166,7 @@ mybuf type cr         ( prints: Hello, World! )
         Implementation-defined Options
       </H3>
       The implementation-defined items in the following list represent characteristics and choices left to the discretion of the implementor, provided that the requirements of the Standard are met. A
-      system shall document the values for, or behaviors of, each item.&nbsp; 
+      system shall document the values for, or behaviors of, each item.&nbsp;
       <UL>
         <LI>
           <B>aligned address requirements (3.1.3.3 Addresses);</B>&nbsp;
@@ -1073,7 +1188,7 @@ mybuf type cr         ( prints: Hello, World! )
         <LI>
           <B>character set (3.1.2 Character types, 6.1.1320 EMIT, 6.1.1750 KEY)</B>;&nbsp;
           <BR>
-          Depends on target system and implementation of ficlTextOut(). 
+          Depends on target system and implementation of ficlTextOut().
         </LI>
         <LI>
           <B>character-aligned address requirements (3.1.3.3 Addresses)</B>;&nbsp;
@@ -1152,7 +1267,7 @@ mybuf type cr         ( prints: Hello, World! )
         <LI>
           <B>number of bits in one address unit (3.1.3.3 Addresses)</B>;&nbsp;
            <BR>
-           Target system dependent. Ficl generally supports processors that can address 8 bit quantities, but there is no dependency that I'm aware of.&nbsp;
+           Target system dependent. Ficl usually supports processors that can address 8 bit quantities, but there is no dependency that I'm aware of.&nbsp;
         </LI>
         <LI>
           <B>number representation and arithmetic (3.2.1.1 Internal number representation)</B>;&nbsp;
@@ -1179,12 +1294,12 @@ mybuf type cr         ( prints: Hello, World! )
         <LI>
           <B>size of one cell in address units (3.1.3 Single-cell types)</B>;&nbsp;
           <BR>
-          System dependent, generally four.
+          System dependent, typically four for 32 bit targets, 8 for 64 bit targets.
         </LI>
         <LI>
           <B>size of one character in address units (3.1.2 Character types)</B>;&nbsp;
            <BR>
-           System dependent, generally one.
+           System dependent, usually one.
         </LI>
         <LI>
           <B>size of the keyboard terminal input buffer (3.3.3.5 Input buffers)</B>;&nbsp;
@@ -1205,7 +1320,7 @@ mybuf type cr         ( prints: Hello, World! )
           <B>system case-sensitivity characteristics (3.4.2 Finding definition names)</B>;&nbsp;
           <BR>
           Ficl is not case sensitive&nbsp;
-        </LI> 
+        </LI>
         <LI>
           <B>system prompt (3.4 The Forth text interpreter, 6.1.2050 QUIT)</B>;&nbsp;
           <BR>
@@ -1236,7 +1351,7 @@ mybuf type cr         ( prints: Hello, World! )
         Ambiguous Conditions
       </H3>
       A system shall document the system action taken upon each of the general or specific ambiguous conditions identified in this Standard. See 3.4.4 Possible actions on an ambiguous
-      condition.&nbsp; 
+      condition.&nbsp;
       <P>
         The following general ambiguous conditions could occur because of a combination of factors:&nbsp;
       </P>
@@ -1270,7 +1385,7 @@ mybuf type cr         ( prints: Hello, World! )
         <LI>
           <B>dividing by zero (6.1.0100 */, 6.1.0110 */MOD, 6.1.0230 /, 6.1.0240 /MOD, 6.1.1561 FM/MOD, 6.1.1890 MOD, 6.1.2214 SM/REM, 6.1.2370 UM/MOD, 8.6.1.1820 M*/)</B>;
            <BR>
-           Results are target procesor dependent. Generally, Ficl makes no check for divide-by-zero. The target processor will probably throw an exception.&nbsp;
+           Results are target procesor dependent. Usually, Ficl makes no check for divide-by-zero. The target processor will throw an exception.&nbsp;
         </LI>
         <LI>
           <B>insufficient data-stack space or return-stack space (stack overflow)</B>;&nbsp;
@@ -1330,7 +1445,7 @@ mybuf type cr         ( prints: Hello, World! )
            Ficl returns for a new input buffer until a non-empty one is supplied.&nbsp;
         </LI>
       </UL>
-      The following specific ambiguous conditions are noted in the glossary entries of the relevant words:&nbsp; 
+      The following specific ambiguous conditions are noted in the glossary entries of the relevant words:&nbsp;
       <UL>
         <LI>
           <B>&gt;IN greater than size of input buffer (3.4.1 Parsing)</B>
