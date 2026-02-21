@@ -452,15 +452,6 @@ UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
 #endif /* PORTABLE_LONGMULDIV */
 
 #if FICL_UNIT_TEST
-    static void dpmUModTestCase(DPUNS input, UNS16 base, DPUNS qExpected, UNS16 rExpected)
-    {
-        UNS16 r   = dpmUMod(&input, base);
-
-        TEST_ASSERT_EQUAL_UINT16_MESSAGE(rExpected, r, "Remainder");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.hi, input.hi, "Quotient Hi");
-        TEST_ASSERT_EQUAL_UINT64_MESSAGE(qExpected.lo, input.lo, "Quotient Lo");
-    }
-
     static void ficlLongMulTestCase(FICL_UNS x, FICL_UNS y, DPUNS expected)
     {
         DPUNS got = ficlLongMul(x, y);
