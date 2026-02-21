@@ -505,10 +505,22 @@ SUCH DAMAGE.
         </TR>
         <TR>
           <TD>
+            <B>fileaccess.c</B>
+          </TD>
+          <TD>
+            Contains C implementations of the File-Access wordset. Conditioned on FICL_WANT_FILE.
+          </TD>
+        </TR>
+        <TR>
+          <TD>
             <B>float.c</B>
           </TD>
           <TD>
-            Adds precompiled definitions from the optional FLOAT word set. Most of the file is conditioned on FICL_WANT_FLOAT
+            Adds precompiled definitions from the optional FLOAT word set.
+            Ficl floats have a dedicated stack and are automatically sized
+            to the target machine's register width, unless overridden by defining
+            FICL_FLOAT_BITS to 32 or 64 explicitly.
+            Most of the file is conditioned on FICL_WANT_FLOAT.
           </TD>
         </TR>
         <TR>
@@ -540,17 +552,8 @@ SUCH DAMAGE.
             <B>softcore.c</B>
           </TD>
           <TD>
-            Contains all of the "soft" words - those written in Forth and compiled by Ficl at startup time. Sources for these words are in the softwords directory. The files softwords/softcore.bat
-            and softwords/softcore.pl generate softcore.c from the .fr sources.
-          </TD>
-        </TR>
-        <TR>
-          <TD>
-            <B>softwords/</B>
-          </TD>
-          <TD>
-            Directory contains sources and translation scripts for the words defined in softcore.c. Softcore.c depends on most of the files in this directory. See softcore.bat for the actual list of
-            files that contribute to softcore.c. This is where you'll find source code for the object oriented extensions. PERL script softcore.pl converts the .fr files into softcore.c.
+            Contains all of the "soft" words - those written in Forth and compiled by Ficl at startup time. Sources for these words are in the softwords directory. The Python 3 script
+            softwords/softcore.py generates softcore.c from the .fr sources.
           </TD>
         </TR>
         <TR>
@@ -604,10 +607,46 @@ SUCH DAMAGE.
         </TR>
         <TR>
           <TD>
+            <B>wasm_main.c</B>
+          </TD>
+          <TD>
+            Entry points for the browser-based WebAssembly REPL. Provides ficlWasmInit, ficlWasmEval, and output-buffer functions for use from JavaScript.
+          </TD>
+        </TR>
+        <TR>
+          <TD>
             <B>words.c</B>
           </TD>
           <TD>
             Exports ficlCompileCore(), the run-time dictionary builder, and contains most precompiled CORE and CORE-EXT words.
+          </TD>
+        </TR>
+        <TR>
+          <TD colspan="2">&nbsp;</TD>
+        </TR>
+        <TR>
+          <TD>
+            <B>doc/</B>
+          </TD>
+          <TD>
+            Project documentation including this reference, the interactive WebAssembly demo, and articles on Ficl internals, OOP, the prefix parser, local variables, and the debugger.
+          </TD>
+        </TR>
+        <TR>
+          <TD>
+            <B>softwords/</B>
+          </TD>
+          <TD>
+            Forth source files (.fr) for words compiled by Ficl at startup, including the object oriented extensions.
+            A Python 3 script (softcore.py) converts the .fr files into softcore.c. See the makefile in this directory.
+          </TD>
+        </TR>
+        <TR>
+          <TD>
+            <B>test/</B>
+          </TD>
+          <TD>
+            Forth test scripts that exercise the ANS CORE, CORE EXT, and other wordsets, as well as Ficl-specific features like the OOP extensions and prefix parser.
           </TD>
         </TR>
       </TABLE>
