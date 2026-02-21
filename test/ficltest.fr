@@ -152,10 +152,27 @@ testing f. precision
     t{ 10 set-precision 1e0 f.buf s" 1 " compare -> 0 }t
     t{ 6 set-precision 0e0 f.buf s" 0 " compare -> 0 }t
     t{ 6 set-precision -2.5e0 f.buf s" -2.5 " compare -> 0 }t
-    6 set-precision cr
+    6 set-precision
 [else]
     .( skipping float tests ) cr
 [endif]
 
-.dict                  \ report high water mark
+testing environment queries
+\ environment? should find known constants and return value + true
+t{ s" max-char" environment? swap drop -> true }t
+\ environment? should return false for unknown queries
+t{ s" nonexistent-query-xyz" environment? -> false }t
+
+testing environment wordlist in search order
+\ Get value via environment?, then verify direct execution matches
+s" max-char" environment? [if]
+  constant env-max-char
+  environment-wordlist >search
+  t{ max-char env-max-char = -> true }t
+  search> drop
+[else]
+  .( SKIP: max-char not in environment ) cr
+[then]
+
+cr .dict               \ report high water mark
 ficltest-marker        \ dictionary cleanup

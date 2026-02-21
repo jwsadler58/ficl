@@ -13,6 +13,17 @@ variable nUser  0 nUser !
 
 \ #endif
 
+\ ** CORE EXT boolean constants (needed early by environment?)
+0  constant false
+false invert constant true
+
+\ ** CORE word: ENVIRONMENT?
+\ Now that the environment is a regular wordlist, implement in Forth
+\ using SEARCH-WORDLIST on the environment wordlist.
+: environment?  ( c-addr u -- false | i*x true )
+    environment-wordlist search-wordlist
+    dup if drop execute true then ;
+
 \ ** ficl extras
 \ EMPTY cleans the parameter stack
 : empty   ( xn..x1 -- ) depth 0 ?do drop loop ;
@@ -54,8 +65,6 @@ decimal 32 constant bl
 
 \ ** CORE EXT
 .( loading CORE EXT words ) cr
-0  constant false
-false invert constant true
 : <>   = 0= ;
 : 0<>  0= 0= ;
 : u>   2dup u< -rot - 0= or 0= ;

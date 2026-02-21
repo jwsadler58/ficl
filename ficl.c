@@ -91,7 +91,6 @@ static void ficlSetVersionEnv(FICL_SYSTEM *pSys);
 FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
 {
     int nDictCells;
-    int nEnvCells;
     FICL_SYSTEM *pSys = ficlMalloc(sizeof (FICL_SYSTEM));
 
     assert(pSys);
@@ -103,15 +102,11 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     if (nDictCells <= 0)
         nDictCells = FICL_DEFAULT_DICT;
 
-    nEnvCells = fsi->nEnvCells;
-    if (nEnvCells <= 0)
-        nEnvCells = FICL_DEFAULT_ENV;
-
     pSys->dp = dictCreateHashed((unsigned)nDictCells, HASHSIZE);
     pSys->dp->pForthWords->name = "forth-wordlist";
 
-    pSys->envp = dictCreateHashed((unsigned)nEnvCells, 64);
-    pSys->envp->pForthWords->name = "environment";
+    pSys->envp = dictCreateWordlist(pSys->dp, 64);
+    pSys->envp->name = "environment-wordlist";
 
     pSys->textOut = fsi->textOut;
     pSys->pExtend = fsi->pExtend;
@@ -174,7 +169,6 @@ FICL_SYSTEM *ficlInitSystem(int nDictCells)
     fsi.size = sizeof(FICL_SYSTEM_INFO);
     fsi.textOut = ficlTextOut;
     fsi.nDictCells = nDictCells <= 0 ? FICL_DEFAULT_DICT : nDictCells;
-    fsi.nEnvCells = FICL_DEFAULT_ENV;
     return ficlInitSystemEx(&fsi);
 }
 
@@ -560,7 +554,7 @@ FICL_DICT *ficlGetDict(FICL_SYSTEM *pSys)
                         f i c l G e t E n v
 ** Returns the address of the system environment space
 **************************************************************************/
-FICL_DICT *ficlGetEnv(FICL_SYSTEM *pSys)
+FICL_HASH *ficlGetEnv(FICL_SYSTEM *pSys)
 {
     return pSys->envp;
 }
@@ -575,15 +569,20 @@ void ficlSetEnv(FICL_SYSTEM *pSys, const char *name, FICL_UNS value)
 {
     STRINGINFO si;
     FICL_WORD *pFW;
-    FICL_DICT *envp = pSys->envp;
+    FICL_DICT *dp = pSys->dp;
+    FICL_HASH *envp = pSys->envp;
+    FICL_HASH *savedCompile;
 
     SI_PSZ(si, name);
-    pFW = dictLookup(envp, si);
+    pFW = hashLookup(envp, si, hashHashCode(si));
 
     if (pFW == NULL)
     {
-        dictAppendOpWord(envp, name, FICL_OP_CONSTANT, FW_DEFAULT);
-        dictAppendCell(envp, LVALUEtoCELL(value));
+        savedCompile = dp->pCompile;
+        dp->pCompile = envp;
+        dictAppendOpWord(dp, name, FICL_OP_CONSTANT, FW_DEFAULT);
+        dictAppendCell(dp, LVALUEtoCELL(value));
+        dp->pCompile = savedCompile;
     }
     else
     {
@@ -597,15 +596,21 @@ void ficlSetEnvD(FICL_SYSTEM *pSys, const char *name, FICL_UNS hi, FICL_UNS lo)
 {
     FICL_WORD *pFW;
     STRINGINFO si;
-    FICL_DICT *envp = pSys->envp;
+    FICL_DICT *dp = pSys->dp;
+    FICL_HASH *envp = pSys->envp;
+    FICL_HASH *savedCompile;
+
     SI_PSZ(si, name);
-    pFW = dictLookup(envp, si);
+    pFW = hashLookup(envp, si, hashHashCode(si));
 
     if (pFW == NULL)
     {
-        dictAppendOpWord(envp, name, FICL_OP_2CONSTANT, FW_DEFAULT);
-        dictAppendCell(envp, LVALUEtoCELL(lo));
-        dictAppendCell(envp, LVALUEtoCELL(hi));
+        savedCompile = dp->pCompile;
+        dp->pCompile = envp;
+        dictAppendOpWord(dp, name, FICL_OP_2CONSTANT, FW_DEFAULT);
+        dictAppendCell(dp, LVALUEtoCELL(lo));
+        dictAppendCell(dp, LVALUEtoCELL(hi));
+        dp->pCompile = savedCompile;
     }
     else
     {
@@ -621,14 +626,20 @@ void ficlSetEnvF(FICL_SYSTEM *pSys, const char *name, FICL_FLOAT f)
 {
     FICL_WORD *pFW;
     STRINGINFO si;
-    FICL_DICT *envp = pSys->envp;
+    FICL_DICT *dp = pSys->dp;
+    FICL_HASH *envp = pSys->envp;
+    FICL_HASH *savedCompile;
+
     SI_PSZ(si, name);
-    pFW = dictLookup(envp, si);
+    pFW = hashLookup(envp, si, hashHashCode(si));
 
     if (pFW == NULL)
     {
-        dictAppendOpWord(envp, name, FICL_OP_FCONSTANT, FW_DEFAULT);
-        dictAppendFloat(envp, f);
+        savedCompile = dp->pCompile;
+        dp->pCompile = envp;
+        dictAppendOpWord(dp, name, FICL_OP_FCONSTANT, FW_DEFAULT);
+        dictAppendFloat(dp, f);
+        dp->pCompile = savedCompile;
     }
     else
     {
@@ -681,8 +692,6 @@ void ficlTermSystem(FICL_SYSTEM *pSys)
         dictDelete(pSys->dp);
     pSys->dp = NULL;
 
-    if (pSys->envp)
-        dictDelete(pSys->envp);
     pSys->envp = NULL;
 
 #if FICL_WANT_LOCALS

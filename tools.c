@@ -790,8 +790,7 @@ static void listWords(FICL_VM *pVM)
 **************************************************************************/
 static void listEnv(FICL_VM *pVM)
 {
-    FICL_DICT *dp = pVM->pSys->envp;
-    FICL_HASH *pHash = dp->pForthWords;
+    FICL_HASH *pHash = pVM->pSys->envp;
     FICL_WORD *wp;
     unsigned i;
     int nWords = 0;
@@ -818,8 +817,7 @@ static void listEnv(FICL_VM *pVM)
         }
     }
 
-    snprintf(pad, sizeof(pad), "Environment: %d words, %ld cells used of %u total",
-        nWords, (long) (dp->here - dp->dict), dp->size);
+    snprintf(pad, sizeof(pad), "Environment: %d words", nWords);
     vmTextOut(pVM, pad, 1);
     return;
 }

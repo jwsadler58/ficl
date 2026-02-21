@@ -351,15 +351,9 @@ typedef jmp_buf FICL_JMP_BUF;
 ** FICL_DEFAULT_DICT specifies the number of CELLs to allocate
 ** for the system dictionary by default. The value
 ** can be overridden at startup time as well.
-** FICL_DEFAULT_ENV specifies the number of cells to allot
-** for the environment-query dictionary.
 */
 #if !defined FICL_DEFAULT_DICT
 #define FICL_DEFAULT_DICT 12288
-#endif
-
-#if !defined FICL_DEFAULT_ENV
-#define FICL_DEFAULT_ENV 512
 #endif
 
 /*

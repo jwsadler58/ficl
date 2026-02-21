@@ -126,15 +126,10 @@ struct ficl_system_info;
 typedef struct ficl_system_info FICL_SYSTEM_INFO;
 
 /*
-** Version major.minor string
+** Version: major.minor
 */
-/* Helper macros for turning a macro value into a string */
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
-
 #define FICL_VER_MAJOR 3
-#define FICL_VER_MINOR 061
-#define FICL_VER STR(FICL_VER_MAJOR) "." STR(FICL_VER_MINOR)
+#define FICL_VER_MINOR 61   /* 3-digit field: displayed zero-padded as %03d */
 
 #if !defined (FICL_PROMPT)
     #define FICL_PROMPT "ok> "
@@ -904,7 +899,7 @@ struct ficl_system
     void *pExtend;      /* Initializes VM's pExtend pointer (for application use) */
     FICL_VM *vmList;
     FICL_DICT *dp;
-    FICL_DICT *envp;
+    FICL_HASH *envp;
 #ifdef FICL_WANT_LOCALS
     FICL_DICT *localp;
 #endif
@@ -963,7 +958,6 @@ struct ficl_system_info
     int nDictCells;     /* Size of system's Dictionary */
     OUTFUNC textOut;    /* default textOut function */
     void *pExtend;      /* Initializes VM's pExtend pointer - for application use */
-    int nEnvCells;      /* Size of Environment dictionary */
 };
 
 /*
@@ -1072,7 +1066,7 @@ FICL_WORD *ficlLookup(FICL_SYSTEM *pSys, const char *name);
 ** Precondition: successful execution of ficlInitSystem
 */
 FICL_DICT *ficlGetDict(FICL_SYSTEM *pSys);
-FICL_DICT *ficlGetEnv (FICL_SYSTEM *pSys);
+FICL_HASH *ficlGetEnv (FICL_SYSTEM *pSys);
 void       ficlSetEnv (FICL_SYSTEM *pSys, const char *name, FICL_UNS value);
 void       ficlSetEnvD(FICL_SYSTEM *pSys, const char *name, FICL_UNS hi, FICL_UNS lo);
 #if FICL_WANT_FLOAT
@@ -1117,6 +1111,7 @@ int        ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si ); /* float.c */
 #if FICL_PLATFORM_EXTEND
 void       ficlCompilePlatform(FICL_SYSTEM *pSys);
 #endif
+
 int        ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
 
 /*

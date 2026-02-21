@@ -2406,46 +2406,6 @@ static void count(FICL_VM *pVM)
 }
 
 /**************************************************************************
-                        e n v i r o n m e n t ?
-** environment-query CORE ( c-addr u -- false | i*x true )
-** c-addr is the address of a character string and u is the string's
-** character count. u may have a value in the range from zero to an
-** implementation-defined maximum which shall not be less than 31. The
-** character string should contain a keyword from 3.2.6 Environmental
-** queries or the optional word sets to be checked for correspondence
-** with an attribute of the present environment. If the system treats the
-** attribute as unknown, the returned flag is false; otherwise, the flag
-** is true and the i*x returned is of the type specified in the table for
-** the attribute queried.
-**************************************************************************/
-static void environmentQ(FICL_VM *pVM)
-{
-    FICL_DICT *envp;
-    FICL_WORD *pFW;
-    STRINGINFO si;
-#if FICL_ROBUST > 1
-    vmCheckStack(pVM,2,1);
-#endif
-
-    envp = pVM->pSys->envp;
-    si.count = (FICL_COUNT)stackPopUNS(pVM->pStack);
-    si.cp    = stackPopPtr(pVM->pStack);
-
-    pFW = dictLookup(envp, si);
-
-    if (pFW != NULL)
-    {
-        vmExecute(pVM, pFW);
-        PUSHINT(FICL_TRUE);
-    }
-    else
-    {
-        PUSHINT(FICL_FALSE);
-    }
-    return;
-}
-
-/**************************************************************************
                         e v a l u a t e
 ** EVALUATE CORE ( i*x c-addr u -- j*x )
 ** Save the current input source specification. Store minus-one (-1) in
@@ -2984,8 +2944,8 @@ static void source(FICL_VM *pVM)
 static void ficlVersion(FICL_VM *pVM)
 {
     int nBits = sizeof(CELL) * CHAR_BIT;
-    vmTextOut(pVM, "ficl Version " FICL_VER, 0);
-    snprintf(pVM->scratch, sizeof(pVM->scratch), " (%d bits)", nBits);
+    snprintf(pVM->scratch, sizeof(pVM->scratch),
+        "ficl Version %d.%03d (%d bits)", FICL_VER_MAJOR, FICL_VER_MINOR, nBits);
     vmTextOut(pVM, pVM->scratch, 0);
 return;
 }
@@ -4050,7 +4010,6 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "emit",      emit,           FW_DEFAULT);
     dictAppendWord(  dp, "endcase",   endcaseCoIm,    FW_COMPIMMED);
     dictAppendWord(  dp, "endof",     endofCoIm,      FW_COMPIMMED);
-    dictAppendWord(  dp, "environment?", environmentQ,FW_DEFAULT);
     dictAppendWord(  dp, "evaluate",  evaluate,       FW_DEFAULT);
     dictAppendWord(  dp, "execute",   execute,        FW_DEFAULT);
     dictAppendWord(  dp, "exit",      exitCoIm,       FW_COMPIMMED);

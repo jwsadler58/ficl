@@ -83,6 +83,21 @@ static void forthWordlist(FICL_VM *pVM)
 
 
 /**************************************************************************
+                        e n v i r o n m e n t - w o r d l i s t
+** FICL ( -- wid )
+** Return wid, the identifier of the environment query word list.
+** This allows adding the environment wordlist to the search order
+** so that environment constants can be executed directly.
+**************************************************************************/
+static void environmentWordlist(FICL_VM *pVM)
+{
+    FICL_HASH *pHash = pVM->pSys->envp;
+    stackPushPtr(pVM->pStack, pHash);
+    return;
+}
+
+
+/**************************************************************************
                         g e t - c u r r e n t
 ** SEARCH ( -- wid )
 ** Return wid, the identifier of the compilation word list.
@@ -363,6 +378,8 @@ void ficlCompileSearch(FICL_SYSTEM *pSys)
                                     definitions,    FW_DEFAULT);
     dictAppendWord(dp, "forth-wordlist",
                                     forthWordlist,  FW_DEFAULT);
+    dictAppendWord(dp, "environment-wordlist",
+                                    environmentWordlist, FW_DEFAULT);
     dictAppendWord(dp, "get-current",
                                     getCurrent,     FW_DEFAULT);
     dictAppendWord(dp, "get-order", getOrder,       FW_DEFAULT);

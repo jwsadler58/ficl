@@ -2,7 +2,7 @@
 \ ** ficl/softwords/classes.fr
 \ ** F I C L   2 . 0   C L A S S E S
 \ john sadler  1 sep 98
-\ Needs oop.fr
+\ Needs oo.fr
 
 .( loading ficl utility classes ) cr
 also oop definitions

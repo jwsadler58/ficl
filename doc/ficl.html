@@ -357,28 +357,32 @@ SUCH DAMAGE.
           Returns a pointer to the main system dictionary, or NULL if the system is uninitialized.
         </DD>
         <DT>
-          <B>FICL_DICT *ficlGetEnv(FICL_SYSTEM *pSys)</B>
+          <B>FICL_HASH *ficlGetEnv(FICL_SYSTEM *pSys)</B>
         </DT>
         <DD>
-          Returns a pointer to the environment dictionary. This dictionary stores information that describes this implementation as required by the Standard.
+          Returns a pointer to the environment wordlist (FICL_HASH). This wordlist is allocated within the
+          main dictionary and stores implementation information as required by the Standard. The returned
+          value is a wordlist identifier (wid) that can be added to the search order, enabling direct
+          execution of environment constants.
         </DD>
         <DT>
           <B>void ficlSetEnv(FICL_SYSTEM *pSys, const char *name, FICL_UNS value)</B>
         </DT>
         <DD>
-          Enters a new constant into the environment dictionary, with the specified name and value.
+          Enters a new constant into the environment wordlist, with the specified name and value.
+          The word is allocated in the main dictionary but inserted into the environment wordlist.
         </DD>
         <DT>
           <B>void ficlSetEnvD(FICL_SYSTEM *pSys, const char *name, FICL_UNS hi, FICL_UNS lo)</B>
         </DT>
         <DD>
-          Enters a new double-cell constant into the environment dictionary with the specified name and value.
+          Enters a new double-cell constant into the environment wordlist with the specified name and value.
         </DD>
         <DT>
           <B>void ficlSetEnvF(FICL_SYSTEM *pSys, const char *name, FICL_FLOAT f)</B>
         </DT>
         <DD>
-          Enters a new floating-point constant into the environment dictionary with the specified name and value. Only available when FICL_WANT_FLOAT is enabled.
+          Enters a new floating-point constant into the environment wordlist with the specified name and value. Only available when FICL_WANT_FLOAT is enabled.
         </DD>
         <DT>
           <B>FICL_DICT *ficlGetLoc(FICL_SYSTEM *pSys)</B>
@@ -683,9 +687,9 @@ machine per native OS thread, and there may be several VMs sharing a single FICL
 FICL_SYSTEM per VM if the implementation needs to support multiple user sessions in a robust way.
 
 A FICL_SYSTEM also includes a special dictionary for local variable support (if enabled
-by FICL_WANT_LOCALS) and another for environment variable support. Environment variables
-describe the configuration of the system in conformance with American National Standard Forth
-(ANS Forth).
+by FICL_WANT_LOCALS). Environment query constants are stored in a named wordlist within
+the main dictionary. This wordlist can be accessed via the <code>environment-wordlist</code>
+word and added to the search order for direct execution of environment constants.
 <h3>FICL_DICT</h3>
 A dictionary manages a fixed-size block of contiguous memory. It serves two roles: to keep track
 of allocated memory, and to collect symbol tables called wordlists. Each dictionary contains at
@@ -946,6 +950,14 @@ FORTH-WORDLIST 1 SET-ORDER
         </DT>
         <DD>
           List all environment variables provided by the system
+        </DD>
+        <DT>
+          <code>environment-wordlist&nbsp;&nbsp; ( -- wid )</code>
+        </DT>
+        <DD>
+          Returns the wordlist identifier for the environment query wordlist. This wordlist
+          can be added to the search order (e.g. <code>environment-wordlist >search</code>)
+          to allow direct execution of environment constants.
         </DD>
         <DT>
           <code>.hash&nbsp;&nbsp; ( -- )</code>
