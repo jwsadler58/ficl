@@ -42,7 +42,6 @@
 ** SUCH DAMAGE.
 */
 #include <string.h>
-#include <ctype.h>
 #include "ficl.h"
 
 /*

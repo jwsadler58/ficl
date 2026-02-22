@@ -10,7 +10,6 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <sys/stat.h>
 #include "ficl.h"
 

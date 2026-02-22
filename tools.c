@@ -57,7 +57,6 @@
 #include <stdlib.h>
 #include <stdio.h>          /* snprintf */
 #include <string.h>
-#include <ctype.h>
 #include "ficl.h"
 
 
