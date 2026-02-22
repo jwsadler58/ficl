@@ -912,13 +912,13 @@ FORTH-WORDLIST 1 SET-ORDER
           <A name="wid-get-name"></A><code>wid-get-name&nbsp;&nbsp; ( wid -- c-addr u )</code>
         </DT>
         <DD>
-          Ficl wordlists (2.05 and later) have a name property that can be assigned. This is used by <code>ORDER</code> to list the names of wordlists in the search order.&nbsp;
+          Ficl wordlists have a name property that can be assigned. This is used by <code>ORDER</code> to list the names of wordlists in the search order.&nbsp;
         </DD>
         <DT>
           <A name="wid-set-name"></A><code>wid-set-name&nbsp;&nbsp; ( c-addr wid -- )</code>
         </DT>
         <DD>
-          Ficl wordlists (2.05 and later) have a name property that can be assigned. This is used by <code>ORDER</code> to list the names of wordlists in the search order. The name is assumed to be a \0
+          Ficl wordlists have a name property that can be assigned. This is used by <code>ORDER</code> to list the names of wordlists in the search order. The name is assumed to be a \0
           terminated string (C style), which conveniently is how Ficl stores word names.&nbsp; See softwords/softcore.fr definition of <code>brand-wordlist</code>&nbsp;
         </DD>
         <DT>
@@ -1313,13 +1313,10 @@ to 0 in sysdep.h or in your compiler flags.
 <table BORDER=0 CELLSPACING=3 COLS=1 WIDTH="675" >
 <tr>
 <td>
-<h3>
-Review of <a href="http://whatis.techtarget.com/definition/0,289893,sid9_gci212681,00.html">OO</a> ideas</h3>
+<h3>Review of OO ideas</h3>
 Click <a href="oo_in_c.html#review">here</a> for a short review of OO ideas,
-terms, and implementations in other languages, or <a href="http://www.soft-design.com/softinfo/objects.html">here</a>
-for an introduction to the terms and principles of Object Oriented Programming
-<h3>
-Design goals of Ficl OO syntax</h3>
+terms, and implementations in other languages.
+<h3>Design goals of Ficl OO syntax</h3>
 Ficl's object extensions provide the traditional OO benefits of associating
 data with the code that manipulates it, and reuse through single inheritance.
 Ficl also has some unusual capabilities that support interoperation with
@@ -1353,10 +1350,8 @@ can then manipulate the structure directly. This lets you wrap data structures
 written and instantiated in C.</li>
 </ul>
 
-<h3>
-Acknowledgements</h3>
-Ficl is not the first Forth to include Object Oriented extensions. Ficl's
-OO syntax owes a debt to the work of John Hayes and Dick Pountain, among
+<h3>Acknowledgements</h3>
+Ficl's OO syntax builds on the work of John Hayes and Dick Pountain, among
 others. OO Ficl is different from other OO Forths in a few ways, though
 (some things never change). First, unlike several implementations, the
 syntax is documented (<a href="#ootutorial">below</a>) beyond the source
