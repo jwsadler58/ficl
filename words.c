@@ -1568,7 +1568,7 @@ static void cellPlus(FICL_VM *pVM)
 **************************************************************************/
 void ficlTick(FICL_VM *pVM)
 {
-    FICL_WORD *pFW = NULL;
+    FICL_WORD *pFW;
     STRINGINFO si = vmGetWord(pVM);
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 0, 1);

@@ -139,7 +139,7 @@ void ficlCompileSoftCore(FICL_SYSTEM *pSys)
 {
     FICL_VM *pVM = pSys->vmList;
     CELL id = pVM->sourceID;
-    int ret = sizeof (softWords);
+    int ret;
     assert(pVM);
     pVM->sourceID.i = -1;
     ret = ficlExec(pVM, (char *)softWords);
