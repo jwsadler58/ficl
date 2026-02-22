@@ -67,7 +67,7 @@ static_assert(sizeof(FICL_UNS) == sizeof(void *),   "FICL_UNS must be pointer si
 
 void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
 
     while(*msg != 0)
         putchar(*(msg++));
@@ -157,7 +157,7 @@ void  ficlFree   (void *p)
 
 void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
 
     while(*msg != 0)
         putchar(*(msg++));
@@ -224,7 +224,7 @@ void  ficlFree   (void *p)
 #if !defined (_WINDOWS)
     void ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
     {
-        IGNORE(pVM);
+        FICL_IGNORE(pVM);
 
         if (fNewline)
             puts(msg);
@@ -262,9 +262,9 @@ void *ficlRealloc(void *p, size_t size)
     DPUNS ficlLongMul(FICL_UNS x, FICL_UNS y)
     {
         DPUNS q;
-        IGNORE(q);    /* suppress goofy compiler warnings */
-        IGNORE(x);
-        IGNORE(y);
+        FICL_IGNORE(q);    /* suppress goofy compiler warnings */
+        FICL_IGNORE(x);
+        FICL_IGNORE(y);
 
     #pragma ASM
         move.l (S_x,a6),d1
@@ -279,9 +279,9 @@ void *ficlRealloc(void *p, size_t size)
     UNSQR ficlLongDiv(DPUNS q, FICL_UNS y)
     {
         UNSQR result;
-        IGNORE(result); /* suppress goofy compiler warnings */
-        IGNORE(q);
-        IGNORE(y);
+        FICL_IGNORE(result); /* suppress goofy compiler warnings */
+        FICL_IGNORE(q);
+        FICL_IGNORE(y);
 
     #pragma ASM
         move.l (S_q+0,a6),d0    ; hi 32 --> d0
@@ -365,7 +365,7 @@ void *ficlRealloc(void *p, size_t size)
 
 void  ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
 
     if (fNewline)
         puts(msg);
@@ -412,7 +412,7 @@ void *ficlRealloc(void *p, size_t size)
 #if FICL_MULTISESSION
 int ficlLockDictionary(short fLock)
 {
-    IGNORE(fLock);
+    FICL_IGNORE(fLock);
     return 0;
 }
 #endif /* FICL_MULTISESSION */

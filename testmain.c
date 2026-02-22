@@ -1003,7 +1003,7 @@ static void clocksPerSec(FICL_VM *pVM)
 static int nTestFails = 0;
 static void testError(FICL_VM *pVM)
 {
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
     nTestFails++;
     return;
 }

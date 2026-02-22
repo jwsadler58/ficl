@@ -68,7 +68,7 @@ void ficlFree(void *p)
 */
 void ficlTextOut(FICL_VM *pVM, const char *msg, int fNewline)
 {
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
 
     if (!msg)
         return;
@@ -136,7 +136,7 @@ static void setFakeLed(FICL_VM *pVM)
 */
 static void wasmRefresh(FICL_VM *pVM)
 {
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
     ficlWasmRequestRefresh();
 #ifdef __EMSCRIPTEN__
     emscripten_sleep(0);
@@ -150,7 +150,7 @@ static void wasmRefresh(FICL_VM *pVM)
 static void wasmDelay(FICL_VM *pVM)
 {
     FICL_INT ms = stackPopINT(pVM->pStack);
-    IGNORE(pVM);
+    FICL_IGNORE(pVM);
 #ifdef __EMSCRIPTEN__
     emscripten_sleep((unsigned int)ms);
 #endif

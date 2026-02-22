@@ -167,11 +167,10 @@ typedef jmp_buf FICL_JMP_BUF;
 *************************************************************************************/
 
 /*
-** IGNORE Macro to silence "unused parameter" warnings
+** FICL_IGNORE Macro to silence "unused parameter" warnings
+** Changed from IGNORE because microsoft defined it pooly in winbase.h
 */
-#if !defined IGNORE
-    #define IGNORE(x) (void)(x)
-#endif
+#define FICL_IGNORE(x) (void)(x)
 
 /*
 ** TRUE and FALSE for C boolean operations, and
