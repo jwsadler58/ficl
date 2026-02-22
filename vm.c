@@ -932,16 +932,6 @@
 #define VM_OP_CASES_USER(OP_DONE)
 #endif
 
-#define VM_OP_SWITCH_BASE(OP_DONE) \
-    switch (opcode) { \
-        VM_OP_CASES_BASE(OP_DONE) \
-        VM_OP_CASES_FLOAT(OP_DONE) \
-        VM_OP_CASES_WORD(OP_DONE) \
-        VM_OP_CASES_USER(OP_DONE) \
-        default: \
-            break; \
-    }
-
 #define VM_OP_SWITCH_INNER(OP_DONE) \
     switch (opcode) { \
         VM_OP_CASES_BASE(OP_DONE) \
