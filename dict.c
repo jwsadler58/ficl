@@ -174,7 +174,7 @@ int dictAllotCells(FICL_DICT *pDict, int nCells)
 #if FICL_ROBUST
     if (nCells > 0)
     {
-        if (nCells <= dictCellsAvail(pDict))
+        if (nCells <= (int)dictCellsAvail(pDict))
             pDict->here += nCells;
         else
             return 1;       /* dict is full */
@@ -182,7 +182,7 @@ int dictAllotCells(FICL_DICT *pDict, int nCells)
     else
     {
         nCells = -nCells;
-        if (nCells <= dictCellsUsed(pDict))
+        if (nCells <= (int)dictCellsUsed(pDict))
             pDict->here -= nCells;
         else                /* prevent underflow */
             pDict->here -= dictCellsUsed(pDict);
@@ -335,8 +335,9 @@ void dictAppendUNS(FICL_DICT *pDict, FICL_UNS u)
                         d i c t C e l l s A v a i l
 ** Returns the number of empty cells left in the dictionary
 **************************************************************************/
-int dictCellsAvail(FICL_DICT *pDict)
+unsigned dictCellsAvail(FICL_DICT *pDict)
 {
+    assert(pDict->size >= dictCellsUsed(pDict));
     return pDict->size - dictCellsUsed(pDict);
 }
 
@@ -345,7 +346,7 @@ int dictCellsAvail(FICL_DICT *pDict)
                         d i c t C e l l s U s e d
 ** Returns the number of cells consumed in the dicionary
 **************************************************************************/
-int dictCellsUsed(FICL_DICT *pDict)
+unsigned dictCellsUsed(FICL_DICT *pDict)
 {
     return pDict->here - pDict->dict;
 }
@@ -361,12 +362,12 @@ int dictCellsUsed(FICL_DICT *pDict)
 **************************************************************************/
 void dictCheck(FICL_DICT *pDict, FICL_VM *pVM, int n)
 {
-    if ((n >= 0) && (dictCellsAvail(pDict) * (int)sizeof(CELL) < n))
+    if ((n >= 0) && ((int)dictCellsAvail(pDict) * (int)sizeof(CELL) < n))
     {
         vmThrowErr(pVM, "Error: dictionary full");
     }
 
-    if ((n <= 0) && (dictCellsUsed(pDict) * (int)sizeof(CELL) < -n))
+    if ((n <= 0) && ((int)dictCellsUsed(pDict) * (int)sizeof(CELL) < -n))
     {
         vmThrowErr(pVM, "Error: dictionary underflow");
     }
