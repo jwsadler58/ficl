@@ -621,8 +621,8 @@ int dictIncludes(FICL_DICT *pDict, const void *p)
     CELL *start = pDict->dict;               // decays to CELL *
     CELL *end   = pDict->dict + pDict->size; // one past last CELL
 
-    return ((p >= (void *)start) &&
-            (p  < (void *)end));
+    return (p >= (void *)start) &&
+           (p  < (void *)end);
 }
 
 /**************************************************************************

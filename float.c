@@ -904,7 +904,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
     ** floating point numbers only allowed in base 10
     */
     if (pVM->base != 10)
-        return(0);
+        return 0;
 
 
     cp = SI_PTR(si);
@@ -947,7 +947,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
                 {
                     digit = (unsigned char)(ch - '0');
                     if (digit > 9)
-                        return(0);
+                        return 0;
 
                     accum = accum * 10 + digit;
 
@@ -968,7 +968,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
                 {
                     digit = (unsigned char)(ch - '0');
                     if (digit > 9)
-                        return(0);
+                        return 0;
 
                     accum += digit * mant;
                     mant *= 0.1f;
@@ -999,7 +999,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
             {
                 digit = (unsigned char)(ch - '0');
                 if (digit > 9)
-                    return(0);
+                    return 0;
 
                 exponent = exponent * 10 + digit;
 
@@ -1010,7 +1010,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
 
     /* If parser never made it to the exponent this is not a float. */
     if (estate < FPS_STARTEXP)
-        return(0);
+        return 0;
 
     /* Set the sign of the number. */
     if (flag & NUMISNEG)
@@ -1033,7 +1033,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
     if (pVM->state == COMPILE)
         fliteralIm(pVM);
 
-    return(1);
+    return 1;
 }
 
 /*

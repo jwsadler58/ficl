@@ -444,7 +444,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
 
     pVM->pState    = oldState;
     vmPopTib(pVM, &saveTib);
-    return (except);
+    return except;
 }
 
 
@@ -522,7 +522,7 @@ int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
 
     pVM->pState    = oldState;
     pVM->runningWord = oldRunningWord;
-    return (except);
+    return except;
 }
 
 
