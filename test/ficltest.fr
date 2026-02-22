@@ -96,6 +96,14 @@ t{ hex 0d10 -> decimal 10 }t
 t{ hex 100 -> decimal 256 }t
 \ prefix should not affect state of BASE
 t{ decimal 0x0f base @ 10 = -> 15 true }t
+\ character literal prefix
+t{ 'A' -> 65 }t
+t{ 'z' -> 122 }t
+t{ '0' -> 48 }t
+t{ '~' -> 126 }t
+\ character literal in compiled word
+: test-char 'X' ;
+t{ test-char -> 88 }t
 
 testing 2constant
 2 3 2constant 2c23

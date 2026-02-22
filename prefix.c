@@ -144,6 +144,28 @@ static void prefixTen(FICL_VM *pVM)
     tempBase(pVM, 10);
 }
 
+static void prefixQuote(FICL_VM *pVM)
+{
+    STRINGINFO si = vmGetWord0(pVM);
+    int count = SI_COUNT(si);
+    const char *cp = SI_PTR(si);
+
+    if (count == 2 && cp[1] == '\'')
+    {
+        PUSHINT((FICL_INT)cp[0]);
+        if (pVM->state == COMPILE)
+        {
+            FICL_DICT *dp = vmGetDict(pVM);
+            dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pLitParen));
+            dictAppendCell(dp, stackPop(pVM->pStack));
+        }
+    }
+    else
+    {
+        vmThrowErr(pVM, "%.*s is not a valid character literal", count, cp);
+    }
+}
+
 
 /**************************************************************************
                         f i c l C o m p i l e P r e f i x
@@ -185,6 +207,7 @@ void ficlCompilePrefix(FICL_SYSTEM *pSys)
     dp->pCompile = pHash;
     dictAppendWord(dp, "0x", prefixHex, FW_DEFAULT);
     dictAppendWord(dp, "0d", prefixTen, FW_DEFAULT);
+    dictAppendWord(dp, "'",  prefixQuote, FW_DEFAULT);
 #if (FICL_EXTENDED_PREFIX)
     pFW = ficlLookup(pSys, "\\");
     if (pFW)
