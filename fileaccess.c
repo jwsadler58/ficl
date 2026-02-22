@@ -10,7 +10,6 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <sys/stat.h>
 #include "ficl.h"
 
@@ -252,7 +251,6 @@ static void ficlFileSize(FICL_VM *pVM) /* ( fileid -- ud ior ) */
 
 
 
-#define nLINEBUF 256
 static void ficlIncludeFile(FICL_VM *pVM) /* ( i*x fileid -- j*x ) */
 {
     ficlFILE *ff = (ficlFILE *)stackPopPtr(pVM->pStack);

@@ -1104,7 +1104,7 @@ void buildTestInterface(FICL_SYSTEM *pSys)
 
 int main(int argc, char **argv)
 {
-    int ret = 0;
+    int ret;
     FICL_VM *pVM;
     FICL_SYSTEM *pSys;
     int i;

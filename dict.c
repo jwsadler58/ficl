@@ -621,8 +621,8 @@ int dictIncludes(FICL_DICT *pDict, const void *p)
     CELL *start = pDict->dict;               // decays to CELL *
     CELL *end   = pDict->dict + pDict->size; // one past last CELL
 
-    return ((p >= (void *)start) &&
-            (p  < (void *)end));
+    return (p >= (void *)start) &&
+           (p  < (void *)end);
 }
 
 /**************************************************************************
@@ -661,7 +661,7 @@ FICL_WORD *dictLookup(FICL_DICT *pDict, STRINGINFO si)
 #if FICL_WANT_LOCALS
 FICL_WORD *ficlLookupLoc(FICL_SYSTEM *pSys, STRINGINFO si)
 {
-    FICL_WORD *pFW = NULL;
+    FICL_WORD *pFW;
     FICL_DICT *pDict = pSys->dp;
     FICL_HASH *pHash = ficlGetLoc(pSys)->pForthWords;
     int i;

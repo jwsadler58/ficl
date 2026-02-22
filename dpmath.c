@@ -141,7 +141,7 @@ INTQR dpmFlooredDivI(DPINT num, FICL_INT den)
 **************************************************************************/
 int dpmIsNegative(DPINT x)
 {
-    return (x.hi < 0);
+    return x.hi < 0;
 }
 
 

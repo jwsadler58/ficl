@@ -57,7 +57,6 @@
 #include <stdlib.h>
 #include <stdio.h>          /* snprintf */
 #include <string.h>
-#include <ctype.h>
 #include "ficl.h"
 
 
@@ -121,7 +120,7 @@ int isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW)
 static int isPrimitive(FICL_WORD *pFW)
 {
     WORDKIND wk = ficlWordClassify(pFW);
-    return ((wk != COLON) && (wk != DOES));
+    return (wk != COLON) && (wk != DOES);
 }
 #endif
 
