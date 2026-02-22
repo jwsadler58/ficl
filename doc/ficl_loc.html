@@ -44,8 +44,8 @@
 <h2>
 <a NAME="locals"></a>Local Variables</h2>
 Named locally scoped variables came late to Forth. Purists feel that experienced
-Forth programmers can (and should) write supportable code using only anonymous
-stack variables and good factoring, but they complain that novices use
+Forth programmers ought to write supportable code using only anonymous
+stack variables and good factoring, but complain that novices use
 global variables too much. Local variables cost little in terms of code
 size and execution speed, and are very convenient for OO programming, where
 stack effects are more complex. I use them a lot (maybe I'm a weenie).&nbsp;
@@ -72,12 +72,22 @@ but they must appear in the order shown if they appear at all.&nbsp;
 <br><b>Double cell locals </b>(AKA 2locals): ordinarily, each local represents
 one cell. Local variable names prefixed with the characters "2:" in the declaration
 are double-cell locals. The prefix is not part of the local variable's name, only
-part of the declaration. 
+part of the declaration.
 They behave the same as single cell locals in all
 other respects. I use 2locals quite a bit in Ficl's OO classes, because
-objects in Ficl require two cells on the stack. You can modify the
-value of a double cell local with <code><a href="http://www.taygeta.com/forth/dpans13.htm#13.6.1.2295">TO</a></code>
-the same as you would a single cell local.
+objects in Ficl require two cells on the stack.
+<br><b>Float locals: </b>when Ficl is compiled with <code>FICL_WANT_FLOAT</code>,
+local variable names prefixed with "f:" (or "F:") in the declaration are
+float locals. Like the 2: prefix, the f: prefix is not part of the variable's
+name. Float locals take their initial values from the float stack and push
+to the float stack when referenced. A float local occupies one or two cells
+in the locals frame depending on the size of <code>FICL_FLOAT</code> relative
+to <code>CELL</code>.
+<br>You can modify the
+value of any local with <code><a href="http://www.taygeta.com/forth/dpans13.htm#13.6.1.2295">TO</a></code>.
+<code>TO</code> determines whether it's operating on a <code>LOCAL</code>,
+a <code>2LOCAL</code>, a float local, or a <code>VALUE</code>,
+and does the right thing accordingly.
 <br>Following are some examples to illustrate usage (they are not intended
 to be good code otherwise). Try these out in the <A href="demo.html">demo</A> to get a feeling for
 how they work. Also see <code>softwords/string.fr</code> for an example of use of locals
@@ -102,21 +112,21 @@ in OO code.
    x to y
    temp to x
    x y ;
+
+\ Using a float local (requires FICL_WANT_FLOAT)
+: circle-area  { f:r -- f:area }
+  r r f* 3.14159265e f* ;
 </pre>
-The last definition introduces the use of <code>TO</code> applied to local
-variables. <code>TO</code> knows whether it's operating on a <code>LOCAL</code>,
-a <code>2LOCAL</code>, or a <code>VALUE</code>, and does the right thing accordingly.&nbsp;
-<br>&nbsp;
-<h2>Other local variable syntaxes (deprecated)</h2>
-There are other syntaxes in use for local variables. You get the same compiled
-code regardless of which style of local declaration you choose, but the
-Johns-Hopkins syntax is more readable, more flexible, and supports <code>2LOCAL</code>s
-- if you agree, then skip this section.&nbsp;
-<p>Ficl includes support for <code>LOCALS</code> and <code>LOCALS EXT</code> words
-(all three of them!). I've implemented both of the local variable syntaxes
-suggested in DPANS Appendix A.13. Examples: (By the way, Ficl implements
-<code>-ROT</code>
-as <code>: -rot  2 -roll ;</code> )
+The last two definitions introduce the use of <code>TO</code> applied to local
+variables.
+<h2>Standard LOCALS and LOCALS EXT words</h2>
+In addition to the Johns-Hopkins syntax, Ficl provides the standard
+<code>LOCALS</code> and <code>LOCALS EXT</code> wordsets.
+These produce the same compiled code as the JH syntax but only support
+single-cell locals. The JH syntax adds support for <code>2LOCAL</code>s
+and float locals.
+<p>Ficl implements both local variable syntaxes
+suggested in DPANS Appendix A.13. Examples:
 <pre>
 \ Using LOCALS| from LOCALS EXT
 : -rot  ( a b c -- c a b )
@@ -136,57 +146,32 @@ as <code>: -rot  2 -roll ;</code> )
 ;
 </pre>
 
-<h2>
-Build Controls</h2>
-Local variable support is optional because it adds a small amount of overhead
+<h2>Build Controls</h2>
+<p>Local variable support is optional because it adds a small amount of overhead
 to the outer interpreter. You can disable it by setting FICL_WANT_LOCALS
-to 0 in sysdep.h. Beware: <a href="ficl_oop.html">Ficl's OOP</a> code makes
-heavy use of local variables, so if you disable locals, you're going to
-lose other capabilities too. Local variables can make Forth code quite
-a bit easier to read, so I'd encourage you to experiment with them.&nbsp;
-<p>The default maximum number of local variables is 16. It's controlled
-by FICL_MAX_LOCALS in sysdep.h.&nbsp;
-<h2>
-Release notes for local variables</h2>
-<p>Ficl 2.05 adds 2LOCALS using the "2:" prefix</p>
-<p>Ficl 2.02 includes by default an implementation of the Johns Hopkins local
-syntax (as best I can determine it from examples on the web). This syntax
-lets you declare local variables that look very much like a stack comment.
-Variables in the declaration appear in the "correct" order for a stack
-comment. Everything after the -- is treated as a comment. In addition,
-you can insert a | before the -- to declare one or more zero-initialized
-locals. Example:&nbsp;</p>
-<pre>
-:tuck0  { a b c | d -- 0 a b c }
-   d a b c ;
-</pre>
-The | and -- delimiters can appear at most once, and must appear in the
-order shown in the example to work correctly. The local declaration ends
-at the first occurrence of }. The declaration must all be on one line as
-presently implemented.&nbsp;
-<p><b>Deprecated</b>: Ficl 2.01 added yet another local syntax that models
-a stack comment. This one is not compiled in the release, but you can add
-it by editing softwords/softcore.bat to include the file ficllocal.fr.
-In this case, parameters are re-ordered so that the rightmost initialized
-param comes from the top of the stack. The syntax is:&nbsp;
-<pre>
-{{ &lt;initialized params> -- &lt;cleared params> }}
-</pre>
-You can omit either the initialized or the cleared parameters. Parameters
-after the double dash are set to zero initially. Those to the left are
-initialized from the stack at execution time. Examples (lame ones, admittedly):&nbsp;
-<br>&nbsp;
-<pre>
-: -rot  ( a b c -- c a b )
-   {{ a b c }}
-   c a b
-;
+to 0 in sysdep.h or in your compiler flags.
+</p>
+<h3>Notes:</h3>
+<bl>
+  <li>
+    Ficl's local variable syntax can make code quite a bit easier to read,
+    so I encourage you to experiment with it.
+  </li>
+  <li>
+    Locals or not, keep your words simple.
+    If the stack twiddles are too complex, consider factoring the definition into
+    smaller and simpler words.&nbsp;
+  </li>
+  <li>
+    <a href="ficl_oop.html">Ficl's OOP</a> code makes heavy use of local variables,
+    so if you enable FICL_WANT_OOP, locals will also be enabled automatically.
+  </li>
+  <li>
+    The default maximum number of local variables per definition is 16. It's controlled
+    by FICL_MAX_LOCALS in sysdep.h.&nbsp;
+  </li>
+</bl>
 
-: tuck0  ( a b c -- 0 a b c )
-   {{ a b c -- d }}
-   d a b c
-;
-</pre>
 </td>
 </tr>
         </table>
