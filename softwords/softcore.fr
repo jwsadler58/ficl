@@ -194,8 +194,18 @@ set-current   \ stop hiding words
 ;
 
 : debug  ' debug-xt ; immediate
+\ #if FICL_WANT_FLOAT
+: on-step
+    depth 0= fdepth 0= and if
+        ." (Empty)" cr
+    else
+        depth  if ." S: " .s cr endif
+        fdepth if ." F: " f.s cr endif
+    endif
+;
+\ #else
 : on-step   ." S: " .s cr ;
-
+\ #endif
 
 \ #if FICL_WANT_LOCALS
 \ Submitted by lch.

@@ -620,7 +620,7 @@ static void displayPStack(FICL_VM *pVM)
     vmCheckStack(pVM, 0, 0);
 
     if (d == 0)
-        vmTextOut(pVM, "(Stack Empty) ", 0);
+        vmTextOut(pVM, "(Empty) ", 0);
     else
     {
         pCell = pStk->base;

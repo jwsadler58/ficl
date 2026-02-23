@@ -250,7 +250,7 @@ typedef struct _ficlStack
     FICL_UNS nCells;    /* size of the stack */
     CELL *pFrame;       /* link reg for stack frame */
     CELL *sp;           /* stack pointer */
-    CELL base[];        /* Top of stack */
+    CELL base[];        /* Bottom of stack */
 } FICL_STACK;
 #define FICL_STACK_BYTES(nCells) (offsetof(FICL_STACK, base) + (nCells) * sizeof(CELL))
 
@@ -259,7 +259,7 @@ typedef struct _ficlFloatStack
 {
     FICL_UNS nCells;    /* size of the stack */
     FICL_FLOAT *sp;     /* stack pointer */
-    FICL_FLOAT base[];  /* Top of stack */
+    FICL_FLOAT base[];  /* Bottom of stack */
 } FICL_FSTACK;
 #define FICL_FSTACK_BYTES(nCells) (offsetof(FICL_FSTACK, base) + (nCells) * sizeof(FICL_FLOAT))
 #define FICL_FLOAT_CELLS ((sizeof(FICL_FLOAT) + sizeof(CELL) - 1) / sizeof(CELL))

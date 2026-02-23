@@ -97,26 +97,18 @@ static void displayFStack(FICL_VM *pVM)
 {
     int d = stackDepthFloat(pVM->fStack);
     int i;
-    FICL_FLOAT *pFloat;
 
     vmCheckFStack(pVM, 0, 0);
 
-    vmTextOut(pVM, "F:", 0);
-
     if (d == 0)
-        vmTextOut(pVM, "(Float Stack Empty)", 1);
+        vmTextOut(pVM, "(Empty)", 1);
     else
     {
-        ficlLtoa(d, &pVM->scratch[1], pVM->base);
-        pVM->scratch[0] = '[';
-        strcat(pVM->scratch,"] ");
-        vmTextOut(pVM,pVM->scratch,0);
-
-        pFloat = pVM->fStack->sp - d;
+        FICL_FLOAT *pFloat = pVM->fStack->base;
         for (i = 0; i < d; i++)
         {
-            snprintf(pVM->scratch, sizeof(pVM->scratch), "%.5e ", (double)(*pFloat++));
-            vmTextOut(pVM,pVM->scratch, 1);
+            snprintf(pVM->scratch, sizeof(pVM->scratch), "%.1e ", (double)(*pFloat++));
+            vmTextOut(pVM,pVM->scratch, 0);
         }
     }
 }
