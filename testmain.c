@@ -753,7 +753,7 @@ static void ficlChDir(FICL_VM *pVM)
         int err = chdir(pFS->text);
         if (err)
         {
-            vmTextOut(pVM, "Error: path not found", 0);
+            vmTextOut(pVM, "Error: path not found ", 0);
             vmTextOut(pVM, pFS->text, 1);
             vmThrow(pVM, VM_ERREXIT);
         }
