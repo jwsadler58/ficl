@@ -326,7 +326,6 @@ T{ : AG0 701 BEGIN DUP 7 MOD 0= IF EXIT THEN 1+ AGAIN ; -> }T
 T{ AG0 -> 707 }T
 
 \ -----------------------------------------------------------------------------
-0 [if]            \ unimplemented in ficl
 TESTING MARKER   (contributed by James Bowman)
 
 T{ : MA? BL WORD FIND NIP 0<> ; -> }T
@@ -339,7 +338,6 @@ T{ MA1 MA2 MA1 -> 222 111 }T
 T{ MA? MA0 MA? MA1 MA? MA2 -> TRUE TRUE FALSE }T
 T{ MA0 -> }T
 T{ MA? MA0 MA? MA1 MA? MA2 -> FALSE FALSE FALSE }T
-[endif]
 \ -----------------------------------------------------------------------------
 TESTING ?DO
 
