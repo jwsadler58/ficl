@@ -24,7 +24,7 @@ set-current
     1                                     \ ( level )
     begin
       begin
-        parse-word dup  while             \ ( level addr len )
+        parse-name dup  while             \ ( level addr len )
         ?[if] if                          \ ( level addr len )
             2drop 1+                      \ ( level )
         else                              \ ( level addr len )

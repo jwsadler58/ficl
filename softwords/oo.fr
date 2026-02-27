@@ -90,7 +90,7 @@ user current-class
 \ the string base address and count at run-time.
 
 : parse-method  \ name  run: ( -- c-addr u )
-    parse-word
+    parse-name
     postpone sliteral
 ; compile-only
 
@@ -117,7 +117,7 @@ user current-class
 ;
 
 : find-method-xt   \ name ( class -- class xt )
-    parse-word lookup-method
+    parse-name lookup-method
 ;
 
 : catch-method  ( instance class c-addr u -- <method-signature> exc-flag )
@@ -189,7 +189,7 @@ instance-vars dup >search ficl-set-current
 : my=[   \ same as my=> , but binds a chain of methods
     current-class @
     begin
-        parse-word 2dup             ( class c-addr u c-addr u )
+        parse-name 2dup             ( class c-addr u c-addr u )
         s" ]" compare while         ( class c-addr u )
         lookup-method               ( class xt )
         dup compile,                ( class xt )

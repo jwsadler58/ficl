@@ -2545,8 +2545,8 @@ static void ficlWord(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        p a r s e - w o r d
-** ficl   PARSE-WORD  ( <spaces>name -- c-addr u )
+                        p a r s e - n a m e
+** ficl   parse-name  ( <spaces>name -- c-addr u )
 ** Skip leading spaces and parse name delimited by a space. c-addr is the
 ** address within the input buffer and u is the length of the selected
 ** string. If the parse area is empty, the resulting string has a zero length.
@@ -4087,6 +4087,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "hex",       hex,            FW_DEFAULT);
     dictAppendWord(  dp, "pad",       pad,            FW_DEFAULT);
     dictAppendWord(  dp, "parse",     parse,          FW_DEFAULT);
+    dictAppendWord(  dp, "parse-name",parseNoCopy,    FW_DEFAULT);
     dictAppendOpWord(dp, "pick",      FICL_OP_PICK,   FW_DEFAULT);
     /* query restore-input save-input tib u.r u> unused [compile] */
     dictAppendOpWord(dp, "roll",      FICL_OP_ROLL,   FW_DEFAULT);
@@ -4226,7 +4227,6 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "hash",      hash,           FW_DEFAULT);
     dictAppendWord(  dp, "objectify", setObjectFlag,  FW_DEFAULT);
     dictAppendWord(  dp, "?object",   isObject,       FW_DEFAULT);
-    dictAppendWord(  dp, "parse-word",parseNoCopy,    FW_DEFAULT);
     dictAppendWord(  dp, "sfind",     sFind,          FW_DEFAULT);
     dictAppendWord(  dp, "sliteral",  sLiteralCoIm,   FW_COMPIMMED); /* STRING */
     dictAppendWord(  dp, "sprintf",   ficlSprintf,    FW_DEFAULT);

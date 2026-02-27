@@ -38,7 +38,7 @@ start-prefixes
 \ : __tempbase  { newbase | oldbase -- }
 \   base @ to oldbase
 \   newbase base !
-\   0 0 parse-word >number 2drop drop
+\   0 0 parse-name >number 2drop drop
 \   oldbase base !
 \   ;
 

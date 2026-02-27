@@ -78,7 +78,7 @@ set-current
 
     \ stack locals until we hit a delimiter
     begin
-        parse-word      \ ( nLocals c-addr u )
+        parse-name      \ ( nLocals c-addr u )
         ?delim dup to locstate
     0= while
         rot 1+          \ ( c-addr u ... c-addr u nLocals )
@@ -92,7 +92,7 @@ set-current
     \ zero locals until -- or }
     locstate 1 = if
         begin
-            parse-word
+            parse-name
             ?delim dup to locstate
         0= while
             ?floc if
@@ -113,7 +113,7 @@ set-current
     \ (explicitly allow | and -- in the comment)
     locstate 2 = if
         begin
-            parse-word
+            parse-name
             ?delim dup  to locstate
         3 < while
             locstate 0=  if 2drop endif
