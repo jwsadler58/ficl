@@ -1,5 +1,5 @@
 OBJECTS= dict.o ficl.o fileaccess.o float.o dpmath.o prefix.o search.o softcore.o stack.o sysdep.o tools.o vm.o words.o
-FICL_TEST_OBJ= testmain.o unity.o
+FICL_TEST_OBJ= testmain.o testdpmath.o unity.o
 HEADERS= ficl.h dpmath.h sysdep.h unity.h
 #
 # Flags for shared library
