@@ -14,7 +14,7 @@ FICLMIN_OBJDIR  = $(OBJDIR)/ficlmin
 
 FICL_SRCS = dict.c ficl.c fileaccess.c float.c dpmath.c \
             prefix.c search.c softcore.c stack.c \
-            sysdep.c tools.c unity.c vm.c words.c
+            sysdep.c tools.c vm.c words.c
 FICL_OBJS = $(FICL_SRCS:.c=.o)
 
 CFLAGS_FICL     =
@@ -23,7 +23,7 @@ CFLAGS_FICLMIN  = -DFICL_MINIMAL=1
 LIBFICL_OBJS     = $(addprefix $(FICL_OBJDIR)/,$(FICL_OBJS))
 LIBFICLMIN_OBJS  = $(addprefix $(FICLMIN_OBJDIR)/,$(FICL_OBJS))
 
-FICL_TEST_OBJ     = $(FICL_OBJDIR)/testmain.o
+FICL_TEST_OBJ     = $(FICL_OBJDIR)/testmain.o $(FICL_OBJDIR)/unity.o
 FICLMIN_TEST_OBJ  = $(FICLMIN_OBJDIR)/testmain.o
 
 DEPS = $(LIBFICL_OBJS:.o=.d) $(LIBFICLMIN_OBJS:.o=.d) \
