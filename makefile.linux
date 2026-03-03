@@ -11,7 +11,8 @@ RANLIB   = ranlib
 OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
 		  prefix.o search.o softcore.o stack.o \
 		  sysdep.o tools.o unity.o vm.o words.o
-DEPS    = $(OBJECTS:.o=.d) testmain.d
+FICL_TEST_OBJ = testmain.o
+DEPS    = $(OBJECTS:.o=.d) $(FICL_TEST_OBJ:.o=.d)
 
 # === Softcore.c is generated from softwords folder ===
 softcore.c:
@@ -24,8 +25,8 @@ libficl.a: $(OBJECTS)
 	$(RANLIB) $@
 
 # === Console Test executable ===
-ficl: testmain.o ficl.h sysdep.h libficl.a
-	$(CC) testmain.o -o ficl -L. -lficl -lm
+ficl: $(FICL_TEST_OBJ) ficl.h sysdep.h libficl.a
+	$(CC) $(FICL_TEST_OBJ) -o ficl -L. -lficl -lm
 
 # === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o
