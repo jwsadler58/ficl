@@ -1,4 +1,5 @@
 OBJECTS= dict.o ficl.o fileaccess.o float.o dpmath.o prefix.o search.o softcore.o stack.o sysdep.o tools.o unity.o vm.o words.o
+FICL_TEST_OBJ= testmain.o
 HEADERS= ficl.h dpmath.h sysdep.h unity.h
 #
 # Flags for shared library
@@ -11,8 +12,8 @@ LIB = makealf -qls -o
 
 lib: o.libficl
 
-ficl: testmain.o ficl.h sysdep.h o.libficl
-	$(CC) testmain.o -o ficl -L. -lficl -lm
+ficl: $(FICL_TEST_OBJ) ficl.h sysdep.h o.libficl
+	$(CC) $(FICL_TEST_OBJ) -o ficl -L. -lficl -lm
 
 # static library build
 o.libficl: $(OBJECTS)
