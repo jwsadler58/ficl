@@ -551,7 +551,7 @@ void stepBreak(FICL_VM *pVM)
     }
     else if (!strincmp(si.cp, "q", si.count))
     {
-        ficlTextOut(pVM, FICL_PROMPT, 0);
+        vmTextOut(pVM, FICL_PROMPT, 0);
         vmThrow(pVM, VM_ABORT);
     }
     else if (!strincmp(si.cp, "x", si.count))
