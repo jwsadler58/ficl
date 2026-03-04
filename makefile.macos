@@ -24,7 +24,7 @@ LIBFICL_OBJS     = $(addprefix $(FICL_OBJDIR)/,$(FICL_OBJS))
 LIBFICLMIN_OBJS  = $(addprefix $(FICLMIN_OBJDIR)/,$(FICL_OBJS))
 
 FICL_TEST_OBJ     = $(FICL_OBJDIR)/testmain.o $(FICL_OBJDIR)/testdpmath.o $(FICL_OBJDIR)/unity.o
-FICLMIN_TEST_OBJ  = $(FICLMIN_OBJDIR)/testmain.o
+FICLMIN_TEST_OBJ  = $(FICLMIN_OBJDIR)/testmain.o $(FICL_OBJDIR)/testdpmath.o $(FICL_OBJDIR)/unity.o
 
 DEPS = $(LIBFICL_OBJS:.o=.d) $(LIBFICLMIN_OBJS:.o=.d) \
        $(FICL_TEST_OBJ:.o=.d) $(FICLMIN_TEST_OBJ:.o=.d)
