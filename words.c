@@ -699,7 +699,7 @@ static void commentLine(FICL_VM *pVM)
 */
 static void commentHang(FICL_VM *pVM)
 {
-    vmParseStringEx(pVM, ')', 0);
+    vmParseStringEx(pVM, ')', false);
     return;
 }
 
@@ -2528,7 +2528,7 @@ static void ficlWord(FICL_VM *pVM)
 
     sp = (FICL_STRING *)pVM->scratch;
     delim = (char)POPINT();
-    si = vmParseStringEx(pVM, delim, 1);
+    si = vmParseStringEx(pVM, delim, true);
 
     if (SI_COUNT(si) > nSCRATCH-1)
         SI_SETLEN(si, nSCRATCH-1);
@@ -2585,7 +2585,7 @@ static void parse(FICL_VM *pVM)
 
     delim = (char)POPINT();
 
-    si = vmParseStringEx(pVM, delim, 0);
+    si = vmParseStringEx(pVM, delim, false);
     PUSHPTR(SI_PTR(si));
     PUSHUNS(SI_COUNT(si));
     return;

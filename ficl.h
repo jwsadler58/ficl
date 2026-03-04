@@ -633,7 +633,7 @@ STRINGINFO  vmGetWord      (FICL_VM *pVM);
 STRINGINFO  vmGetWord0     (FICL_VM *pVM);
 int         vmGetWordToScr (FICL_VM *pVM);      /* renamed from vmGetWordToPad */
 STRINGINFO  vmParseString  (FICL_VM *pVM, char delimiter);
-STRINGINFO  vmParseStringEx(FICL_VM *pVM, char delimiter, char fSkipLeading);
+STRINGINFO  vmParseStringEx(FICL_VM *pVM, char delimiter, bool fSkipLeading);
 CELL        vmPop          (FICL_VM *pVM);
 void        vmPush         (FICL_VM *pVM, CELL c);
 void        vmPopIP        (FICL_VM *pVM);

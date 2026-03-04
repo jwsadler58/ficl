@@ -1195,7 +1195,7 @@ FICL_DICT  *vmGetDict(FICL_VM *pVM)
 **************************************************************************/
 char *vmGetString(FICL_VM *pVM, FICL_STRING *spDest, char delimiter)
 {
-    STRINGINFO si = vmParseStringEx(pVM, delimiter, 0);
+    STRINGINFO si = vmParseStringEx(pVM, delimiter, false);
 
     if (SI_COUNT(si) > FICL_STRING_MAX)
     {
@@ -1311,10 +1311,10 @@ int vmGetWordToScr(FICL_VM *pVM)
 **************************************************************************/
 STRINGINFO vmParseString(FICL_VM *pVM, char delim)
 {
-    return vmParseStringEx(pVM, delim, 1);
+    return vmParseStringEx(pVM, delim, true);
 }
 
-STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, char fSkipLeading)
+STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, bool fSkipLeading)
 {
     STRINGINFO si;
     const char *pSrc = vmGetInBuf(pVM);
