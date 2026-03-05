@@ -108,7 +108,7 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     pSys->envp = dictCreateWordlist(pSys->dp, 64);
     pSys->envp->name = "environment-wordlist";
 
-    pSys->textOut = fsi->textOut;
+    pSys->textOut = (fsi->textOut != NULL) ? fsi->textOut : ficlTextOut;
     pSys->pExtend = fsi->pExtend;
 
 #if FICL_WANT_LOCALS
