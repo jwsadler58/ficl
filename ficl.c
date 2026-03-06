@@ -404,7 +404,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
     case VM_OUTOFTEXT:
         vmPopIP(pVM);
         if ((pVM->state != COMPILE) && (pVM->sourceID.i == 0))
-            ficlTextOut(pVM, FICL_PROMPT, 0);
+            vmTextOut(pVM, FICL_PROMPT, 0);
         break;
 
     case VM_USEREXIT:
