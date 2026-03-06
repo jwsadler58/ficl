@@ -179,8 +179,8 @@ static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
     */
     if ((cp != tag) && strcmp(cp, tag))
     {
-        vmTextOut(pVM, "Warning -- Unmatched control word: ", 0);
-        vmTextOut(pVM, tag, 1);
+        vmTextOut(pVM, "Warning -- Unmatched control word: ", false);
+        vmTextOut(pVM, tag, true);
     }
 
     patchAddr = (CELL *)stackPopPtr(pVM->pStack);
@@ -394,7 +394,7 @@ static void displayCell(FICL_VM *pVM)
     c = stackPop(pVM->pStack);
     ficlLtoa((c).i, outbuf, pVM->base);
     strcat(outbuf, " ");
-    vmTextOut(pVM, outbuf, 0);
+    vmTextOut(pVM, outbuf, false);
     return;
 }
 
@@ -408,7 +408,7 @@ static void uDot(FICL_VM *pVM)
     u = stackPopUNS(pVM->pStack);
     ficlUltoa(u, outbuf, pVM->base);
     strcat(outbuf, " ");
-    vmTextOut(pVM, outbuf, 0);
+    vmTextOut(pVM, outbuf, false);
     return;
 }
 
@@ -422,7 +422,7 @@ static void hexDot(FICL_VM *pVM)
     u = stackPopUNS(pVM->pStack);
     ficlUltoa(u, outbuf, 16);
     strcat(outbuf, " ");
-    vmTextOut(pVM, outbuf, 0);
+    vmTextOut(pVM, outbuf, false);
     return;
 }
 
@@ -646,14 +646,14 @@ static void emit(FICL_VM *pVM)
     i = stackPopINT(pVM->pStack);
     cp[0] = (char)i;
     cp[1] = '\0';
-    vmTextOut(pVM, cp, 0);
+    vmTextOut(pVM, cp, false);
     return;
 }
 
 
 static void cr(FICL_VM *pVM)
 {
-    vmTextOut(pVM, "", 1);
+    vmTextOut(pVM, "", true);
     return;
 }
 
@@ -1142,8 +1142,8 @@ static int ficlParseWord(FICL_VM *pVM, STRINGINFO si)
         {
             if (wordIsCompileOnly(tempFW))
             {
-                vmTextOut(pVM, "Error: >> ", 0);
-                vmTextOut(pVM, tempFW->name, 0);
+                vmTextOut(pVM, "Error: >> ", false);
+                vmTextOut(pVM, tempFW->name, false);
                 vmThrowErr(pVM, " << is compile-only", tempFW->name);
             }
 
@@ -1746,7 +1746,7 @@ static void dotParen(FICL_VM *pVM)
     if ((pEnd != pSrc) && (ch == ')'))
         pSrc++;
 
-    vmTextOut(pVM, outbuf, 0);
+    vmTextOut(pVM, outbuf, false);
     vmUpdateTib(pVM, pSrc);
 
     return;
@@ -2499,7 +2499,7 @@ static void type(FICL_VM *pVM)
         cp = pDest;
     }
 
-    vmTextOut(pVM, cp, 0);
+    vmTextOut(pVM, cp, false);
     return;
 }
 
@@ -2946,7 +2946,7 @@ static void ficlVersion(FICL_VM *pVM)
     int nBits = sizeof(CELL) * CHAR_BIT;
     snprintf(pVM->scratch, sizeof(pVM->scratch),
         "ficl Version %d.%03d (%d bits)", FICL_VER_MAJOR, FICL_VER_MINOR, nBits);
-    vmTextOut(pVM, pVM->scratch, 0);
+    vmTextOut(pVM, pVM->scratch, false);
 return;
 }
 

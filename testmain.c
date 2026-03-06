@@ -732,7 +732,7 @@ static void ficlGetCWD(FICL_VM *pVM)
     char *cp;
 
     cp = getcwd(NULL, 80);
-    vmTextOut(pVM, cp, 1);
+    vmTextOut(pVM, cp, true);
     free(cp);
     return;
 }
@@ -753,14 +753,14 @@ static void ficlChDir(FICL_VM *pVM)
         int err = chdir(pFS->text);
         if (err)
         {
-            vmTextOut(pVM, "Error: path not found ", 0);
-            vmTextOut(pVM, pFS->text, 1);
+            vmTextOut(pVM, "Error: path not found ", false);
+            vmTextOut(pVM, pFS->text, true);
             vmThrow(pVM, VM_ERREXIT);
         }
     }
     else
     {
-        vmTextOut(pVM, "Warning (chdir): nothing happened", 1);
+        vmTextOut(pVM, "Warning (chdir): nothing happened", true);
     }
     return;
 }
@@ -783,13 +783,13 @@ static void ficlSystem(FICL_VM *pVM)
         if (err)
         {
             snprintf(pVM->scratch, sizeof(pVM->scratch), "System call returned %d", err);
-            vmTextOut(pVM, pVM->scratch, 1);
+            vmTextOut(pVM, pVM->scratch, true);
             vmThrow(pVM, VM_QUIT);
         }
     }
     else
     {
-        vmTextOut(pVM, "Warning (system): nothing happened", 1);
+        vmTextOut(pVM, "Warning (system): nothing happened", true);
     }
     return;
 }
@@ -816,7 +816,7 @@ static void ficlLoad(FICL_VM *pVM)
 
     if (pFilename->count <= 0)
     {
-        vmTextOut(pVM, "Warning (load): empty filename", 1);
+        vmTextOut(pVM, "Warning (load): empty filename", true);
         return;
     }
 
@@ -827,21 +827,21 @@ static void ficlLoad(FICL_VM *pVM)
 
     if (result != 0)
     {
-        vmTextOut(pVM, "Unable to stat file: ", 0);
-        vmTextOut(pVM, pFilename->text, 1);
+        vmTextOut(pVM, "Unable to stat file: ", false);
+        vmTextOut(pVM, pFilename->text, true);
         vmThrow(pVM, VM_ERREXIT);
     }
 
     fp = fopen(pFilename->text, "r");
     if (!fp)
     {
-        vmTextOut(pVM, "Unable to open file ", 0);
-        vmTextOut(pVM, pFilename->text, 1);
+        vmTextOut(pVM, "Unable to open file ", false);
+        vmTextOut(pVM, pFilename->text, true);
         vmThrow(pVM, VM_ERREXIT);
     }
 
-    vmTextOut(pVM, "loading ", 0);
-    vmTextOut(pVM, pFilename->text, 1);
+    vmTextOut(pVM, "loading ", false);
+    vmTextOut(pVM, pFilename->text, true);
 
     /* save any prior file in process*/
     id = pVM->sourceID;
@@ -909,7 +909,7 @@ static void spewHash(FICL_VM *pVM)
     pOut = fopen(pVM->scratch, "w");
     if (!pOut)
     {
-        vmTextOut(pVM, "unable to open file", 1);
+        vmTextOut(pVM, "unable to open file", true);
         return;
     }
 
