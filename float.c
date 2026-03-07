@@ -85,7 +85,7 @@ static void EDot(FICL_VM *pVM)
 
     f = POPFLOAT();
     snprintf(pVM->scratch, sizeof(pVM->scratch),"%#e ", (double)f);
-    vmTextOut(pVM, pVM->scratch, 0);
+    vmTextOut(pVM, pVM->scratch, false);
 }
 
 /**************************************************************************
@@ -101,14 +101,14 @@ static void displayFStack(FICL_VM *pVM)
     vmCheckFStack(pVM, 0, 0);
 
     if (d == 0)
-        vmTextOut(pVM, "(Empty)", 1);
+        vmTextOut(pVM, "(Empty)", true);
     else
     {
         FICL_FLOAT *pFloat = pVM->fStack->base;
         for (i = 0; i < d; i++)
         {
             snprintf(pVM->scratch, sizeof(pVM->scratch), "%.1e ", (double)(*pFloat++));
-            vmTextOut(pVM,pVM->scratch, 0);
+            vmTextOut(pVM,pVM->scratch, false);
         }
     }
 }
@@ -217,7 +217,7 @@ static void FSdot(FICL_VM *pVM)
 
     f = POPFLOAT();
     snprintf(pVM->scratch, sizeof(pVM->scratch), "%.*e ", (int)pVM->fPrecision, (double)f);
-    vmTextOut(pVM, pVM->scratch, 0);
+    vmTextOut(pVM, pVM->scratch, false);
 }
 
 
@@ -809,7 +809,7 @@ static void FDotWithPrecision(FICL_VM *pVM)
 
     f = POPFLOAT();
     snprintf(pVM->scratch, sizeof(pVM->scratch), "%.*g ", (int)pVM->fPrecision, (double)f);
-    vmTextOut(pVM, pVM->scratch, 0);
+    vmTextOut(pVM, pVM->scratch, false);
 }
 
 

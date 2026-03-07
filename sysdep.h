@@ -54,6 +54,7 @@
 #include <setjmp.h>
 #include <assert.h>
 #include <limits.h> /* CHAR_BIT, UCHAR_MAX */
+#include <stdbool.h>
 #include <stdint.h> /* int32_t, uint32_t, uint16_t, uint8_t */
 #include <inttypes.h> /* PRIdPTR, PRIxPTR */
 #include <stdalign.h>
@@ -202,7 +203,6 @@ typedef jmp_buf FICL_JMP_BUF;
 #define FICL_MULTISESSION    0
 #define FICL_ROBUST          0
 #define FICL_EXTENDED_PREFIX 0
-#define FICL_UNIT_TEST       0
 #endif
 
 
@@ -503,7 +503,7 @@ typedef struct
 **   and remainder
 */
 struct vm;
-void  ficlTextOut(struct vm *pVM, const char *msg, int fNewline);
+void  ficlTextOut(struct vm *pVM, const char *msg, bool fNewline);
 void *ficlMalloc (size_t size);
 void  ficlFree   (void *p);
 void *ficlRealloc(void *p, size_t size);
@@ -546,13 +546,6 @@ UNSQR ficlLongDiv(DPUNS    q, FICL_UNS y);
 */
 #if !defined (FICL_HAVE_FTRUNCATE)
 #define FICL_HAVE_FTRUNCATE 1
-#endif
-
-/*
-** Unit test extensions based on Unity from ThrowTheSwitch.org
-*/
-#if !defined FICL_UNIT_TEST
-    #define FICL_UNIT_TEST 1
 #endif
 
 

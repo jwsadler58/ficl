@@ -108,7 +108,7 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     pSys->envp = dictCreateWordlist(pSys->dp, 64);
     pSys->envp->name = "environment-wordlist";
 
-    pSys->textOut = fsi->textOut;
+    pSys->textOut = (fsi->textOut != NULL) ? fsi->textOut : ficlTextOut;
     pSys->pExtend = fsi->pExtend;
 
 #if FICL_WANT_LOCALS
@@ -219,14 +219,14 @@ void ficlListParseSteps(FICL_VM *pVM)
     FICL_SYSTEM *pSys = pVM->pSys;
     assert(pSys);
 
-    vmTextOut(pVM, "Parse steps:", 1);
-    vmTextOut(pVM, "lookup", 1);
+    vmTextOut(pVM, "Parse steps:", true);
+    vmTextOut(pVM, "lookup", true);
 
     for (i = 0; i < FICL_MAX_PARSE_STEPS; i++)
     {
         if (pSys->parseList[i] != NULL)
         {
-            vmTextOut(pVM, pSys->parseList[i]->name, 1);
+            vmTextOut(pVM, pSys->parseList[i]->name, true);
         }
         else break;
     }
@@ -404,7 +404,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
     case VM_OUTOFTEXT:
         vmPopIP(pVM);
         if ((pVM->state != COMPILE) && (pVM->sourceID.i == 0))
-            ficlTextOut(pVM, FICL_PROMPT, 0);
+            vmTextOut(pVM, FICL_PROMPT, false);
         break;
 
     case VM_USEREXIT:
@@ -424,7 +424,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
         break;
 
     case VM_INTERRUPT:
-        vmTextOut(pVM, "Interrupt", 1);
+        vmTextOut(pVM, "Interrupt", true);
         /* fall through */
     case VM_ERREXIT:
     case VM_ABORT:

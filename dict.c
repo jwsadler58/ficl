@@ -519,7 +519,7 @@ void dictSummary(FICL_VM *pVM)
     snprintf(pVM->scratch, sizeof(pVM->scratch),
         "Dictionary: %ld cells used of %u total",
         (long)(dp->here - dp->dict), dp->size);
-    vmTextOut(pVM, pVM->scratch, 1);
+    vmTextOut(pVM, pVM->scratch, true);
     return;
 }
 
@@ -595,19 +595,19 @@ void dictHashSummary(FICL_VM *pVM)
         "%d bins, %d filled, Depth: Max=%d, Avg=%2.1f, Best Possible=%2.1f, Collisions: %d",
         nBuckets, nFilled, nMax, avg, best, nCollisions);
 
-    ficlTextOut(pVM, pVM->scratch, 1);
+    vmTextOut(pVM, pVM->scratch, true);
 
     snprintf(pVM->scratch, sizeof(pVM->scratch),
         "Dictionary: %ld cells used of %u total",
         (long)(dp->here - dp->dict), dp->size);
 
-    ficlTextOut(pVM, pVM->scratch, 1);
+    vmTextOut(pVM, pVM->scratch, true);
     return;
 }
 #else
 void dictHashSummary(FICL_VM *pVM)
 {
-    ficlTextOut(pVM, "hashSummary requires floating point support", 1);
+    vmTextOut(pVM, "hashSummary requires floating point support", true);
 }
 #endif
 

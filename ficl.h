@@ -351,7 +351,7 @@ typedef FICL_WORD ** IPTYPE; /* the VM's instruction pointer */
 ** through a different device. If you specify no
 ** OUTFUNC, it defaults to ficlTextOut.
 */
-typedef void (*OUTFUNC)(FICL_VM *pVM, const char *text, int fNewline);
+typedef void (*OUTFUNC)(FICL_VM *pVM, const char *text, bool fNewline);
 
 /*
 ** Each VM operates in one of two non-error states: interpreting
@@ -633,7 +633,7 @@ STRINGINFO  vmGetWord      (FICL_VM *pVM);
 STRINGINFO  vmGetWord0     (FICL_VM *pVM);
 int         vmGetWordToScr (FICL_VM *pVM);      /* renamed from vmGetWordToPad */
 STRINGINFO  vmParseString  (FICL_VM *pVM, char delimiter);
-STRINGINFO  vmParseStringEx(FICL_VM *pVM, char delimiter, char fSkipLeading);
+STRINGINFO  vmParseStringEx(FICL_VM *pVM, char delimiter, bool fSkipLeading);
 CELL        vmPop          (FICL_VM *pVM);
 void        vmPush         (FICL_VM *pVM, CELL c);
 void        vmPopIP        (FICL_VM *pVM);
@@ -642,7 +642,7 @@ void        vmQuit         (FICL_VM *pVM);
 void        vmReset        (FICL_VM *pVM);
 void        vmStep         (FICL_VM *pVM);
 void        vmSetTextOut   (FICL_VM *pVM, OUTFUNC textOut);
-void        vmTextOut      (FICL_VM *pVM, const char *text, int fNewline);
+void        vmTextOut      (FICL_VM *pVM, const char *text, bool fNewline);
 void        vmThrow        (FICL_VM *pVM, int except);
 void        vmThrowErr     (FICL_VM *pVM, const char *fmt, ...);
 void        vmThrowUnderflow(FICL_VM *pVM);

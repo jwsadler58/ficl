@@ -1195,7 +1195,7 @@ FICL_DICT  *vmGetDict(FICL_VM *pVM)
 **************************************************************************/
 char *vmGetString(FICL_VM *pVM, FICL_STRING *spDest, char delimiter)
 {
-    STRINGINFO si = vmParseStringEx(pVM, delimiter, 0);
+    STRINGINFO si = vmParseStringEx(pVM, delimiter, false);
 
     if (SI_COUNT(si) > FICL_STRING_MAX)
     {
@@ -1311,10 +1311,10 @@ int vmGetWordToScr(FICL_VM *pVM)
 **************************************************************************/
 STRINGINFO vmParseString(FICL_VM *pVM, char delim)
 {
-    return vmParseStringEx(pVM, delim, 1);
+    return vmParseStringEx(pVM, delim, true);
 }
 
-STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, char fSkipLeading)
+STRINGINFO vmParseStringEx(FICL_VM *pVM, char delim, bool fSkipLeading)
 {
     STRINGINFO si;
     const char *pSrc = vmGetInBuf(pVM);
@@ -1475,7 +1475,7 @@ void vmSetTextOut(FICL_VM *pVM, OUTFUNC textOut)
                         v m T e x t O u t
 ** Feeds text to the vm's output callback
 **************************************************************************/
-void vmTextOut(FICL_VM *pVM, const char *text, int fNewline)
+void vmTextOut(FICL_VM *pVM, const char *text, bool fNewline)
 {
     assert(pVM);
     assert(pVM->textOut);
@@ -1500,20 +1500,20 @@ void vmThrowErr(FICL_VM *pVM, const char *fmt, ...)
     va_list va;
     va_start(va, fmt);
     vsnprintf(pVM->scratch, sizeof(pVM->scratch), fmt, va);
-    vmTextOut(pVM, pVM->scratch, 1);
+    vmTextOut(pVM, pVM->scratch, true);
     va_end(va);
     FICL_LONGJMP(*(pVM->pState), VM_ERREXIT);
 }
 
 void vmThrowOverflow(FICL_VM *pVM)
 {
-    vmTextOut(pVM, "Error: Stack overflow", 1);
+    vmTextOut(pVM, "Error: Stack overflow", true);
     FICL_LONGJMP(*(pVM->pState), VM_ERREXIT);
 }
 
 void vmThrowUnderflow(FICL_VM *pVM)
 {
-    vmTextOut(pVM, "Error: Stack underflow", 1);
+    vmTextOut(pVM, "Error: Stack underflow", true);
     FICL_LONGJMP(*(pVM->pState), VM_ERREXIT);
 }
 

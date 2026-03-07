@@ -64,9 +64,7 @@ void    dpmPushU(FICL_STACK *pStack, DPUNS udp);
 DPUNS   dpmPopU(FICL_STACK *pStack);
 INTQR   dpmSymmetricDivI(DPINT num, FICL_INT den);
 UNS16   dpmUMod(DPUNS *pUD, UNS16 base);
-#if FICL_UNIT_TEST
-    void dpmUnitTest(void);
-#endif
+void    dpmUnitTest(void);
 
 #define dpmExtendI(idp) (idp).hi = ((idp).lo < 0) ? -1L : 0
 #define dpmCastIU(idp) (*(DPUNS *)(&(idp)))
