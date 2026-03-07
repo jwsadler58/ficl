@@ -70,6 +70,13 @@
 
 #include "ficl.h"
 
+/*
+** Unit test extensions based on Unity from ThrowTheSwitch.org
+*/
+#if !defined FICL_UNIT_TEST
+    #define FICL_UNIT_TEST 1
+#endif
+
 #if FICL_UNIT_TEST
     #include "dpmath.h"
     #include "unity.h"
