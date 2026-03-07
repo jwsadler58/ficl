@@ -54,6 +54,7 @@
 #include <setjmp.h>
 #include <assert.h>
 #include <limits.h> /* CHAR_BIT, UCHAR_MAX */
+#include <stdbool.h>
 #include <stdint.h> /* int32_t, uint32_t, uint16_t, uint8_t */
 #include <inttypes.h> /* PRIdPTR, PRIxPTR */
 #include <stdalign.h>
@@ -502,7 +503,7 @@ typedef struct
 **   and remainder
 */
 struct vm;
-void  ficlTextOut(struct vm *pVM, const char *msg, int fNewline);
+void  ficlTextOut(struct vm *pVM, const char *msg, bool fNewline);
 void *ficlMalloc (size_t size);
 void  ficlFree   (void *p);
 void *ficlRealloc(void *p, size_t size);

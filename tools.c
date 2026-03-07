@@ -82,7 +82,7 @@ static void vmSetBreak(FICL_VM *pVM, FICL_BREAKPOINT *pBP)
 **************************************************************************/
 static void debugPrompt(FICL_VM *pVM)
 {
-    vmTextOut(pVM, "dbg> ", 0);
+    vmTextOut(pVM, "dbg> ", false);
 }
 
 
@@ -271,10 +271,10 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
             snprintf(cp, SNLIMIT, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
         }
 
-		vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
     }
 
-    vmTextOut(pVM, ";", 1);
+    vmTextOut(pVM, ";", true);
 }
 
 /*
@@ -298,53 +298,53 @@ static void seeXT(FICL_VM *pVM)
     {
     case COLON:
         snprintf(outbuf, sizeof(outbuf), ": %.*s", pFW->nName, pFW->name);
-        vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
         seeColon(pVM, pFW->param);
         break;
 
     case DOES:
-        vmTextOut(pVM, "does>", 1);
+        vmTextOut(pVM, "does>", true);
         seeColon(pVM, (CELL *)pFW->param->p);
         break;
 
     case CREATE:
-        vmTextOut(pVM, "create", 1);
+        vmTextOut(pVM, "create", true);
         break;
 
     case VARIABLE:
         snprintf(outbuf, sizeof(outbuf), "variable = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
-        vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
         break;
 
 #if FICL_WANT_USER
     case USER:
         snprintf(outbuf, sizeof(outbuf), "user variable " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
-        vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
         break;
 #endif
 
     case CONSTANT:
         snprintf(outbuf, sizeof(outbuf), "constant = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
-        vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
         break;
 
     default:
         snprintf(outbuf, sizeof(outbuf), "%.*s is a primitive", pFW->nName, pFW->name);
-        vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
         break;
     }
 
     if (pFW->flags & FW_IMMEDIATE)
     {
-        vmTextOut(pVM, "immediate", 1);
+        vmTextOut(pVM, "immediate", true);
     }
 
     if (pFW->flags & FW_COMPILE)
     {
-        vmTextOut(pVM, "compile-only", 1);
+        vmTextOut(pVM, "compile-only", true);
     }
 
     return;
@@ -512,7 +512,7 @@ void stepBreak(FICL_VM *pVM)
         }
 #endif
 
-        vmTextOut(pVM, outbuf, 1);
+        vmTextOut(pVM, outbuf, true);
         debugPrompt(pVM);
     }
     else
@@ -541,7 +541,7 @@ void stepBreak(FICL_VM *pVM)
         }
         else
         {
-            vmTextOut(pVM, "sorry - can't do that", 1);
+            vmTextOut(pVM, "sorry - can't do that", true);
         }
         vmThrow(pVM, VM_RESTART);
     }
@@ -551,7 +551,7 @@ void stepBreak(FICL_VM *pVM)
     }
     else if (!strincmp(si.cp, "q", si.count))
     {
-        vmTextOut(pVM, FICL_PROMPT, 0);
+        vmTextOut(pVM, FICL_PROMPT, false);
         vmThrow(pVM, VM_ABORT);
     }
     else if (!strincmp(si.cp, "x", si.count))
@@ -570,19 +570,19 @@ void stepBreak(FICL_VM *pVM)
         {
             ret = VM_RESTART;
             pVM->runningWord = oldRun;
-            vmTextOut(pVM, "", 1);
+            vmTextOut(pVM, "", true);
         }
 
         vmThrow(pVM, ret);
     }
     else
     {
-        vmTextOut(pVM, "i -- step In", 1);
-        vmTextOut(pVM, "o -- step Over", 1);
-        vmTextOut(pVM, "g -- Go (execute to completion)", 1);
-        vmTextOut(pVM, "l -- List source code", 1);
-        vmTextOut(pVM, "q -- Quit (stop debugging and abort)", 1);
-        vmTextOut(pVM, "x -- eXecute the rest of the line as ficl words", 1);
+        vmTextOut(pVM, "i -- step In", true);
+        vmTextOut(pVM, "o -- step Over", true);
+        vmTextOut(pVM, "g -- Go (execute to completion)", true);
+        vmTextOut(pVM, "l -- List source code", true);
+        vmTextOut(pVM, "q -- Quit (stop debugging and abort)", true);
+        vmTextOut(pVM, "x -- eXecute the rest of the line as ficl words", true);
         debugPrompt(pVM);
         vmThrow(pVM, VM_RESTART);
     }
@@ -620,14 +620,14 @@ static void displayPStack(FICL_VM *pVM)
     vmCheckStack(pVM, 0, 0);
 
     if (d == 0)
-        vmTextOut(pVM, "(Empty) ", 0);
+        vmTextOut(pVM, "(Empty) ", false);
     else
     {
         pCell = pStk->base;
         for (i = 0; i < d; i++)
         {
-            vmTextOut(pVM, ficlLtoa((*pCell++).i, outbuf, pVM->base), 0);
-            vmTextOut(pVM, " ", 0);
+            vmTextOut(pVM, ficlLtoa((*pCell++).i, outbuf, pVM->base), false);
+            vmTextOut(pVM, " ", false);
         }
     }
     return;
@@ -646,7 +646,7 @@ static void displayRStack(FICL_VM *pVM)
     vmCheckStack(pVM, 0, 0);
 
     if (d == 0)
-        vmTextOut(pVM, "(Stack Empty) ", 0);
+        vmTextOut(pVM, "(Stack Empty) ", false);
     else
     {
         pCell = pStk->base;
@@ -666,12 +666,12 @@ static void displayRStack(FICL_VM *pVM)
                 {
                     int offset = (CELL *)c.p - &pFW->param[0];
                     snprintf(outbuf, sizeof(outbuf), "%s+%d ", pFW->name, offset);
-                    vmTextOut(pVM, outbuf, 0);
+                    vmTextOut(pVM, outbuf, false);
                     continue;  /* no need to print the numeric value */
                 }
             }
-            vmTextOut(pVM, ficlLtoa(c.i, outbuf, pVM->base), 0);
-            vmTextOut(pVM, " ", 0);
+            vmTextOut(pVM, ficlLtoa(c.i, outbuf, pVM->base), false);
+            vmTextOut(pVM, " ", false);
         }
     }
 
@@ -753,7 +753,7 @@ static void listWords(FICL_VM *pVM)
             {
                 pScr[nChars] = '\0';
                 nChars = 0;
-                vmTextOut(pVM, pScr, 1);
+                vmTextOut(pVM, pScr, true);
             }
             else
             {
@@ -766,7 +766,7 @@ static void listWords(FICL_VM *pVM)
             {
                 pScr[nChars] = '\0';
                 nChars = 0;
-                vmTextOut(pVM, pScr, 1);
+                vmTextOut(pVM, pScr, true);
             }
         }
     }
@@ -774,11 +774,11 @@ static void listWords(FICL_VM *pVM)
     if (nChars > 0)
     {
         pScr[nChars] = '\0';
-        vmTextOut(pVM, pScr, 1);
+        vmTextOut(pVM, pScr, true);
     }
 
     snprintf(pVM->scratch, sizeof(pVM->scratch), "%s definitions: %d words", pHash->name, nWords);
-    vmTextOut(pVM, pVM->scratch, 1);
+    vmTextOut(pVM, pVM->scratch, true);
     return;
 }
 
@@ -802,22 +802,22 @@ static void listEnv(FICL_VM *pVM)
             if (wp->opcode == FICL_OP_CONSTANT)
             {
                 snprintf(pad, sizeof(pad), "%s = %i", wp->name, (int)(wp->param[0].i));
-                vmTextOut(pVM, pad, 1);
+                vmTextOut(pVM, pad, true);
             }
             else if (wp->opcode == FICL_OP_2CONSTANT)
             {
                 snprintf(pad, sizeof(pad), "%s = %i %i", wp->name, (int)(wp->param[1].i), (int)(wp->param[0].i));
-                vmTextOut(pVM, pad, 1);
+                vmTextOut(pVM, pad, true);
             }
             else
             {
-                vmTextOut(pVM, wp->name, 1);
+                vmTextOut(pVM, wp->name, true);
             }
         }
     }
 
     snprintf(pad, sizeof(pad), "Environment: %d words", nWords);
-    vmTextOut(pVM, pad, 1);
+    vmTextOut(pVM, pad, true);
     return;
 }
 
@@ -864,7 +864,7 @@ static void env2Constant(FICL_VM *pVM)
 ** at pVM->pExtend. The caller is responsible for ensuring the buffer
 ** is large enough.
 **************************************************************************/
-static void bufTextOut(FICL_VM *pVM, char *text, int fNewline)
+static void bufTextOut(FICL_VM *pVM, char *text, bool fNewline)
 {
     char *buf = (char *)pVM->pExtend;
     if (!buf)
