@@ -852,7 +852,7 @@ CELL       *dictWhere      (FICL_DICT *pDict);
 ** do not match as quickly as possible.
 */
 
-typedef int (*FICL_PARSE_STEP)(FICL_VM *pVM, STRINGINFO si);
+typedef bool (*FICL_PARSE_STEP)(FICL_VM *pVM, STRINGINFO si);
 
 /*
 ** Appends a parse step function to the end of the parse list (see
@@ -1106,18 +1106,18 @@ void       ficlCompileTools(FICL_SYSTEM *pSys);
 void       ficlCompileFile(FICL_SYSTEM *pSys);
 #if FICL_WANT_FLOAT
 void       ficlCompileFloat(FICL_SYSTEM *pSys);
-int        ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si ); /* float.c */
+bool       ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si ); /* float.c */
 #endif
 #if FICL_PLATFORM_EXTEND
 void       ficlCompilePlatform(FICL_SYSTEM *pSys);
 #endif
 
-int        ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
+bool       ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
 
 /*
 ** from words.c...
 */
-int        ficlParseNumber(FICL_VM *pVM, STRINGINFO si);
+bool       ficlParseNumber(FICL_VM *pVM, STRINGINFO si);
 void       ficlTick(FICL_VM *pVM);
 void       parseStepParen(FICL_VM *pVM);
 
