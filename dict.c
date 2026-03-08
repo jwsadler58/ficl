@@ -74,13 +74,13 @@ static char *dictCopyName(FICL_DICT *pDict, STRINGINFO si);
 void dictAbortDefinition(FICL_DICT *pDict)
 {
     FICL_WORD *pFW;
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     pFW = pDict->smudge;
 
     if (pFW->flags & FW_SMUDGE)
         pDict->here = (CELL *)pFW->name;
 
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 
@@ -292,7 +292,7 @@ FICL_WORD *dictAppendWord2(FICL_DICT *pDict,
     char *pName;
     FICL_WORD *pFW;
 
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
 
     /*
     ** NOTE: dictCopyName advances "here" as a side-effect.
@@ -315,7 +315,7 @@ FICL_WORD *dictAppendWord2(FICL_DICT *pDict,
     if (!(flags & FW_SMUDGE))
         dictUnsmudge(pDict);
 
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return pFW;
 }
 
@@ -613,10 +613,10 @@ void dictHashSummary(FICL_VM *pVM)
 
 /**************************************************************************
                         d i c t I n c l u d e s
-** Returns TRUE iff the given pointer is within the address range of
+** Returns true if the given pointer is within the address range of
 ** the dictionary.
 **************************************************************************/
-int dictIncludes(FICL_DICT *pDict, const void *p)
+bool dictIncludes(FICL_DICT *pDict, const void *p)
 {
     CELL *start = pDict->dict;               // decays to CELL *
     CELL *end   = pDict->dict + pDict->size; // one past last CELL
@@ -640,7 +640,7 @@ FICL_WORD *dictLookup(FICL_DICT *pDict, STRINGINFO si)
 
     assert(pDict);
 
-    ficlLockDictionary(1);
+    ficlLockDictionary(true);
 
     for (i = (int)pDict->nLists - 1; (i >= 0) && (!pFW); --i)
     {
@@ -648,7 +648,7 @@ FICL_WORD *dictLookup(FICL_DICT *pDict, STRINGINFO si)
         pFW = hashLookup(pHash, si, hashCode);
     }
 
-    ficlLockDictionary(0);
+    ficlLockDictionary(false);
     return pFW;
 }
 
@@ -670,7 +670,7 @@ FICL_WORD *ficlLookupLoc(FICL_SYSTEM *pSys, STRINGINFO si)
     assert(pHash);
     assert(pDict);
 
-    ficlLockDictionary(1);
+    ficlLockDictionary(true);
     /*
     ** check the locals dict first...
     */
@@ -686,7 +686,7 @@ FICL_WORD *ficlLookupLoc(FICL_SYSTEM *pSys, STRINGINFO si)
         pFW = hashLookup(pHash, si, hashCode);
     }
 
-    ficlLockDictionary(0);
+    ficlLockDictionary(false);
     return pFW;
 }
 #endif

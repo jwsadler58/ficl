@@ -66,7 +66,7 @@ static char list_name[] = "<prefixes>";
 ** to see if it starts with a prefix, and if so runs the corrseponding
 ** code against the remainder of the word and returns true.
 **************************************************************************/
-int ficlParsePrefix(FICL_VM *pVM, STRINGINFO si)
+bool ficlParsePrefix(FICL_VM *pVM, STRINGINFO si)
 {
     int i;
     FICL_HASH *pHash;
@@ -77,7 +77,7 @@ int ficlParsePrefix(FICL_VM *pVM, STRINGINFO si)
     ** If forth-wordlist is not in the search order, we won't find the prefixes.
     */
     if (!pFW)
-        return FICL_FALSE;
+        return false;
 
     pHash = (FICL_HASH *)(pFW->param[0].p);
     /*
@@ -100,13 +100,13 @@ int ficlParsePrefix(FICL_VM *pVM, STRINGINFO si)
                 vmSetTibIndex(pVM, si.cp + n - pVM->tib.cp );
                 vmExecute(pVM, pFW);
 
-                return (int)FICL_TRUE;
+                return true;
             }
             pFW = pFW->link;
         }
     }
 
-    return FICL_FALSE;
+    return false;
 }
 
 

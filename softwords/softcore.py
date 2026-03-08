@@ -145,7 +145,7 @@ void ficlCompileSoftCore(FICL_SYSTEM *pSys)
     ret = ficlExec(pVM, (char *)softWords);
     pVM->sourceID = id;
     if (ret == VM_ERREXIT)
-        assert(FALSE);
+        assert(false);
     return;
 }
 
