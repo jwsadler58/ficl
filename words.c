@@ -3518,7 +3518,7 @@ static void fLocalParen(FICL_VM *pVM)
 ** lesser numeric value than the corresponding character in the string specified
 ** by c-addr2 u2 and one (1) otherwise.
 **************************************************************************/
-static void compareInternal(FICL_VM *pVM, int caseInsensitive)
+static void compareInternal(FICL_VM *pVM, bool caseInsensitive)
 {
     char *cp1, *cp2;
     FICL_UNS u1, u2, uMin;
@@ -3558,13 +3558,13 @@ static void compareInternal(FICL_VM *pVM, int caseInsensitive)
 
 static void compareString(FICL_VM *pVM)
 {
-    compareInternal(pVM, FALSE);
+    compareInternal(pVM, false);
 }
 
 
 static void compareStringInsensitive(FICL_VM *pVM)
 {
-    compareInternal(pVM, TRUE);
+    compareInternal(pVM, true);
 }
 
 
