@@ -3613,11 +3613,11 @@ static void sourceid(FICL_VM *pVM)
 **************************************************************************/
 static void refill(FICL_VM *pVM)
 {
-    FICL_INT ret = (pVM->sourceID.i == -1) ? FICL_FALSE : FICL_TRUE;
-    if (ret && !pVM->fRestart)
+    bool flag = pVM->sourceID.i != -1;
+    if (!flag && !pVM->fRestart)
         vmThrow(pVM, VM_RESTART);
 
-    PUSHINT(ret);
+    PUSHINT(FICL_BOOL(flag));
     return;
 }
 
