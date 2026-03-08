@@ -1124,7 +1124,7 @@ void       parseStepParen(FICL_VM *pVM);
 /*
 ** From tools.c
 */
-int        isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW);
+bool       isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW);
 
 /*
 ** The following supports SEE and the debugger.

@@ -94,25 +94,25 @@ static void debugPrompt(FICL_VM *pVM)
 ** like it's in the dictionary address range.
 ** NOTE: this excludes :noname words!
 **************************************************************************/
-int isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW)
+bool isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW)
 {
 
     if (!dictIncludes(pd, pFW))
-        return 0;
+        return false;
 
     if (!dictIncludes(pd, pFW->name))
-        return 0;
+        return false;
 
     if ((pFW->link != NULL) && !dictIncludes(pd, pFW->link))
-        return 0;
+        return false;
 
     if ((pFW->nName <= 0) || (pFW->name[pFW->nName] != '\0'))
-        return 0;
+        return false;
 
     if (strlen(pFW->name) != pFW->nName)
-        return 0;
+        return false;
 
-    return 1;
+    return true;
 }
 
 
