@@ -134,9 +134,9 @@ INTQR dpmFlooredDivI(DPINT num, FICL_INT den)
 
 /**************************************************************************
                         d p m I s N e g a t i v e
-** Returns TRUE if the specified DPINT has its sign bit set.
+** Returns true if the specified DPINT has its sign bit set.
 **************************************************************************/
-int dpmIsNegative(DPINT x)
+bool dpmIsNegative(DPINT x)
 {
     return x.hi < 0;
 }
