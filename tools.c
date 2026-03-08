@@ -517,7 +517,7 @@ void stepBreak(FICL_VM *pVM)
     }
     else
     {
-        pVM->fRestart = 0;
+        pVM->fRestart = false;
     }
 
     si = vmGetWord(pVM);

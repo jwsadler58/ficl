@@ -393,7 +393,7 @@ struct vm
     FICL_JMP_BUF   *pState;     /* crude exception mechanism...     */
     OUTFUNC         textOut;    /* Output callback - see sysdep.c   */
     void *          pExtend;    /* vm extension pointer for app use - initialized from FICL_SYSTEM */
-    short           fRestart;   /* Set TRUE to restart runningWord - debugger support */
+    bool            fRestart;   /* Set true to restart runningWord - debugger support */
     IPTYPE          ip;         /* instruction pointer              */
     FICL_WORD      *runningWord;/* address of currently running word (often just *(ip-1) ) */
     FICL_UNS        state;      /* compiling or interpreting        */
