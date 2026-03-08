@@ -820,7 +820,7 @@ void        dictDelete     (FICL_DICT *pDict);
 void        dictEmpty      (FICL_DICT *pDict, unsigned nHash);
 void        dictHashSummary(FICL_VM *pVM);
 void        dictSummary    (FICL_VM *pVM);
-int         dictIncludes   (FICL_DICT *pDict, const void *p);
+bool        dictIncludes   (FICL_DICT *pDict, const void *p);
 FICL_WORD  *dictLookup     (FICL_DICT *pDict, STRINGINFO si);
 #if FICL_WANT_LOCALS
 FICL_WORD  *ficlLookupLoc  (FICL_SYSTEM *pSys, STRINGINFO si);

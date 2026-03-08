@@ -613,10 +613,10 @@ void dictHashSummary(FICL_VM *pVM)
 
 /**************************************************************************
                         d i c t I n c l u d e s
-** Returns TRUE iff the given pointer is within the address range of
+** Returns true if the given pointer is within the address range of
 ** the dictionary.
 **************************************************************************/
-int dictIncludes(FICL_DICT *pDict, const void *p)
+bool dictIncludes(FICL_DICT *pDict, const void *p)
 {
     CELL *start = pDict->dict;               // decays to CELL *
     CELL *end   = pDict->dict + pDict->size; // one past last CELL
