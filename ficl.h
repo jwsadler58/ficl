@@ -690,7 +690,7 @@ void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 #define     vmGetInBufLen(pVM)   ((pVM)->tib.end - (pVM)->tib.cp)
 #define     vmGetInBufEnd(pVM)   ((pVM)->tib.end)
 #define     vmGetTibIndex(pVM)    (pVM)->tib.index
-#define     vmSetTibIndex(pVM, i) (pVM)->tib.index = i
+#define     vmSetTibIndex(pVM, i) (pVM)->tib.index = (i)
 #define     vmUpdateTib(pVM, str) (pVM)->tib.index = (str) - (pVM)->tib.cp
 
 /*
