@@ -479,7 +479,7 @@ static void ficlSprintf(FICL_VM *pVM)
     char *formatStop = format + formatLength;
 
     int base = 10;
-    int unsignedInteger = FALSE;
+    bool unsignedInteger = false;
 
     FICL_INT success = FICL_TRUE;
 
@@ -543,7 +543,7 @@ static void ficlSprintf(FICL_VM *pVM)
                     /* fallthrough */
                 case 'u':
                 case 'U':
-                    unsignedInteger = TRUE;
+                    unsignedInteger = true;
                     /* fallthrough */
                 case 'd':
                 case 'D':
@@ -554,7 +554,7 @@ static void ficlSprintf(FICL_VM *pVM)
                     else
                         ficlLtoa(integer, scratch, base);
                     base = 10;
-                    unsignedInteger = FALSE;
+                    unsignedInteger = false;
                     source = scratch;
                     actualLength = strlen(scratch);
                     break;
