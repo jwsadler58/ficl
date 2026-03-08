@@ -1674,11 +1674,11 @@ static void setObjectFlag(FICL_VM *pVM)
 
 static void isObject(FICL_VM *pVM)
 {
-    int flag;
+    bool flag;
     FICL_WORD *pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
 
-    flag = ((pFW != NULL) && (pFW->flags & FW_ISOBJECT)) ? (int)FICL_TRUE : FICL_FALSE;
-    stackPushINT(pVM->pStack, flag);
+    flag = (pFW != NULL) && (pFW->flags & FW_ISOBJECT);
+    stackPushINT(pVM->pStack, FICL_BOOL(flag));
     return;
 }
 
