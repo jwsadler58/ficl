@@ -513,9 +513,9 @@ void *ficlRealloc(void *p, size_t size);
 ** Does nothing by default.
 ** Redefine to guarantee exclusive dict access to a single thread for updates.
 ** All dict update code must be bracketed as follows:
-** ficlLockDictionary(TRUE);
+** ficlLockDictionary(true);
 ** <code that updates dictionary>
-** ficlLockDictionary(FALSE);
+** ficlLockDictionary(false);
 **
 ** Returns zero if successful, nonzero if unable to acquire lock
 ** before timeout (optional - could also block forever)
@@ -524,7 +524,7 @@ void *ficlRealloc(void *p, size_t size);
 ** semantics so that nested calls behave properly.
 */
 #if FICL_MULTISESSION
-int ficlLockDictionary(short fLock);
+int ficlLockDictionary(bool fLock);
 #else
 #define ficlLockDictionary(x) /* ignore */
 #endif
