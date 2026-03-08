@@ -173,18 +173,6 @@ typedef jmp_buf FICL_JMP_BUF;
 */
 #define FICL_IGNORE(x) (void)(x)
 
-/*
-** TRUE and FALSE for C boolean operations, and
-** portable 32 bit types for CELLs
-**
-*/
-#if !defined TRUE
-    #define TRUE 1
-#endif
-#if !defined FALSE
-    #define FALSE 0
-#endif
-
 /************************************************************************************
 **         B U I L D   C O N T R O L S
 *************************************************************************************/
