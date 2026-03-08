@@ -22,7 +22,7 @@
 **
 */
 
-static void pushIor(FICL_VM *pVM, int success)
+static void pushIor(FICL_VM *pVM, bool success)
 {
     int ior;
     if (success)
