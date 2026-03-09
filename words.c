@@ -1203,7 +1203,7 @@ void parseStepParen(FICL_VM *pVM)
     SI_SETLEN(si, stackPopINT(pVM->pStack));
     SI_SETPTR(si, stackPopPtr(pVM->pStack));
 
-    PUSHINT((*pStep)(pVM, si));
+    PUSHINT(FICL_BOOL((*pStep)(pVM, si)));
 
     return;
 }
