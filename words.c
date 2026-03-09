@@ -3614,7 +3614,7 @@ static void sourceid(FICL_VM *pVM)
 static void refill(FICL_VM *pVM)
 {
     bool flag = pVM->sourceID.i != -1;
-    if (!flag && !pVM->fRestart)
+    if (flag && !pVM->fRestart)
         vmThrow(pVM, VM_RESTART);
 
     PUSHINT(FICL_BOOL(flag));
