@@ -579,7 +579,7 @@ struct ficl_word
     FICL_COUNT nName;           /* Number of chars in word name         */
     char *name;                 /* First nFICLNAME chars of word name   */
     FICL_CODE code;             /* Native code to execute the word      */
-    UNS8 opcode;
+    FICL_OPCODE opcode;
     CELL param[];               /* First data cell of the word          */
 };
 
