@@ -173,18 +173,6 @@ typedef jmp_buf FICL_JMP_BUF;
 */
 #define FICL_IGNORE(x) (void)(x)
 
-/*
-** TRUE and FALSE for C boolean operations, and
-** portable 32 bit types for CELLs
-**
-*/
-#if !defined TRUE
-    #define TRUE 1
-#endif
-#if !defined FALSE
-    #define FALSE 0
-#endif
-
 /************************************************************************************
 **         B U I L D   C O N T R O L S
 *************************************************************************************/
@@ -513,9 +501,9 @@ void *ficlRealloc(void *p, size_t size);
 ** Does nothing by default.
 ** Redefine to guarantee exclusive dict access to a single thread for updates.
 ** All dict update code must be bracketed as follows:
-** ficlLockDictionary(TRUE);
+** ficlLockDictionary(true);
 ** <code that updates dictionary>
-** ficlLockDictionary(FALSE);
+** ficlLockDictionary(false);
 **
 ** Returns zero if successful, nonzero if unable to acquire lock
 ** before timeout (optional - could also block forever)
@@ -524,7 +512,7 @@ void *ficlRealloc(void *p, size_t size);
 ** semantics so that nested calls behave properly.
 */
 #if FICL_MULTISESSION
-int ficlLockDictionary(short fLock);
+int ficlLockDictionary(bool fLock);
 #else
 #define ficlLockDictionary(x) /* ignore */
 #endif

@@ -134,9 +134,9 @@ INTQR dpmFlooredDivI(DPINT num, FICL_INT den)
 
 /**************************************************************************
                         d p m I s N e g a t i v e
-** Returns TRUE if the specified DPINT has its sign bit set.
+** Returns true if the specified DPINT has its sign bit set.
 **************************************************************************/
-int dpmIsNegative(DPINT x)
+bool dpmIsNegative(DPINT x)
 {
     return x.hi < 0;
 }
@@ -313,12 +313,12 @@ UNS16 dpmUMod(DPUNS *pUD, UNS16 base)
     /* bit‐width of one FICL_UNS */
     enum { WORD_BITS = sizeof(FICL_UNS) * CHAR_BIT };
     /* must be even so we can split exactly in half */
-    _Static_assert(WORD_BITS % 2 == 0,
+    static_assert(WORD_BITS % 2 == 0,
                    "FICL_UNS size in bits must be even");
     /* half‐width in bits */
     enum { HALF_BITS = WORD_BITS / 2 };
     /* must be at least 16 so divisor fits */
-    _Static_assert(HALF_BITS >= sizeof(UNS16) * CHAR_BIT,
+    static_assert(HALF_BITS >= sizeof(UNS16) * CHAR_BIT,
                    "HALF_BITS must be at least 16 bits");
 
     /* mask for extracting each half‐word */

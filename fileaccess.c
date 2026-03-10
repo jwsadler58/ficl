@@ -22,7 +22,7 @@
 **
 */
 
-static void pushIor(FICL_VM *pVM, int success)
+static void pushIor(FICL_VM *pVM, bool success)
 {
     int ior;
     if (success)
@@ -47,7 +47,7 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
     {
         stackPushPtr(pVM->pStack, NULL);
         errno = ENOMEM;
-        pushIor(pVM, 0);
+        pushIor(pVM, false);
         return;
     }
     memcpy(filename, address, length);
@@ -86,7 +86,7 @@ static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid
             fclose(f);
             stackPushPtr(pVM->pStack, NULL);
             errno = ENOMEM;
-            pushIor(pVM, 0);
+            pushIor(pVM, false);
             ficlFree(filename);
             return;
         }
@@ -136,7 +136,7 @@ static void ficlDeleteFile(FICL_VM *pVM) /* ( c-addr u -- ior ) */
     if (filename == NULL)
     {
         errno = ENOMEM;
-        pushIor(pVM, 0);
+        pushIor(pVM, false);
         return;
     }
     memcpy(filename, address, length);
@@ -159,7 +159,7 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
     if (to == NULL)
     {
         errno = ENOMEM;
-        pushIor(pVM, 0);
+        pushIor(pVM, false);
         return;
     }
     memcpy(to, address, length);
@@ -173,7 +173,7 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
     {
         ficlFree(to);
         errno = ENOMEM;
-        pushIor(pVM, 0);
+        pushIor(pVM, false);
         return;
     }
     memcpy(from, address, length);

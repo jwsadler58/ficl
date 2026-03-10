@@ -51,7 +51,7 @@
 #include "dpmath.h"
 
 static void literalIm(FICL_VM *pVM);
-static int  ficlParseWord(FICL_VM *pVM, STRINGINFO si);
+static bool ficlParseWord(FICL_VM *pVM, STRINGINFO si);
 
 /*
 ** Control structure building words use these
@@ -194,16 +194,16 @@ static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
                         f i c l P a r s e N u m b e r
 ** Attempts to convert the NULL terminated string in the VM's pad to
 ** a number using the VM's current base. If successful, pushes the number
-** onto the param stack and returns TRUE. Otherwise, returns FALSE.
+** onto the param stack and returns true. Otherwise, returns false.
 ** (jws 8/01) Trailing decimal point causes a zero cell to be pushed. (See
 ** the standard for DOUBLE wordset.
 **************************************************************************/
 
-int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
+bool ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
 {
     FICL_INT accum  = 0;
-    char isNeg      = FALSE;
-    char hasDP      = FALSE;
+    bool isNeg      = false;
+    bool hasDP      = false;
     unsigned base   = pVM->base;
     const char *cp  = SI_PTR(si);
     FICL_COUNT count= (FICL_COUNT)SI_COUNT(si);
@@ -217,12 +217,12 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
         case '-':
             cp++;
             count--;
-            isNeg = TRUE;
+            isNeg = true;
             break;
         case '+':
             cp++;
             count--;
-            isNeg = FALSE;
+            isNeg = false;
             break;
         default:
             break;
@@ -231,17 +231,17 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
 
     if ((count > 0) && (cp[count-1] == '.')) /* detect & remove trailing decimal */
     {
-        hasDP = TRUE;
+        hasDP = true;
         count--;
     }
 
     if (count == 0)        /* detect "+", "-", ".", "+." etc */
-        return FALSE;
+        return false;
 
     while ((count--) && ((ch = *cp++) != '\0'))
     {
         if (!isalnum(ch))
-            return FALSE;
+            return false;
 
         digit = ch - '0';
 
@@ -249,7 +249,7 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
             digit = tolower(ch) - 'a' + 10;
 
         if (digit >= base)
-            return FALSE;
+            return false;
 
         accum = accum * base + digit;
     }
@@ -264,7 +264,7 @@ int ficlParseNumber(FICL_VM *pVM, STRINGINFO si)
     if (pVM->state == COMPILE)
         literalIm(pVM);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -479,7 +479,7 @@ static void ficlSprintf(FICL_VM *pVM)
     char *formatStop = format + formatLength;
 
     int base = 10;
-    int unsignedInteger = FALSE;
+    bool unsignedInteger = false;
 
     FICL_INT success = FICL_TRUE;
 
@@ -543,7 +543,7 @@ static void ficlSprintf(FICL_VM *pVM)
                     /* fallthrough */
                 case 'u':
                 case 'U':
-                    unsignedInteger = TRUE;
+                    unsignedInteger = true;
                     /* fallthrough */
                 case 'd':
                 case 'D':
@@ -554,7 +554,7 @@ static void ficlSprintf(FICL_VM *pVM)
                     else
                         ficlLtoa(integer, scratch, base);
                     base = 10;
-                    unsignedInteger = FALSE;
+                    unsignedInteger = false;
                     source = scratch;
                     actualLength = strlen(scratch);
                     break;
@@ -1117,7 +1117,7 @@ static void interpret(FICL_VM *pVM)
 **
 ** (jws 4/01) Modified to be a FICL_PARSE_STEP
 **************************************************************************/
-static int ficlParseWord(FICL_VM *pVM, STRINGINFO si)
+static bool ficlParseWord(FICL_VM *pVM, STRINGINFO si)
 {
     FICL_DICT *dp = vmGetDict(pVM);
     FICL_WORD *tempFW;
@@ -1148,7 +1148,7 @@ static int ficlParseWord(FICL_VM *pVM, STRINGINFO si)
             }
 
             vmExecute(pVM, tempFW);
-            return (int)FICL_TRUE;
+            return true;
         }
     }
 
@@ -1164,11 +1164,11 @@ static int ficlParseWord(FICL_VM *pVM, STRINGINFO si)
             {
                 dictAppendCell(dp, LVALUEtoCELL(tempFW));
             }
-            return (int)FICL_TRUE;
+            return true;
         }
     }
 
-    return FICL_FALSE;
+    return false;
 }
 
 
@@ -1181,7 +1181,7 @@ static void lookup(FICL_VM *pVM)
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
     SI_SETPTR(si, stackPopPtr(pVM->pStack));
-    stackPushINT(pVM->pStack, ficlParseWord(pVM, si));
+    stackPushINT(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
     return;
 }
 
@@ -1674,11 +1674,11 @@ static void setObjectFlag(FICL_VM *pVM)
 
 static void isObject(FICL_VM *pVM)
 {
-    int flag;
+    bool flag;
     FICL_WORD *pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
 
-    flag = ((pFW != NULL) && (pFW->flags & FW_ISOBJECT)) ? (int)FICL_TRUE : FICL_FALSE;
-    stackPushINT(pVM->pStack, flag);
+    flag = (pFW != NULL) && (pFW->flags & FW_ISOBJECT);
+    stackPushINT(pVM->pStack, FICL_BOOL(flag));
     return;
 }
 
@@ -3518,7 +3518,7 @@ static void fLocalParen(FICL_VM *pVM)
 ** lesser numeric value than the corresponding character in the string specified
 ** by c-addr2 u2 and one (1) otherwise.
 **************************************************************************/
-static void compareInternal(FICL_VM *pVM, int caseInsensitive)
+static void compareInternal(FICL_VM *pVM, bool caseInsensitive)
 {
     char *cp1, *cp2;
     FICL_UNS u1, u2, uMin;
@@ -3558,13 +3558,13 @@ static void compareInternal(FICL_VM *pVM, int caseInsensitive)
 
 static void compareString(FICL_VM *pVM)
 {
-    compareInternal(pVM, FALSE);
+    compareInternal(pVM, false);
 }
 
 
 static void compareStringInsensitive(FICL_VM *pVM)
 {
-    compareInternal(pVM, TRUE);
+    compareInternal(pVM, true);
 }
 
 
@@ -3613,11 +3613,11 @@ static void sourceid(FICL_VM *pVM)
 **************************************************************************/
 static void refill(FICL_VM *pVM)
 {
-    FICL_INT ret = (pVM->sourceID.i == -1) ? FICL_FALSE : FICL_TRUE;
-    if (ret && (pVM->fRestart == 0))
+    bool flag = pVM->sourceID.i != -1;
+    if (!flag && !pVM->fRestart)
         vmThrow(pVM, VM_RESTART);
 
-    PUSHINT(ret);
+    PUSHINT(FICL_BOOL(flag));
     return;
 }
 

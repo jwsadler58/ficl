@@ -393,7 +393,7 @@ struct vm
     FICL_JMP_BUF   *pState;     /* crude exception mechanism...     */
     OUTFUNC         textOut;    /* Output callback - see sysdep.c   */
     void *          pExtend;    /* vm extension pointer for app use - initialized from FICL_SYSTEM */
-    short           fRestart;   /* Set TRUE to restart runningWord - debugger support */
+    bool            fRestart;   /* Set true to restart runningWord - debugger support */
     IPTYPE          ip;         /* instruction pointer              */
     FICL_WORD      *runningWord;/* address of currently running word (often just *(ip-1) ) */
     FICL_UNS        state;      /* compiling or interpreting        */
@@ -690,7 +690,7 @@ void        vmPopTib   (FICL_VM *pVM, TIB *pTib);
 #define     vmGetInBufLen(pVM)   ((pVM)->tib.end - (pVM)->tib.cp)
 #define     vmGetInBufEnd(pVM)   ((pVM)->tib.end)
 #define     vmGetTibIndex(pVM)    (pVM)->tib.index
-#define     vmSetTibIndex(pVM, i) (pVM)->tib.index = i
+#define     vmSetTibIndex(pVM, i) (pVM)->tib.index = (i)
 #define     vmUpdateTib(pVM, str) (pVM)->tib.index = (str) - (pVM)->tib.cp
 
 /*
@@ -820,7 +820,7 @@ void        dictDelete     (FICL_DICT *pDict);
 void        dictEmpty      (FICL_DICT *pDict, unsigned nHash);
 void        dictHashSummary(FICL_VM *pVM);
 void        dictSummary    (FICL_VM *pVM);
-int         dictIncludes   (FICL_DICT *pDict, const void *p);
+bool        dictIncludes   (FICL_DICT *pDict, const void *p);
 FICL_WORD  *dictLookup     (FICL_DICT *pDict, STRINGINFO si);
 #if FICL_WANT_LOCALS
 FICL_WORD  *ficlLookupLoc  (FICL_SYSTEM *pSys, STRINGINFO si);
@@ -852,7 +852,7 @@ CELL       *dictWhere      (FICL_DICT *pDict);
 ** do not match as quickly as possible.
 */
 
-typedef int (*FICL_PARSE_STEP)(FICL_VM *pVM, STRINGINFO si);
+typedef bool (*FICL_PARSE_STEP)(FICL_VM *pVM, STRINGINFO si);
 
 /*
 ** Appends a parse step function to the end of the parse list (see
@@ -1106,25 +1106,25 @@ void       ficlCompileTools(FICL_SYSTEM *pSys);
 void       ficlCompileFile(FICL_SYSTEM *pSys);
 #if FICL_WANT_FLOAT
 void       ficlCompileFloat(FICL_SYSTEM *pSys);
-int        ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si ); /* float.c */
+bool       ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si ); /* float.c */
 #endif
 #if FICL_PLATFORM_EXTEND
 void       ficlCompilePlatform(FICL_SYSTEM *pSys);
 #endif
 
-int        ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
+bool       ficlParsePrefix(FICL_VM *pVM, STRINGINFO si);
 
 /*
 ** from words.c...
 */
-int        ficlParseNumber(FICL_VM *pVM, STRINGINFO si);
+bool       ficlParseNumber(FICL_VM *pVM, STRINGINFO si);
 void       ficlTick(FICL_VM *pVM);
 void       parseStepParen(FICL_VM *pVM);
 
 /*
 ** From tools.c
 */
-int        isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW);
+bool       isAFiclWord(FICL_DICT *pd, FICL_WORD *pFW);
 
 /*
 ** The following supports SEE and the debugger.

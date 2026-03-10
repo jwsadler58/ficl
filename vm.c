@@ -1426,7 +1426,7 @@ void vmPopTib(FICL_VM *pVM, TIB *pTib)
 void vmQuit(FICL_VM *pVM)
 {
     stackReset(pVM->rStack);
-    pVM->fRestart    = 0;
+    pVM->fRestart    = false;
     pVM->ip          = NULL;
     pVM->runningWord = NULL;
     pVM->state       = INTERPRET;

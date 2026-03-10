@@ -303,7 +303,7 @@ void ficlFreeVM(FICL_VM *pVM)
 int ficlBuild(FICL_SYSTEM *pSys, const char *name, FICL_CODE code, char flags)
 {
 #if FICL_MULTISESSION
-    int err = ficlLockDictionary(TRUE);
+    int err = ficlLockDictionary(true);
     if (err) return err;
 #endif /* FICL_MULTISESSION */
 
@@ -311,7 +311,7 @@ int ficlBuild(FICL_SYSTEM *pSys, const char *name, FICL_CODE code, char flags)
     dictAppendWord(pSys->dp, name, code, flags);
 
 #if FICL_MULTISESSION
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
 #endif /* FICL_MULTISESSION */
     return 0;
 }

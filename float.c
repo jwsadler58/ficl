@@ -874,9 +874,9 @@ typedef enum _floatParseState
                      f i c l P a r s e F l o a t N u m b e r
 ** pVM -- Virtual Machine pointer.
 ** si -- String to parse.
-** Returns 1 if successful, 0 if not.
+** Returns true if successful, false if not.
 **************************************************************************/
-int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
+bool ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
 {
     unsigned char ch, digit;
     const char *cp;
@@ -896,7 +896,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
     ** floating point numbers only allowed in base 10
     */
     if (pVM->base != 10)
-        return 0;
+        return false;
 
 
     cp = SI_PTR(si);
@@ -939,7 +939,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
                 {
                     digit = (unsigned char)(ch - '0');
                     if (digit > 9)
-                        return 0;
+                        return false;
 
                     accum = accum * 10 + digit;
 
@@ -960,7 +960,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
                 {
                     digit = (unsigned char)(ch - '0');
                     if (digit > 9)
-                        return 0;
+                        return false;
 
                     accum += digit * mant;
                     mant *= 0.1f;
@@ -991,7 +991,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
             {
                 digit = (unsigned char)(ch - '0');
                 if (digit > 9)
-                    return 0;
+                    return false;
 
                 exponent = exponent * 10 + digit;
 
@@ -1002,7 +1002,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
 
     /* If parser never made it to the exponent this is not a float. */
     if (estate < FPS_STARTEXP)
-        return 0;
+        return false;
 
     /* Set the sign of the number. */
     if (flag & NUMISNEG)
@@ -1025,7 +1025,7 @@ int ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
     if (pVM->state == COMPILE)
         fliteralIm(pVM);
 
-    return 1;
+    return true;
 }
 
 /*

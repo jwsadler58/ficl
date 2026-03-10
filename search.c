@@ -104,9 +104,9 @@ static void environmentWordlist(FICL_VM *pVM)
 **************************************************************************/
 static void getCurrent(FICL_VM *pVM)
 {
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     stackPushPtr(pVM->pStack, vmGetDict(pVM)->pCompile);
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 
@@ -125,14 +125,14 @@ static void getOrder(FICL_VM *pVM)
     int nLists = pDict->nLists;
     int i;
 
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     for (i = 0; i < nLists; i++)
     {
         stackPushPtr(pVM->pStack, pDict->pSearch[i]);
     }
 
     stackPushUNS(pVM->pStack, nLists);
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 
@@ -156,9 +156,9 @@ static void searchWordlist(FICL_VM *pVM)
     si.cp            = stackPopPtr(pVM->pStack);
     hashCode         = hashHashCode(si);
 
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     pFW = hashLookup(pHash, si, hashCode);
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
 
     if (pFW)
     {
@@ -183,9 +183,9 @@ static void setCurrent(FICL_VM *pVM)
 {
     FICL_HASH *pHash = stackPopPtr(pVM->pStack);
     FICL_DICT *pDict = vmGetDict(pVM);
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     pDict->pCompile = pHash;
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 
@@ -212,7 +212,7 @@ static void setOrder(FICL_VM *pVM)
         vmThrowErr(pVM, "set-order error: list would be too large");
     }
 
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
 
     if (nLists >= 0)
     {
@@ -227,7 +227,7 @@ static void setOrder(FICL_VM *pVM)
         dictResetSearchOrder(dp);
     }
 
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 
@@ -273,14 +273,14 @@ static void searchPop(FICL_VM *pVM)
     FICL_DICT *dp = vmGetDict(pVM);
     int nLists;
 
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     nLists = dp->nLists;
     if (nLists == 0)
     {
         vmThrowErr(pVM, "search> error: empty search order");
     }
     stackPushPtr(pVM->pStack, dp->pSearch[--dp->nLists]);
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 
@@ -294,13 +294,13 @@ static void searchPush(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
 
-    ficlLockDictionary(TRUE);
+    ficlLockDictionary(true);
     if (dp->nLists > FICL_DEFAULT_VOCS)
     {
         vmThrowErr(pVM, ">search error: search order overflow");
     }
     dp->pSearch[dp->nLists++] = stackPopPtr(pVM->pStack);
-    ficlLockDictionary(FALSE);
+    ficlLockDictionary(false);
     return;
 }
 

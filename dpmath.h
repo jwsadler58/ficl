@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 DPINT   dpmAbs(DPINT x);
-int     dpmIsNegative(DPINT x);
+bool    dpmIsNegative(DPINT x);
 DPUNS   dpmMac(DPUNS u, FICL_UNS mul, FICL_UNS add);
 DPINT   dpmMulI(FICL_INT x, FICL_INT y);
 DPINT   dpmNegate(DPINT x);
