@@ -173,7 +173,7 @@ static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 2, 0);
 #endif
-    cp = stackPopPtr(pVM->pStack);
+    cp = (char *)stackPopPtr(pVM->pStack);
     /*
     ** Changed the comparison below to compare the pointers first (by popular demand)
     */
@@ -846,7 +846,7 @@ static void endcaseCoIm(FICL_VM *pVM)
     if (stackGetTop(pVM->pStack).p == fallthroughTag)
     {
         matchControlTag(pVM, fallthroughTag);
-        patchAddr = POPPTR();
+        patchAddr = (CELL *)POPPTR();
         matchControlTag(pVM, caseTag);
         fixupCount = POPUNS();
         PUSHPTR(patchAddr);
@@ -897,7 +897,7 @@ static void ofCoIm(FICL_VM *pVM)
     if (stackGetTop(pVM->pStack).p == fallthroughTag)
     {
         matchControlTag(pVM, fallthroughTag);
-        fallthroughFixup = POPPTR();
+        fallthroughFixup = (CELL *)POPPTR();
     }
 
     matchControlTag(pVM, caseTag);
@@ -1552,7 +1552,7 @@ static void cellPlus(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    cp = POPPTR();
+    cp = (char *)POPPTR();
     PUSHPTR(cp + sizeof (CELL));
     return;
 }
@@ -1609,7 +1609,7 @@ static void postponeCoIm(FICL_VM *pVM)
     assert(pComma);
 
     ficlTick(pVM);
-    pFW = stackGetTop(pVM->pStack).p;
+    pFW = (FICL_WORD *)stackGetTop(pVM->pStack).p;
     if (wordIsImmediate(pFW))
     {
         dictAppendCell(dp, stackPop(pVM->pStack));
@@ -1638,7 +1638,7 @@ static void execute(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    pFW = stackPopPtr(pVM->pStack);
+    pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
     vmExecute(pVM, pFW);
 
     return;
@@ -1776,7 +1776,7 @@ static void sLiteralCoIm(FICL_VM *pVM)
 
     dp = vmGetDict(pVM);
     u  = POPUNS();
-    cp = POPPTR();
+    cp = (char *)POPPTR();
 
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStringLit));
     cpDest    = (char *) dp->here;
@@ -1871,7 +1871,7 @@ static void toBody(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    pFW = POPPTR();
+    pFW = (FICL_WORD *)POPPTR();
     PUSHPTR(pFW->param + 1);
     return;
 }
@@ -1906,7 +1906,7 @@ static void toName(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 2);
 #endif
 
-    pFW = POPPTR();
+    pFW = (FICL_WORD *)POPPTR();
     PUSHPTR(pFW->name);
     PUSHUNS(pFW->nName);
     return;
@@ -2200,7 +2200,7 @@ static void accept(FICL_VM *pVM)
     ** Now we have something in the text buffer - use it
     */
     count = stackPopINT(pVM->pStack);
-    cp    = stackPopPtr(pVM->pStack);
+    cp    = (char *)stackPopPtr(pVM->pStack);
 
     len = (count < len) ? count : len;
     strncpy(cp, vmGetInBuf(pVM), len);
@@ -2356,7 +2356,7 @@ static void charPlus(FICL_VM *pVM)
     vmCheckStack(pVM,1,1);
 #endif
 
-    cp = POPPTR();
+    cp = (char *)POPPTR();
     PUSHPTR(cp + 1);
     return;
 }
@@ -2399,7 +2399,7 @@ static void count(FICL_VM *pVM)
     vmCheckStack(pVM,1,2);
 #endif
 
-    sp = POPPTR();
+    sp = (FICL_STRING *)POPPTR();
     PUSHPTR(sp->text);
     PUSHUNS(sp->count);
     return;
@@ -2426,7 +2426,7 @@ static void evaluate(FICL_VM *pVM)
 #endif
 
     count = POPUNS();
-    cp = POPPTR();
+    cp = (char *)POPPTR();
 
     id = pVM->sourceID;
     pVM->sourceID.i = -1;
@@ -2482,7 +2482,7 @@ static void type(FICL_VM *pVM)
 #endif
 
     count = POPUNS();
-    cp = POPPTR();
+    cp = (char *)POPPTR();
 
     /*
     ** Since we don't have an output primitive for a counted string
@@ -2667,7 +2667,7 @@ static void cFind(FICL_VM *pVM)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM,1,2);
 #endif
-    sp = POPPTR();
+    sp = (FICL_STRING *)POPPTR();
     SI_PFS(si, sp);
     do_find(pVM, si, sp);
 }
@@ -2688,7 +2688,7 @@ static void sFind(FICL_VM *pVM)
 #endif
 
     si.count = stackPopINT(pVM->pStack);
-    si.cp = stackPopPtr(pVM->pStack);
+    si.cp = (const char *)stackPopPtr(pVM->pStack);
 
     do_find(pVM, si, NULL);
 }
@@ -2859,8 +2859,8 @@ static void move(FICL_VM *pVM)
 #endif
 
     u = POPUNS();
-    addr2 = POPPTR();
-    addr1 = POPPTR();
+    addr2 = (char *)POPPTR();
+    addr1 = (char *)POPPTR();
 
     if (u == 0)
         return;
@@ -3664,7 +3664,7 @@ static void ficlCatch(FICL_VM *pVM)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
-    pFW = stackPopPtr(pVM->pStack);
+    pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
 
     /*
     ** Save vm's state -- a catch will not back out environmental

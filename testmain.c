@@ -575,7 +575,7 @@ static char* editLine(const char *prompt)
     enableRawMode();
 
     /* Allocate initial buffer */
-    buf = malloc(buf_capacity);
+    buf = (char *)malloc(buf_capacity);
     if (!buf) {
         return NULL;
     }
@@ -704,7 +704,7 @@ static char* editLine(const char *prompt)
             /* Grow buffer if needed */
             if (buf_len + 1 >= buf_capacity) {
                 buf_capacity *= 2;
-                char *new_buf = realloc(buf, buf_capacity);
+                char *new_buf = (char *)realloc(buf, buf_capacity);
                 if (!new_buf) {
                     free(buf);
                     if (saved_line) free(saved_line);

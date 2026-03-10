@@ -199,7 +199,7 @@ static void seeColon(FICL_VM *pVM, CELL *pc)
             {
             case LITERAL:
                 c = *++pc;
-                if (isAFiclWord(pd, c.p))
+                if (isAFiclWord(pd, (FICL_WORD *)c.p))
                 {
                     FICL_WORD *pLit = (FICL_WORD *)c.p;
                     snprintf(cp, SNLIMIT, "%.*s ( " PCT_IX " literal )",
@@ -369,7 +369,7 @@ static void see(FICL_VM *pVM)
 **************************************************************************/
 static void ficlDebugXT(FICL_VM *pVM)
 {
-    FICL_WORD *xt    = stackPopPtr(pVM->pStack);
+    FICL_WORD *xt    = (FICL_WORD *)stackPopPtr(pVM->pStack);
     WORDKIND   wk    = ficlWordClassify(xt);
 
     stackPushPtr(pVM->pStack, xt);
@@ -661,7 +661,7 @@ static void displayRStack(FICL_VM *pVM)
             */
             if (dictIncludes(dp, c.p))
             {
-                FICL_WORD *pFW = findEnclosingWord(pVM, c.p);
+                FICL_WORD *pFW = findEnclosingWord(pVM, (CELL *)c.p);
                 if (pFW)
                 {
                     int offset = (CELL *)c.p - &pFW->param[0];

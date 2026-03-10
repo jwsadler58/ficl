@@ -109,7 +109,7 @@ void *alignPtr(void *ptr)
 **************************************************************************/
 void dictAlign(FICL_DICT *pDict)
 {
-    pDict->here = alignPtr(pDict->here);
+    pDict->here = (CELL *)alignPtr(pDict->here);
 }
 
 #if FICL_WANT_FLOAT
@@ -445,7 +445,7 @@ FICL_DICT  *dictCreateHashed(unsigned nCells, unsigned nHash)
     nAlloc = sizeof (FICL_DICT) + nCells * sizeof (CELL)
            + FICL_HASH_BYTES(nHash);
 
-    pDict = ficlMalloc(nAlloc);
+    pDict = (FICL_DICT *)ficlMalloc(nAlloc);
     assert(pDict);
 
     pDict->size = nCells;
