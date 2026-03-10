@@ -34,7 +34,7 @@ static void pushIor(FICL_VM *pVM, bool success)
 
 
 
-static void ficlFopen(FICL_VM *pVM, char *writeMode) /* ( c-addr u fam -- fileid ior ) */
+static void ficlFopen(FICL_VM *pVM, const char *writeMode) /* ( c-addr u fam -- fileid ior ) */
 {
     int fam = stackPopINT(pVM->pStack);
     int length = stackPopINT(pVM->pStack);

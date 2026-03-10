@@ -724,7 +724,7 @@ static_assert(HASHSIZE > 0, "Hash Table must contain at least one bucket");
 typedef struct ficl_hash
 {
     struct ficl_hash *link;  /* link to parent class wordlist for OO */
-    char      *name;         /* optional pointer to \0 terminated wordlist name */
+    const char *name;        /* optional pointer to \0 terminated wordlist name */
     unsigned   size;         /* number of buckets in the hash */
     FICL_WORD *table[];
 } FICL_HASH;
