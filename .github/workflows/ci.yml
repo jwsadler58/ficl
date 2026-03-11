@@ -25,7 +25,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           if [ -f Makefile.linux ]; then
-            make -f Makefile.linux clean ficl
+            make -f Makefile.linux clean ficl ficlmin
+            make -f Makefile.wasm wasm
           else
             make -f makefile.linux clean ficl
           fi
@@ -35,6 +36,7 @@ jobs:
         run: |
           if [ -f Makefile.macos ]; then
             make -f Makefile.macos clean ficl ficlmin
+            make -f Makefile.macos wasm
           else
             make -f makefile.macos clean ficl ficlmin
           fi
