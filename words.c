@@ -3613,14 +3613,13 @@ static void sourceid(FICL_VM *pVM)
 **************************************************************************/
 static void refill(FICL_VM *pVM)
 {
-    bool flag = pVM->sourceID.i != -1;
-    if (flag && !pVM->fRestart)
+    bool fEval = (pVM->sourceID.i == -1);  /* EVALUATE sets sourceID to -1 */
+    if (!fEval && (pVM->fRestart == 0))
         vmThrow(pVM, VM_RESTART);
 
-    PUSHINT(FICL_BOOL(flag));
+    PUSHINT( FICL_BOOL(!fEval) );
     return;
 }
-
 
 /**************************************************************************
                         freebsd exception handling words

@@ -25,10 +25,14 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           if [ -f Makefile.linux ]; then
-            make -f Makefile.linux clean ficl
+            make -f Makefile.linux clean ficl ficlmin
           else
             make -f makefile.linux clean ficl
           fi
+
+      - name: Set up Emscripten (macOS)
+        if: runner.os == 'macOS'
+        uses: mymindstorm/setup-emsdk@v14
 
       - name: Build (macOS)
         if: runner.os == 'macOS'
@@ -38,6 +42,7 @@ jobs:
           else
             make -f makefile.macos clean ficl ficlmin
           fi
+          EM_CACHE=$EMSDK/upstream/emscripten/cache make -f makefile.wasm clean wasm
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
