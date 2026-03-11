@@ -42,7 +42,7 @@ jobs:
           else
             make -f makefile.macos clean ficl ficlmin
           fi
-          make -f makefile.wasm clean wasm
+          EM_CACHE=$EMSDK/upstream/emscripten/cache make -f makefile.wasm clean wasm
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
