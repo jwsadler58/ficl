@@ -386,7 +386,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
         if (pVM->fRestart)
         {
             pVM->runningWord->code(pVM);
-            pVM->fRestart = 0;
+            pVM->fRestart = false;
         }
         else
         {   /* set VM up to interpret text */
@@ -397,7 +397,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
         break;
 
     case VM_RESTART:
-        pVM->fRestart = 1;
+        pVM->fRestart = true;
         except = VM_OUTOFTEXT;
         break;
 
