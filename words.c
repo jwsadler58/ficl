@@ -481,7 +481,7 @@ static void ficlSprintf(FICL_VM *pVM)
     int base = 10;
     bool unsignedInteger = false;
 
-    FICL_INT success = FICL_TRUE;
+    bool success = true;
 
     while (format < formatStop)
     {
@@ -585,7 +585,7 @@ static void ficlSprintf(FICL_VM *pVM)
                 bufferLength--;
             }
             else
-                success = FICL_FALSE;
+                success = false;
             desiredLength--;
         }
 
@@ -598,7 +598,7 @@ static void ficlSprintf(FICL_VM *pVM)
 
         if (bufferLength < actualLength) {
             actualLength = bufferLength;
-            success = FICL_FALSE;
+            success = false;
         }
 
         memcpy(buffer, source, actualLength);
@@ -610,7 +610,7 @@ static void ficlSprintf(FICL_VM *pVM)
 
     stackPushPtr(pVM->pStack, bufferStart);
     stackPushINT(pVM->pStack, buffer - bufferStart);
-    stackPushINT(pVM->pStack, success);
+    stackPushINT(pVM->pStack, FICL_BOOL(success));
 }
 
 
@@ -1203,7 +1203,7 @@ void parseStepParen(FICL_VM *pVM)
     SI_SETLEN(si, stackPopINT(pVM->pStack));
     SI_SETPTR(si, stackPopPtr(pVM->pStack));
 
-    PUSHINT((*pStep)(pVM, si));
+    PUSHINT(FICL_BOOL((*pStep)(pVM, si)));
 
     return;
 }
