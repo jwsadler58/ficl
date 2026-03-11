@@ -3791,14 +3791,14 @@ static void ansFree(FICL_VM *pVM)
 static void ansResize(FICL_VM *pVM)
 {
     size_t size;
-    void *new, *old;
+    void *new_, *old;
 
     size = stackPopINT(pVM->pStack);
     old = stackPopPtr(pVM->pStack);
-    new = ficlRealloc(old, size);
-    if (new)
+    new_ = ficlRealloc(old, size);
+    if (new_)
     {
-        PUSHPTR(new);
+        PUSHPTR(new_);
         PUSHINT(0);
     }
     else

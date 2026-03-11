@@ -313,7 +313,7 @@ static void searchPush(FICL_VM *pVM)
 static void widGetName(FICL_VM *pVM)
 {
     FICL_HASH *pHash = vmPop(pVM).p;
-    char *cp = pHash->name;
+    const char *cp = pHash->name;
     FICL_INT len = 0;
 
     if (cp)
