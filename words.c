@@ -3874,7 +3874,7 @@ WORDKIND ficlWordClassify(FICL_WORD *pFW)
 **************************************************************************/
 static uint64_t rndState;
 static uint64_t rndInc;
-static int rndIsSeeded;
+static bool rndIsSeeded;
 
 static uint32_t rndNext(void)
 {
@@ -3901,7 +3901,7 @@ static void ficlRandom(FICL_VM *pVM)
     if (!rndIsSeeded)
     {
         rndSeed(1u);
-        rndIsSeeded = 1;
+        rndIsSeeded = true;
     }
     PUSHINT((FICL_INT)rndNext());
 }
@@ -3913,7 +3913,7 @@ static void ficlRandom(FICL_VM *pVM)
 static void ficlSeedRandom(FICL_VM *pVM)
 {
     rndSeed((uint32_t)POPINT());
-    rndIsSeeded = 1;
+    rndIsSeeded = true;
 }
 
 
