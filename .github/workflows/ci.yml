@@ -36,7 +36,7 @@ jobs:
         run: |
           if [ -f Makefile.macos ]; then
             make -f Makefile.macos clean ficl ficlmin
-            make -f Makefile.macos wasm
+            make -f Makefile.wasm wasm
           else
             make -f makefile.macos clean ficl ficlmin
           fi
