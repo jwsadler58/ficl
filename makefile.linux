@@ -46,4 +46,4 @@ ficl: $(FICL_TEST_OBJ) ficl.h sysdep.h libficl.a
 #  === utility targets ===
 #
 clean:
-	rm -f *.o *.a *.d 
+	rm -f *.o *.a *.d softcore.c

@@ -35,4 +35,4 @@ ficl.exe: $(FICL_TEST_OBJ) ficl.h sysdep.h libficl.lib
 
 # === utility targets ===
 clean:
-	-del /q *.obj *.lib *.exe
+	-del /q *.obj *.lib *.exe softcore.c
