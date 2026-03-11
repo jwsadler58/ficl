@@ -367,7 +367,7 @@ static void see(FICL_VM *pVM)
 ** set a breakpoint at its first instruction, and run to the breakpoint.
 ** Note: the semantics of this word are equivalent to "step in"
 **************************************************************************/
-void ficlDebugXT(FICL_VM *pVM)
+static void ficlDebugXT(FICL_VM *pVM)
 {
     FICL_WORD *xt    = stackPopPtr(pVM->pStack);
     WORDKIND   wk    = ficlWordClassify(xt);
@@ -401,7 +401,7 @@ void ficlDebugXT(FICL_VM *pVM)
 ** Execute the next instruction, stepping into it if it's a colon definition
 ** or a does> word. This is the easy kind of step.
 **************************************************************************/
-void stepIn(FICL_VM *pVM)
+static void stepIn(FICL_VM *pVM)
 {
     /*
     ** Do one step of the inner loop
@@ -426,7 +426,7 @@ void stepIn(FICL_VM *pVM)
 ** the memory layout of compiled code. Set a breakpoint at the next instruction
 ** in this word, and run until we hit it
 **************************************************************************/
-void stepOver(FICL_VM *pVM)
+static void stepOver(FICL_VM *pVM)
 {
     FICL_WORD *pFW;
     WORDKIND kind;
@@ -474,7 +474,7 @@ void stepOver(FICL_VM *pVM)
 ** q (quit) - abort current word
 ** b (toggle breakpoint)
 **************************************************************************/
-void stepBreak(FICL_VM *pVM)
+static void stepBreak(FICL_VM *pVM)
 {
     STRINGINFO si;
     FICL_WORD *pFW;
