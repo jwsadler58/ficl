@@ -58,16 +58,16 @@ static bool ficlParseWord(FICL_VM *pVM, STRINGINFO si);
 ** strings' addresses as markers on the stack to
 ** check for structure completion.
 */
-static char doTag[]    = "do";
-static char colonTag[] = "colon";
-static char leaveTag[] = "leave";
+static const char *doTag    = "do";
+static const char *colonTag = "colon";
+static const char *leaveTag = "leave";
 
-static char destTag[]  = "target";
-static char origTag[]  = "origin";
+static const char *destTag  = "target";
+static const char *origTag  = "origin";
 
-static char caseTag[]  = "case";
-static char ofTag[]    = "of";
-static char fallthroughTag[]  = "fallthrough";
+static const char *caseTag  = "case";
+static const char *ofTag    = "of";
+static const char *fallthroughTag  = "fallthrough";
 
 #if FICL_WANT_LOCALS
     static void doLocalIm(FICL_VM *pVM);
@@ -84,26 +84,26 @@ static char fallthroughTag[]  = "fallthrough";
 ** Push current dict location for later branch resolution.
 ** The location may be either a branch target or a patch address...
 */
-static void markBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
+static void markBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
 {
     PUSHPTR(dp->here);
     PUSHPTR(tag);
     return;
 }
 
-static void markControlTag(FICL_VM *pVM, char *tag)
+static void markControlTag(FICL_VM *pVM, const char *tag)
 {
     PUSHPTR(tag);
     return;
 }
 
-static void matchControlTag(FICL_VM *pVM, char *tag)
+static void matchControlTag(FICL_VM *pVM, const char *tag)
 {
-    char *cp;
+    const char *cp;
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
-    cp = (char *)stackPopPtr(pVM->pStack);
+    cp = (const char *)stackPopPtr(pVM->pStack);
     /*
     ** Changed the code below to compare the pointers first (by popular demand)
     */
@@ -120,7 +120,7 @@ static void matchControlTag(FICL_VM *pVM, char *tag)
 ** compile a literal offset from the current dict location
 ** to the target address
 */
-static void resolveBackBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
+static void resolveBackBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
 {
     FICL_INT offset;
     CELL *patchAddr;
@@ -143,7 +143,7 @@ static void resolveBackBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
 ** compile a literal offset from the patch location
 ** to the current dict location
 */
-static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
+static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
 {
     FICL_INT offset;
     CELL *patchAddr;
@@ -165,15 +165,15 @@ static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
 ** copy "here" address into the cell whose address is next
 ** on the stack. Used by do..leave..loop.
 */
-static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
+static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
 {
     CELL *patchAddr;
-    char *cp;
+    const char *cp;
 
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 2, 0);
 #endif
-    cp = (char *)stackPopPtr(pVM->pStack);
+    cp = (const char *)stackPopPtr(pVM->pStack);
     /*
     ** Changed the comparison below to compare the pointers first (by popular demand)
     */
