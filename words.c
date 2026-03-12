@@ -610,7 +610,7 @@ static void ficlSprintf(FICL_VM *pVM)
 
     stackPushPtr(pVM->pStack, bufferStart);
     stackPushINT(pVM->pStack, buffer - bufferStart);
-    stackPushINT(pVM->pStack, FICL_BOOL(success));
+    stackPushUNS(pVM->pStack, FICL_BOOL(success));
 }
 
 
@@ -1181,7 +1181,7 @@ static void lookup(FICL_VM *pVM)
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
     SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
-    stackPushINT(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
+    stackPushUNS(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
     return;
 }
 
@@ -1203,7 +1203,7 @@ void parseStepParen(FICL_VM *pVM)
     SI_SETLEN(si, stackPopINT(pVM->pStack));
     SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
-    PUSHINT(FICL_BOOL((*pStep)(pVM, si)));
+    PUSHUNS(FICL_BOOL((*pStep)(pVM, si)));
 
     return;
 }
@@ -1678,7 +1678,7 @@ static void isObject(FICL_VM *pVM)
     FICL_WORD *pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
 
     flag = (pFW != NULL) && (pFW->flags & FW_ISOBJECT);
-    stackPushINT(pVM->pStack, FICL_BOOL(flag));
+    stackPushUNS(pVM->pStack, FICL_BOOL(flag));
     return;
 }
 
@@ -3617,7 +3617,7 @@ static void refill(FICL_VM *pVM)
     if (!fEval && !pVM->fRestart)
         vmThrow(pVM, VM_RESTART);
 
-    PUSHINT( FICL_BOOL(!fEval) );
+    PUSHUNS( FICL_BOOL(!fEval) );
     return;
 }
 

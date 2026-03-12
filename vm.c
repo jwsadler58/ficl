@@ -321,41 +321,41 @@
     }) \
     OP(label, ZERO_LESS, 1, 1, { \
         i = (--dataTop)->i; \
-        dataTop->i = FICL_BOOL(i < 0); \
+        dataTop->u = FICL_BOOL(i < 0); \
         dataTop++; \
     }) \
     OP(label, ZERO_EQUALS, 1, 1, { \
         i = (--dataTop)->i; \
-        dataTop->i = FICL_BOOL(i == 0); \
+        dataTop->u = FICL_BOOL(i == 0); \
         dataTop++; \
     }) \
     OP(label, ZERO_GREATER, 1, 1, { \
         i = (--dataTop)->i; \
-        dataTop->i = FICL_BOOL(i > 0); \
+        dataTop->u = FICL_BOOL(i > 0); \
         dataTop++; \
     }) \
     OP(label, LESS, 2, 1, { \
         i = (--dataTop)->i; \
         c = *--dataTop; \
-        dataTop->i = FICL_BOOL(c.i < i); \
+        dataTop->u = FICL_BOOL(c.i < i); \
         dataTop++; \
     }) \
     OP(label, EQUALS, 2, 1, { \
         c = *--dataTop; \
         i = (--dataTop)->i; \
-        dataTop->i = FICL_BOOL(i == c.i); \
+        dataTop->u = FICL_BOOL(i == c.i); \
         dataTop++; \
     }) \
     OP(label, GREATER, 2, 1, { \
         i = (--dataTop)->i; \
         c = *--dataTop; \
-        dataTop->i = FICL_BOOL(c.i > i); \
+        dataTop->u = FICL_BOOL(c.i > i); \
         dataTop++; \
     }) \
     OP(label, U_LESS, 2, 1, { \
         u = (--dataTop)->u; \
         c = *--dataTop; \
-        dataTop->i = FICL_BOOL(c.u < u); \
+        dataTop->u = FICL_BOOL(c.u < u); \
         dataTop++; \
     }) \
     OP(label, AND, 2, 1, { \
@@ -615,21 +615,21 @@
         case FICL_OP_F0LESS: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = FICL_BOOL(*--FSTACK_TOP < 0); \
+            dataTop->u = FICL_BOOL(*--FSTACK_TOP < 0); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_F0EQUALS: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = FICL_BOOL(*--FSTACK_TOP == 0); \
+            dataTop->u = FICL_BOOL(*--FSTACK_TOP == 0); \
             dataTop++; \
             goto OP_DONE; \
         } \
         case FICL_OP_F0GREATER: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(1, 0); \
-            dataTop->i = FICL_BOOL(*--FSTACK_TOP > 0); \
+            dataTop->u = FICL_BOOL(*--FSTACK_TOP > 0); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -638,7 +638,7 @@
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
             f = *--FSTACK_TOP; \
-            dataTop->i = FICL_BOOL(*--FSTACK_TOP < f); \
+            dataTop->u = FICL_BOOL(*--FSTACK_TOP < f); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -647,7 +647,7 @@
             VM_CHECK_STACK_LOCAL(0, 1); \
             VM_CHECK_FSTACK_LOCAL(2, 0); \
             f = *--FSTACK_TOP; \
-            dataTop->i = FICL_BOOL(*--FSTACK_TOP > f); \
+            dataTop->u = FICL_BOOL(*--FSTACK_TOP > f); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -660,7 +660,7 @@
             f1 = *--FSTACK_TOP; \
             f2 = *--FSTACK_TOP; \
             diff = (FICL_FLOAT)fabs((double)(f2 - f1)); \
-            dataTop->i = FICL_BOOL(diff < (2 * FICL_FLOAT_EPSILON)); \
+            dataTop->u = FICL_BOOL(diff < (2 * FICL_FLOAT_EPSILON)); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -671,7 +671,7 @@
             VM_CHECK_FSTACK_LOCAL(2, 0); \
             y = *--FSTACK_TOP; \
             x = *--FSTACK_TOP; \
-            dataTop->i = FICL_BOOL(x == y); \
+            dataTop->u = FICL_BOOL(x == y); \
             dataTop++; \
             goto OP_DONE; \
         } \
