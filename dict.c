@@ -125,7 +125,7 @@ void dictAlignFloat(FICL_DICT *pDict)
         return;
 
     addr = (uintptr_t)pDict->here;
-    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~(uintptr_t)FICL_FLOAT_ALIGN_MASK;
+    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~FICL_FLOAT_ALIGN_MASK;
     pDict->here = (CELL *)addr;
     return;
 }
@@ -304,7 +304,7 @@ FICL_WORD *dictAppendWord2(FICL_DICT *pDict,
     pFW->hash     = hashHashCode(si);
     pFW->code     = pCode;
     pFW->flags    = (UNS8)(flags | FW_SMUDGE);
-    pFW->nName    = (char)len;
+    pFW->nName    = len;
     pFW->name     = pName;
     pFW->opcode   = FICL_OP_CALL;
     /*
@@ -642,7 +642,7 @@ FICL_WORD *dictLookup(FICL_DICT *pDict, STRINGINFO si)
 
     ficlLockDictionary(true);
 
-    for (i = (int)pDict->nLists - 1; (i >= 0) && (!pFW); --i)
+    for (i = pDict->nLists - 1; (i >= 0) && (!pFW); --i)
     {
         pHash = pDict->pSearch[i];
         pFW = hashLookup(pHash, si, hashCode);
@@ -680,7 +680,7 @@ FICL_WORD *ficlLookupLoc(FICL_SYSTEM *pSys, STRINGINFO si)
     ** If no joy, (!pFW) --------------------------v
     ** iterate over the search list in the main dict
     */
-    for (i = (int)pDict->nLists - 1; (i >= 0) && (!pFW); --i)
+    for (i = pDict->nLists - 1; (i >= 0) && (!pFW); --i)
     {
         pHash = pDict->pSearch[i];
         pFW = hashLookup(pHash, si, hashCode);

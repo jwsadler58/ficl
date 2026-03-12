@@ -140,8 +140,8 @@ typedef struct ficl_system_info FICL_SYSTEM_INFO;
 ** complement of false... that unifies logical and bitwise operations
 ** nicely.
 */
-#define FICL_TRUE  ((FICL_UNS)~(FICL_UNS)0)
-#define FICL_FALSE (0)
+#define FICL_FALSE ((FICL_UNS)0)
+#define FICL_TRUE  (~FICL_FALSE)
 #define FICL_BOOL(x) ((x) ? FICL_TRUE : FICL_FALSE)
 
 
@@ -201,7 +201,7 @@ typedef struct
 
 #define SI_COUNT(si) ((si).count)
 #define SI_PTR(si)   ((si).cp)
-#define SI_SETLEN(si, len) ((si).count = (FICL_UNS)(len))
+#define SI_SETLEN(si, len) ((si).count = (len))
 #define SI_SETPTR(si, ptr) ((si).cp = (const char *)(ptr))
 /*
 ** Init a STRINGINFO from a pointer to NULL-terminated string

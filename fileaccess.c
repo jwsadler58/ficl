@@ -38,7 +38,7 @@ static void ficlFopen(FICL_VM *pVM, const char *writeMode) /* ( c-addr u fam -- 
 {
     int fam = stackPopINT(pVM->pStack);
     int length = stackPopINT(pVM->pStack);
-    void *address = (void *)stackPopPtr(pVM->pStack);
+    void *address = stackPopPtr(pVM->pStack);
     char mode[4];
     FILE *f;
 
@@ -130,7 +130,7 @@ static void ficlCloseFile(FICL_VM *pVM) /* ( fileid -- ior ) */
 static void ficlDeleteFile(FICL_VM *pVM) /* ( c-addr u -- ior ) */
 {
     int length = stackPopINT(pVM->pStack);
-    void *address = (void *)stackPopPtr(pVM->pStack);
+    void *address = stackPopPtr(pVM->pStack);
 
     char *filename = (char *)ficlMalloc(length + 1);
     if (filename == NULL)
@@ -154,7 +154,7 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
     char *to;
 
     length = stackPopINT(pVM->pStack);
-    address = (void *)stackPopPtr(pVM->pStack);
+    address = stackPopPtr(pVM->pStack);
     to = (char *)ficlMalloc(length + 1);
     if (to == NULL)
     {
@@ -166,7 +166,7 @@ static void ficlRenameFile(FICL_VM *pVM) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
     to[length] = 0;
 
     length = stackPopINT(pVM->pStack);
-    address = (void *)stackPopPtr(pVM->pStack);
+    address = stackPopPtr(pVM->pStack);
 
     from = (char *)ficlMalloc(length + 1);
     if (from == NULL)
@@ -189,7 +189,7 @@ static void ficlFileStatus(FICL_VM *pVM) /* ( c-addr u -- x ior ) */
     struct stat statbuf;
 
     int length = stackPopINT(pVM->pStack);
-    void *address = (void *)stackPopPtr(pVM->pStack);
+    void *address = stackPopPtr(pVM->pStack);
 
     char *filename = (char *)ficlMalloc(length + 1);
     if (filename == NULL)
@@ -292,7 +292,7 @@ static void ficlReadFile(FICL_VM *pVM) /* ( c-addr u1 fileid -- u2 ior ) */
 {
     ficlFILE *ff = (ficlFILE *)stackPopPtr(pVM->pStack);
     int length = stackPopINT(pVM->pStack);
-    void *address = (void *)stackPopPtr(pVM->pStack);
+    void *address = stackPopPtr(pVM->pStack);
     int result;
 
     clearerr(ff->f);
@@ -348,7 +348,7 @@ static void ficlWriteFile(FICL_VM *pVM) /* ( c-addr u1 fileid -- ior ) */
 {
     ficlFILE *ff = (ficlFILE *)stackPopPtr(pVM->pStack);
     int length = stackPopINT(pVM->pStack);
-    void *address = (void *)stackPopPtr(pVM->pStack);
+    void *address = stackPopPtr(pVM->pStack);
 
     clearerr(ff->f);
     fwrite(address, 1, length, ff->f);
@@ -361,7 +361,7 @@ static void ficlWriteLine(FICL_VM *pVM) /* ( c-addr u1 fileid -- ior ) */
 {
     ficlFILE *ff = (ficlFILE *)stackPopPtr(pVM->pStack);
     size_t length = (size_t)stackPopINT(pVM->pStack);
-    void *address = (void *)stackPopPtr(pVM->pStack);
+    void *address = stackPopPtr(pVM->pStack);
 
     clearerr(ff->f);
     if (fwrite(address, 1, length, ff->f) == length)

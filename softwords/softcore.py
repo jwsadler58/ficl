@@ -142,7 +142,7 @@ void ficlCompileSoftCore(FICL_SYSTEM *pSys)
     int ret;
     assert(pVM);
     pVM->sourceID.i = -1;
-    ret = ficlExec(pVM, (char *)softWords);
+    ret = ficlExec(pVM, softWords);
     pVM->sourceID = id;
     if (ret == VM_ERREXIT)
         assert(false);

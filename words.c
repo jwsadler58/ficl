@@ -1500,7 +1500,7 @@ static void unused(FICL_VM *pVM)
     vmCheckStack(pVM, 0, 1);
 #endif
 
-    i = (FICL_INT)(dp->dict + dp->size - dp->here)  * (FICL_INT)sizeof (CELL);
+    i = (dp->dict + dp->size - dp->here) * (FICL_INT)sizeof (CELL);
     PUSHINT(i);
     return;
 }
@@ -3093,7 +3093,7 @@ static void toValueCompileStore(FICL_VM *pVM, FICL_WORD *pFW,
     FICL_WORD *pStore;
     STRINGINFO storeSi;
 
-    SI_PSZ(storeSi, (char *)storeName);
+    SI_PSZ(storeSi, storeName);
     pStore = dictLookup(dp, storeSi);
     if (!pStore)
     {

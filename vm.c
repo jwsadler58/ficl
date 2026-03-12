@@ -410,7 +410,7 @@
         dataTop += 2; \
     }) \
     OP(label, DEPTH, 0, 1, { \
-        dataTop->i = (FICL_INT)(dataTop - pVM->pStack->base); \
+        dataTop->i = dataTop - pVM->pStack->base; \
         dataTop++; \
     })
 
@@ -660,7 +660,7 @@
             f1 = *--FSTACK_TOP; \
             f2 = *--FSTACK_TOP; \
             diff = (FICL_FLOAT)fabs((double)(f2 - f1)); \
-            dataTop->i = FICL_BOOL(diff < (FICL_FLOAT)(2 * FICL_FLOAT_EPSILON)); \
+            dataTop->i = FICL_BOOL(diff < (2 * FICL_FLOAT_EPSILON)); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -677,7 +677,7 @@
         } \
         case FICL_OP_FDEPTH: { \
             VM_CHECK_STACK_LOCAL(0, 1); \
-            dataTop->i = (FICL_INT)(FSTACK_TOP - pVM->fStack->base); \
+            dataTop->i = (FSTACK_TOP - pVM->fStack->base); \
             dataTop++; \
             goto OP_DONE; \
         } \
@@ -1287,7 +1287,7 @@ STRINGINFO vmGetWord0(FICL_VM *pVM)
 int vmGetWordToScr(FICL_VM *pVM)
 {
     STRINGINFO si;
-    char *cp = (char *)pVM->scratch;
+    char *cp = pVM->scratch;
     si = vmGetWord(pVM);
 
     if (SI_COUNT(si) > nSCRATCH-1)

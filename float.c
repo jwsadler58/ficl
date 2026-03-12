@@ -184,7 +184,7 @@ static void Faligned(FICL_VM *pVM)
 #endif
 
     addr = (uintptr_t)POPPTR();
-    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~(uintptr_t)FICL_FLOAT_ALIGN_MASK;
+    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~FICL_FLOAT_ALIGN_MASK;
     PUSHPTR((void *)addr);
 }
 
