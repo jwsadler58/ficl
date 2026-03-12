@@ -595,8 +595,8 @@ struct ficl_word
     ( (FICL_WORD_BASE_BYTES + nFICLNAME + sizeof (CELL)) \
                           / (sizeof (CELL)) )
 
-int wordIsImmediate(FICL_WORD *pFW);
-int wordIsCompileOnly(FICL_WORD *pFW);
+bool wordIsImmediate(FICL_WORD *pFW);
+bool wordIsCompileOnly(FICL_WORD *pFW);
 
 /* flag values for word header */
 #define FW_IMMEDIATE    1   /* execute me even if compiling */

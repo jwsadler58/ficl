@@ -1535,7 +1535,7 @@ void vmInterrupt(FICL_VM *pVM)
                         w o r d I s I m m e d i a t e
 **
 **************************************************************************/
-int wordIsImmediate(FICL_WORD *pFW)
+bool wordIsImmediate(FICL_WORD *pFW)
 {
     return (pFW != NULL) && (pFW->flags & FW_IMMEDIATE);
 }
@@ -1545,7 +1545,7 @@ int wordIsImmediate(FICL_WORD *pFW)
                         w o r d I s C o m p i l e O n l y
 **
 **************************************************************************/
-int wordIsCompileOnly(FICL_WORD *pFW)
+bool wordIsCompileOnly(FICL_WORD *pFW)
 {
     return (pFW != NULL) && (pFW->flags & FW_COMPILE);
 }
