@@ -93,9 +93,9 @@ void dictAbortDefinition(FICL_DICT *pDict)
 **************************************************************************/
 void *alignPtr(void *ptr)
 {
-    char *cp;
+    const char *cp;
     CELL c;
-    cp = (char *)ptr + CELL_ALIGN_ADD;
+    cp = (const char *)ptr + CELL_ALIGN_ADD;
     c.p = (void *)cp;
     c.u = c.u & (~CELL_ALIGN_ADD);
     ptr = (CELL *)c.p;
@@ -139,7 +139,7 @@ void dictAlignFloat(FICL_DICT *pDict)
 **************************************************************************/
 int dictAllot(FICL_DICT *pDict, int n)
 {
-    char *cp = (char *)pDict->here;
+    const char *cp = (const char *)pDict->here;
 #if FICL_ROBUST
     if (n > 0)
     {

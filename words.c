@@ -435,7 +435,7 @@ static void hexDot(FICL_VM *pVM)
 **/
 static void ficlStrlen(FICL_VM *ficlVM)
 {
-    char *address = (char *)stackPopPtr(ficlVM->pStack);
+    const char *address = (const char *)stackPopPtr(ficlVM->pStack);
     stackPushINT(ficlVM->pStack, strlen(address));
 }
 
@@ -476,7 +476,7 @@ static void ficlSprintf(FICL_VM *pVM)
 
     int formatLength = stackPopINT(pVM->pStack);
     char *format = (char *)stackPopPtr(pVM->pStack);
-    char *formatStop = format + formatLength;
+    const char *formatStop = format + formatLength;
 
     int base = 10;
     bool unsignedInteger = false;
@@ -486,7 +486,7 @@ static void ficlSprintf(FICL_VM *pVM)
     while (format < formatStop)
     {
         char scratch[64];
-        char *source;
+        const char *source;
         int actualLength;
         int desiredLength;
         int leadingZeroes;
@@ -534,7 +534,7 @@ static void ficlSprintf(FICL_VM *pVM)
                 case 'S':
                 {
                     actualLength = stackPopINT(pVM->pStack);
-                    source = (char *)stackPopPtr(pVM->pStack);
+                    source = (const char *)stackPopPtr(pVM->pStack);
                     break;
                 }
                 case 'x':
@@ -1547,12 +1547,12 @@ static void cells(FICL_VM *pVM)
 
 static void cellPlus(FICL_VM *pVM)
 {
-    char *cp;
+    const char *cp;
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    cp = (char *)POPPTR();
+    cp = (const char *)POPPTR();
     PUSHPTR(cp + sizeof (CELL));
     return;
 }
@@ -1767,7 +1767,8 @@ static void dotParen(FICL_VM *pVM)
 static void sLiteralCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp;
-    char *cp, *cpDest;
+    const char *cp;
+    char *cpDest;
     FICL_UNS u;
 
 #if FICL_ROBUST > 1
@@ -1776,7 +1777,7 @@ static void sLiteralCoIm(FICL_VM *pVM)
 
     dp = vmGetDict(pVM);
     u  = POPUNS();
-    cp = (char *)POPPTR();
+    cp = (const char *)POPPTR();
 
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStringLit));
     cpDest    = (char *) dp->here;
@@ -1883,12 +1884,12 @@ static void toBody(FICL_VM *pVM)
 */
 static void fromBody(FICL_VM *pVM)
 {
-    char *ptr;
+    const char *ptr;
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    ptr = (char *)POPPTR() - FICL_WORD_BASE_BYTES;
+    ptr = (const char *)POPPTR() - FICL_WORD_BASE_BYTES;
     PUSHPTR(ptr);
     return;
 }
@@ -2090,7 +2091,7 @@ static void sign(FICL_VM *pVM)
 static void toNumber(FICL_VM *pVM)
 {
     FICL_UNS count;
-    char *cp;
+    const char *cp;
     DPUNS accum;
     FICL_UNS base = pVM->base;
     FICL_UNS ch;
@@ -2101,7 +2102,7 @@ static void toNumber(FICL_VM *pVM)
 #endif
 
     count = POPUNS();
-    cp = (char *)POPPTR();
+    cp = (const char *)POPPTR();
     accum = dpmPopU(pVM->pStack);
 
     for (ch = *cp; count > 0; ch = *++cp, count--)
@@ -2351,12 +2352,12 @@ static void charCoIm(FICL_VM *pVM)
 **************************************************************************/
 static void charPlus(FICL_VM *pVM)
 {
-    char *cp;
+    const char *cp;
 #if FICL_ROBUST > 1
     vmCheckStack(pVM,1,1);
 #endif
 
-    cp = (char *)POPPTR();
+    cp = (const char *)POPPTR();
     PUSHPTR(cp + 1);
     return;
 }
@@ -2418,7 +2419,7 @@ static void count(FICL_VM *pVM)
 static void evaluate(FICL_VM *pVM)
 {
     FICL_UNS count;
-    char *cp;
+    const char *cp;
     CELL id;
     int result;
 #if FICL_ROBUST > 1
@@ -2426,7 +2427,7 @@ static void evaluate(FICL_VM *pVM)
 #endif
 
     count = POPUNS();
-    cp = (char *)POPPTR();
+    cp = (const char *)POPPTR();
 
     id = pVM->sourceID;
     pVM->sourceID.i = -1;
@@ -2476,13 +2477,13 @@ static void stringQuoteIm(FICL_VM *pVM)
 static void type(FICL_VM *pVM)
 {
     FICL_UNS count;
-    char *cp;
+    const char *cp;
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 2, 0);
 #endif
 
     count = POPUNS();
-    cp = (char *)POPPTR();
+    cp = (const char *)POPPTR();
 
     /*
     ** Since we don't have an output primitive for a counted string
@@ -3520,15 +3521,15 @@ static void fLocalParen(FICL_VM *pVM)
 **************************************************************************/
 static void compareInternal(FICL_VM *pVM, bool caseInsensitive)
 {
-    char *cp1, *cp2;
+    const char *cp1, *cp2;
     FICL_UNS u1, u2, uMin;
     int n = 0;
 
     vmCheckStack(pVM, 4, 1);
     u2  = stackPopUNS(pVM->pStack);
-    cp2 = (char *)stackPopPtr(pVM->pStack);
+    cp2 = (const char *)stackPopPtr(pVM->pStack);
     u1  = stackPopUNS(pVM->pStack);
-    cp1 = (char *)stackPopPtr(pVM->pStack);
+    cp1 = (const char *)stackPopPtr(pVM->pStack);
 
     uMin = (u1 < u2)? u1 : u2;
     for ( ; (uMin > 0) && (n == 0); uMin--)
