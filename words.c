@@ -1200,7 +1200,7 @@ void parseStepParen(FICL_VM *pVM)
     FICL_WORD *pFW = pVM->runningWord;
     FICL_PARSE_STEP pStep = (FICL_PARSE_STEP)(pFW->param->fn);
 
-    SI_SETLEN(si, stackPopINT(pVM->pStack));
+    SI_SETLEN(si, stackPopUNS(pVM->pStack));
     SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     PUSHUNS(FICL_BOOL((*pStep)(pVM, si)));
@@ -2199,7 +2199,7 @@ static void accept(FICL_VM *pVM)
     /*
     ** Now we have something in the text buffer - use it
     */
-    count = stackPopINT(pVM->pStack);
+    count = stackPopUNS(pVM->pStack);
     cp    = (char *)stackPopPtr(pVM->pStack);
 
     len = (count < len) ? count : len;
@@ -2687,7 +2687,7 @@ static void sFind(FICL_VM *pVM)
     vmCheckStack(pVM,2,2);
 #endif
 
-    si.count = stackPopINT(pVM->pStack);
+    si.count = stackPopUNS(pVM->pStack);
     si.cp = (const char *)stackPopPtr(pVM->pStack);
 
     do_find(pVM, si, NULL);
