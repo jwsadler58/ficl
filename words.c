@@ -1012,7 +1012,7 @@ static void hash(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
     PUSHUNS(hashHashCode(si));
     return;
 }
@@ -1180,7 +1180,7 @@ static void lookup(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
     stackPushINT(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
     return;
 }
@@ -1201,7 +1201,7 @@ void parseStepParen(FICL_VM *pVM)
     FICL_PARSE_STEP pStep = (FICL_PARSE_STEP)(pFW->param->fn);
 
     SI_SETLEN(si, stackPopINT(pVM->pStack));
-    SI_SETPTR(si, stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     PUSHINT(FICL_BOOL((*pStep)(pVM, si)));
 
@@ -3368,7 +3368,7 @@ static void localParen(FICL_VM *pVM)
 #endif
 
     SI_SETLEN(si, POPUNS());
-    SI_SETPTR(si, (char *)POPPTR());
+    SI_SETPTR(si, (const char *)POPPTR());
 
     if (SI_COUNT(si) > 0)
     {
@@ -3425,7 +3425,7 @@ static void twoLocalParen(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     if (SI_COUNT(si) > 0)
     {
@@ -3487,7 +3487,7 @@ static void fLocalParen(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     if (SI_COUNT(si) > 0)
     {

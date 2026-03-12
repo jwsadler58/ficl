@@ -1068,7 +1068,7 @@ void buildTestInterface(FICL_SYSTEM *pSys)
         const char *name = "testword";
 
         SI_SETLEN(si, strlen(name));
-        SI_SETPTR(si, (char *)name);
+        SI_SETPTR(si, name);
         pFW = dictAppendWord2(dp, si, dummyCode, FW_DEFAULT);
 
         TEST_ASSERT_TRUE(pFW != NULL);

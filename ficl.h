@@ -202,7 +202,7 @@ typedef struct
 #define SI_COUNT(si) ((si).count)
 #define SI_PTR(si)   ((si).cp)
 #define SI_SETLEN(si, len) ((si).count = (len))
-#define SI_SETPTR(si, ptr) ((si).cp = (const char *)(ptr))
+#define SI_SETPTR(si, ptr) ((si).cp = (ptr))
 /*
 ** Init a STRINGINFO from a pointer to NULL-terminated string
 */
