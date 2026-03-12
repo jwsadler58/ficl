@@ -3760,7 +3760,7 @@ static void ansAllocate(FICL_VM *pVM)
     size_t size;
     void *p;
 
-    size = stackPopINT(pVM->pStack);
+    size = stackPopUNS(pVM->pStack);
     p = ficlMalloc(size);
     PUSHPTR(p);
     if (p)
@@ -3793,7 +3793,7 @@ static void ansResize(FICL_VM *pVM)
     size_t size;
     void *new_, *old;
 
-    size = stackPopINT(pVM->pStack);
+    size = stackPopUNS(pVM->pStack);
     old = stackPopPtr(pVM->pStack);
     new_ = ficlRealloc(old, size);
     if (new_)
