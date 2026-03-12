@@ -3124,20 +3124,20 @@ static void toValue(FICL_VM *pVM)
         if (pFW && (pFW->code == doLocalIm))
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToLocalParen));
-            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            dictAppendCell(dp, pFW->param[0]);
             return;
         }
         else if (pFW && pFW->code == do2LocalIm)
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pTo2LocalParen));
-            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            dictAppendCell(dp, pFW->param[0]);
             return;
         }
     #if FICL_WANT_FLOAT
         else if (pFW && pFW->code == doFLocalIm)
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToFLocalParen));
-            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            dictAppendCell(dp, pFW->param[0]);
             return;
         }
     #endif
