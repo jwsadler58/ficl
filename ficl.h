@@ -165,7 +165,7 @@ typedef union _cell
 ** address) to CELL. Remember that constants and casts are NOT
 ** themselves lvalues!
 */
-#define LVALUEtoCELL(v) (*(CELL *)&v)
+#define LVALUEtoCELL(v) (*(CELL *)&(v))
 
 /*
 ** PTRtoCELL is a cast through void * intended to satisfy the
@@ -199,20 +199,20 @@ typedef struct
     const char *cp;
 } STRINGINFO;
 
-#define SI_COUNT(si) (si.count)
-#define SI_PTR(si)   (si.cp)
-#define SI_SETLEN(si, len) (si.count = (FICL_UNS)(len))
-#define SI_SETPTR(si, ptr) (si.cp = (char *)(ptr))
+#define SI_COUNT(si) ((si).count)
+#define SI_PTR(si)   ((si).cp)
+#define SI_SETLEN(si, len) ((si).count = (FICL_UNS)(len))
+#define SI_SETPTR(si, ptr) ((si).cp = (const char *)(ptr))
 /*
 ** Init a STRINGINFO from a pointer to NULL-terminated string
 */
 #define SI_PSZ(si, psz) \
-            {si.cp = psz; si.count = (FICL_COUNT)strlen(psz);}
+            {(si).cp = (psz); (si).count = (FICL_COUNT)strlen(psz);}
 /*
 ** Init a STRINGINFO from a pointer to FICL_STRING
 */
 #define SI_PFS(si, pfs) \
-            {si.cp = pfs->text; si.count = pfs->count;}
+            {(si).cp = (pfs)->text; (si).count = (pfs)->count;}
 
 /*
 ** Ficl uses this little structure to hold the address of
@@ -307,11 +307,11 @@ void         stackRollFloat    (FICL_FSTACK *pStack, int n);
 /*
 ** Shortcuts (Guy Carver)
 */
-#define PUSHPTR(p)   stackPushPtr(pVM->pStack,p)
-#define PUSHUNS(u)   stackPushUNS(pVM->pStack,u)
-#define PUSHINT(i)   stackPushINT(pVM->pStack,i)
-#define PUSHFLOAT(f) stackPushFloat(pVM->fStack,f)
-#define PUSH(c)      stackPush(pVM->pStack,c)
+#define PUSHPTR(p)   stackPushPtr(pVM->pStack,(p))
+#define PUSHUNS(u)   stackPushUNS(pVM->pStack,(u))
+#define PUSHINT(i)   stackPushINT(pVM->pStack,(i))
+#define PUSHFLOAT(f) stackPushFloat(pVM->fStack,(f))
+#define PUSH(c)      stackPush(pVM->pStack,(c))
 #define POPPTR()     stackPopPtr(pVM->pStack)
 #define POPUNS()     stackPopUNS(pVM->pStack)
 #define POPINT()     stackPopINT(pVM->pStack)
@@ -321,15 +321,15 @@ void         stackRollFloat    (FICL_FSTACK *pStack, int n);
 #define SETTOP(c)    stackSetTop(pVM->pStack,LVALUEtoCELL(c))
 #define GETTOPF()    stackGetTopFloat(pVM->fStack)
 #define SETTOPF(c)   stackSetTopFloat(pVM->fStack,(c))
-#define STORE(n,c)   stackStore(pVM->pStack,n,LVALUEtoCELL(c))
+#define STORE(n,c)   stackStore(pVM->pStack,(n),LVALUEtoCELL(c))
 #define DEPTH()      stackDepth(pVM->pStack)
-#define DROP(n)      stackDrop(pVM->pStack,n)
-#define DROPF(n)     stackDropFloat(pVM->fStack,n)
-#define FETCH(n)     stackFetch(pVM->pStack,n)
-#define PICK(n)      stackPick(pVM->pStack,n)
-#define PICKF(n)     stackPickFloat(pVM->fStack,n)
-#define ROLL(n)      stackRoll(pVM->pStack,n)
-#define ROLLF(n)     stackRollFloat(pVM->fStack,n)
+#define DROP(n)      stackDrop(pVM->pStack,(n))
+#define DROPF(n)     stackDropFloat(pVM->fStack,(n))
+#define FETCH(n)     stackFetch(pVM->pStack,(n))
+#define PICK(n)      stackPick(pVM->pStack,(n))
+#define PICKF(n)     stackPickFloat(pVM->fStack,(n))
+#define ROLL(n)      stackRoll(pVM->pStack,(n))
+#define ROLLF(n)     stackRollFloat(pVM->fStack,(n))
 
 /*
 ** The virtual machine (VM) contains the state for one interpreter.

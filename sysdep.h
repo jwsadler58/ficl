@@ -154,12 +154,12 @@ static_assert(CELL_ALIGN > 0, "Unsupported CELL_BITS value");
 ** Non-POSIX embedded targets fall back to standard C setjmp/longjmp.
 */
 #if !defined(__EMSCRIPTEN__) && !defined(_WIN32) && (defined(__unix__) || defined(__APPLE__) || defined(__linux__))
-#define FICL_SETJMP(buf)       sigsetjmp(buf, 1)
-#define FICL_LONGJMP(buf, val) siglongjmp(buf, val)
+#define FICL_SETJMP(buf)       sigsetjmp((buf), 1)
+#define FICL_LONGJMP(buf, val) siglongjmp((buf), (val))
 typedef sigjmp_buf FICL_JMP_BUF;
 #else
 #define FICL_SETJMP(buf)       setjmp(buf)
-#define FICL_LONGJMP(buf, val) longjmp(buf, val)
+#define FICL_LONGJMP(buf, val) longjmp((buf), (val))
 typedef jmp_buf FICL_JMP_BUF;
 #endif
 
