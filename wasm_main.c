@@ -203,7 +203,7 @@ int ficlWasmEval(const char *line)
     if (!pVm || !line)
         return VM_ERREXIT;
 
-    ret = ficlExec(pVm, (char *)line);
+    ret = ficlExec(pVm, line);
     if (ret == VM_USEREXIT)   /* ignore 'bye' */
         ret = VM_OUTOFTEXT;
 
