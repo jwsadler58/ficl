@@ -91,7 +91,7 @@ static void ficlSetVersionEnv(FICL_SYSTEM *pSys);
 FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
 {
     int nDictCells;
-    FICL_SYSTEM *pSys = ficlMalloc(sizeof (FICL_SYSTEM));
+    FICL_SYSTEM *pSys = (FICL_SYSTEM *)ficlMalloc(sizeof (FICL_SYSTEM));
 
     assert(pSys);
     assert(fsi->size == sizeof (FICL_SYSTEM_INFO));

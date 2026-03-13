@@ -150,10 +150,10 @@ static void searchWordlist(FICL_VM *pVM)
     STRINGINFO si;
     UNS16 hashCode;
     FICL_WORD *pFW;
-    FICL_HASH *pHash = stackPopPtr(pVM->pStack);
+    FICL_HASH *pHash = (FICL_HASH *)stackPopPtr(pVM->pStack);
 
     si.count         = (FICL_COUNT)stackPopUNS(pVM->pStack);
-    si.cp            = stackPopPtr(pVM->pStack);
+    si.cp            = (const char *)stackPopPtr(pVM->pStack);
     hashCode         = hashHashCode(si);
 
     ficlLockDictionary(true);
@@ -181,7 +181,7 @@ static void searchWordlist(FICL_VM *pVM)
 **************************************************************************/
 static void setCurrent(FICL_VM *pVM)
 {
-    FICL_HASH *pHash = stackPopPtr(pVM->pStack);
+    FICL_HASH *pHash = (FICL_HASH *)stackPopPtr(pVM->pStack);
     FICL_DICT *pDict = vmGetDict(pVM);
     ficlLockDictionary(true);
     pDict->pCompile = pHash;
@@ -219,7 +219,7 @@ static void setOrder(FICL_VM *pVM)
         dp->nLists = nLists;
         for (i = nLists-1; i >= 0; --i)
         {
-            dp->pSearch[i] = stackPopPtr(pVM->pStack);
+            dp->pSearch[i] = (FICL_HASH *)stackPopPtr(pVM->pStack);
         }
     }
     else
@@ -299,7 +299,7 @@ static void searchPush(FICL_VM *pVM)
     {
         vmThrowErr(pVM, ">search error: search order overflow");
     }
-    dp->pSearch[dp->nLists++] = stackPopPtr(pVM->pStack);
+    dp->pSearch[dp->nLists++] = (FICL_HASH *)stackPopPtr(pVM->pStack);
     ficlLockDictionary(false);
     return;
 }
@@ -312,7 +312,7 @@ static void searchPush(FICL_VM *pVM)
 **************************************************************************/
 static void widGetName(FICL_VM *pVM)
 {
-    FICL_HASH *pHash = vmPop(pVM).p;
+    FICL_HASH *pHash = (FICL_HASH *)vmPop(pVM).p;
     const char *cp = pHash->name;
     FICL_INT len = 0;
 
@@ -332,7 +332,7 @@ static void widGetName(FICL_VM *pVM)
 static void widSetName(FICL_VM *pVM)
 {
     char *cp = (char *)vmPop(pVM).p;
-    FICL_HASH *pHash = vmPop(pVM).p;
+    FICL_HASH *pHash = (FICL_HASH *)vmPop(pVM).p;
     pHash->name = cp;
     return;
 }

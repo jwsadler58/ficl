@@ -446,7 +446,7 @@ static_assert(sizeof(FICL_UNS) == sizeof(void *), "FICL_UNS must match pointer s
         static_assert(sizeof(FICL_FLOAT) * CHAR_BIT == FICL_FLOAT_BITS,
                       "FICL_FLOAT_BITS does not match FICL_FLOAT size");
     #endif
-    #define FICL_FLOAT_ALIGN_BYTES ((size_t)alignof(FICL_FLOAT))
+    #define FICL_FLOAT_ALIGN_BYTES (alignof(FICL_FLOAT))
     #define FICL_FLOAT_ALIGN_MASK  (FICL_FLOAT_ALIGN_BYTES - 1)
     static_assert(FICL_FLOAT_ALIGN_BYTES > 0, "FICL_FLOAT_ALIGN_BYTES must be non-zero");
 #endif /* FICL_WANT_FLOAT */

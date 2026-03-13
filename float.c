@@ -184,7 +184,7 @@ static void Faligned(FICL_VM *pVM)
 #endif
 
     addr = (uintptr_t)POPPTR();
-    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~(uintptr_t)FICL_FLOAT_ALIGN_MASK;
+    addr = (addr + FICL_FLOAT_ALIGN_MASK) & ~FICL_FLOAT_ALIGN_MASK;
     PUSHPTR((void *)addr);
 }
 
@@ -1036,7 +1036,7 @@ static void toFloat(FICL_VM *pVM)
 {
     STRINGINFO si;
     si.count = POPINT();
-    si.cp  = (char *)POPPTR();
+    si.cp  = (const char *)POPPTR();
 
     if (ficlParseFloatNumber(pVM, si))
         PUSHINT(1);

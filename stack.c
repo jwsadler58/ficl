@@ -110,7 +110,7 @@ void vmCheckFStack(FICL_VM *pVM, int popCells, int pushCells)
 FICL_STACK *stackCreate(unsigned nCells)
 {
     size_t size = FICL_STACK_BYTES(nCells);
-    FICL_STACK *pStack = ficlMalloc(size);
+    FICL_STACK *pStack = (FICL_STACK *)ficlMalloc(size);
 
 #if FICL_ROBUST
     assert (nCells != 0);
@@ -131,7 +131,7 @@ FICL_STACK *stackCreate(unsigned nCells)
 FICL_FSTACK *stackCreateFloat(unsigned nCells)
 {
     size_t size = FICL_FSTACK_BYTES(nCells);
-    FICL_FSTACK *pStack = ficlMalloc(size);
+    FICL_FSTACK *pStack = (FICL_FSTACK *)ficlMalloc(size);
 
 #if FICL_ROBUST
     assert (nCells != 0);
@@ -294,7 +294,7 @@ void stackLink(FICL_STACK *pStack, int nCells)
 void stackUnlink(FICL_STACK *pStack)
 {
     pStack->sp = pStack->pFrame;
-    pStack->pFrame = stackPopPtr(pStack);
+    pStack->pFrame = (CELL *)stackPopPtr(pStack);
     return;
 }
 

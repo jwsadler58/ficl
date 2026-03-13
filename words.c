@@ -173,7 +173,7 @@ static void resolveAbsBranch(FICL_DICT *dp, FICL_VM *pVM, char *tag)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 2, 0);
 #endif
-    cp = stackPopPtr(pVM->pStack);
+    cp = (char *)stackPopPtr(pVM->pStack);
     /*
     ** Changed the comparison below to compare the pointers first (by popular demand)
     */
@@ -846,7 +846,7 @@ static void endcaseCoIm(FICL_VM *pVM)
     if (stackGetTop(pVM->pStack).p == fallthroughTag)
     {
         matchControlTag(pVM, fallthroughTag);
-        patchAddr = POPPTR();
+        patchAddr = (CELL *)POPPTR();
         matchControlTag(pVM, caseTag);
         fixupCount = POPUNS();
         PUSHPTR(patchAddr);
@@ -897,7 +897,7 @@ static void ofCoIm(FICL_VM *pVM)
     if (stackGetTop(pVM->pStack).p == fallthroughTag)
     {
         matchControlTag(pVM, fallthroughTag);
-        fallthroughFixup = POPPTR();
+        fallthroughFixup = (CELL *)POPPTR();
     }
 
     matchControlTag(pVM, caseTag);
@@ -1012,7 +1012,7 @@ static void hash(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
     PUSHUNS(hashHashCode(si));
     return;
 }
@@ -1180,7 +1180,7 @@ static void lookup(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
     stackPushINT(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
     return;
 }
@@ -1201,7 +1201,7 @@ void parseStepParen(FICL_VM *pVM)
     FICL_PARSE_STEP pStep = (FICL_PARSE_STEP)(pFW->param->fn);
 
     SI_SETLEN(si, stackPopINT(pVM->pStack));
-    SI_SETPTR(si, stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     PUSHINT(FICL_BOOL((*pStep)(pVM, si)));
 
@@ -1500,7 +1500,7 @@ static void unused(FICL_VM *pVM)
     vmCheckStack(pVM, 0, 1);
 #endif
 
-    i = (FICL_INT)(dp->dict + dp->size - dp->here)  * (FICL_INT)sizeof (CELL);
+    i = (dp->dict + dp->size - dp->here) * (FICL_INT)sizeof (CELL);
     PUSHINT(i);
     return;
 }
@@ -1552,7 +1552,7 @@ static void cellPlus(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    cp = POPPTR();
+    cp = (char *)POPPTR();
     PUSHPTR(cp + sizeof (CELL));
     return;
 }
@@ -1609,7 +1609,7 @@ static void postponeCoIm(FICL_VM *pVM)
     assert(pComma);
 
     ficlTick(pVM);
-    pFW = stackGetTop(pVM->pStack).p;
+    pFW = (FICL_WORD *)stackGetTop(pVM->pStack).p;
     if (wordIsImmediate(pFW))
     {
         dictAppendCell(dp, stackPop(pVM->pStack));
@@ -1638,7 +1638,7 @@ static void execute(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 0);
 #endif
 
-    pFW = stackPopPtr(pVM->pStack);
+    pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
     vmExecute(pVM, pFW);
 
     return;
@@ -1776,7 +1776,7 @@ static void sLiteralCoIm(FICL_VM *pVM)
 
     dp = vmGetDict(pVM);
     u  = POPUNS();
-    cp = POPPTR();
+    cp = (char *)POPPTR();
 
     dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStringLit));
     cpDest    = (char *) dp->here;
@@ -1871,7 +1871,7 @@ static void toBody(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    pFW = POPPTR();
+    pFW = (FICL_WORD *)POPPTR();
     PUSHPTR(pFW->param + 1);
     return;
 }
@@ -1906,7 +1906,7 @@ static void toName(FICL_VM *pVM)
     vmCheckStack(pVM, 1, 2);
 #endif
 
-    pFW = POPPTR();
+    pFW = (FICL_WORD *)POPPTR();
     PUSHPTR(pFW->name);
     PUSHUNS(pFW->nName);
     return;
@@ -2200,7 +2200,7 @@ static void accept(FICL_VM *pVM)
     ** Now we have something in the text buffer - use it
     */
     count = stackPopINT(pVM->pStack);
-    cp    = stackPopPtr(pVM->pStack);
+    cp    = (char *)stackPopPtr(pVM->pStack);
 
     len = (count < len) ? count : len;
     strncpy(cp, vmGetInBuf(pVM), len);
@@ -2356,7 +2356,7 @@ static void charPlus(FICL_VM *pVM)
     vmCheckStack(pVM,1,1);
 #endif
 
-    cp = POPPTR();
+    cp = (char *)POPPTR();
     PUSHPTR(cp + 1);
     return;
 }
@@ -2399,7 +2399,7 @@ static void count(FICL_VM *pVM)
     vmCheckStack(pVM,1,2);
 #endif
 
-    sp = POPPTR();
+    sp = (FICL_STRING *)POPPTR();
     PUSHPTR(sp->text);
     PUSHUNS(sp->count);
     return;
@@ -2426,7 +2426,7 @@ static void evaluate(FICL_VM *pVM)
 #endif
 
     count = POPUNS();
-    cp = POPPTR();
+    cp = (char *)POPPTR();
 
     id = pVM->sourceID;
     pVM->sourceID.i = -1;
@@ -2482,7 +2482,7 @@ static void type(FICL_VM *pVM)
 #endif
 
     count = POPUNS();
-    cp = POPPTR();
+    cp = (char *)POPPTR();
 
     /*
     ** Since we don't have an output primitive for a counted string
@@ -2667,7 +2667,7 @@ static void cFind(FICL_VM *pVM)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM,1,2);
 #endif
-    sp = POPPTR();
+    sp = (FICL_STRING *)POPPTR();
     SI_PFS(si, sp);
     do_find(pVM, si, sp);
 }
@@ -2688,7 +2688,7 @@ static void sFind(FICL_VM *pVM)
 #endif
 
     si.count = stackPopINT(pVM->pStack);
-    si.cp = stackPopPtr(pVM->pStack);
+    si.cp = (const char *)stackPopPtr(pVM->pStack);
 
     do_find(pVM, si, NULL);
 }
@@ -2859,8 +2859,8 @@ static void move(FICL_VM *pVM)
 #endif
 
     u = POPUNS();
-    addr2 = POPPTR();
-    addr1 = POPPTR();
+    addr2 = (char *)POPPTR();
+    addr1 = (char *)POPPTR();
 
     if (u == 0)
         return;
@@ -3093,7 +3093,7 @@ static void toValueCompileStore(FICL_VM *pVM, FICL_WORD *pFW,
     FICL_WORD *pStore;
     STRINGINFO storeSi;
 
-    SI_PSZ(storeSi, (char *)storeName);
+    SI_PSZ(storeSi, storeName);
     pStore = dictLookup(dp, storeSi);
     if (!pStore)
     {
@@ -3124,20 +3124,20 @@ static void toValue(FICL_VM *pVM)
         if (pFW && (pFW->code == doLocalIm))
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToLocalParen));
-            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            dictAppendCell(dp, pFW->param[0]);
             return;
         }
         else if (pFW && pFW->code == do2LocalIm)
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pTo2LocalParen));
-            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            dictAppendCell(dp, pFW->param[0]);
             return;
         }
     #if FICL_WANT_FLOAT
         else if (pFW && pFW->code == doFLocalIm)
         {
             dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToFLocalParen));
-            dictAppendCell(dp, LVALUEtoCELL(pFW->param[0]));
+            dictAppendCell(dp, pFW->param[0]);
             return;
         }
     #endif
@@ -3368,7 +3368,7 @@ static void localParen(FICL_VM *pVM)
 #endif
 
     SI_SETLEN(si, POPUNS());
-    SI_SETPTR(si, (char *)POPPTR());
+    SI_SETPTR(si, (const char *)POPPTR());
 
     if (SI_COUNT(si) > 0)
     {
@@ -3425,7 +3425,7 @@ static void twoLocalParen(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     if (SI_COUNT(si) > 0)
     {
@@ -3487,7 +3487,7 @@ static void fLocalParen(FICL_VM *pVM)
 {
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
-    SI_SETPTR(si, (char *)stackPopPtr(pVM->pStack));
+    SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
     if (SI_COUNT(si) > 0)
     {
@@ -3664,7 +3664,7 @@ static void ficlCatch(FICL_VM *pVM)
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
-    pFW = stackPopPtr(pVM->pStack);
+    pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
 
     /*
     ** Save vm's state -- a catch will not back out environmental
