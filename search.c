@@ -331,7 +331,7 @@ static void widGetName(FICL_VM *pVM)
 **************************************************************************/
 static void widSetName(FICL_VM *pVM)
 {
-    char *cp = (char *)vmPop(pVM).p;
+    const char *cp = (const char *)vmPop(pVM).p;
     FICL_HASH *pHash = (FICL_HASH *)vmPop(pVM).p;
     pHash->name = cp;
     return;

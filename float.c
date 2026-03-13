@@ -135,13 +135,13 @@ static void Ffloats(FICL_VM *pVM)
 *******************************************************************/
 static void FfloatPlus(FICL_VM *pVM)
 {
-    char *addr;
+    const char *addr;
 
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 1);
 #endif
 
-    addr = (char *)POPPTR();
+    addr = (const char *)POPPTR();
     addr += sizeof(FICL_FLOAT);
     PUSHPTR(addr);
 }
