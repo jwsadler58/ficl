@@ -1035,7 +1035,7 @@ bool ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si )
 static void toFloat(FICL_VM *pVM)
 {
     STRINGINFO si;
-    si.count = POPINT();
+    si.count = POPUNS();
     si.cp  = (const char *)POPPTR();
 
     if (ficlParseFloatNumber(pVM, si))

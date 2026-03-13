@@ -610,7 +610,7 @@ static void ficlSprintf(FICL_VM *pVM)
 
     stackPushPtr(pVM->pStack, bufferStart);
     stackPushINT(pVM->pStack, buffer - bufferStart);
-    stackPushINT(pVM->pStack, FICL_BOOL(success));
+    stackPushUNS(pVM->pStack, FICL_BOOL(success));
 }
 
 
@@ -1181,7 +1181,7 @@ static void lookup(FICL_VM *pVM)
     STRINGINFO si;
     SI_SETLEN(si, stackPopUNS(pVM->pStack));
     SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
-    stackPushINT(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
+    stackPushUNS(pVM->pStack, FICL_BOOL(ficlParseWord(pVM, si)));
     return;
 }
 
@@ -1200,10 +1200,10 @@ void parseStepParen(FICL_VM *pVM)
     FICL_WORD *pFW = pVM->runningWord;
     FICL_PARSE_STEP pStep = (FICL_PARSE_STEP)(pFW->param->fn);
 
-    SI_SETLEN(si, stackPopINT(pVM->pStack));
+    SI_SETLEN(si, stackPopUNS(pVM->pStack));
     SI_SETPTR(si, (const char *)stackPopPtr(pVM->pStack));
 
-    PUSHINT(FICL_BOOL((*pStep)(pVM, si)));
+    PUSHUNS(FICL_BOOL((*pStep)(pVM, si)));
 
     return;
 }
@@ -1678,7 +1678,7 @@ static void isObject(FICL_VM *pVM)
     FICL_WORD *pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
 
     flag = (pFW != NULL) && (pFW->flags & FW_ISOBJECT);
-    stackPushINT(pVM->pStack, FICL_BOOL(flag));
+    stackPushUNS(pVM->pStack, FICL_BOOL(flag));
     return;
 }
 
@@ -2200,7 +2200,7 @@ static void accept(FICL_VM *pVM)
     /*
     ** Now we have something in the text buffer - use it
     */
-    count = stackPopINT(pVM->pStack);
+    count = stackPopUNS(pVM->pStack);
     cp    = (char *)stackPopPtr(pVM->pStack);
 
     len = (count < len) ? count : len;
@@ -2688,7 +2688,7 @@ static void sFind(FICL_VM *pVM)
     vmCheckStack(pVM,2,2);
 #endif
 
-    si.count = stackPopINT(pVM->pStack);
+    si.count = stackPopUNS(pVM->pStack);
     si.cp = (const char *)stackPopPtr(pVM->pStack);
 
     do_find(pVM, si, NULL);
@@ -3618,7 +3618,7 @@ static void refill(FICL_VM *pVM)
     if (!fEval && !pVM->fRestart)
         vmThrow(pVM, VM_RESTART);
 
-    PUSHINT( FICL_BOOL(!fEval) );
+    PUSHUNS( FICL_BOOL(!fEval) );
     return;
 }
 
@@ -3761,7 +3761,7 @@ static void ansAllocate(FICL_VM *pVM)
     size_t size;
     void *p;
 
-    size = stackPopINT(pVM->pStack);
+    size = stackPopUNS(pVM->pStack);
     p = ficlMalloc(size);
     PUSHPTR(p);
     if (p)
@@ -3794,7 +3794,7 @@ static void ansResize(FICL_VM *pVM)
     size_t size;
     void *new_, *old;
 
-    size = stackPopINT(pVM->pStack);
+    size = stackPopUNS(pVM->pStack);
     old = stackPopPtr(pVM->pStack);
     new_ = ficlRealloc(old, size);
     if (new_)
