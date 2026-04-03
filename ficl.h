@@ -129,7 +129,7 @@ typedef struct ficl_system_info FICL_SYSTEM_INFO;
 ** Version: major.minor
 */
 #define FICL_VER_MAJOR 3
-#define FICL_VER_MINOR 61   /* 3-digit field: displayed zero-padded as %03d */
+#define FICL_VER_MINOR 65   /* 3-digit field: displayed zero-padded as %03d */
 
 #if !defined (FICL_PROMPT)
     #define FICL_PROMPT "ok> "
