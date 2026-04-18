@@ -121,7 +121,7 @@ static int raw_mode_enabled = 0;
 #endif
 
 /*
-** Interrupt support: SIGINT handler calls vmInterrupt() to break
+** Interrupt support: SIGINT handler calls vmSigint() to break
 ** out of the inner loop without polling.
 */
 #if !defined(_WIN32)
@@ -131,7 +131,7 @@ static void handleSIGINT(int sig)
 {
     (void)sig;
     if (g_activeVM && g_activeVM->pState)
-        vmInterrupt(g_activeVM);
+        vmSigint(g_activeVM);
 }
 
 static void enableISIG(FICL_VM *pVM)
@@ -1107,6 +1107,69 @@ void buildTestInterface(FICL_SYSTEM *pSys)
         dictDelete(dp);
     }
 
+#if FICL_WANT_INTERRUPT
+    /* vmInterruptBeginAgainTest - interrupt a BEGIN AGAIN loop via vmInterrupt */
+    static void vmInterruptBeginAgainTest(void)
+    {
+        FICL_SYSTEM *pSys = ficlInitSystem(20000);
+        FICL_VM    *pVM   = ficlNewVM(pSys);
+        int ret;
+
+        ficlEvaluate(pVM, ": spin BEGIN AGAIN ;");
+
+        vmInterrupt(pVM);
+        ret = ficlEvaluate(pVM, "spin");
+
+        TEST_ASSERT_EQUAL_INT_MESSAGE(VM_INTERRUPT, ret,
+            "BEGIN AGAIN loop should return VM_INTERRUPT");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(0, pVM->interrupt,
+            "interrupt flag should be clear after being noticed");
+
+        ficlTermSystem(pSys);
+    }
+
+    /* vmInterruptDoLoopTest - interrupt a DO LOOP via vmInterrupt */
+    static void vmInterruptDoLoopTest(void)
+    {
+        FICL_SYSTEM *pSys = ficlInitSystem(20000);
+        FICL_VM    *pVM   = ficlNewVM(pSys);
+        int ret;
+
+        ficlEvaluate(pVM, ": spinloop 0 0 DO LOOP ;");
+
+        vmInterrupt(pVM);
+        ret = ficlEvaluate(pVM, "spinloop");
+
+        TEST_ASSERT_EQUAL_INT_MESSAGE(VM_INTERRUPT, ret,
+            "DO LOOP should return VM_INTERRUPT");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(0, pVM->interrupt,
+            "interrupt flag should be clear after being noticed");
+
+        ficlTermSystem(pSys);
+    }
+
+    /* vmInterruptAckTest - flag is auto-cleared; second call executes normally */
+    static void vmInterruptAckTest(void)
+    {
+        FICL_SYSTEM *pSys = ficlInitSystem(20000);
+        FICL_VM    *pVM   = ficlNewVM(pSys);
+        int ret;
+
+        ficlEvaluate(pVM, ": spin BEGIN AGAIN ;");
+        ficlEvaluate(pVM, ": noop ;");
+
+        vmInterrupt(pVM);
+        ficlEvaluate(pVM, "spin");      /* interrupted - flag auto-cleared */
+
+        /* flag is clear; a benign word should complete normally */
+        ret = ficlEvaluate(pVM, "noop");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(VM_OUTOFTEXT, ret,
+            "after auto-clear, subsequent execution should complete normally");
+
+        ficlTermSystem(pSys);
+    }
+#endif /* FICL_WANT_INTERRUPT */
+
 #endif
 
 int main(int argc, char **argv)
@@ -1141,6 +1204,11 @@ int main(int argc, char **argv)
         RUN_TEST(wordAppendBodyTest);
         RUN_TEST(hashLayoutTest);
         RUN_TEST(hashCreateTest);
+#if FICL_WANT_INTERRUPT
+        RUN_TEST(vmInterruptBeginAgainTest);
+        RUN_TEST(vmInterruptDoLoopTest);
+        RUN_TEST(vmInterruptAckTest);
+#endif
         nTestFails = UNITY_END();
         if (nTestFails > 0)
         {
@@ -1157,6 +1225,7 @@ int main(int argc, char **argv)
     ret = ficlEvaluate(pVM, "cr .ver 2 spaces .( " __DATE__ " ) cr");
     if (fUnit)                 /* run tests and return rather than going interactive */
     {
+#if FICL_WANT_SOFTWORDS
         ret = ficlEvaluate(pVM, "cd test\n load ficltest.fr");
         ficlTermSystem(pSys);
         if (ret == VM_ERREXIT)
@@ -1168,6 +1237,11 @@ int main(int argc, char **argv)
             printf("***** Scripted tests passed *****\n");
 
         return nTestFails;
+#else
+        ficlTermSystem(pSys);
+        printf("***** Scripted tests skipped: FICL_WANT_SOFTWORDS=0 *****\n");
+        return 0;
+#endif
     }
 
     /* Install SIGINT handler for Ctrl+C interrupt support */

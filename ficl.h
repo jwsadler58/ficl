@@ -394,6 +394,9 @@ struct vm
     OUTFUNC         textOut;    /* Output callback - see sysdep.c   */
     void *          pExtend;    /* vm extension pointer for app use - initialized from FICL_SYSTEM */
     bool            fRestart;   /* Set true to restart runningWord - debugger support */
+#if FICL_WANT_INTERRUPT
+    volatile sig_atomic_t interrupt; /* set by vmInterrupt(); cleared by vmAcknowledgeInterrupt() */
+#endif
     IPTYPE          ip;         /* instruction pointer              */
     FICL_WORD      *runningWord;/* address of currently running word (often just *(ip-1) ) */
     FICL_UNS        state;      /* compiling or interpreting        */
@@ -647,7 +650,12 @@ void        vmThrow        (FICL_VM *pVM, int except);
 void        vmThrowErr     (FICL_VM *pVM, const char *fmt, ...);
 void        vmThrowUnderflow(FICL_VM *pVM);
 void        vmThrowOverflow (FICL_VM *pVM);
+void        vmSigint       (FICL_VM *pVM);
+                                        /* Break via longjmp - safe for POSIX signal handlers */
+#if FICL_WANT_INTERRUPT
 void        vmInterrupt    (FICL_VM *pVM);
+                                        /* Break via IP redirect + flag - safe for hardware ISRs */
+#endif
 int         isPowerOfTwo   (FICL_UNS u);
 
 #define vmGetRunningWord(pVM) ((pVM)->runningWord)
@@ -916,6 +924,9 @@ struct ficl_system
     FICL_WORD *pDoParen;
     FICL_WORD *pDoesParen;
     FICL_WORD *pExitInner;
+#if FICL_WANT_INTERRUPT
+    FICL_WORD *pInterruptExit;  /* interrupt vector - IP redirect target for vmInterrupt */
+#endif
     FICL_WORD *pExitParen;
     FICL_WORD *pBranch0;
     FICL_WORD *pInterpret;

@@ -317,20 +317,34 @@ SUCH DAMAGE.
           automatically.
         </DD>
         <DT>
-          <B>void vmInterrupt(FICL_VM *pVM)</B>
+          <B>void vmSigint(FICL_VM *pVM)</B>
         </DT>
         <DD>
-          Interrupt a running VM from an external context such as a signal handler,
-          hardware interrupt, watchdog timer ISR, or another thread.
+          Interrupt a running VM from a POSIX signal handler.
           Causes the VM to longjmp back to the nearest exception recovery point
           with VM_INTERRUPT, which the caller of ficlExec (or ficlExecXT) will
           receive as a return code.
-          This is how the console application in testmain.c handles Ctrl-C, for example.
-          This is also the recommended way to break out of infinite loops or
-          long-running computations (assuming they are coded in Ficl) in embedded systems:
-          configure a watchdog orperiodic timer to call vmInterrupt on the active VM,
-          and handle the VM_INTERRUPT return code in your outer loop.
           Safe to call from POSIX signal handlers on targets that use siglongjmp.
+          Not safe for use from hardware ISRs because it calls longjmp.
+          This is how the console application in testmain.c handles Ctrl-C.
+        </DD>
+        <DT>
+          <B>void vmInterrupt(FICL_VM *pVM)</B>
+          (requires FICL_WANT_INTERRUPT)
+        </DT>
+        <DD>
+          Interrupt a running VM from a hardware ISR or watchdog timer.
+          Sets a volatile flag and redirects the VM's instruction pointer to an
+          internal interrupt-exit word. The inner loop breaks at the next
+          backward branch (BEGIN AGAIN/UNTIL/REPEAT, DO LOOP, DO +LOOP) or
+          at the next non-inlined word call, whichever comes first.
+          The flag is cleared automatically when the interrupt is noticed, so
+          subsequent ficlExec calls proceed normally without any further action
+          by the application.
+          Safe to call from hardware ISRs: performs only a volatile flag write
+          and a pointer store - no longjmp.
+          Compiled only when FICL_WANT_INTERRUPT is set (default: 1,
+          disabled automatically in FICL_MINIMAL builds).
         </DD>
         <DT>
           <B>int ficlSetStackSize(int nStackCells)</B>

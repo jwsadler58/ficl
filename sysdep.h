@@ -52,6 +52,7 @@
 
 #include <stddef.h> /* size_t, NULL */
 #include <setjmp.h>
+#include <signal.h> /* sig_atomic_t (used by FICL_WANT_INTERRUPT) */
 #include <assert.h>
 #include <limits.h> /* CHAR_BIT, UCHAR_MAX */
 #include <stdbool.h>
@@ -191,6 +192,7 @@ typedef jmp_buf FICL_JMP_BUF;
 #define FICL_MULTISESSION    0
 #define FICL_ROBUST          0
 #define FICL_EXTENDED_PREFIX 0
+#define FICL_WANT_INTERRUPT  0
 #endif
 
 
@@ -282,6 +284,20 @@ typedef jmp_buf FICL_JMP_BUF;
 */
 #if !defined FICL_MAX_LOCALS
 #define FICL_MAX_LOCALS 32
+#endif
+
+/*
+** FICL_WANT_INTERRUPT
+** Enables vmInterrupt() for breaking a VM out of an endless loop from a
+** hardware ISR or watchdog timer. Uses a volatile flag checked at backward
+** branches (BEGIN AGAIN/UNTIL/REPEAT, DO LOOP, DO +LOOP) plus an IP redirect
+** to the interrupt-exit word for non-inlined word boundaries.
+** Safe to call from hardware ISRs: only a volatile flag write and a pointer
+** store, no longjmp.
+** Set to 0 to omit the feature entirely (saves a few bytes in FICL_MINIMAL builds).
+*/
+#if !defined FICL_WANT_INTERRUPT
+#define FICL_WANT_INTERRUPT 1
 #endif
 
 /*

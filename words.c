@@ -3820,6 +3820,20 @@ static void ficlExitInner(FICL_VM *pVM)
 }
 
 
+#if FICL_WANT_INTERRUPT
+/**************************************************************************
+**                     i n t e r r u p t - e x i t
+** Target of the IP redirect set by vmInterrupt(). Throws VM_INTERRUPT to
+** break the inner loop at a non-inlined word boundary.
+**************************************************************************/
+static void ficlInterruptExit(FICL_VM *pVM)
+{
+    pVM->interrupt = 0;
+    vmThrow(pVM, VM_INTERRUPT);
+}
+#endif /* FICL_WANT_INTERRUPT */
+
+
 /**************************************************************************
                         d n e g a t e
 ** DOUBLE   ( d1 -- d2 )
@@ -4283,6 +4297,10 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "(parse-step)",parseStepParen, FW_DEFAULT);
     pSys->pExitInner =
     dictAppendWord(  dp, "exit-inner",ficlExitInner,  FW_DEFAULT);
+#if FICL_WANT_INTERRUPT
+    pSys->pInterruptExit =
+    dictAppendWord(  dp, "interrupt-exit", ficlInterruptExit, FW_DEFAULT);
+#endif
 
     assert(dictCellsAvail(dp) > 0);
 

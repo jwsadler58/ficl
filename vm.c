@@ -741,9 +741,28 @@
     #define VM_OP_CASES_FLOAT(OP_DONE)
 #endif
 
+#if FICL_WANT_INTERRUPT
+/* Sync VM state before throwing so stacks and ip are consistent.
+** Only used at backward branches - the sole path where an inlined
+** endless loop can be interrupted without a non-inlined word call. */
+#define VM_CHECK_INTERRUPT(pVM, dataTop, ip) \
+    do { \
+        if ((pVM)->interrupt) { \
+            (pVM)->interrupt = 0; \
+            (pVM)->pStack->sp = (dataTop); \
+            (pVM)->ip = (ip); \
+            vmThrow((pVM), VM_INTERRUPT); \
+        } \
+    } while (0)
+#else
+#define VM_CHECK_INTERRUPT(pVM, dataTop, ip) ((void)0)
+#endif
+
 #define VM_OP_CASES_IP(OP_DONE) \
     case FICL_OP_BRANCH: { \
-        ip += *(int *)ip; \
+        int _offset = *(int *)ip; \
+        ip += _offset; \
+        if (_offset < 0) VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         goto OP_DONE; \
     } \
     case FICL_OP_BRANCH0: { \
@@ -751,8 +770,11 @@
         u = (--dataTop)->u; \
         if (u) \
             ip += 1; \
-        else \
-            ip += *(int *)ip; \
+        else { \
+            int _offset = *(int *)ip; \
+            ip += _offset; \
+            if (_offset < 0) VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
+        } \
         goto OP_DONE; \
     } \
     case FICL_OP_DO: { \
@@ -786,13 +808,14 @@
     case FICL_OP_LOOP: { \
         FICL_INT index = pVM->rStack->sp[-1].i; \
         FICL_INT limit = pVM->rStack->sp[-2].i; \
-        index++; \
+        index++;  \
         if (index >= limit) { \
             pVM->rStack->sp -= 3; \
             ip += 1; \
         } else { \
             pVM->rStack->sp[-1].i = index; \
             ip += *(int *)ip; \
+            VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         } \
         goto OP_DONE; \
     } \
@@ -817,6 +840,7 @@
         } else { \
             pVM->rStack->sp[-1].i = index; \
             ip += *(int *)ip; \
+            VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         } \
         goto OP_DONE; \
     } \
@@ -1519,17 +1543,36 @@ void vmThrowUnderflow(FICL_VM *pVM)
 
 
 /**************************************************************************
-                        v m I n t e r r u p t
-** Interrupt the VM's inner loop from an external context (signal handler,
-** hardware interrupt, timer ISR, etc.). Causes the VM to longjmp back to
-** the nearest exception recovery point with VM_INTERRUPT.
+                        v m S i g i n t
+** Interrupt the VM's inner loop from a POSIX signal handler. Causes the VM
+** to longjmp back to the nearest exception recovery point with VM_INTERRUPT.
 ** Safe to call from POSIX signal handlers on targets that use siglongjmp.
 **************************************************************************/
-void vmInterrupt(FICL_VM *pVM)
+void vmSigint(FICL_VM *pVM)
 {
     if (pVM->pState)
         FICL_LONGJMP(*(pVM->pState), VM_INTERRUPT);
 }
+
+#if FICL_WANT_INTERRUPT
+/**************************************************************************
+                        v m I n t e r r u p t
+** Interrupt the VM's inner loop from a hardware ISR or watchdog timer.
+** Sets a volatile flag and redirects the VM's instruction pointer to the
+** interrupt-exit word so the inner loop breaks at the next backward branch
+** or non-inlined word call.
+** Safe to call from hardware ISRs: only a volatile flag write and a
+** pointer-width store - no longjmp.
+** Call vmAcknowledgeInterrupt() after handling the interrupt to clear the
+** flag; until then any subsequent ficlExec call will also be interrupted.
+**************************************************************************/
+void vmInterrupt(FICL_VM *pVM)
+{
+    pVM->interrupt = 1;
+    pVM->ip = &pVM->pSys->pInterruptExit;
+}
+
+#endif /* FICL_WANT_INTERRUPT */
 
 /**************************************************************************
                         w o r d I s I m m e d i a t e
