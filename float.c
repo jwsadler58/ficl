@@ -42,14 +42,15 @@
 ** SUCH DAMAGE.
 */
 
+#include "ficl.h"
+
+#if FICL_WANT_FLOAT
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include "ficl.h"
-
-#if FICL_WANT_FLOAT
 
 /*******************************************************************
 ** Create a floating point constant.
