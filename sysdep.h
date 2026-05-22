@@ -186,6 +186,7 @@ typedef jmp_buf FICL_JMP_BUF;
 #define FICL_WANT_FILE       0
 #define FICL_WANT_FLOAT      0
 #define FICL_WANT_USER       0
+#define FICL_WANT_RANDOM     0
 #define FICL_WANT_LOCALS     0
 #define FICL_WANT_OOP        0
 #define FICL_PLATFORM_EXTEND 0
@@ -222,6 +223,14 @@ typedef jmp_buf FICL_JMP_BUF;
 */
 #if !defined (FICL_WANT_FLOAT)
 #define FICL_WANT_FLOAT 1
+#endif
+
+/*
+** FICL_WANT_RANDOM
+** Includes random and seed-random.
+*/
+#if !defined (FICL_WANT_RANDOM)
+#define FICL_WANT_RANDOM 1
 #endif
 
 
