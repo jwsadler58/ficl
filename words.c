@@ -3887,6 +3887,7 @@ WORDKIND ficlWordClassify(FICL_WORD *pFW)
 **                     r a n d o m
 ** FICL-specific PCG32 implementation
 **************************************************************************/
+#if FICL_WANT_RANDOM
 static uint64_t rndState;
 static uint64_t rndInc;
 static bool rndIsSeeded;
@@ -3930,6 +3931,7 @@ static void ficlSeedRandom(FICL_VM *pVM)
     rndSeed((uint32_t)POPINT());
     rndIsSeeded = true;
 }
+#endif
 
 
 /**************************************************************************
@@ -4254,8 +4256,10 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "(user)",    FICL_OP_USER,   FW_DEFAULT);
     dictAppendWord(  dp, "user",      userVariable,   FW_DEFAULT);
 #endif
+#if FICL_WANT_RANDOM
     dictAppendWord(  dp, "random",    ficlRandom,     FW_DEFAULT);
     dictAppendWord(  dp, "seed-random",ficlSeedRandom,FW_DEFAULT);
+#endif
 
     /*
     ** internal support words

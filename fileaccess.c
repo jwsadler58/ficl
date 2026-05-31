@@ -1,3 +1,7 @@
+#include "ficl.h"
+
+#if FICL_WANT_FILE
+
 #include <errno.h>
 #include <stdlib.h>
 #if defined(_WIN32)
@@ -11,9 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "ficl.h"
 
-#if FICL_WANT_FILE
 /*
 **
 ** fileaccess.c
@@ -401,10 +403,6 @@ static void ficlResizeFile(FICL_VM *pVM) /* ( ud fileid -- ior ) */
 
 #endif /* FICL_HAVE_FTRUNCATE */
 
-#endif /* FICL_WANT_FILE */
-
-
-#if FICL_WANT_FILE
 void ficlCompileFile(FICL_SYSTEM *pSys)
 {
     FICL_DICT *dp = pSys->dp;
@@ -434,6 +432,5 @@ void ficlCompileFile(FICL_SYSTEM *pSys)
     ficlSetEnv(pSys, "file-ext", FICL_TRUE);
 #endif /* FICL_HAVE_FTRUNCATE */
 }
-#else
-#define ficlCompileFile(pSys) ((void)(pSys))
+
 #endif /* FICL_WANT_FILE */

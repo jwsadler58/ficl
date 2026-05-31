@@ -109,7 +109,6 @@ extern "C" {
 #endif
 
 #include "sysdep.h"
-#include <stdio.h>
 
 /*
 ** Forward declarations... read on.
@@ -1114,7 +1113,9 @@ void       ficlCompilePrefix(FICL_SYSTEM *pSys);
 void       ficlCompileSearch(FICL_SYSTEM *pSys);
 void       ficlCompileSoftCore(FICL_SYSTEM *pSys);
 void       ficlCompileTools(FICL_SYSTEM *pSys);
+#if FICL_WANT_FILE
 void       ficlCompileFile(FICL_SYSTEM *pSys);
+#endif
 #if FICL_WANT_FLOAT
 void       ficlCompileFloat(FICL_SYSTEM *pSys);
 bool       ficlParseFloatNumber( FICL_VM *pVM, STRINGINFO si ); /* float.c */
@@ -1170,6 +1171,7 @@ WORDKIND   ficlWordClassify(FICL_WORD *pFW);
 /*
 ** Used with File-Access wordset.
 */
+#if FICL_WANT_FILE
 #define FICL_FAM_READ   1
 #define FICL_FAM_WRITE  2
 #define FICL_FAM_APPEND 4
@@ -1177,12 +1179,14 @@ WORDKIND   ficlWordClassify(FICL_WORD *pFW);
 
 #define FICL_FAM_OPEN_MODE(fam) ((fam) & (FICL_FAM_READ | FICL_FAM_WRITE | FICL_FAM_APPEND))
 
+#include <stdio.h>
 
 typedef struct ficlFILE
 {
     FILE *f;
     char filename[256];
 } ficlFILE;
+#endif
 
 #ifdef __cplusplus
 }
