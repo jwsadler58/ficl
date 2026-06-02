@@ -168,6 +168,37 @@
   margin-top: 0;
 }
 
+.demo-code {
+  position: relative;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(15, 118, 110, 0.1);
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 6px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.copy-btn:hover {
+  background: rgba(15, 118, 110, 0.22);
+}
+
+.copy-btn.copied {
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.3);
+  background: rgba(22, 163, 74, 0.1);
+}
+
 .demo-notes ul {
   padding-left: 18px;
   margin: 0;
