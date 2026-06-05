@@ -773,7 +773,7 @@ moved back and forth among stacks using various Ficl words for that purpose.&nbs
 This example shows how the inner interpreter executes a simple colon definition with control flow.
 The word below computes a factorial using a counted loop and a running accumulator.
 </p>
-<pre>
+<pre class="ficl-code">
 : fact ( n -- n! )
   1 swap 1+ 1 ?DO
     I *
@@ -1032,7 +1032,7 @@ FORTH-WORDLIST 1 SET-ORDER
           to hold all text produced by <code>xt</code>. Example:
         </DD>
         <DD>
-<PRE>
+<pre class="ficl-code">
 : greet ." Hello, World!" ;
 create mybuf 256 allot
 ' greet mybuf &gt;buf   ( capture greet's output into mybuf )
@@ -1239,7 +1239,7 @@ and does the right thing accordingly.
 to be good code otherwise). Try these out in the <A href="demo.html">demo</A> to get a feeling for
 how they work. Also see <code>softwords/string.fr</code> for an example of use of locals
 in OO code.
-<pre>
+<pre class="ficl-code">
 : local-demo  { a b | c -- }
    ." a = " a . cr
    ." b = " b . cr
@@ -1274,7 +1274,7 @@ single-cell locals. The JH syntax adds support for <code>2LOCAL</code>s
 and float locals.
 <p>Ficl implements both local variable syntaxes
 suggested in DPANS Appendix A.13. Examples:
-<pre>
+<pre class="ficl-code">
 \ Using LOCALS| from LOCALS EXT
 : -rot  ( a b c -- c a b )
   locals| c b a |
@@ -1282,7 +1282,7 @@ suggested in DPANS Appendix A.13. Examples:
 ;
 </pre>
 
-<pre>
+<pre class="ficl-code">
 \ Using LOCAL END-LOCAL
 : -rot  ( a b c -- c a b )
    local c
@@ -1497,7 +1497,7 @@ This is a tutorial. It works best if you follow along by pasting the examples
 into the web demo. If you're unfamiliar with Forth, please see one of these <a href="#links">references</a>.
 Ficl's OOP words are in vocabulary <code>OOP</code>. To put <code>OOP</code> in
 the search order and make it the compilation wordlist, type:&nbsp;
-<pre>
+<pre class="ficl-code">
 ONLY   ( reset to default search order )
 ALSO OOP DEFINITIONS
 </pre>
@@ -1506,7 +1506,7 @@ ALSO OOP DEFINITIONS
 after each line. You can repeat the sequence above if you like.)
 <p>To start, we'll work with the two base classes <code>OBJECT</code> and <code>METACLASS</code>.
 Try this:&nbsp;
-<pre>
+<pre class="ficl-code">
 metaclass --> methods
 </pre>
 The line above contains three words. The first is the name of a class,
@@ -1518,7 +1518,7 @@ are the same. The next word finds a method in the context of a class and
 executes it. In this case, the name of the method is <code>methods</code>.
 Its job is to list all the methods that a class knows. What you get when
 you execute this line is a list of all the class methods Ficl provides.&nbsp;
-<pre>
+<pre class="ficl-code">
 object --> sub c-led
 c-byte obj: .state
 : init   { 2:this -- }
@@ -1568,18 +1568,18 @@ is handled by <code>!led</code>. The class keeps the LED state in a shadow
 variable (<code>.STATE</code>) so that <code>ON</code> and <code>OFF</code> can work
 in terms of LED number rather than a bitmask.
 <p>Now make an instance of the new class:&nbsp;
-<pre>
+<pre class="ficl-code">
 c-led --> new led
 </pre>
 And try a few things...&nbsp;
-<pre>
+<pre class="ficl-code">
 led --> methods
 led --> pedigree
 1 led --> on
 1 led --> off
 </pre>
 Or you could type this with the same effect:&nbsp;
-<pre>
+<pre class="ficl-code">
 led  2dup  --> methods  --> pedigree
 </pre>
 Notice (from the output of <code>methods</code>) that we've overridden the
@@ -1591,11 +1591,11 @@ this word in a definition, as we did in <code>init</code>, and it performs
 late binding, meaning that the mapping from message (method name) to method
 (the code) is deferred until run-time. To see this, you can decompile the
 init method like this:&nbsp;
-<pre>
+<pre class="ficl-code">
 c-led --> see init
 </pre>
 or
-<pre>
+<pre class="ficl-code">
 led --> class --> see init
 </pre>
 
@@ -1609,7 +1609,7 @@ one you're defining. This kind of early binding can only be used inside
 a class definition. Early bound methods still expect to find a class and
 instance cell-pair on top of the stack when they run.
 <br>Here's an example that illustrates a potential problem:
-<pre>
+<pre class="ficl-code">
 object --> sub c1
 : m1   { 2:this -- }  ." c1's m1" cr ;
 : m2   { 2:this -- }  ." Running  " this  my=> m1 ; ( early )
@@ -1653,12 +1653,12 @@ you can be reasonably certain of the class of thing you're working on.
 This is also true when invoking class methods, since all classes are instances
 of <code>metaclass</code>. Here's an example from the definition of <code>metaclass</code>
 in oo.fr:
-<pre>
+<pre class="ficl-code">
 : new   \ ( class metaclass "name" -- )
     metaclass => instance --> init ;
 </pre>
 Try this...
-<pre>
+<pre class="ficl-code">
 metaclass --> see new
 </pre>
 Decompiling the method with <code>SEE</code> shows the difference between the
@@ -1684,7 +1684,7 @@ that models the structure, and instantiate a <b>ref </b>from this class,
 supplying the address of the structure. After that, the <i>ref instance</i>
 behaves as a Ficl object, but its instance variables take on the values
 in the existing structure. Example (from ficlclass.fr):&nbsp;
-<pre>
+<pre class="ficl-code">
 object subclass c-wordlist
   c-wordlist  ref: .parent
   c-ptr       obj: .name
@@ -1704,16 +1704,16 @@ named-wid creates a wordlist and binds it to a ref instance of <code>c-wordlist<
 The fancy footwork with <code>POSTPONE</code> and early binding is required
 because classes are immediate. An equivalent way to define named-wid with
 late binding is:&nbsp;
-<pre>
+<pre class="ficl-code">
 : named-wid   ( "name" -- )
    wordlist  postpone c-wordlist --> ref ;
 </pre>
 To do the same thing at run-time (and call it my-wordlist):&nbsp;
-<pre>
+<pre class="ficl-code">
 wordlist  c-wordlist --> ref my-wordlist
 </pre>
 Now you can deal with the wordlist through the ref instance:&nbsp;
-<pre>
+<pre class="ficl-code">
 my-wordlist --> push
 my-wordlist --> set-current
 order</pre>
@@ -1748,7 +1748,7 @@ Source code for the class is located in ficl/softwords/string.fr. Features:
 dynamic creation and resizing; deletion, char cout, concatenation, output,
 comparison; creation from quoted string constant (s").
 <p>Examples of use:
-<pre>
+<pre class="ficl-code">
 c-string --> new homer
 s" In this house, " homer --> set
 s" we obey the laws of thermodynamics!" homer --> cat
@@ -1872,7 +1872,7 @@ that gives access to a particular field of an object, and to the field
 itself. Rather than give esentially the same example over and over, here's
 one example that shows several of the instance variable construction words
 in use:
-<pre>
+<pre class="ficl-code">
 object subclass c-example
   cell:         .cell0
   c-4byte  obj: .nCells
@@ -1972,7 +1972,7 @@ structures with a Ficl OO model. For example, if your system contains a
 linked list of 4 byte quantities, you can make a class that represents
 a list element like this:&nbsp;</dd>
 
-<pre>
+<pre class="ficl-code">
 object subclass c-4list
 c-4list ref: .link
 c-4byte obj: .payload
@@ -1997,7 +1997,7 @@ class - it has methods to set and get an object.</dd>
 By the way, it is also possible to construct a pair of classes that contain
 aggregate pointers to each other. Here's an example:</dd>
 
-<pre>
+<pre class="ficl-code">
 object subclass akbar
 suspend-class    \ put akbar on hold while we define jeff
 object subclass jeff
@@ -2667,7 +2667,7 @@ and <code>false</code> otherwise.
 <br>
 Install the parse step using <code>add-parse-step</code>.
 A trivial example:
-<pre>
+<pre class="ficl-code">
 : ?silly   ( c-addr u -- flag )
    ." Oh no! Not another  " type cr  true ;
 ' ?silly add-parse-step
@@ -2718,7 +2718,7 @@ Prefixes are defined in prefix.c and in softwords/prefix.fr. The easiest way to 
 to insert it into prefix.fr and rebuild the system. You can also add prefixes interactively
 by bracketing prefix definitions as follows (see prefix,fr):
 </p>
-<pre>
+<pre class="ficl-code">
 start-prefixes  ( defined in prefix.fr )
 \ make dot-paren a prefix (create an alias for it in the prefixes list)
 : .(  .( ;
@@ -3419,6 +3419,32 @@ it was asked to debug. Perhaps this could be a special kind of breakpoint?
 
     targets.forEach(function (t) { observer.observe(t); });
     activate(current);
+  })();
+
+  (function () {
+    var COPY_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    var CHECK_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    var BTN_STYLE = "position:absolute;top:6px;right:6px;display:flex;align-items:center;justify-content:center;padding:4px 6px;line-height:0;cursor:pointer;border-radius:6px;border:1px solid rgba(15,118,110,0.22);background:rgba(15,118,110,0.1);color:#0f766e;";
+    document.querySelectorAll("pre.ficl-code").forEach(function (pre) {
+      var code = pre.textContent.trim();
+      pre.style.position = "relative";
+      var btn = document.createElement("button");
+      btn.className = "copy-btn";
+      btn.title = "Copy to clipboard";
+      btn.innerHTML = COPY_ICON;
+      btn.style.cssText = BTN_STYLE;
+      btn.addEventListener("click", function () {
+        navigator.clipboard.writeText(code).then(function () {
+          btn.innerHTML = CHECK_ICON;
+          btn.classList.add("copied");
+          setTimeout(function () {
+            btn.innerHTML = COPY_ICON;
+            btn.classList.remove("copied");
+          }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
   })();
   </script>
   </body>
