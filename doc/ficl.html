@@ -1035,8 +1035,8 @@ FORTH-WORDLIST 1 SET-ORDER
 <pre class="ficl-code">
 : greet ." Hello, World!" ;
 create mybuf 256 allot
-' greet mybuf &gt;buf   ( capture greet's output into mybuf )
-mybuf type cr         ( prints: Hello, World! )
+' greet mybuf &gt;buf   ( send greet's output to mybuf )
+mybuf dup strlen type cr ( prove it )
 </PRE>
         </DD>
         <DT>
