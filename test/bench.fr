@@ -1,0 +1,90 @@
+\ Ficl benchmark tests
+\ From https://www.theultimatebenchmark.org/
+\ and adapted for ficl
+\ uses clock and clocks/sec from testmain.c
+\ uses MARKER from softwords
+marker bench-marker
+
+clocks/sec 1000 / constant clocks/msec
+
+0 value tstart
+
+\ iterate the xt count times and report execution time in msec
+: times ( xt count -- msec )
+    clock to tstart
+    0 DO
+        DUP EXECUTE
+    LOOP DROP
+    clock tstart - clocks/msec /
+    .  ." mS" cr
+;
+
+: COUNTUP
+    0 BEGIN
+        1 + DUP
+        9999 >
+    UNTIL DROP
+;
+
+: ARITHM
+  0 BEGIN
+    1 + DUP DUP / OVER
+    * OVER + OVER -
+    DROP DUP 9999 >
+  UNTIL DROP
+;
+
+: sub1 ;
+: sub2  sub1 sub1 ;
+: sub3  sub2 sub2 ;
+: sub4  sub3 sub3 ;
+
+: NESTING
+ 0 BEGIN
+    sub4 1 + DUP 9999 >
+ UNTIL DROP
+;
+
+: LOGIC
+ 0 BEGIN
+    1 +
+    DUP NEGATE
+    DUP AND
+    DUP OR
+    DUP XOR
+    DROP
+    DUP 9999 >
+ UNTIL DROP
+;
+
+: STACKS
+    0 BEGIN
+    1 + >R DUP >R DUP >R
+    R@ DROP R> DROP
+    R@ DROP R> DROP
+    R@      R> 9999 >
+    UNTIL DROP
+;
+
+VARIABLE MEM  1000 ALLOT
+: MEMORY
+  0 BEGIN
+    46 EMIT
+    0 BEGIN
+      1 + DUP DUP MEM + C!
+          DUP     MEM + C@ DROP
+      DUP 999 >
+    UNTIL DROP
+    1 + DUP 99 >
+  UNTIL DROP
+;
+
+: bench
+    ." countup "    ['] countup 10000 times
+    ." arithm "     ['] arithm 3000 times
+    ." nesting "    ['] nesting 1200 times
+    ." logic "      ['] logic 3300 times
+    ." stacks "     ['] stacks 2500 times
+;
+
+\ bench-marker  \ reclaim dictionary space
