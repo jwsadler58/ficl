@@ -2,32 +2,18 @@
 \ From https://www.theultimatebenchmark.org/
 \ and adapted for ficl
 \ uses clock and clocks/sec from testmain.c
+\ uses jhlocals from softwords
 \ uses MARKER from softwords
 marker bench-marker
 
-clocks/sec 1000 / constant clocks/msec
-
-0 value tstart
-
-\ iterate the xt count times and report execution time in msec
-\ todo: convert to bench execution factor. ( count "name" -- )
-\ find the name, print the name & count, run count times, print mS elapsed
-: times ( xt count -- msec )
-    clock to tstart
-    0 DO
-        DUP EXECUTE
-    LOOP DROP
-    clock tstart - clocks/msec / .
-;
-
-: COUNTUP
+: countup
     0 BEGIN
         1 + DUP
         9999 >
     UNTIL DROP
 ;
 
-: ARITHM
+: arithm
   0 BEGIN
     1 + DUP DUP / OVER
     * OVER + OVER -
@@ -40,13 +26,13 @@ clocks/sec 1000 / constant clocks/msec
 : sub3  sub2 sub2 ;
 : sub4  sub3 sub3 ;
 
-: NESTING
+: nesting
  0 BEGIN
     sub4 1 + DUP 9999 >
  UNTIL DROP
 ;
 
-: LOGIC
+: logic
  0 BEGIN
     1 +
     DUP NEGATE
@@ -58,7 +44,7 @@ clocks/sec 1000 / constant clocks/msec
  UNTIL DROP
 ;
 
-: STACKS
+: stacks
     0 BEGIN
     1 + >R DUP >R DUP >R
     R@ DROP R> DROP
@@ -68,9 +54,8 @@ clocks/sec 1000 / constant clocks/msec
 ;
 
 VARIABLE MEM  1000 ALLOT
-: MEMORY
+: memory
   0 BEGIN
-    46 EMIT
     0 BEGIN
       1 + DUP DUP MEM + C!
           DUP     MEM + C@ DROP
@@ -81,6 +66,7 @@ VARIABLE MEM  1000 ALLOT
 ;
 
 \ make a table of the tests and number of reps for each
+\ approx 1 sec runtime for each test
 \ last entry is a sentinel
 here
 ' countup , 10000 ,
@@ -88,8 +74,21 @@ here
 ' nesting , 1200 ,
 ' logic  ,  3300 ,
 ' stacks ,  2500 ,
+' memory ,  350 ,
        0 ,  0 ,
 constant marks
+
+clocks/sec 1000 / constant clocks/msec
+
+\ iterate an xt count times and report execution time in msec
+: times { xt reps | tstart -- msec }
+    clock to tstart
+    reps 0 DO
+        xt EXECUTE
+    LOOP
+    clock tstart - clocks/msec / .
+;
+
 
 \ print an integer in a fixed width field
 40 constant nbuf
