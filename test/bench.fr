@@ -10,13 +10,14 @@ clocks/sec 1000 / constant clocks/msec
 0 value tstart
 
 \ iterate the xt count times and report execution time in msec
+\ todo: convert to bench execution factor. ( count "name" -- )
+\ find the name, print the name & count, run count times, print mS elapsed
 : times ( xt count -- msec )
     clock to tstart
     0 DO
         DUP EXECUTE
     LOOP DROP
-    clock tstart - clocks/msec /
-    .  ." mS" cr
+    clock tstart - clocks/msec / .
 ;
 
 : COUNTUP
@@ -79,12 +80,49 @@ VARIABLE MEM  1000 ALLOT
   UNTIL DROP
 ;
 
-: bench
-    ." countup "    ['] countup 10000 times
-    ." arithm "     ['] arithm 3000 times
-    ." nesting "    ['] nesting 1200 times
-    ." logic "      ['] logic 3300 times
-    ." stacks "     ['] stacks 2500 times
+\ make a table of the tests and number of reps for each
+\ last entry is a sentinel
+here
+' countup , 10000 ,
+' arithm ,  3000 ,
+' nesting , 1200 ,
+' logic  ,  3300 ,
+' stacks ,  2500 ,
+       0 ,  0 ,
+constant marks
+
+\ print an integer in a fixed width field
+40 constant nbuf
+create xbuf nbuf allot
+
+: p%*d  { x width -- }
+  width 0> if
+    x ['] . xbuf >buf
+    xbuf dup strlen dup >r type
+    width r> -
+    dup 0> if spaces else drop endif
+  endif
 ;
 
-\ bench-marker  \ reclaim dictionary space
+\ print xt name in fixed width field
+: p%*xt  { xt width | len -- }
+  width 0> if
+    xt >name dup to len type
+    width len - dup 0> if spaces else drop endif
+  endif
+;
+
+\ benchmark runner
+: bench  ( -- )
+  ." test      reps      mSec" cr
+  marks dup 2@                 ( -- addr reps xt )
+  begin
+    dup 10 p%*xt               \ print name
+    over 10 p%*d               \ print reps
+    swap times cr              ( -- addr ) \ print mSec
+    2 cells + dup 2@ dup       ( -- addr reps xt xt ) \ next
+  0= until empty
+;
+bench
+
+bench-marker  \ reclaim dictionary space
