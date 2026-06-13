@@ -1200,7 +1200,7 @@ int main(int argc, char **argv)
     }
 
 #if FICL_UNIT_TEST
-    if (fUnit && !fBench)
+    if (fUnit)
     {
         UNITY_BEGIN();
         RUN_TEST(dpmUnitTest);

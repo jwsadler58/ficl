@@ -69,12 +69,12 @@ VARIABLE MEM  1000 ALLOT
 \ approx 1 sec runtime for each test
 \ last entry is a sentinel
 here
-' countup , 10000 ,
-' arithm ,  3000 ,
-' nesting , 1200 ,
-' logic  ,  3300 ,
-' stacks ,  2500 ,
-' memory ,  350 ,
+' countup , 8380 ,
+' arithm ,  3330 ,
+' nesting , 1272 ,
+' logic  ,  3678 ,
+' stacks ,  2725 ,
+' memory ,  331 ,
        0 ,  0 ,
 constant marks
 
