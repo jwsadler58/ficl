@@ -1179,24 +1179,28 @@ int main(int argc, char **argv)
     FICL_SYSTEM *pSys;
     int i;
     int fUnit = 0;
+    int fBench = 0;
 
-    /* Find '--test' anywhere on the command line */
+    /* Find '--test' and '--bench' anywhere on the command line */
     for (i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "--test") == 0)
         {
 #if FICL_UNIT_TEST
             fUnit = 1;
-            break;
 #else
             printf("Error: Unit tests not enabled in this build.\n");
             return 1;
 #endif
         }
+        else if (strcmp(argv[i], "--bench") == 0)
+        {
+            fBench = 1;
+        }
     }
 
 #if FICL_UNIT_TEST
-    if (fUnit)
+    if (fUnit && !fBench)
     {
         UNITY_BEGIN();
         RUN_TEST(dpmUnitTest);
@@ -1222,7 +1226,19 @@ int main(int argc, char **argv)
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
-    ret = ficlEvaluate(pVM, "cr .ver 2 spaces .( " __DATE__ " ) cr");
+    ret = ficlEvaluate(pVM, "cr .ver space space .( " __DATE__ " ) cr");
+    if (fBench)                /* run benchmarks and return; takes precedence over --test */
+    {
+#if FICL_WANT_SOFTWORDS
+        ret = ficlEvaluate(pVM, "cd test\n load bench.fr");
+        ficlTermSystem(pSys);
+        return (ret == VM_ERREXIT) ? 1 : 0;
+#else
+        ficlTermSystem(pSys);
+        printf("***** Benchmarks skipped: FICL_WANT_SOFTWORDS=0 *****\n");
+        return 0;
+#endif
+    }
     if (fUnit)                 /* run tests and return rather than going interactive */
     {
 #if FICL_WANT_SOFTWORDS
