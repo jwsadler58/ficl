@@ -849,7 +849,7 @@ static void fliteralIm(FICL_VM *pVM)
 #endif
 
     f = POPFLOAT();
-    dictAppendCell(dp, LVALUEtoCELL(pfLitParen));
+    dictCompileWordRef(dp, pVM->pSys, pfLitParen);
     dictAppendFloat(dp, f);
 }
 

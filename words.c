@@ -116,32 +116,33 @@ static void matchControlTag(FICL_VM *pVM, const char *tag)
 }
 
 /*
-** Expect a branch target address on the param stack,
-** compile a literal offset from the current dict location
-** to the target address
+** Emit a back-branch bytecode cell (op + signed immediate) into the
+** definition.  patchAddr is the back-branch target (pushed by markBranch
+** at the top of the loop).  The immediate field is set so that after the
+** CPU fetches this cell (ip already incremented past it), ip + imm == target.
 */
-static void resolveBackBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
+static void resolveBackBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag,
+                               FICL_OPCODE op)
 {
     FICL_INT offset;
-    CELL *patchAddr;
+    CELL *target;
 
     matchControlTag(pVM, tag);
 
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 0);
 #endif
-    patchAddr = (CELL *)stackPopPtr(pVM->pStack);
-    offset = patchAddr - dp->here;
-    dictAppendCell(dp, LVALUEtoCELL(offset));
-
-    return;
+    target = (CELL *)stackPopPtr(pVM->pStack);
+    /* ip will be dp->here+1 when this cell is fetched, so: */
+    offset = target - (dp->here + 1);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(op, offset)});
 }
 
 
 /*
-** Expect a branch patch address on the param stack,
-** compile a literal offset from the patch location
-** to the current dict location
+** Patch the forward-branch opcode cell whose address was saved by the
+** caller.  Computes a signed immediate so that ip + imm == dp->here
+** after the CPU fetches the branch cell (ip is already past the cell).
 */
 static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
 {
@@ -154,10 +155,9 @@ static void resolveForwardBranch(FICL_DICT *dp, FICL_VM *pVM, const char *tag)
     vmCheckStack(pVM, 1, 0);
 #endif
     patchAddr = (CELL *)stackPopPtr(pVM->pStack);
-    offset = dp->here - patchAddr;
-    *patchAddr = LVALUEtoCELL(offset);
-
-    return;
+    /* ip will be patchAddr+1 after fetch; we want ip+imm == dp->here */
+    offset = dp->here - (patchAddr + 1);
+    patchAddr->u = (patchAddr->u & 0xFF) | BC_MAKE(0, offset);
 }
 
 /*
@@ -313,12 +313,12 @@ static void semicolonCoIm(FICL_VM *pVM)
     {
         FICL_DICT *pLoc = ficlGetLoc(pVM->pSys);
         dictEmpty(pLoc, pLoc->pForthWords->size);
-        dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pUnLinkParen));
+        dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pUnLinkParen);
     }
     pVM->pSys->nLocals = 0;
 #endif
 
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pSemiParen));
+    dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pSemiParen);
     pVM->state = INTERPRET;
     dictUnsmudge(dp);
     return;
@@ -332,10 +332,10 @@ static void exitCoIm(FICL_VM *pVM)
 #if FICL_WANT_LOCALS
     if (pVM->pSys->nLocals > 0)
     {
-        dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pUnLinkParen));
+        dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pUnLinkParen);
     }
 #endif
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pExitParen));
+    dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pExitParen);
     return;
 }
 
@@ -743,11 +743,8 @@ static void ifCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
 
-    assert(pVM->pSys->pBranch0);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranch0));
     markBranch(dp, pVM, origTag);
-    dictAppendUNS(dp, 1);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_BRANCH0, 0)});
     return;
 }
 
@@ -767,20 +764,17 @@ static void ifCoIm(FICL_VM *pVM)
 
 static void elseCoIm(FICL_VM *pVM)
 {
-    CELL *patchAddr;
+    CELL *patchAddrIf;
     FICL_INT offset;
     FICL_DICT *dp = vmGetDict(pVM);
 
-    assert(pVM->pSys->pBranchParen);
-                                            /* (1) compile branch runtime */
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
     matchControlTag(pVM, origTag);
-    patchAddr =
+    patchAddrIf =
         (CELL *)stackPopPtr(pVM->pStack);   /* (2) pop "if" patch addr */
     markBranch(dp, pVM, origTag);           /* (4) push "else" patch addr */
-    dictAppendUNS(dp, 1);                 /* (1) compile patch placeholder */
-    offset = dp->here - patchAddr;
-    *patchAddr = LVALUEtoCELL(offset);      /* (3) Patch "if" */
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_BRANCH, 0)});  /* (1) */
+    offset = dp->here - (patchAddrIf + 1);
+    patchAddrIf->u = (patchAddrIf->u & 0xFF) | BC_MAKE(0, offset); /* (3) */
 
     return;
 }
@@ -866,13 +860,13 @@ static void endcaseCoIm(FICL_VM *pVM)
 
     dp = vmGetDict(pVM);
 
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pDrop));
+    dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pDrop);
 
     while (fixupCount--)
     {
         patchAddr = (CELL *)stackPopPtr(pVM->pStack);
-        offset = dp->here - patchAddr;
-        *patchAddr = LVALUEtoCELL(offset);
+        offset = dp->here - (patchAddr + 1);
+        patchAddr->u = (patchAddr->u & 0xFF) | BC_MAKE(0, offset);
     }
     return;
 }
@@ -888,8 +882,6 @@ static void ofCoIm(FICL_VM *pVM)
     FICL_DICT *dp = vmGetDict(pVM);
     CELL *fallthroughFixup = NULL;
 
-    assert(pVM->pSys->pBranch0);
-
 #if FICL_ROBUST > 1
     vmCheckStack(pVM, 1, 3);
 #endif
@@ -904,14 +896,13 @@ static void ofCoIm(FICL_VM *pVM)
 
     markControlTag(pVM, caseTag);
 
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pOfParen));
     markBranch(dp, pVM, ofTag);
-    dictAppendUNS(dp, 2);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_OF, 0)});
 
     if (fallthroughFixup != NULL)
     {
-        FICL_INT offset = dp->here - fallthroughFixup;
-        *fallthroughFixup = LVALUEtoCELL(offset);
+        FICL_INT offset = dp->here - (fallthroughFixup + 1);
+        fallthroughFixup->u = (fallthroughFixup->u & 0xFF) | BC_MAKE(0, offset);
     }
 
     return;
@@ -934,31 +925,24 @@ static void endofCoIm(FICL_VM *pVM)
     vmCheckStack(pVM, 4, 3);
 #endif
 
-    assert(pVM->pSys->pBranchParen);
-
     /* ensure we're in an OF, */
     matchControlTag(pVM, ofTag);
-    /* grab the address of the branch location after the OF */
+    /* grab the address of the OF opcode cell */
     patchAddr = (CELL *)stackPopPtr(pVM->pStack);
     /* ensure we're also in a "case" */
     matchControlTag(pVM, caseTag);
     /* grab the current number of ENDOF fixups */
     fixupCount = POPUNS();
 
-    /* compile branch runtime */
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
-
-    /* push a new ENDOF fixup, the updated count of ENDOF fixups, and the caseTag */
+    /* push a new ENDOF fixup addr, then emit the branch opcode */
     PUSHPTR(dp->here);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_BRANCH, 0)});
     PUSHUNS(fixupCount + 1);
     markControlTag(pVM, caseTag);
 
-    /* reserve space for the ENDOF fixup */
-    dictAppendUNS(dp, 2);
-
-    /* and patch the original OF */
-    offset = dp->here - patchAddr;
-    *patchAddr = LVALUEtoCELL(offset);
+    /* patch the original OF: ip = patchAddr+1 after fetch; want ip+imm = dp->here */
+    offset = dp->here - (patchAddr + 1);
+    patchAddr->u = (patchAddr->u & 0xFF) | BC_MAKE(0, offset);
 }
 
 
@@ -979,7 +963,7 @@ static void fallthroughCoIm(FICL_VM *pVM)
 
     /* ensure we're in an OF, */
     matchControlTag(pVM, ofTag);
-    /* grab the address of the branch location after the OF */
+    /* grab the address of the OF opcode cell */
     patchAddr = (CELL *)stackPopPtr(pVM->pStack);
     /* ensure we're also in a "case" */
     matchControlTag(pVM, caseTag);
@@ -987,19 +971,14 @@ static void fallthroughCoIm(FICL_VM *pVM)
     /* okay, here we go.  put the case tag back. */
     markControlTag(pVM, caseTag);
 
-    /* compile branch runtime */
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
-
-    /* push a new FALLTHROUGH fixup and the fallthroughTag */
+    /* push FALLTHROUGH fixup addr, then emit the branch opcode */
     PUSHPTR(dp->here);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_BRANCH, 0)});
     markControlTag(pVM, fallthroughTag);
 
-    /* reserve space for the FALLTHROUGH fixup */
-    dictAppendUNS(dp, 2);
-
-    /* and patch the original OF */
-    offset = dp->here - patchAddr;
-    *patchAddr = LVALUEtoCELL(offset);
+    /* patch the original OF: ip = patchAddr+1 after fetch; want ip+imm = dp->here */
+    offset = dp->here - (patchAddr + 1);
+    patchAddr->u = (patchAddr->u & 0xFF) | BC_MAKE(0, offset);
 }
 
 /**************************************************************************
@@ -1162,7 +1141,7 @@ static bool ficlParseWord(FICL_VM *pVM, STRINGINFO si)
             }
             else
             {
-                dictAppendCell(dp, LVALUEtoCELL(tempFW));
+                dictCompileWordRef(dp, pVM->pSys, tempFW);
             }
             return true;
         }
@@ -1234,11 +1213,8 @@ static void addParseStep(FICL_VM *pVM)
 static void literalIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-    assert(pVM->pSys->pLitParen);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pLitParen));
-    dictAppendCell(dp, stackPop(pVM->pStack));
-
+    CELL c = stackPop(pVM->pStack);
+    dictCompileLit(dp, c.i);
     return;
 }
 
@@ -1246,12 +1222,11 @@ static void literalIm(FICL_VM *pVM)
 static void twoLiteralIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-    assert(pVM->pSys->pTwoLitParen);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pTwoLitParen));
-    dictAppendCell(dp, stackPop(pVM->pStack));
-    dictAppendCell(dp, stackPop(pVM->pStack));
-
+    CELL hi = stackPop(pVM->pStack);
+    CELL lo = stackPop(pVM->pStack);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_2LIT, 0)});
+    dictAppendCell(dp, lo);
+    dictAppendCell(dp, hi);
     return;
 }
 
@@ -1301,9 +1276,7 @@ static void doCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
 
-    assert(pVM->pSys->pDoParen);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pDoParen));
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_DO, 0)});
     /*
     ** Allot space for a pointer to the end
     ** of the loop - "leave" uses this...
@@ -1323,9 +1296,7 @@ static void qDoCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
 
-    assert(pVM->pSys->pQDoParen);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pQDoParen));
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_QDO, 0)});
     /*
     ** Allot space for a pointer to the end
     ** of the loop - "leave" uses this...
@@ -1344,11 +1315,7 @@ static void qDoCoIm(FICL_VM *pVM)
 static void loopCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-
-    assert(pVM->pSys->pLoopParen);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pLoopParen));
-    resolveBackBranch(dp, pVM, doTag);
+    resolveBackBranch(dp, pVM, doTag, FICL_OP_LOOP);
     resolveAbsBranch(dp, pVM, leaveTag);
     return;
 }
@@ -1357,11 +1324,7 @@ static void loopCoIm(FICL_VM *pVM)
 static void plusLoopCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-
-    assert(pVM->pSys->pPLoopParen);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pPLoopParen));
-    resolveBackBranch(dp, pVM, doTag);
+    resolveBackBranch(dp, pVM, doTag, FICL_OP_PLOOP);
     resolveAbsBranch(dp, pVM, leaveTag);
     return;
 }
@@ -1601,23 +1564,41 @@ static void bracketTickCoIm(FICL_VM *pVM)
 ** (defers compilation, even of immediate words)
 **************************************************************************/
 
+/*
+** (compile,) -- runtime helper for POSTPONE of non-immediate words.
+** Takes an XT from the stack and compiles it into the current definition
+** using dictCompileWordRef (bytecode-aware).
+*/
+static void compileCommaParen(FICL_VM *pVM)
+{
+    FICL_DICT *dp = vmGetDict(pVM);
+    FICL_WORD *pFW;
+#if FICL_ROBUST > 1
+    vmCheckStack(pVM, 1, 0);
+#endif
+    pFW = (FICL_WORD *)stackPopPtr(pVM->pStack);
+    dictCompileWordRef(dp, pVM->pSys, pFW);
+}
+
+
 static void postponeCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp  = vmGetDict(pVM);
     FICL_WORD *pFW;
-    FICL_WORD *pComma = ficlLookup(pVM->pSys, ",");
-    assert(pComma);
+    FICL_WORD *pCompileComma = ficlLookup(pVM->pSys, "(compile,)");
+    assert(pCompileComma);
 
     ficlTick(pVM);
     pFW = (FICL_WORD *)stackGetTop(pVM->pStack).p;
     if (wordIsImmediate(pFW))
     {
-        dictAppendCell(dp, stackPop(pVM->pStack));
+        stackPop(pVM->pStack);
+        dictCompileWordRef(dp, pVM->pSys, pFW);
     }
     else
     {
         literalIm(pVM);
-        dictAppendCell(dp, LVALUEtoCELL(pComma));
+        dictCompileWordRef(dp, pVM->pSys, pCompileComma);
     }
 
     return;
@@ -1696,7 +1677,7 @@ static void cstringQuoteIm(FICL_VM *pVM)
     }
     else    /* COMPILE state */
     {
-        dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pCStringLit));
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_CSTRINGLIT, 0)});
         dp->here = PTRtoCELL vmGetString(pVM, (FICL_STRING *)dp->here, '\"');
         dictAlign(dp);
     }
@@ -1720,10 +1701,10 @@ static void dotQuoteCoIm(FICL_VM *pVM)
     FICL_DICT *dp = vmGetDict(pVM);
     FICL_WORD *pType = ficlLookup(pVM->pSys, "type");
     assert(pType);
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStringLit));
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_STRINGLIT, 0)});
     dp->here = PTRtoCELL vmGetString(pVM, (FICL_STRING *)dp->here, '\"');
     dictAlign(dp);
-    dictAppendCell(dp, LVALUEtoCELL(pType));
+    dictCompileWordRef(dp, pVM->pSys, pType);
     return;
 }
 
@@ -1779,7 +1760,7 @@ static void sLiteralCoIm(FICL_VM *pVM)
     u  = POPUNS();
     cp = (const char *)POPPTR();
 
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStringLit));
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_STRINGLIT, 0)});
     cpDest    = (char *) dp->here;
     *cpDest++ = (char)   u;
 
@@ -1847,13 +1828,13 @@ static void doesCoIm(FICL_VM *pVM)
     {
         FICL_DICT *pLoc = ficlGetLoc(pVM->pSys);
         dictEmpty(pLoc, pLoc->pForthWords->size);
-        dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pUnLinkParen));
+        dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pUnLinkParen);
     }
 
     pVM->pSys->nLocals = 0;
 #endif
 
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pDoesParen));
+    dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pDoesParen);
     return;
 }
 
@@ -2263,36 +2244,24 @@ static void beginCoIm(FICL_VM *pVM)
 static void untilCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-
-    assert(pVM->pSys->pBranch0);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranch0));
-    resolveBackBranch(dp, pVM, destTag);
+    resolveBackBranch(dp, pVM, destTag, FICL_OP_BRANCH0);
     return;
 }
 
 static void whileCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-
-    assert(pVM->pSys->pBranch0);
-
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranch0));
     markBranch(dp, pVM, origTag);
+    dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_BRANCH0, 0)});
     twoSwap(pVM);
-    dictAppendUNS(dp, 1);
     return;
 }
 
 static void repeatCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-
-    assert(pVM->pSys->pBranchParen);
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
-
     /* expect "begin" branch marker */
-    resolveBackBranch(dp, pVM, destTag);
+    resolveBackBranch(dp, pVM, destTag, FICL_OP_BRANCH);
     /* expect "while" branch marker */
     resolveForwardBranch(dp, pVM, origTag);
     return;
@@ -2302,12 +2271,8 @@ static void repeatCoIm(FICL_VM *pVM)
 static void againCoIm(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
-
-    assert(pVM->pSys->pBranchParen);
-    dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pBranchParen));
-
     /* expect "begin" branch marker */
-    resolveBackBranch(dp, pVM, destTag);
+    resolveBackBranch(dp, pVM, destTag, FICL_OP_BRANCH);
     return;
 }
 
@@ -2461,7 +2426,7 @@ static void stringQuoteIm(FICL_VM *pVM)
     }
     else    /* COMPILE state */
     {
-        dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pStringLit));
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_STRINGLIT, 0)});
         dp->here = PTRtoCELL vmGetString(pVM, (FICL_STRING *)dp->here, '\"');
         dictAlign(dp);
     }
@@ -2893,8 +2858,7 @@ static void move(FICL_VM *pVM)
 static void recurseCoIm(FICL_VM *pVM)
 {
     FICL_DICT *pDict = vmGetDict(pVM);
-
-    dictAppendCell(pDict, LVALUEtoCELL(pDict->smudge));
+    dictCompileWordRef(pDict, pVM->pSys, pDict->smudge);
     return;
 }
 
@@ -3103,7 +3067,7 @@ static void toValueCompileStore(FICL_VM *pVM, FICL_WORD *pFW,
 
     PUSHPTR(&pFW->param[0]);
     literalIm(pVM);
-    dictAppendCell(dp, LVALUEtoCELL(pStore));
+    dictCompileWordRef(dp, pVM->pSys, pStore);
     return;
 }
 
@@ -3124,20 +3088,20 @@ static void toValue(FICL_VM *pVM)
         pFW = dictLookup(pLoc, si);
         if (pFW && (pFW->code == doLocalIm))
         {
-            dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToLocalParen));
+            dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pToLocalParen);
             dictAppendCell(dp, pFW->param[0]);
             return;
         }
         else if (pFW && pFW->code == do2LocalIm)
         {
-            dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pTo2LocalParen));
+            dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pTo2LocalParen);
             dictAppendCell(dp, pFW->param[0]);
             return;
         }
     #if FICL_WANT_FLOAT
         else if (pFW && pFW->code == doFLocalIm)
         {
-            dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pToFLocalParen));
+            dictCompileWordRef(dp, pVM->pSys, pVM->pSys->pToFLocalParen);
             dictAppendCell(dp, pFW->param[0]);
             return;
         }
@@ -3270,15 +3234,15 @@ static void doLocalIm(FICL_VM *pVM)
 
         if (nLocal == 0)
         {
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pGetLocal0));
+            dictCompileWordRef(pDict, pVM->pSys, pVM->pSys->pGetLocal0);
         }
         else if (nLocal == 1)
         {
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pGetLocal1));
+            dictCompileWordRef(pDict, pVM->pSys, pVM->pSys->pGetLocal1);
         }
         else
         {
-            dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pGetLocalParen));
+            dictCompileWordRef(pDict, pVM->pSys, pVM->pSys->pGetLocalParen);
             dictAppendCell(pDict, LVALUEtoCELL(nLocal));
         }
     }
@@ -3307,7 +3271,7 @@ static void localsAdd(FICL_VM *pVM, STRINGINFO si, FICL_CODE pCode,
 
     if (pVM->pSys->nLocals == 0)
     {
-        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pLinkParen));
+        dictCompileWordRef(pDict, pVM->pSys, pVM->pSys->pLinkParen);
         pVM->pSys->pMarkLocals = pDict->here;
         dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
     }
@@ -3316,21 +3280,21 @@ static void localsAdd(FICL_VM *pVM, STRINGINFO si, FICL_CODE pCode,
     {
         if (pVM->pSys->nLocals == 0)
         {
-            dictAppendCell(pDict, LVALUEtoCELL(pToLocal0));
+            dictCompileWordRef(pDict, pVM->pSys, pToLocal0);
         }
         else if (pVM->pSys->nLocals == 1)
         {
-            dictAppendCell(pDict, LVALUEtoCELL(pToLocal1));
+            dictCompileWordRef(pDict, pVM->pSys, pToLocal1);
         }
         else
         {
-            dictAppendCell(pDict, LVALUEtoCELL(pToLocalParen));
+            dictCompileWordRef(pDict, pVM->pSys, pToLocalParen);
             dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
         }
     }
     else
     {
-        dictAppendCell(pDict, LVALUEtoCELL(pToLocalParen));
+        dictCompileWordRef(pDict, pVM->pSys, pToLocalParen);
         dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->nLocals));
     }
 
@@ -3406,7 +3370,7 @@ static void do2LocalIm(FICL_VM *pVM)
     }
     else
     {
-        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pGet2LocalParen));
+        dictCompileWordRef(pDict, pVM->pSys, pVM->pSys->pGet2LocalParen);
         dictAppendCell(pDict, LVALUEtoCELL(nLocal));
     }
     return;
@@ -3477,7 +3441,7 @@ static void doFLocalIm(FICL_VM *pVM)
     }
     else
     {
-        dictAppendCell(pDict, LVALUEtoCELL(pVM->pSys->pGetFLocalParen));
+        dictCompileWordRef(pDict, pVM->pSys, pVM->pSys->pGetFLocalParen);
         dictAppendCell(pDict, LVALUEtoCELL(nLocal));
     }
     return;
@@ -3700,7 +3664,7 @@ static void ficlCatch(FICL_VM *pVM)
         ** the XT
         */
     case 0:
-        vmPushIP(pVM, &(pVM->pSys->pExitInner));          /* Open mouth, insert emetic */
+        vmPushIP(pVM, pVM->pSys->pExitInnerCode);          /* Open mouth, insert emetic */
         vmExecute(pVM, pFW);
         vmInnerLoop(pVM);
         break;
@@ -3965,6 +3929,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendOpWord(dp, "+!",        FICL_OP_PLUS_STORE,  FW_DEFAULT);
     dictAppendWord  (dp, "+loop",     plusLoopCoIm,   FW_COMPIMMED);
     dictAppendWord  (dp, ",",         comma,          FW_DEFAULT);
+    dictAppendWord  (dp, "(compile,)",compileCommaParen, FW_COMPILE);
     dictAppendOpWord(dp, "-",         FICL_OP_MINUS,  FW_DEFAULT);
     dictAppendWord  (dp, ".",         displayCell,    FW_DEFAULT);
     dictAppendWord  (dp, ".\"",       dotQuoteCoIm,   FW_COMPIMMED);
@@ -4304,6 +4269,8 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
 #if FICL_WANT_INTERRUPT
     pSys->pInterruptExit =
     dictAppendWord(  dp, "interrupt-exit", ficlInterruptExit, FW_DEFAULT);
+    pSys->pInterruptExitCode[0].u = BC_MAKE(FICL_OP_CALL, 0);
+    pSys->pInterruptExitCode[1].p = pSys->pInterruptExit;
 #endif
 
     assert(dictCellsAvail(dp) > 0);

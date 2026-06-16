@@ -954,6 +954,101 @@ FICL_WORD *hashLookup(FICL_HASH *pHash, STRINGINFO si, UNS16 hashCode)
 
 
 /**************************************************************************
+                    d i c t C o m p i l e L i t
+** Emit a literal push instruction into a colon definition.
+** Uses a 1-cell FICL_OP_LIT if value fits in the signed immediate field;
+** falls back to a 2-cell FICL_OP_WIDLIT + data cell otherwise.
+**************************************************************************/
+void dictCompileLit(FICL_DICT *dp, FICL_INT value)
+{
+    FICL_INT check = (FICL_INT)((FICL_UNS)value << 8) >> 8;
+    if (check == value)
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_LIT, value)});
+    else
+    {
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_WIDLIT, 0)});
+        dictAppendCell(dp, LVALUEtoCELL(value));
+    }
+}
+
+
+/**************************************************************************
+                d i c t C o m p i l e W o r d R e f
+** Emit the bytecode representation of pFW into a colon definition.
+** Near primitives become a 1-cell opcode. Colon definitions, constants,
+** variables, and user variables are inlined using the immediate field.
+** DOES>-defined words and far primitives use the 2-cell CALL form.
+**************************************************************************/
+void dictCompileWordRef(FICL_DICT *dp, FICL_SYSTEM *pSys, FICL_WORD *pFW)
+{
+    FICL_INT dictOffset;
+
+    switch (pFW->opcode)
+    {
+    case FICL_OP_COLON:
+        /* dict-relative offset (in CELLs) to the PFA bytecode stream */
+        dictOffset = pFW->param - pSys->dp->dict;
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_COLON, dictOffset)});
+        break;
+
+    case FICL_OP_CONSTANT:
+        dictCompileLit(dp, pFW->param[0].i);
+        break;
+
+    case FICL_OP_2CONSTANT:
+        /* push lo then hi */
+        dictCompileLit(dp, pFW->param[0].i);
+        dictCompileLit(dp, pFW->param[1].i);
+        break;
+
+    case FICL_OP_VARIABLE:
+        /* push address of param[0] */
+        dictOffset = pFW->param - pSys->dp->dict;
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_ADDRLIT, dictOffset)});
+        break;
+
+    case FICL_OP_CREATE:
+        /* push address of param[1] (per-instance data starts after DOES> ptr) */
+        dictOffset = (pFW->param + 1) - pSys->dp->dict;
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_ADDRLIT, dictOffset)});
+        break;
+
+#if FICL_WANT_USER
+    case FICL_OP_USER:
+        /* imm = user-area index stored in param[0] */
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_USER, pFW->param[0].i)});
+        break;
+#endif
+
+#if FICL_WANT_FLOAT
+    case FICL_OP_FCONSTANT:
+        /* float value doesn't fit in the 56-bit immediate field: use 2-cell FLIT */
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_FLIT, 0)});
+        dictAppendFloat(dp, *(FICL_FLOAT *)pFW->param);
+        break;
+#endif
+
+    case FICL_OP_DOES:
+        /* DOES>-defined words need pWord at runtime: 2-cell DOES_CALL */
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_DOES_CALL, 0)});
+        dictAppendCell(dp, (CELL){.p = pFW});
+        break;
+
+    case FICL_OP_CALL:
+        /* far primitive: 2-cell form - opcode cell + word ptr */
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_CALL, 0)});
+        dictAppendCell(dp, (CELL){.p = pFW});
+        break;
+
+    default:
+        /* near primitive with no immediate: 1-cell opcode */
+        dictAppendCell(dp, (CELL){.u = (FICL_UNS)(pFW->opcode)});
+        break;
+    }
+}
+
+
+/**************************************************************************
                              h a s h R e s e t
 ** Initialize a FICL_HASH to empty state.
 **************************************************************************/

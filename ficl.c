@@ -138,9 +138,13 @@ FICL_SYSTEM *ficlInitSystemEx(FICL_SYSTEM_INFO *fsi)
     /*
     ** Set up system's outer interpreter loop - must come after ficlCompileCore
     */
-    pSys->pInterp[0] = pSys->pInterpret;
-    pSys->pInterp[1] = pSys->pBranchParen;
-    pSys->pInterp[2] = (FICL_WORD *)(void *)(-2);
+    /* pInterp: outer interpreter bytecode loop: CALL pInterpret, BRANCH -3 */
+    pSys->pInterp[0].u = BC_MAKE(FICL_OP_CALL, 0);
+    pSys->pInterp[1].p = pSys->pInterpret;
+    pSys->pInterp[2].u = BC_MAKE(FICL_OP_BRANCH, -3);
+    /* pExitInnerCode: 2-cell CALL stub used by ficlExecXT to return from inner loop */
+    pSys->pExitInnerCode[0].u = BC_MAKE(FICL_OP_CALL, 0);
+    pSys->pExitInnerCode[1].p = pSys->pExitInner;
 
     ficlSetVersionEnv(pSys);
 
@@ -366,7 +370,7 @@ int ficlExecC(FICL_VM *pVM, const char *pText, FICL_INT size)
     TIB           saveTib;
 
     assert(pVM);
-    assert(pSys->pInterp[0]);
+    assert(pSys->pInterp[1].p != NULL);  /* word ptr must be set after ficlCompileCore */
 
     if (size < 0)
         size = strlen(pText);
@@ -490,7 +494,7 @@ int ficlExecXT(FICL_VM *pVM, FICL_WORD *pWord)
     if (except)
         vmPopIP(pVM);
     else
-        vmPushIP(pVM, &(pVM->pSys->pExitInner));
+        vmPushIP(pVM, pVM->pSys->pExitInnerCode);
 
     switch (except)
     {

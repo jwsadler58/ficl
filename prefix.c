@@ -155,8 +155,8 @@ static void prefixQuote(FICL_VM *pVM)
         if (pVM->state == COMPILE)
         {
             FICL_DICT *dp = vmGetDict(pVM);
-            dictAppendCell(dp, LVALUEtoCELL(pVM->pSys->pLitParen));
-            dictAppendCell(dp, stackPop(pVM->pStack));
+            FICL_INT val = stackPop(pVM->pStack).i;
+            dictCompileLit(dp, val);
         }
     }
     else

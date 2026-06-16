@@ -1226,7 +1226,7 @@ int main(int argc, char **argv)
     buildTestInterface(pSys);
     pVM = ficlNewVM(pSys);
 
-    ret = ficlEvaluate(pVM, "cr .ver space space .( " __DATE__ " ) cr");
+    ret = ficlEvaluate(pVM, "cr .ver 32 emit .( " __DATE__ " ) cr");
     if (fBench)                /* run benchmarks and return; takes precedence over --test */
     {
 #if FICL_WANT_SOFTWORDS

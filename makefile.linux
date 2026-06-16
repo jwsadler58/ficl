@@ -1,7 +1,7 @@
 # === Toolchain & flags ===
 # C11 required for static_assert, stdint.h, and dynamic arrays in data structures
 CC       = gcc
-CFLAGS   = -O2 -std=c11 -Dlinux -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Wno-unused-result
+CFLAGS   = -O2 -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Wno-unused-result
 DEPFLAGS = -MMD -MP
 
 LIB 	 = ar cr
@@ -14,6 +14,14 @@ OBJECTS = dict.o ficl.o fileaccess.o float.o dpmath.o \
 FICL_TEST_OBJ = testmain.o testdpmath.o unity.o
 DEPS    = $(OBJECTS:.o=.d) $(FICL_TEST_OBJ:.o=.d)
 
+# ficl32test: 64-bit float forced on a 32-bit host (FICL_FLOAT_CELLS=2).
+# Run inside a linux/386 Docker container to validate the FLIT ip-advance fix.
+# Objects go in a subdir to avoid colliding with the normal ficl build.
+F32DIR  = obj/ficl32test
+F32OBJS = $(addprefix $(F32DIR)/,$(OBJECTS))
+F32TEST = $(addprefix $(F32DIR)/,$(FICL_TEST_OBJ))
+DEPS   += $(F32OBJS:.o=.d) $(F32TEST:.o=.d)
+
 # === Softcore.c is generated from softwords folder ===
 softcore.c:
 	$(MAKE) -C softwords softcore.c
@@ -24,9 +32,16 @@ libficl.a: $(OBJECTS)
 	$(LIB) $@ $(OBJECTS)
 	$(RANLIB) $@
 
+libficl32test.a: $(F32OBJS)
+	$(LIB) $@ $(F32OBJS)
+	$(RANLIB) $@
+
 # === Console Test executable ===
 ficl: $(FICL_TEST_OBJ) ficl.h sysdep.h libficl.a
 	$(CC) $(FICL_TEST_OBJ) -o ficl -L. -lficl -lm
+
+ficl32test: $(F32TEST) libficl32test.a
+	$(CC) $(F32TEST) -o ficl32test -L. -lficl32test -lm
 
 # === Compile rules ===
 .SUFFIXES: .cxx .cc .c .o
@@ -40,10 +55,30 @@ ficl: $(FICL_TEST_OBJ) ficl.h sysdep.h libficl.a
 .cc.o:
 	$(CPP) $(CPFLAGS) $(DEPFLAGS) -c $*.cc
 
+$(F32DIR)/%.o: %.c | $(F32DIR) softcore.c
+	$(CC) $(CFLAGS) -DFICL_FLOAT_BITS=64 $(DEPFLAGS) -MF $(@:.o=.d) -c $< -o $@
+
+$(F32DIR):
+	@mkdir -p $(F32DIR)
+
 -include $(DEPS)
 
 #
 #  === utility targets ===
 #
+.PHONY: all clean docker32
+
+all: ficl ficl32test
+	./ficl --test
+	./ficl32test --test
+
 clean:
-	rm -f *.o *.a *.d softcore.c
+	rm -f *.o *.a *.d softcore.c ficl ficl32test
+	rm -rf obj
+
+# Run all targets in a 32-bit Linux container to validate FICL_FLOAT_CELLS=2.
+# Requires Docker with linux/386 support (docker buildx + QEMU binfmt).
+docker32:
+	docker run --platform linux/386 --rm -v "$(CURDIR):/ficl" -w /ficl \
+	    debian:bookworm bash -c \
+	    "apt-get update -qq && apt-get install -y -qq gcc make && make -f makefile.linux all"

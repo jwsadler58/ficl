@@ -99,6 +99,13 @@
     #endif
 #endif
 
+/* Conditionally include float statements inside macros */
+#if FICL_WANT_FLOAT
+    #define IF_FLOAT(x) x
+#else
+    #define IF_FLOAT(x)
+#endif
+
 /*
 ** X-Macro definitions for stack operations
 ** Each operation is defined once and can be instantiated with different continuations.
@@ -730,13 +737,8 @@
             FSTACK_TOP[-1] = (FICL_FLOAT)(--dataTop)->i / FSTACK_TOP[-1]; \
             goto OP_DONE; \
         } \
-        case FICL_OP_FCONSTANT: { \
-            FICL_FLOAT _f; \
-            VM_CHECK_FSTACK_LOCAL(0, 1); \
-            memcpy(&_f, pWord->param, sizeof(_f)); \
-            *FSTACK_TOP++ = _f; \
-            goto OP_DONE; \
-        }
+/* FICL_OP_FCONSTANT is handled inline in vmExecute only (uses pWord->param).
+** In the inner loop, FCONSTANT words are compiled as FICL_OP_FLIT. */
 #else
     #define VM_OP_CASES_FLOAT(OP_DONE)
 #endif
@@ -758,22 +760,21 @@
 #define VM_CHECK_INTERRUPT(pVM, dataTop, ip) ((void)0)
 #endif
 
+/* VM_OP_CASES_IP: inline opcodes that access ip or imm.  All branch offsets
+** and literal values now live in the imm field (high bits of the opcode cell).
+** ip has already been incremented past the opcode cell before dispatch. */
 #define VM_OP_CASES_IP(OP_DONE) \
     case FICL_OP_BRANCH: { \
-        int _offset = *(int *)ip; \
-        ip += _offset; \
-        if (_offset < 0) VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
+        ip += imm; \
+        if (imm < 0) VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         goto OP_DONE; \
     } \
     case FICL_OP_BRANCH0: { \
         VM_CHECK_STACK_LOCAL(1, 0); \
         u = (--dataTop)->u; \
-        if (u) \
-            ip += 1; \
-        else { \
-            int _offset = *(int *)ip; \
-            ip += _offset; \
-            if (_offset < 0) VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
+        if (!u) { \
+            ip += imm; \
+            if (imm < 0) VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         } \
         goto OP_DONE; \
     } \
@@ -781,7 +782,7 @@
         CELL index; \
         CELL limit; \
         VM_CHECK_STACK_LOCAL(2, 0); \
-        *pVM->rStack->sp++ = *(CELL *)ip; \
+        *pVM->rStack->sp++ = *(CELL *)ip; /* absolute leave target cell */ \
         ip += 1; \
         index = *--dataTop; \
         limit = *--dataTop; \
@@ -793,7 +794,7 @@
         CELL index; \
         CELL limit; \
         VM_CHECK_STACK_LOCAL(2, 0); \
-        *pVM->rStack->sp++ = *(CELL *)ip; \
+        *pVM->rStack->sp++ = *(CELL *)ip; /* absolute leave target cell */ \
         ip += 1; \
         index = *--dataTop; \
         limit = *--dataTop; \
@@ -808,13 +809,12 @@
     case FICL_OP_LOOP: { \
         FICL_INT index = pVM->rStack->sp[-1].i; \
         FICL_INT limit = pVM->rStack->sp[-2].i; \
-        index++;  \
+        index++; \
         if (index >= limit) { \
             pVM->rStack->sp -= 3; \
-            ip += 1; \
         } else { \
             pVM->rStack->sp[-1].i = index; \
-            ip += *(int *)ip; \
+            ip += imm; \
             VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         } \
         goto OP_DONE; \
@@ -836,25 +836,32 @@
         index += increment; \
         if (flag) { \
             pVM->rStack->sp -= 3; \
-            ip += 1; \
         } else { \
             pVM->rStack->sp[-1].i = index; \
-            ip += *(int *)ip; \
+            ip += imm; \
             VM_CHECK_INTERRUPT(pVM, dataTop, ip); \
         } \
         goto OP_DONE; \
     } \
     case FICL_OP_LIT: { \
         VM_CHECK_STACK_LOCAL(0, 1); \
-        dataTop->i = *(FICL_INT *)ip; \
-        dataTop++; \
-        ip += 1; \
+        (dataTop++)->i = imm; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_WIDLIT: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        *dataTop++ = *ip++; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_ADDRLIT: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        (dataTop++)->p = pVM->pSys->dp->dict + imm; \
         goto OP_DONE; \
     } \
     case FICL_OP_2LIT: { \
         VM_CHECK_STACK_LOCAL(0, 2); \
-        dataTop[0].i = ((FICL_INT *)ip)[1]; \
-        dataTop[1].i = ((FICL_INT *)ip)[0]; \
+        dataTop[0] = ip[0]; \
+        dataTop[1] = ip[1]; \
         dataTop += 2; \
         ip += 2; \
         goto OP_DONE; \
@@ -874,9 +881,8 @@
         b = (dataTop - 1)->u; \
         if (a == b) { \
             dataTop--; \
-            ip += 1; \
         } else { \
-            ip += *(int *)ip; \
+            ip += imm; \
         } \
         goto OP_DONE; \
     } \
@@ -891,14 +897,15 @@
     } \
     case FICL_OP_COLON: { \
         *pVM->rStack->sp++ = (CELL){.p = ip}; \
-        ip = (IPTYPE)(pWord->param); \
+        ip = pVM->pSys->dp->dict + imm; \
         goto OP_DONE; \
     } \
-    case FICL_OP_DOES: { \
+    case FICL_OP_DOES_CALL: { \
+        FICL_WORD *_pFW = (FICL_WORD *)(ip++)->p; \
         VM_CHECK_STACK_LOCAL(0, 1); \
-        (dataTop++)->p = pWord->param + 1; \
+        (dataTop++)->p = _pFW->param + 1; \
         *pVM->rStack->sp++ = (CELL){.p = ip}; \
-        ip = (IPTYPE)(pWord->param[0].p); \
+        ip = (IPTYPE)(_pFW->param[0].p); \
         goto OP_DONE; \
     } \
     case FICL_OP_STRINGLIT: { \
@@ -921,6 +928,20 @@
         (dataTop++)->p = _sp; \
         goto OP_DONE; \
     }
+
+#if FICL_WANT_FLOAT
+#define VM_OP_CASES_FLIT(OP_DONE) \
+    case FICL_OP_FLIT: { \
+        FICL_FLOAT _f; \
+        VM_CHECK_FSTACK_LOCAL(0, 1); \
+        memcpy(&_f, ip, sizeof(_f)); \
+        *floatTop++ = _f; \
+        ip += FICL_FLOAT_CELLS; \
+        goto OP_DONE; \
+    }
+#else
+#define VM_OP_CASES_FLIT(OP_DONE)
+#endif
 
 #define VM_OP_CASES_WORD(OP_DONE) \
     case FICL_OP_CONSTANT: { \
@@ -945,25 +966,40 @@
         goto OP_DONE; \
     }
 
+/* VM_OP_CASES_USER: used in the inner loop - USER index is in the imm field. */
 #if FICL_WANT_USER
 #define VM_OP_CASES_USER(OP_DONE) \
     case FICL_OP_USER: { \
         VM_CHECK_STACK_LOCAL(0, 1); \
-        (dataTop++)->p = &pVM->user[pWord->param[0].i]; \
+        (dataTop++)->p = &pVM->user[imm]; \
         goto OP_DONE; \
     }
 #else
 #define VM_OP_CASES_USER(OP_DONE)
 #endif
 
+#define VM_OP_CASES_STEP_BREAK(OP_DONE) \
+    case FICL_OP_STEP_BREAK: { \
+        pVM->pStack->sp = dataTop; \
+        pVM->ip = ip; \
+        IF_FLOAT(pVM->fStack->sp = floatTop;) \
+        pVM->pSys->pStepBreak->code(pVM); \
+        ip = pVM->ip; \
+        dataTop = pVM->pStack->sp; \
+        IF_FLOAT(floatTop = pVM->fStack->sp;) \
+        goto OP_DONE; \
+    }
+
 #define VM_OP_SWITCH_INNER(OP_DONE) \
     switch (opcode) { \
         VM_OP_CASES_BASE(OP_DONE) \
         VM_OP_CASES_FLOAT(OP_DONE) \
-        VM_OP_CASES_WORD(OP_DONE) \
         VM_OP_CASES_USER(OP_DONE) \
         VM_OP_CASES_IP(OP_DONE) \
+        VM_OP_CASES_FLIT(OP_DONE) \
+        VM_OP_CASES_STEP_BREAK(OP_DONE) \
         default: \
+            assert(opcode == FICL_OP_CALL); /* only CALL may reach here */ \
             break; \
     }
 
@@ -1065,7 +1101,22 @@ void vmExecute(FICL_VM *pVM, FICL_WORD *pWord)
             VM_OP_CASES_BASE(OP_DONE)
             VM_OP_CASES_FLOAT(OP_DONE)
             VM_OP_CASES_WORD(OP_DONE)
-            VM_OP_CASES_USER(OP_DONE)
+#if FICL_WANT_USER
+            case FICL_OP_USER: {
+                VM_CHECK_STACK_LOCAL(0, 1);
+                (dataTop++)->p = &pVM->user[pWord->param[0].i];
+                goto OP_DONE;
+            }
+#endif
+#if FICL_WANT_FLOAT
+            case FICL_OP_FCONSTANT: {
+                FICL_FLOAT _f;
+                VM_CHECK_FSTACK_LOCAL(0, 1);
+                memcpy(&_f, pWord->param, sizeof(_f));
+                *floatTop++ = _f;
+                goto OP_DONE;
+            }
+#endif
             case FICL_OP_COLON: {
                 (returnTop++)->p = pVM->ip;
                 pVM->ip = (IPTYPE)(pWord->param);
@@ -1111,17 +1162,21 @@ void vmStep(FICL_VM *pVM)
     FICL_INT i;
     FICL_UNS u;
     CELL c, c2;
+    CELL bc;
+    FICL_INT imm;
     FICL_OPCODE opcode;
 
-    pWord = *ip++;
-    pVM->runningWord = pWord;
+    bc = *ip++;
+    imm = (FICL_INT)(bc.i >> 8);
+    opcode = (FICL_OPCODE)(bc.u & 0xFF);
 
-    opcode = pWord->opcode;
     if (opcode != FICL_OP_CALL)
     {
         VM_OP_SWITCH_INNER(OP_DONE);
     }
 
+    pWord = (FICL_WORD *)(ip++)->p;
+    pVM->runningWord = pWord;
     pVM->pStack->sp = dataTop;
     /* pVM->rStack->sp not synced - already accessed directly in operations */
 #if FICL_WANT_FLOAT
@@ -1163,19 +1218,20 @@ void vmInnerLoop(FICL_VM *pVM)
     FICL_INT i;
     FICL_UNS u;
     CELL c, c2;
+    CELL bc;
+    FICL_INT imm;
     FICL_OPCODE opcode;
 
     for (;;)
     {
-        pWord = *ip++;
+        bc = *ip++;
+        imm = (FICL_INT)(bc.i >> 8);
+        opcode = (FICL_OPCODE)(bc.u & 0xFF);
+
+        VM_OP_SWITCH_INNER(OP_CONTINUE);
+
+        pWord = (FICL_WORD *)(ip++)->p;
         pVM->runningWord = pWord;
-
-        opcode = pWord->opcode;
-        if (opcode != FICL_OP_CALL)
-        {
-            VM_OP_SWITCH_INNER(OP_CONTINUE);
-        }
-
         pVM->pStack->sp = dataTop;
         /* pVM->rStack->sp not synced - already accessed directly in operations */
 #if FICL_WANT_FLOAT
@@ -1569,7 +1625,7 @@ void vmSigint(FICL_VM *pVM)
 void vmInterrupt(FICL_VM *pVM)
 {
     pVM->interrupt = 1;
-    pVM->ip = &pVM->pSys->pInterruptExit;
+    pVM->ip = pVM->pSys->pInterruptExitCode;
 }
 
 #endif /* FICL_WANT_INTERRUPT */

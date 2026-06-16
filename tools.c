@@ -68,12 +68,9 @@
 **************************************************************************/
 static void vmSetBreak(FICL_VM *pVM, FICL_BREAKPOINT *pBP)
 {
-    FICL_WORD *pStep = ficlLookup(pVM->pSys, "step-break");
-    assert(pStep);
-
-    pBP->address = pVM->ip;
-    pBP->origXT = *pVM->ip;
-    *pVM->ip = pStep;
+    pBP->address      = pVM->ip;
+    pBP->origCell     = *pVM->ip;
+    pVM->ip->u        = (FICL_UNS)FICL_OP_STEP_BREAK;
 }
 
 
@@ -164,117 +161,275 @@ static FICL_WORD *findEnclosingWord(FICL_VM *pVM, CELL *cp)
 ** defined.
 **************************************************************************/
 /*
-** seeColon (for proctologists only)
-** Walks a colon definition, decompiling
-** on the fly. Knows about primitive control structures.
+** Opcode format tags — how seeColon should print and advance past each opcode.
+*/
+typedef enum {
+    BC_FMT_PLAIN,       /* no extra data                                    */
+    BC_FMT_IMM,         /* show signed immediate from upper 56 bits         */
+    BC_FMT_BRANCH,      /* imm = branch offset relative to next cell        */
+    BC_FMT_COLON,       /* imm = dict offset; colon-call target             */
+    BC_FMT_LEAVE,       /* next cell = absolute CELL* leave target          */
+    BC_FMT_WORDPTR,     /* next cell = FICL_WORD*, show name                */
+    BC_FMT_DOESPTR,     /* next cell = FICL_WORD*, show name (DOES>)        */
+    BC_FMT_WIDLIT,      /* next cell = full CELL literal value              */
+    BC_FMT_2LIT,        /* next 2 cells = double-cell literal               */
+    BC_FMT_STRINGLIT,   /* next bytes = FICL_STRING (variable length)       */
+    BC_FMT_CSTRINGLIT,  /* same, but c-string form                          */
+    BC_FMT_FLIT,        /* next cell = FICL_FLOAT                           */
+} BC_FMT;
+
+typedef struct { const char *name; BC_FMT fmt; } BC_ATTR_ENTRY;
+
+static const BC_ATTR_ENTRY bcAttrTable[FICL_OP_COUNT] = {
+    [FICL_OP_CALL]          = { "call",     BC_FMT_WORDPTR   },
+    [FICL_OP_DUP]           = { "dup",      BC_FMT_PLAIN     },
+    [FICL_OP_DROP]          = { "drop",     BC_FMT_PLAIN     },
+    [FICL_OP_SWAP]          = { "swap",     BC_FMT_PLAIN     },
+    [FICL_OP_OVER]          = { "over",     BC_FMT_PLAIN     },
+    [FICL_OP_ROT]           = { "rot",      BC_FMT_PLAIN     },
+    [FICL_OP_MINUS_ROT]     = { "-rot",     BC_FMT_PLAIN     },
+    [FICL_OP_PICK]          = { "pick",     BC_FMT_PLAIN     },
+    [FICL_OP_ROLL]          = { "roll",     BC_FMT_PLAIN     },
+    [FICL_OP_MINUS_ROLL]    = { "-roll",    BC_FMT_PLAIN     },
+    [FICL_OP_2DUP]          = { "2dup",     BC_FMT_PLAIN     },
+    [FICL_OP_2DROP]         = { "2drop",    BC_FMT_PLAIN     },
+    [FICL_OP_2SWAP]         = { "2swap",    BC_FMT_PLAIN     },
+    [FICL_OP_2OVER]         = { "2over",    BC_FMT_PLAIN     },
+    [FICL_OP_QUESTION_DUP]  = { "?dup",     BC_FMT_PLAIN     },
+    [FICL_OP_FETCH]         = { "@",        BC_FMT_PLAIN     },
+    [FICL_OP_STORE]         = { "!",        BC_FMT_PLAIN     },
+    [FICL_OP_2FETCH]        = { "2@",       BC_FMT_PLAIN     },
+    [FICL_OP_2STORE]        = { "2!",       BC_FMT_PLAIN     },
+    [FICL_OP_PLUS_STORE]    = { "+!",       BC_FMT_PLAIN     },
+    [FICL_OP_C_FETCH]       = { "c@",       BC_FMT_PLAIN     },
+    [FICL_OP_C_STORE]       = { "c!",       BC_FMT_PLAIN     },
+    [FICL_OP_W_FETCH]       = { "w@",       BC_FMT_PLAIN     },
+    [FICL_OP_W_STORE]       = { "w!",       BC_FMT_PLAIN     },
+    [FICL_OP_PLUS]          = { "+",        BC_FMT_PLAIN     },
+    [FICL_OP_MINUS]         = { "-",        BC_FMT_PLAIN     },
+    [FICL_OP_STAR]          = { "*",        BC_FMT_PLAIN     },
+    [FICL_OP_SLASH]         = { "/",        BC_FMT_PLAIN     },
+    [FICL_OP_MOD]           = { "mod",      BC_FMT_PLAIN     },
+    [FICL_OP_SLASH_MOD]     = { "/mod",     BC_FMT_PLAIN     },
+    [FICL_OP_STAR_SLASH]    = { "*/",       BC_FMT_PLAIN     },
+    [FICL_OP_STAR_SLASH_MOD]= { "*/mod",    BC_FMT_PLAIN     },
+    [FICL_OP_ONE_PLUS]      = { "1+",       BC_FMT_PLAIN     },
+    [FICL_OP_ONE_MINUS]     = { "1-",       BC_FMT_PLAIN     },
+    [FICL_OP_TWO_STAR]      = { "2*",       BC_FMT_PLAIN     },
+    [FICL_OP_TWO_SLASH]     = { "2/",       BC_FMT_PLAIN     },
+    [FICL_OP_NEGATE]        = { "negate",   BC_FMT_PLAIN     },
+    [FICL_OP_MAX]           = { "max",      BC_FMT_PLAIN     },
+    [FICL_OP_MIN]           = { "min",      BC_FMT_PLAIN     },
+    [FICL_OP_ZERO_LESS]     = { "0<",       BC_FMT_PLAIN     },
+    [FICL_OP_ZERO_EQUALS]   = { "0=",       BC_FMT_PLAIN     },
+    [FICL_OP_ZERO_GREATER]  = { "0>",       BC_FMT_PLAIN     },
+    [FICL_OP_LESS]          = { "<",        BC_FMT_PLAIN     },
+    [FICL_OP_EQUALS]        = { "=",        BC_FMT_PLAIN     },
+    [FICL_OP_GREATER]       = { ">",        BC_FMT_PLAIN     },
+    [FICL_OP_U_LESS]        = { "u<",       BC_FMT_PLAIN     },
+    [FICL_OP_AND]           = { "and",      BC_FMT_PLAIN     },
+    [FICL_OP_OR]            = { "or",       BC_FMT_PLAIN     },
+    [FICL_OP_XOR]           = { "xor",      BC_FMT_PLAIN     },
+    [FICL_OP_INVERT]        = { "invert",   BC_FMT_PLAIN     },
+    [FICL_OP_LSHIFT]        = { "lshift",   BC_FMT_PLAIN     },
+    [FICL_OP_RSHIFT]        = { "rshift",   BC_FMT_PLAIN     },
+    [FICL_OP_TO_R]          = { ">r",       BC_FMT_PLAIN     },
+    [FICL_OP_R_FROM]        = { "r>",       BC_FMT_PLAIN     },
+    [FICL_OP_R_FETCH]       = { "r@",       BC_FMT_PLAIN     },
+    [FICL_OP_2TO_R]         = { "2>r",      BC_FMT_PLAIN     },
+    [FICL_OP_2R_FROM]       = { "2r>",      BC_FMT_PLAIN     },
+    [FICL_OP_2R_FETCH]      = { "2r@",      BC_FMT_PLAIN     },
+    [FICL_OP_DEPTH]         = { "depth",    BC_FMT_PLAIN     },
+    [FICL_OP_BRANCH]        = { "branch",   BC_FMT_BRANCH    },
+    [FICL_OP_BRANCH0]       = { "branch0",  BC_FMT_BRANCH    },
+    [FICL_OP_DO]            = { "do",       BC_FMT_LEAVE     },
+    [FICL_OP_QDO]           = { "?do",      BC_FMT_LEAVE     },
+    [FICL_OP_LOOP]          = { "loop",     BC_FMT_BRANCH    },
+    [FICL_OP_PLOOP]         = { "+loop",    BC_FMT_BRANCH    },
+    [FICL_OP_LIT]           = { "lit",      BC_FMT_IMM       },
+    [FICL_OP_2LIT]          = { "2lit",     BC_FMT_2LIT      },
+    [FICL_OP_EXIT]          = { "exit",     BC_FMT_PLAIN     },
+    [FICL_OP_SEMI]          = { ";",        BC_FMT_PLAIN     },
+    [FICL_OP_OF]            = { "of",       BC_FMT_BRANCH    },
+    [FICL_OP_LEAVE]         = { "leave",    BC_FMT_PLAIN     },
+    [FICL_OP_UNLOOP]        = { "unloop",   BC_FMT_PLAIN     },
+    [FICL_OP_COLON]         = { "colon",    BC_FMT_COLON     },
+    [FICL_OP_CONSTANT]      = { "constant", BC_FMT_PLAIN     },
+    [FICL_OP_2CONSTANT]     = { "2constant",BC_FMT_PLAIN     },
+    [FICL_OP_CREATE]        = { "create",   BC_FMT_PLAIN     },
+    [FICL_OP_DOES]          = { "does>",    BC_FMT_PLAIN     },
+    [FICL_OP_VARIABLE]      = { "variable", BC_FMT_PLAIN     },
+    [FICL_OP_STRINGLIT]     = { "s\"",      BC_FMT_STRINGLIT },
+    [FICL_OP_CSTRINGLIT]    = { "c\"",      BC_FMT_CSTRINGLIT},
+    [FICL_OP_ADDRLIT]       = { "addrlit",  BC_FMT_IMM       },
+    [FICL_OP_WIDLIT]        = { "widlit",   BC_FMT_WIDLIT    },
+    [FICL_OP_DOES_CALL]     = { "does-call",BC_FMT_DOESPTR   },
+    [FICL_OP_STEP_BREAK]    = { "step-break",BC_FMT_PLAIN    },
+#if FICL_WANT_USER
+    [FICL_OP_USER]          = { "user",     BC_FMT_IMM       },
+#endif
+#if FICL_WANT_FLOAT
+    [FICL_OP_FCONSTANT]     = { "fconstant",BC_FMT_PLAIN     },
+    [FICL_OP_FDUP]          = { "fdup",     BC_FMT_PLAIN     },
+    [FICL_OP_FDROP]         = { "fdrop",    BC_FMT_PLAIN     },
+    [FICL_OP_FSWAP]         = { "fswap",    BC_FMT_PLAIN     },
+    [FICL_OP_FOVER]         = { "fover",    BC_FMT_PLAIN     },
+    [FICL_OP_FROT]          = { "frot",     BC_FMT_PLAIN     },
+    [FICL_OP_FMINUS_ROT]    = { "f-rot",    BC_FMT_PLAIN     },
+    [FICL_OP_FPICK]         = { "fpick",    BC_FMT_PLAIN     },
+    [FICL_OP_FROLL]         = { "froll",    BC_FMT_PLAIN     },
+    [FICL_OP_FMINUS_ROLL]   = { "f-roll",   BC_FMT_PLAIN     },
+    [FICL_OP_F2DUP]         = { "f2dup",    BC_FMT_PLAIN     },
+    [FICL_OP_F2DROP]        = { "f2drop",   BC_FMT_PLAIN     },
+    [FICL_OP_F2SWAP]        = { "f2swap",   BC_FMT_PLAIN     },
+    [FICL_OP_F2OVER]        = { "f2over",   BC_FMT_PLAIN     },
+    [FICL_OP_FQUESTION_DUP] = { "f?dup",    BC_FMT_PLAIN     },
+    [FICL_OP_FPLUS]         = { "f+",       BC_FMT_PLAIN     },
+    [FICL_OP_FMINUS]        = { "f-",       BC_FMT_PLAIN     },
+    [FICL_OP_FSTAR]         = { "f*",       BC_FMT_PLAIN     },
+    [FICL_OP_FSLASH]        = { "f/",       BC_FMT_PLAIN     },
+    [FICL_OP_FNEGATE]       = { "fnegate",  BC_FMT_PLAIN     },
+    [FICL_OP_FABS]          = { "fabs",     BC_FMT_PLAIN     },
+    [FICL_OP_FMAX]          = { "fmax",     BC_FMT_PLAIN     },
+    [FICL_OP_FMIN]          = { "fmin",     BC_FMT_PLAIN     },
+    [FICL_OP_FPLUS_STORE]   = { "f+!",      BC_FMT_PLAIN     },
+    [FICL_OP_FFETCH]        = { "f@",       BC_FMT_PLAIN     },
+    [FICL_OP_FSTORE]        = { "f!",       BC_FMT_PLAIN     },
+    [FICL_OP_F0LESS]        = { "f0<",      BC_FMT_PLAIN     },
+    [FICL_OP_F0EQUALS]      = { "f0=",      BC_FMT_PLAIN     },
+    [FICL_OP_F0GREATER]     = { "f0>",      BC_FMT_PLAIN     },
+    [FICL_OP_FLESS]         = { "f<",       BC_FMT_PLAIN     },
+    [FICL_OP_FCLOSE]        = { "f~",       BC_FMT_PLAIN     },
+    [FICL_OP_FEQUAL]        = { "f=",       BC_FMT_PLAIN     },
+    [FICL_OP_FGREATER]      = { "f>",       BC_FMT_PLAIN     },
+    [FICL_OP_FDEPTH]        = { "fdepth",   BC_FMT_PLAIN     },
+    [FICL_OP_S_TO_F]        = { "s>f",      BC_FMT_PLAIN     },
+    [FICL_OP_F_TO_S]        = { "f>s",      BC_FMT_PLAIN     },
+    [FICL_OP_FPLUS_I]       = { "f+i",      BC_FMT_PLAIN     },
+    [FICL_OP_FMINUS_I]      = { "f-i",      BC_FMT_PLAIN     },
+    [FICL_OP_FSTAR_I]       = { "f*i",      BC_FMT_PLAIN     },
+    [FICL_OP_FSLASH_I]      = { "f/i",      BC_FMT_PLAIN     },
+    [FICL_OP_I_MINUS_F]     = { "i-f",      BC_FMT_PLAIN     },
+    [FICL_OP_I_SLASH_F]     = { "i/f",      BC_FMT_PLAIN     },
+    [FICL_OP_FLIT]          = { "flit",     BC_FMT_FLIT      },
+#endif
+};
+
+/*
+** Return the attribute table entry for an opcode, substituting a
+** sentinel for any unrecognised value.
+*/
+static const BC_ATTR_ENTRY *bcAttr(FICL_OPCODE op)
+{
+    static const BC_ATTR_ENTRY unknown = { "?op", BC_FMT_PLAIN };
+    if ((unsigned)op >= FICL_OP_COUNT || bcAttrTable[op].name == NULL)
+        return &unknown;
+    return &bcAttrTable[op];
+}
+
+
+/*
+** seeColon -- walks a colon body and prints a disassembly listing.
+** Uses the BC_ATTR table to decode each bytecode cell.
 */
 static void seeColon(FICL_VM *pVM, CELL *pc)
 {
-	char *cp;
     char outbuf[nPAD];
     CELL *param0 = pc;
-    FICL_DICT *pd = vmGetDict(pVM);
-    FICL_WORD *pSemiParen = ficlLookup(pVM->pSys, "(;)");
-    assert(pSemiParen);
 
-    #define SNLIMIT (sizeof(outbuf) - (cp - outbuf))    /* abbrev for snprintf */
+    #define SNLIMIT (sizeof(outbuf) - (size_t)(cp - outbuf))
 
-    for (; pc->p != pSemiParen; pc++)
+    for (;;)
     {
-        FICL_WORD *pFW = (FICL_WORD *)(pc->p);
+        CELL *pc0    = pc;                      /* start of this instruction */
+        FICL_OPCODE op  = BC_OP(*pc);
+        FICL_INT    imm = BC_IMM(*pc);
+        const BC_ATTR_ENTRY *a = bcAttr(op);
+        char *cp = outbuf;
 
-        cp = outbuf;
-		if ((void *)pc == (void *)pVM->ip)
-			*cp++ = '>';
-		else
-			*cp++ = ' ';
-        cp += snprintf(cp, SNLIMIT, "%3d   ", (int)(pc-param0));
+        pc++;                                   /* advance past opcode cell  */
 
-        if (isAFiclWord(pd, pFW))
+        *cp++ = (pc0 == pVM->ip) ? '>' : ' ';
+        cp += snprintf(cp, SNLIMIT, "%3d  %-10s", (int)(pc0 - param0), a->name);
+
+        switch (a->fmt)
         {
-            WORDKIND kind = ficlWordClassify(pFW);
-            CELL c;
+        case BC_FMT_IMM:
+            cp += snprintf(cp, SNLIMIT, PCT_LD, imm);
+            break;
 
-            switch (kind)
+        case BC_FMT_BRANCH:
+            cp += snprintf(cp, SNLIMIT, "->%d", (int)(pc - param0) + (int)imm);
+            break;
+
+        case BC_FMT_COLON:
             {
-            case LITERAL:
-                c = *++pc;
-                if (isAFiclWord(pd, (FICL_WORD *)c.p))
-                {
-                    FICL_WORD *pLit = (FICL_WORD *)c.p;
-                    snprintf(cp, SNLIMIT, "%.*s ( " PCT_IX " literal )",
-                        pLit->nName, pLit->name, c.u);
-                }
+                /* imm is a dict-relative cell offset; try to find the word */
+                CELL *target = pVM->pSys->dp->dict + imm;
+                FICL_WORD *pw = findEnclosingWord(pVM, target);
+                if (pw)
+                    cp += snprintf(cp, SNLIMIT, "%.*s", pw->nName, pw->name);
                 else
-                    snprintf(cp, SNLIMIT, "literal " PCT_LD " (" PCT_IX ")", c.i, c.u);
-                break;
-            case STRINGLIT:
-                {
-                    FICL_STRING *sp = (FICL_STRING *)(void *)++pc;
-                    pc = (CELL *)alignPtr(sp->text + sp->count + 1) - 1;
-                    snprintf(cp, SNLIMIT, "s\" %.*s\"", sp->count, sp->text);
-                }
-                break;
-            case CSTRINGLIT:
-                {
-                    FICL_STRING *sp = (FICL_STRING *)(void *)++pc;
-                    pc = (CELL *)alignPtr(sp->text + sp->count + 1) - 1;
-                    snprintf(cp, SNLIMIT, "c\" %.*s\"", sp->count, sp->text);
-                }
-                break;
-            case IF:
-                c = *++pc;
-                if (c.i > 0)
-                    snprintf(cp, SNLIMIT, "if / while (branch %d)", (int)(pc+c.i-param0));
-                else
-                    snprintf(cp, SNLIMIT, "until (branch %d)",      (int)(pc+c.i-param0));
-                break;
-            case BRANCH:
-                c = *++pc;
-                if (c.i == 0)
-                    snprintf(cp, SNLIMIT, "repeat (branch %d)",     (int)(pc+c.i-param0));
-                else if (c.i == 1)
-                    snprintf(cp, SNLIMIT, "else (branch %d)",       (int)(pc+c.i-param0));
-                else
-                    snprintf(cp, SNLIMIT, "endif (branch %d)",      (int)(pc+c.i-param0));
-                break;
-
-            case OF:
-                c = *++pc;
-                snprintf(cp, SNLIMIT, "of (branch %d)",       (int)(pc+c.i-param0));
-                break;
-
-            case QDO:
-                c = *++pc;
-                snprintf(cp, SNLIMIT, "?do (leave %d)",  (int)((CELL *)c.p-param0));
-                break;
-            case DO:
-                c = *++pc;
-                snprintf(cp, SNLIMIT, "do (leave %d)", (int)((CELL *)c.p-param0));
-                break;
-            case LOOP:
-                c = *++pc;
-                snprintf(cp, SNLIMIT, "loop (branch %d)", (int)(pc+c.i-param0));
-                break;
-            case PLOOP:
-                c = *++pc;
-                snprintf(cp, SNLIMIT, "+loop (branch %d)", (int)(pc+c.i-param0));
-                break;
-            default:
-                snprintf(cp, SNLIMIT, "%.*s", pFW->nName, pFW->name);
-                break;
+                    cp += snprintf(cp, SNLIMIT, "dict+%d", (int)imm);
             }
+            break;
 
-        }
-        else /* probably not a word - punt and print value */
-        {
-            snprintf(cp, SNLIMIT, PCT_LD " ( " PCT_IX " )", pc->i, pc->u);
+        case BC_FMT_LEAVE:
+            {
+                CELL *target = (CELL *)(pc++)->p;
+                cp += snprintf(cp, SNLIMIT, "leave->%d", (int)(target - param0));
+            }
+            break;
+
+        case BC_FMT_WORDPTR:
+        case BC_FMT_DOESPTR:
+            {
+                FICL_WORD *pw = (FICL_WORD *)(pc++)->p;
+                cp += snprintf(cp, SNLIMIT, "%.*s", pw->nName, pw->name);
+            }
+            break;
+
+        case BC_FMT_WIDLIT:
+            cp += snprintf(cp, SNLIMIT, PCT_LD " (0x" PCT_IX ")", pc->i, pc->u);
+            pc++;
+            break;
+
+        case BC_FMT_2LIT:
+            cp += snprintf(cp, SNLIMIT, PCT_LD " " PCT_LD, pc[0].i, pc[1].i);
+            pc += 2;
+            break;
+
+        case BC_FMT_STRINGLIT:
+        case BC_FMT_CSTRINGLIT:
+            {
+                FICL_STRING *sp = (FICL_STRING *)pc;
+                cp += snprintf(cp, SNLIMIT, "\"%.*s\"", sp->count, sp->text);
+                pc = (CELL *)alignPtr(sp->text + sp->count + 1);
+            }
+            break;
+
+        case BC_FMT_FLIT:
+            {
+#if FICL_WANT_FLOAT
+                FICL_FLOAT f;
+                memcpy(&f, pc, sizeof(f));
+                cp += snprintf(cp, SNLIMIT, "%g", (double)f);
+                pc++;
+#endif
+            }
+            break;
+
+        default:
+            break;
         }
 
         vmTextOut(pVM, outbuf, true);
+
+        if (op == FICL_OP_SEMI)
+            break;
     }
 
-    vmTextOut(pVM, ";", true);
+    #undef SNLIMIT
 }
 
 /*
@@ -428,30 +583,42 @@ static void stepIn(FICL_VM *pVM)
 **************************************************************************/
 static void stepOver(FICL_VM *pVM)
 {
-    FICL_WORD *pFW;
-    WORDKIND kind;
-    FICL_WORD *pStep = ficlLookup(pVM->pSys, "step-break");
-    assert(pStep);
+    FICL_OPCODE op   = BC_OP(*pVM->ip);
+    FICL_WORD  *pFW  = NULL;
+    WORDKIND    kind = PRIMITIVE;
+    CELL       *next;
 
-    pFW = *pVM->ip;
-    kind = ficlWordClassify(pFW);
-
-    switch (kind)
+    switch (op)
     {
-    case COLON:
-    case DOES:
-        /*
-        ** assume that the next cell holds an instruction
-        ** set a breakpoint there and return to the inner interp
-        */
-        pVM->pSys->bpStep.address = pVM->ip + 1;
-        pVM->pSys->bpStep.origXT =  pVM->ip[1];
-        pVM->ip[1] = pStep;
+    case FICL_OP_CALL:
+    case FICL_OP_DOES_CALL:
+        pFW  = (FICL_WORD *)(pVM->ip[1].p);
+        kind = ficlWordClassify(pFW);
+        next = pVM->ip + 2;
         break;
-
+    case FICL_OP_WIDLIT:
+    case FICL_OP_DO:
+    case FICL_OP_QDO:
+        next = pVM->ip + 2;
+        break;
+    case FICL_OP_2LIT:
+        next = pVM->ip + 3;
+        break;
     default:
-        stepIn(pVM);
+        next = pVM->ip + 1;
         break;
+    }
+
+    if (kind == COLON || kind == DOES)
+    {
+        /* Let the colon word run to completion; break at the next instruction. */
+        pVM->pSys->bpStep.address  = next;
+        pVM->pSys->bpStep.origCell = *next;
+        next->u = (FICL_UNS)FICL_OP_STEP_BREAK;
+    }
+    else
+    {
+        stepIn(pVM);
     }
 
     return;
@@ -484,14 +651,12 @@ static void stepBreak(FICL_VM *pVM)
     if (!pVM->fRestart)
     {
         assert(pVM->pSys->bpStep.address);
-        assert(pVM->pSys->bpStep.origXT);
         /*
-        ** Clear the breakpoint that caused me to run
-        ** Restore the original instruction at the breakpoint,
-        ** and restore the IP
+        ** Restore the original instruction cell and rewind IP so the
+        ** restored instruction executes next.
         */
+        *(CELL *)(pVM->pSys->bpStep.address) = pVM->pSys->bpStep.origCell;
         pVM->ip = (IPTYPE)(pVM->pSys->bpStep.address);
-        *pVM->ip = pVM->pSys->bpStep.origXT;
 
         /*
         ** If there's an onStep, do it
@@ -501,10 +666,16 @@ static void stepBreak(FICL_VM *pVM)
             ficlExecXT(pVM, pOnStep);
 
         /*
-        ** Print the name of the next instruction
+        ** Print the name of the next instruction.  In bytecode mode the cell
+        ** at the breakpoint address is the opcode cell; if it is FICL_OP_CALL
+        ** the word pointer lives in the following cell.
         */
-        pFW = pVM->pSys->bpStep.origXT;
-        snprintf(outbuf, sizeof(outbuf), "next: %.*s", pFW->nName, pFW->name);
+        pFW = ((BC_OP(pVM->pSys->bpStep.origCell) == FICL_OP_CALL))
+              ? (FICL_WORD *)(pVM->ip[1].p) : NULL;
+        if (pFW)
+            snprintf(outbuf, sizeof(outbuf), "next: %.*s", pFW->nName, pFW->name);
+        else
+            snprintf(outbuf, sizeof(outbuf), "next: opcode 0x%02x", BC_OP(pVM->pSys->bpStep.origCell));
 #if 0
         if (isPrimitive(pFW))
         {
@@ -950,6 +1121,7 @@ void ficlCompileTools(FICL_SYSTEM *pSys)
     dictAppendWord(dp, "parse-order",
                                     ficlListParseSteps,
                                                     FW_DEFAULT);
+    pSys->pStepBreak =
     dictAppendWord(dp, "step-break",stepBreak,      FW_DEFAULT);
     dictAppendWord(dp, "forget-wid",forgetWid,      FW_DEFAULT);
     dictAppendWord(dp, "see-xt",    seeXT,          FW_DEFAULT);

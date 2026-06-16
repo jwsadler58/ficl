@@ -128,7 +128,7 @@ typedef struct ficl_system_info FICL_SYSTEM_INFO;
 ** Version: major.minor
 */
 #define FICL_VER_MAJOR 3
-#define FICL_VER_MINOR 65   /* 3-digit field: displayed zero-padded as %03d */
+#define FICL_VER_MINOR 70   /* 3-digit field: displayed zero-padded as %03d */
 
 #if !defined (FICL_PROMPT)
     #define FICL_PROMPT "ok> "
@@ -342,7 +342,19 @@ void         stackRollFloat    (FICL_FSTACK *pStack, int n);
 ** Throw an exception
 */
 
-typedef FICL_WORD ** IPTYPE; /* the VM's instruction pointer */
+typedef CELL * IPTYPE; /* the VM's instruction pointer - points to bytecode CELL stream */
+
+/*
+** Bytecode cell encoding: opcode in low byte, sign-extended immediate in high bytes.
+**
+**   64-bit: [ imm55..imm0 | op7..op0 ]   bits 63:8 = signed immediate, bits 7:0 = opcode
+**   32-bit: [ imm23..imm0 | op7..op0 ]   bits 31:8 = signed immediate, bits 7:0 = opcode
+**
+** BC_IMM relies on arithmetic right shift (guaranteed by static_assert in sysdep.h).
+*/
+#define BC_OP(cell)       ((FICL_OPCODE)((cell).u & 0xFF))
+#define BC_IMM(cell)      ((FICL_INT)((cell).i >> 8))
+#define BC_MAKE(op, imm)  ((FICL_UNS)((op) & 0xFF) | ((FICL_UNS)(FICL_INT)(imm) << 8))
 
 /*
 ** Each VM has a placeholder for an output function -
@@ -563,7 +575,18 @@ typedef enum
     FICL_OP_I_MINUS_F,
     FICL_OP_I_SLASH_F,
 #endif
+    /* Direct bytecode extension opcodes */
+    FICL_OP_ADDRLIT,    /* push dict-relative address: dict + imm                    */
+    FICL_OP_WIDLIT,     /* wide literal: push full CELL from next slot               */
+    FICL_OP_DOES_CALL,  /* compiled DOES>-defined word: next cell = FICL_WORD*       */
+#if FICL_WANT_FLOAT
+    FICL_OP_FLIT,       /* push FICL_FLOAT from next cell                            */
+#endif
+    FICL_OP_STEP_BREAK, /* debugger breakpoint — replaced instruction restored on hit */
+    FICL_OP_COUNT       /* sentinel: number of defined opcodes                       */
 } FICL_OPCODE;
+
+static_assert(FICL_OP_COUNT <= 256, "opcode count exceeds 8-bit field — opcodes must fit in BC_OP low byte");
 
 /*
 ** Ficl models memory as a contiguous space divided into
@@ -659,14 +682,6 @@ int         isPowerOfTwo   (FICL_UNS u);
 
 #define vmGetRunningWord(pVM) ((pVM)->runningWord)
 
-
-/*
-** The inner interpreter coded as a macro
-*/
-#define M_VM_STEP(pVM) \
-        FICL_WORD *tempFW = *(pVM)->ip++; \
-        (pVM)->runningWord = tempFW; \
-        tempFW->code(pVM);
 
 void vmInnerLoop(FICL_VM *pVM);
 
@@ -817,6 +832,8 @@ FICL_WORD  *dictAppendOpWord2(FICL_DICT *pDict,
                               FICL_OPCODE opcode,
                               UNS8 flags);
 void        dictAppendUNS  (FICL_DICT *pDict, FICL_UNS u);
+void        dictCompileLit    (FICL_DICT *pDict, FICL_INT value);
+void        dictCompileWordRef(FICL_DICT *pDict, FICL_SYSTEM *pSys, FICL_WORD *pFW);
 unsigned    dictCellsAvail (FICL_DICT *pDict);
 unsigned    dictCellsUsed  (FICL_DICT *pDict);
 void        dictCheck      (FICL_DICT *pDict, FICL_VM *pVM, int n);
@@ -874,18 +891,14 @@ void ficlListParseSteps(FICL_VM *pVM);
 
 /*
 ** FICL_BREAKPOINT record.
-** origXT - if NULL, this breakpoint is unused. Otherwise it stores the xt
-** that the breakpoint overwrote. This is restored to the dictionary when the
-** BP executes or gets cleared
-** address - the location of the breakpoint (address of the instruction that
-**           has been replaced with the breakpoint trap
-** origXT  - The original contents of the location with the breakpoint
-** Note: address is NULL when this breakpoint is empty
+** address - location of the breakpoint; NULL when the breakpoint is empty
+** origCell - the original bytecode cell that was replaced by FICL_OP_STEP_BREAK;
+**            restored when the breakpoint fires or is cleared
 */
 typedef struct FICL_BREAKPOINT
 {
-    void      *address;
-    FICL_WORD *origXT;
+    void *address;
+    CELL  origCell; /* bytecode cell saved before FICL_OP_STEP_BREAK was written */
 } FICL_BREAKPOINT;
 
 
@@ -910,7 +923,8 @@ struct ficl_system
 #ifdef FICL_WANT_LOCALS
     FICL_DICT *localp;
 #endif
-    FICL_WORD *pInterp[3]; /* outer interpreter - see ficlCompileCore*/
+    CELL       pInterp[3];       /* outer interpreter bytecode - see ficlCompileCore  */
+    CELL       pExitInnerCode[2];/* 2-cell CALL stub for pExitInner                   */
     FICL_WORD *parseList[FICL_MAX_PARSE_STEPS];
     OUTFUNC    textOut;
 
@@ -924,7 +938,8 @@ struct ficl_system
     FICL_WORD *pDoesParen;
     FICL_WORD *pExitInner;
 #if FICL_WANT_INTERRUPT
-    FICL_WORD *pInterruptExit;  /* interrupt vector - IP redirect target for vmInterrupt */
+    FICL_WORD *pInterruptExit;      /* interrupt vector word */
+    CELL       pInterruptExitCode[2]; /* 2-cell CALL stub for vmInterrupt */
 #endif
     FICL_WORD *pExitParen;
     FICL_WORD *pBranch0;
@@ -940,6 +955,7 @@ struct ficl_system
     FICL_WORD *pDrop;
     FICL_WORD *pCStringLit;
     FICL_WORD *pStringLit;
+    FICL_WORD *pStepBreak;  /* debugger step-break word, cached for FICL_OP_STEP_BREAK */
 #if FICL_WANT_LOCALS
     FICL_WORD *pGetLocalParen;
     FICL_WORD *pGet2LocalParen;
