@@ -361,6 +361,26 @@ static void constant(FICL_VM *pVM)
 }
 
 
+/**************************************************************************
+                        v a l u e
+** Compiles a value into the dictionary. Values return their current
+** value when invoked, and can be updated with TO. Expects a value on
+** top of the parm stack.
+**************************************************************************/
+static void value(FICL_VM *pVM)
+{
+    FICL_DICT *dp = vmGetDict(pVM);
+    STRINGINFO si = vmGetWord(pVM);
+
+#if FICL_ROBUST > 1
+    vmCheckStack(pVM, 1, 0);
+#endif
+    dictAppendOpWord2(dp, si, FICL_OP_VALUE, FW_DEFAULT);
+    dictAppendCell(dp, stackPop(pVM->pStack));
+    return;
+}
+
+
 static void twoConstant(FICL_VM *pVM)
 {
     FICL_DICT *dp = vmGetDict(pVM);
@@ -3033,6 +3053,7 @@ static const TO_VALUE_DISPATCH *toValueFindDispatch(FICL_OPCODE opcode)
     static const TO_VALUE_DISPATCH dispatchTable[] =
     {
         {FICL_OP_CONSTANT,  toValueInterpretConstant, "!"},
+        {FICL_OP_VALUE,     toValueInterpretConstant, "!"},
         {FICL_OP_2CONSTANT, toValueInterpretTwoConst, "2!"},
     #if FICL_WANT_FLOAT
         {FICL_OP_FCONSTANT, toValueInterpretFConst,   "f!"},
@@ -3834,6 +3855,7 @@ WORDKIND ficlWordClassify(FICL_WORD *pFW)
     case FICL_OP_COLON:      return COLON;
     case FICL_OP_CONSTANT:   return CONSTANT;
     case FICL_OP_2CONSTANT:  return CONSTANT;
+    case FICL_OP_VALUE:      return VALUE;
     case FICL_OP_CREATE:     return CREATE;
     case FICL_OP_DOES:       return DOES;
     case FICL_OP_VARIABLE:   return VARIABLE;
@@ -4076,7 +4098,7 @@ void ficlCompileCore(FICL_SYSTEM *pSys)
     dictAppendWord(  dp, "source-id", sourceid,       FW_DEFAULT);
     dictAppendWord(  dp, "to",        toValue,        FW_IMMEDIATE);
     dictAppendWord(  dp, "unused",    unused,         FW_DEFAULT);
-    dictAppendWord(  dp, "value",     constant,       FW_DEFAULT);
+    dictAppendWord(  dp, "value",     value,          FW_DEFAULT);
     dictAppendWord(  dp, "\\",        commentLine,    FW_IMMEDIATE);
 
 

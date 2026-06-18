@@ -256,6 +256,7 @@ static const BC_ATTR_ENTRY bcAttrTable[FICL_OP_COUNT] = {
     [FICL_OP_COLON]         = { "colon",    BC_FMT_COLON     },
     [FICL_OP_CONSTANT]      = { "constant", BC_FMT_PLAIN     },
     [FICL_OP_2CONSTANT]     = { "2constant",BC_FMT_PLAIN     },
+    [FICL_OP_VALUE]         = { "value",   BC_FMT_IMM       },
     [FICL_OP_CREATE]        = { "create",   BC_FMT_PLAIN     },
     [FICL_OP_DOES]          = { "does>",    BC_FMT_PLAIN     },
     [FICL_OP_VARIABLE]      = { "variable", BC_FMT_PLAIN     },
@@ -482,6 +483,12 @@ static void seeXT(FICL_VM *pVM)
 
     case CONSTANT:
         snprintf(outbuf, sizeof(outbuf), "constant = " PCT_LD " (" PCT_IX ")",
+            pFW->param->i, pFW->param->u);
+        vmTextOut(pVM, outbuf, true);
+        break;
+
+    case VALUE:
+        snprintf(outbuf, sizeof(outbuf), "value = " PCT_LD " (" PCT_IX ")",
             pFW->param->i, pFW->param->u);
         vmTextOut(pVM, outbuf, true);
         break;
@@ -970,7 +977,7 @@ static void listEnv(FICL_VM *pVM)
     {
         for (wp = pHash->table[i]; wp != NULL; wp = wp->link, nWords++)
         {
-            if (wp->opcode == FICL_OP_CONSTANT)
+            if (wp->opcode == FICL_OP_CONSTANT || wp->opcode == FICL_OP_VALUE)
             {
                 snprintf(pad, sizeof(pad), "%s = %i", wp->name, (int)(wp->param[0].i));
                 vmTextOut(pVM, pad, true);

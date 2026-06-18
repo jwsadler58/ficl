@@ -858,6 +858,11 @@
         (dataTop++)->p = pVM->pSys->dp->dict + imm; \
         goto OP_DONE; \
     } \
+    case FICL_OP_VALUE: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        *dataTop++ = pVM->pSys->dp->dict[imm]; \
+        goto OP_DONE; \
+    } \
     case FICL_OP_2LIT: { \
         VM_CHECK_STACK_LOCAL(0, 2); \
         dataTop[0] = ip[0]; \
@@ -945,6 +950,11 @@
 
 #define VM_OP_CASES_WORD(OP_DONE) \
     case FICL_OP_CONSTANT: { \
+        VM_CHECK_STACK_LOCAL(0, 1); \
+        *dataTop++ = pWord->param[0]; \
+        goto OP_DONE; \
+    } \
+    case FICL_OP_VALUE: { \
         VM_CHECK_STACK_LOCAL(0, 1); \
         *dataTop++ = pWord->param[0]; \
         goto OP_DONE; \

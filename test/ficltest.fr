@@ -105,6 +105,15 @@ t{ '~' -> 126 }t
 : test-char 'X' ;
 t{ test-char -> 88 }t
 
+testing value
+42 value test-val
+: compiled-val  test-val ;
+t{ test-val -> 42 }t
+t{ compiled-val -> 42 }t
+99 to test-val
+t{ test-val -> 99 }t
+t{ compiled-val -> 99 }t
+
 testing 2constant
 2 3 2constant 2c23
 t{ 2c23 -> 2 3 }t

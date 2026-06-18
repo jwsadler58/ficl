@@ -995,6 +995,12 @@ void dictCompileWordRef(FICL_DICT *dp, FICL_SYSTEM *pSys, FICL_WORD *pFW)
         dictCompileLit(dp, pFW->param[0].i);
         break;
 
+    case FICL_OP_VALUE:
+        /* dict-relative offset to the VALUE's live storage cell */
+        dictOffset = pFW->param - pSys->dp->dict;
+        dictAppendCell(dp, (CELL){.u = BC_MAKE(FICL_OP_VALUE, dictOffset)});
+        break;
+
     case FICL_OP_2CONSTANT:
         /* push lo then hi */
         dictCompileLit(dp, pFW->param[0].i);
